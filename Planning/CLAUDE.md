@@ -8,8 +8,9 @@ The project's source of truth and its supporting tiers. Start here, then go to t
 |------|-------|
 | `specs/` | **Source of truth for behavior** — one `[feature]_spec.md` per feature, with inline **Done when:** items |
 | `reference/` | Definitions specs cite (not testable): `data-models.md` (entities), `formulas.md` (contest math) |
-| `architecture/` | System shape: `system-overview.md` — stack, folder map, the cycle, key invariants |
 | `decisions/` | Decision log (`YYYY-MM-DD-title.md`) — append-only, point-in-time record |
+
+The as-built system map lives in `../docs/architecture.md` (documentation, not planning).
 | `Features_Todo.md` | Backlog + open design decisions |
 
 ## Spec index
@@ -41,5 +42,5 @@ Read top-down within a group; `cycle-runner` is the entry point.
 
 - Entities / fields → `reference/data-models.md`
 - Formulas / thresholds → `reference/formulas.md`
-- How a cycle actually runs → `specs/cycle-runner_spec.md` (authoritative) + `architecture/system-overview.md`
+- How a cycle actually runs → `specs/cycle-runner_spec.md` (authoritative) + `../docs/architecture.md`
 - Why a past choice was made → `decisions/`
