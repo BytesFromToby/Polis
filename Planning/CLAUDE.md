@@ -10,7 +10,6 @@ The project's source of truth and its supporting tiers. Start here, then go to t
 | `reference/` | Definitions specs cite (not testable): `data-models.md` (entities), `formulas.md` (contest math) |
 | `architecture/` | System shape: `system-overview.md` — stack, folder map, the cycle, key invariants |
 | `decisions/` | Decision log (`YYYY-MM-DD-title.md`) — append-only, point-in-time record |
-| `archive/` | Superseded specs/docs + `alignment.md` (the restructure audit trail) |
 | `Features_Todo.md` | Backlog + open design decisions |
 
 ## Spec index

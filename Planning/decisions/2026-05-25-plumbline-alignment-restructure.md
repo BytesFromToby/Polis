@@ -1,12 +1,14 @@
-# Alignment Log
+# Decision Log: Plumbline-alignment restructure (2026-05-25)
 
-Audit trail for the spec/reference restructure (Phase 2, started 2026-05-25).
-This project has no git history, so this file *is* the undo record: whenever the
-restructure **removes or replaces content**, the original is copied here first,
-with its source and the reason. Structural moves (file relocations, retitles,
-re-tiers) are logged too, so the before-state is always recoverable.
+Frozen narrative record of the restructure that aligned this project to Plumbline
+conventions and removed the LARP/units subsystem. The project was **not** under git
+during this work, so this log served as the undo record — every content removal was
+copied here first. Git is now the history (baselined immediately after); this is kept
+as the readable, top-down account of what moved where and why, which commit diffs alone
+don't convey. Newest entries at the bottom of each section.
 
-Read this top-down as a journal; newest entries at the bottom of each section.
+> Note: paths below referencing `Planning/archive/…` point to docs that were removed
+> when the project switched to git mode — they remain recoverable from the baseline commit.
 
 ---
 

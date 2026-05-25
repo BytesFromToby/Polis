@@ -43,22 +43,22 @@ Format: slices of ordered steps, one concern each, with Build / Test / Done When
 The map of how subsystems relate: `Planning/architecture/` (system-overview, engine-module-map).
 
 ## Change rules
-Every code, data, or structure change picks a path.
+Every code, data, or structure change picks a path. History lives in **git** — commit each
+change with a clear message; there is no separate changelog.
 
 **Quick Path** — use only if ALL hold: no files added/removed/renamed, no schema/data-model
 change, no core-logic change, nothing a future reader would need explained.
-1. Write/edit the code  2. Run the test command  3. Add a changelog entry under today's date
+1. Write/edit the code  2. Run the test command  3. Commit
 4. If tracked on a blueprint, mark the item done.
 
 **Full Path** — everything else (new features, schema, core logic, files added/removed/renamed,
 any choice worth recording):
 1. Update the spec if one exists — if the change reshapes it, run **architect** instead
 2. Write/edit the code  3. Run the test command  4. Run **inspector** if the change is tracked
-by a blueprint  5. Add a changelog entry  6. Update this CLAUDE.md file map if files moved
-7. Write a decision doc to `Planning/decisions/` if a non-obvious choice was made (what + why)
-8. If tracked on a blueprint, mark the item done.
+by a blueprint  5. Update this CLAUDE.md file map if files moved
+6. Write a decision doc to `Planning/decisions/` if a non-obvious choice was made (what + why)
+7. Commit  8. If tracked on a blueprint, mark the item done.
 
-Changelog: `docs/changelog/changelog.md` — grouped by date (Added / Changed / Fixed / Removed).
 Decision docs: `Planning/decisions/` (`YYYY-MM-DD-title.md`).  Skill output: `output/`.
 
 ## Skills
