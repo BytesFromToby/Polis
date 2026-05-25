@@ -37,7 +37,7 @@ wraps around it.
 ```
 city_sim_Project/
 │
-├── scr/                        ← Python backend
+├── backend/                    ← Python backend (engine, api, db, tests)
 │   ├── engine/                 ← Pure simulation logic
 │   │   ├── models.py           ← dataclasses (see Planning/reference/data-models.md)
 │   │   ├── formulas.py         ← pure calculations (see Planning/reference/formulas.md)

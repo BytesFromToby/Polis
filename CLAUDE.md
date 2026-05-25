@@ -10,16 +10,16 @@ faction influence modeling, and emergent narrative generation.
 - Frontend: Vue 3 (Options API) + Vite
 
 ## Commands
-- Test: `cd scr && py -m pytest tests/ -q`
-- Run/demo (headless): `cd scr && py main.py --cycles 5`
-- Run/demo (UI): `cd scr && py -m uvicorn api.server:app --reload` → http://localhost:8000
+- Test: `cd backend && py -m pytest tests/ -q`
+- Run/demo (headless): `cd backend && py main.py --cycles 5`
+- Run/demo (UI): `cd backend && py -m uvicorn api.server:app --reload` → http://localhost:8000
 - Frontend build: `cd frontend && npm run build` (rebuild after `.vue`/`.js` changes, then restart server)
 - UI evidence tool: `playwright (python)`   # inspector drives the Vue UI + captures screenshots
 
 ## Workspaces
-- `/Planning` — Specs, reference, blueprints, decisions, architecture, archive
-- `/scr` — Application code (engine, API, db, tests) — see `scr/CLAUDE.md`
-- `/docs` — Changelog, long-term goals
+- `/Planning` — Specs, reference, architecture, decisions, backlog — see `Planning/CLAUDE.md`
+- `/backend` — Application code (engine, API, db, tests) — see `backend/CLAUDE.md`
+- `/docs` — Long-term goals
 - `/tools` — Audit, validation scripts (`py tools/audit.py` for engine snapshot)
 - `/frontend` — Vue 3 + Vite browser UI
 
@@ -73,7 +73,7 @@ with `surveyor` (spec-vs-code drift) and `walkthrough` (maintenance pass) run wh
 | `inspector` | Prove a slice/feature meets its Done-when items |
 | `surveyor` | Static spec-vs-code drift report (replaces old `speccheck`) |
 | `walkthrough` | Autonomous maintenance pass (replaces old `improve`) |
-| `postrunlog` | After a sim run — summarize cycle data to `scr/logs` (domain-specific; kept) |
+| `postrunlog` | After a sim run — summarize cycle data to `backend/logs` (domain-specific; kept) |
 
 <!-- Retired (already removed from project): updateprocess → folded into Change rules above;
      speccheck → surveyor; improve → walkthrough.

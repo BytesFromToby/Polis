@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-DATA_DIR = SCRIPT_DIR.parent / "scr" / "data"
+DATA_DIR = SCRIPT_DIR.parent / "backend" / "data"
 
 DOMAINS_JSON = DATA_DIR / "domains.json"
 FACTIONS_JSON = DATA_DIR / "factions.json"

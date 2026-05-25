@@ -34,7 +34,7 @@ from openpyxl.utils import get_column_letter
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = SCRIPT_DIR.parent
-ENGINE_DIR = PROJECT_DIR / "scr" / "engine"
+ENGINE_DIR = PROJECT_DIR / "backend" / "engine"
 OUTPUT_DIR = SCRIPT_DIR / "output"
 
 MODELS_PY = ENGINE_DIR / "models.py"

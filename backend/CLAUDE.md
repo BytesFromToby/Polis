@@ -1,4 +1,4 @@
-# City Sim — /scr
+# City Sim — /backend
 
 Application code for the simulation engine, API, and database.
 
@@ -42,6 +42,6 @@ py main.py --cycles 5
 ```
 
 ## Rules
-- Follow `updateprocess` skill for all code changes
+- Follow the **Change rules** in the root `CLAUDE.md` for any change
 - Run tests after every change
 - Specs live in `../Planning/specs/` — spec is truth for behavior

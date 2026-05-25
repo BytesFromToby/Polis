@@ -9,13 +9,13 @@ venv/
 .venv/
 env/
 
-# Databases — runtime state, regenerated from scr/data/*.json + startup seed
+# Databases — runtime state, regenerated from backend/data/*.json + startup seed
 *.db
 
 # Logs & scratch run output
-scr/logs/
-scr/run_output.txt
-scr/run2.txt
+backend/logs/
+backend/run_output.txt
+backend/run2.txt
 
 # Frontend deps + build output (run `npm run build` to regenerate dist/)
 frontend/node_modules/
