@@ -1,0 +1,216 @@
+[
+  {
+    "id": "star_tribune",
+    "name": "Star Tribune",
+    "domain_primary": "traditional_media",
+    "rating": 3.42,
+    "health": 75,
+    "entrench": 82,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Dana Morrow",
+      "traits": ["defensive", "conservative"],
+      "status": "present",
+      "personality_notes": ["Prefers institutional stability over growth"]
+    },
+    "traits": [
+      {"trait": "defensive",    "intensity": "strong"},
+      {"trait": "conservative", "intensity": "moderate"}
+    ],
+    "relationships": [
+      {"faction_id": "wcco",      "trait": "Foe"},
+      {"faction_id": "mpr",       "trait": "Neutral"},
+      {"faction_id": "city_pages","trait": "Foe"}
+    ]
+  },
+  {
+    "id": "wcco",
+    "name": "WCCO",
+    "domain_primary": "traditional_media",
+    "rating": 3.42,
+    "health": 70,
+    "entrench": 78,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Frank Calder",
+      "traits": ["expansionary", "ambitious"],
+      "status": "present",
+      "personality_notes": ["Aggressive expansion, always looking for more territory"]
+    },
+    "traits": [
+      {"trait": "expansionary", "intensity": "strong"},
+      {"trait": "ambitious",    "intensity": "moderate"}
+    ],
+    "relationships": [
+      {"faction_id": "star_tribune", "trait": "Foe"},
+      {"faction_id": "city_pages",   "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "mpr",
+    "name": "MPR",
+    "domain_primary": "traditional_media",
+    "rating": 2.69,
+    "health": 65,
+    "entrench": 70,
+    "leadership_need": 4.0,
+    "leader": null,
+    "traits": [
+      {"trait": "ambitious", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "city_pages",
+    "name": "City Pages",
+    "domain_primary": "traditional_media",
+    "rating": 2.42,
+    "health": 68,
+    "entrench": 68,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Rourke Simms",
+      "traits": ["opportunistic"],
+      "status": "present",
+      "personality_notes": ["Scrappy, willing to go after stories others won't"]
+    },
+    "traits": [
+      {"trait": "opportunistic", "intensity": "moderate"}
+    ],
+    "relationships": [
+      {"faction_id": "star_tribune", "trait": "Foe"},
+      {"faction_id": "wcco",         "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "the_onion",
+    "name": "The Onion",
+    "domain_primary": "traditional_media",
+    "rating": 2.38,
+    "health": 72,
+    "entrench": 72,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Petra Vance",
+      "traits": ["paranoid"],
+      "status": "present",
+      "personality_notes": ["Insular, distrustful of outsiders, guards its niche jealously"]
+    },
+    "traits": [
+      {"trait": "paranoid", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "mayors_office",
+    "name": "Mayor's Office",
+    "domain_primary": "political",
+    "rating": 2.91,
+    "health": 78,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Councilman Pierce",
+      "traits": ["defensive", "conservative"],
+      "status": "present",
+      "personality_notes": ["Risk-averse, prefers maintaining the status quo"]
+    },
+    "traits": [
+      {"trait": "conservative", "intensity": "strong"},
+      {"trait": "defensive",    "intensity": "moderate"}
+    ],
+    "relationships": [
+      {"faction_id": "city_council_dfl",          "trait": "Friend"},
+      {"faction_id": "city_council_conservative",  "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "city_council_dfl",
+    "name": "City Council DFL",
+    "domain_primary": "political",
+    "rating": 2.82,
+    "health": 73,
+    "entrench": 73,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Rep Olawale",
+      "traits": ["ambitious", "expansionary"],
+      "status": "present",
+      "personality_notes": ["Ideologically driven, pushes hard for policy wins"]
+    },
+    "traits": [
+      {"trait": "ambitious",    "intensity": "strong"},
+      {"trait": "expansionary", "intensity": "slight"}
+    ],
+    "relationships": [
+      {"faction_id": "mayors_office",             "trait": "Friend"},
+      {"faction_id": "city_council_conservative",  "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "city_council_conservative",
+    "name": "City Council Conservative",
+    "domain_primary": "political",
+    "rating": 2.6,
+    "health": 70,
+    "entrench": 71,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Rep Hartman",
+      "traits": ["paranoid", "defensive"],
+      "status": "present",
+      "personality_notes": ["Insular bloc, suspicious of alliances, digs in hard"]
+    },
+    "traits": [
+      {"trait": "paranoid",  "intensity": "moderate"},
+      {"trait": "defensive", "intensity": "slight"}
+    ],
+    "relationships": [
+      {"faction_id": "mayors_office",    "trait": "Foe"},
+      {"faction_id": "city_council_dfl", "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "north_mpls_community",
+    "name": "North Minneapolis Community",
+    "domain_primary": "street",
+    "rating": 2.47,
+    "health": 65,
+    "entrench": 65,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Darnell Washington",
+      "traits": ["opportunistic", "ambitious"],
+      "status": "present",
+      "personality_notes": ["Community-first, open to coalitions, pragmatic"]
+    },
+    "traits": [
+      {"trait": "opportunistic", "intensity": "moderate"},
+      {"trait": "ambitious",     "intensity": "slight"}
+    ],
+    "relationships": [
+      {"faction_id": "southside_alliance", "trait": "Friend"}
+    ]
+  },
+  {
+    "id": "southside_alliance",
+    "name": "Southside Alliance",
+    "domain_primary": "street",
+    "rating": 2.38,
+    "health": 63,
+    "entrench": 64,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Maria Espinoza",
+      "traits": ["ambitious"],
+      "status": "present",
+      "personality_notes": ["Driven by ideology, strong convictions, rallies community"]
+    },
+    "traits": [
+      {"trait": "ambitious", "intensity": "strong"}
+    ],
+    "relationships": [
+      {"faction_id": "north_mpls_community", "trait": "Friend"}
+    ]
+  }
+]

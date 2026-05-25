@@ -1,0 +1,158 @@
+================================================================================
+CITY SIMULATION SYSTEM
+09 — Open Items & Pending
+v0.6
+================================================================================
+
+================================================================================
+RESOLVED — v0.6 / Build v3
+================================================================================
+
+  unit health            — stat defined. decay, gain, retirement chance.
+  faction health         — renamed to faction entrench. same rules apply.
+                           factions don't retire — entrench floors at 1.
+  health_max field       — removed. health capped at 100 universally.
+  creation_cycle field   — removed. not needed.
+  trait updates          — Callous simplified. Spontaneous removed.
+                           Resilient, Fragile, Connected, Paranoid added.
+  Rejuvenate action      — renamed Care.
+  docs split             — mechanics reference broken into 10 focused documents.
+  domain relationships   — mechanic defined. all 15 domains locked.
+  cohesion               — removed from domain and faction models.
+  is_sm flag             — removed. SM identified by name.
+  domains_secondary      — removed from faction model.
+  capacity field         — removed from faction model. derived from rating.
+  faction_leader_of      — removed. replaced by is_leader bool on unit.
+  inertia field          — removed from unit model. calculated on the fly.
+  active_supporters      — removed from faction model. runtime only.
+  weight table           — revised to flatter curve (2:2 3:4 4:8 5:16 6:32
+                           7:64 8:128 9:256 10:512)
+  domain utilization     — new formula: faction weight + unit weight (half
+                           if in faction)
+  domain cap enforcement — Grow gated at action selection when floor crossing
+                           would exceed domain cap
+  domain cap             — 500-1000 (tuned for new weight table)
+  starting allocation    — 86-94% of cap
+  faction stop           — floor 3 (was floor 2)
+  named unit targets     — raised to 78-95% per tier
+  minimum named unit     — every faction guaranteed at least 1 named unit
+  unit generator         — 2 per cycle (was 1). rating 5 added at 2%.
+  retirement threshold   — lowered to 20. chance halved (x0.5 per point).
+  leader health decay    — reduced to -1 every other cycle (avg -0.5/cycle)
+  Care/Protect weights   — health and entrench based auto-reduction
+  population collapse    — resolved. ~78% start fill, ~67% at cycle 50.
+  action set             — redesigned: Harm, Protect, Care, Expose, Evolve
+
+
+================================================================================
+RESOLVED — v0.5
+================================================================================
+
+  level 1 pool           — defined. no tracking. drag mechanic. emergence.
+  faction drag           — level_1_ratio × modifier by faction floor rating.
+  unit generator         — random, GM-directed, emergence modes defined.
+  faction contested roll — leader edge/grit + faction_action_rating × 3.
+
+
+================================================================================
+RESOLVED — v0.4
+================================================================================
+
+  faction data model     — trimmed. parent_id and growth_desire removed.
+  faction rating         — decimal float. floor used for resolution.
+  faction capacity       — hard int per floor rating level.
+  faction grow timers    — cycles = floor × floor.
+  action points units    — floor(domain_rating) per domain per cycle.
+  action points factions — floor(faction.rating / 2) per cycle.
+  faction targeting      — vs unit −1. vs faction +1.
+  combine action         — removed.
+  parent/child factions  — removed.
+
+
+================================================================================
+HIGH PRIORITY — BLOCKING BUILD QUALITY
+================================================================================
+
+  domain relationships   — 10 domains still pending (Police, Underworld, Legal,
+                           Health, High Society, Industry, Traditional Media,
+                           Social Media, Transportation, University)
+                           See 08_Domain_Relationships.txt
+
+  domain field added     — relationships array needs adding to domain data model
+                           in 01_Data_Models.txt  ← ALREADY DONE in v0.6
+
+  action pass            — full review of all actions against current system
+                           (health damage, action points, level 1 interactions,
+                           faction contested roll integration)
+
+
+================================================================================
+MEDIUM PRIORITY
+================================================================================
+
+  faction split          — triggered by low faction health. mechanic undefined.
+                           future: faction below health threshold fragments into
+                           two smaller factions.
+
+  secession event        — LN >= 20 triggers splinter check.
+                           what actually happens is undefined.
+                           does splinter inherit members? what rating does it start?
+
+  faction entrench gain  — Care action for factions. deferred.
+
+  faction rating growth  — base timer defined. what causes faction rating to
+                           grow or decay has not been fully specified beyond
+                           the timer increment.
+
+  world chaos probability — chaos 1-3 = "low probability" is not a number.
+                            needs an actual probability table before build.
+
+
+================================================================================
+LOW PRIORITY / DEFERRED
+================================================================================
+
+  victory conditions     — campaign arc structure. deferred.
+  cross-domain costs     — penalty for acting outside primary domain. deferred.
+  age / turnover         — covered by health retirement. may need more.
+  SM surge mechanic      — variance on SM actions. defined in concept, not spec.
+  SM decay rates         — SM-specific decay by rating level. deferred.
+  dramatic scale         — integer scale for cycle event dramatic field.
+                           0 = routine, higher = more dramatic. values TBD.
+
+
+================================================================================
+TUNING VALUES (placeholders — adjust after testing)
+================================================================================
+
+  drag_modifier_rating_3:    0.10
+  drag_modifier_rating_4+:   0.20
+  emergence_chance:          0.01
+  health_attack_partial:     −3
+  health_attack_decisive:    −8
+  health_retirement_floor:   50
+  attention_baseline_max:    200
+  attention_elevated_max:    600
+
+
+================================================================================
+DOCUMENT INDEX
+================================================================================
+
+  01_Data_Models.txt          Unit, Faction, Domain, World State, Cycle Event
+  02_Constants_and_Scales.txt All numbers, tables, thresholds
+  03_Core_Formulas.txt        All calculation functions
+  04_Traits.txt               Unit, faction, domain traits + action selection model
+  05_Actions.txt              All actions
+  06_NPC_Behavior.txt         Behavior engine, cycle resolution order
+  07_Systems.txt              World Chaos, LN, Cascades, L1 Pool,
+                              Unit Generator, Unstable, Health
+  08_Domain_Relationships.txt Domain relationship arrays (complete)
+  09_Open_Items.txt           This document
+  10_City_Generation.txt      One-time startup — domain, faction, unit generation
+  11_Build_v3_Updates.txt     Changes made during Build v3 vs original docs
+
+
+================================================================================
+END — 09_Open_Items
+================================================================================

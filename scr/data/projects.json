@@ -1,0 +1,1077 @@
+[
+  {
+    "id": "guilds_craftsmens_hall",
+    "name": "Craftsmen's Hall",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 8,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "guilds",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "guilds"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "guilds_trade_warehouse",
+    "name": "Trade Warehouse",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 10,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "guilds",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "guilds"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "guilds_apprentice_barracks",
+    "name": "Apprentice Barracks",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 10,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "guilds",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "guilds"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "guilds_masters_workshop",
+    "name": "Master's Workshop",
+    "build_cost": 150,
+    "build_time": 3,
+    "faction_build_actions": 4,
+    "maintenance_cost": 12,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "guilds",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "guilds"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "guilds_charter_registry",
+    "name": "Guild Charter Registry",
+    "build_cost": 200,
+    "build_time": 5,
+    "faction_build_actions": 6,
+    "maintenance_cost": 15,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "guilds",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "guilds"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "docks_dock_berths",
+    "name": "Dock Berths",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 12,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "docks",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "docks"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "docks_chandlery",
+    "name": "Chandlery",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 7,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "docks",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "docks"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "docks_rope_walk",
+    "name": "Rope Walk",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 8,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "docks",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "docks"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "docks_harbormasters_tower",
+    "name": "Harbormaster's Tower",
+    "build_cost": 160,
+    "build_time": 4,
+    "faction_build_actions": 5,
+    "maintenance_cost": 12,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "docks",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "docks"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "docks_dry_dock",
+    "name": "Dry Dock",
+    "build_cost": 200,
+    "build_time": 5,
+    "faction_build_actions": 6,
+    "maintenance_cost": 15,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "docks",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "docks"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "noble_houses_manor_expansion",
+    "name": "Manor Expansion",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 10,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "noble_houses",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "noble_houses"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "noble_houses_estate_gardens",
+    "name": "Estate Gardens",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 8,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "noble_houses",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "noble_houses"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "noble_houses_guard_barracks",
+    "name": "Private Guard Barracks",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 12,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "noble_houses",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "noble_houses"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "noble_houses_salon",
+    "name": "Salon & Reception Hall",
+    "build_cost": 150,
+    "build_time": 3,
+    "faction_build_actions": 4,
+    "maintenance_cost": 12,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "noble_houses",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "noble_houses"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "noble_houses_noble_archive",
+    "name": "Noble Archive",
+    "build_cost": 200,
+    "build_time": 5,
+    "faction_build_actions": 6,
+    "maintenance_cost": 15,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "noble_houses",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "noble_houses"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "city_watch_watch_posts",
+    "name": "Watch Post Network",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 9,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "city_watch",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "city_watch"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "city_watch_barracks",
+    "name": "Guard Barracks",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 12,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "city_watch",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "city_watch"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "city_watch_holding_cells",
+    "name": "Holding Cells",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 10,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "city_watch",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "city_watch"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "city_watch_armory",
+    "name": "Armory",
+    "build_cost": 150,
+    "build_time": 3,
+    "faction_build_actions": 4,
+    "maintenance_cost": 12,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "city_watch",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "city_watch"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "city_watch_training_ground",
+    "name": "Training Ground",
+    "build_cost": 200,
+    "build_time": 5,
+    "faction_build_actions": 6,
+    "maintenance_cost": 15,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "city_watch",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "city_watch"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "underworld_safe_houses",
+    "name": "Safe House Network",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 8,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "underworld",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "underworld"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "underworld_fences_depot",
+    "name": "Fence's Depot",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 10,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "underworld",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "underworld"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "underworld_alley_clinic",
+    "name": "Back-Alley Clinic",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 9,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "underworld",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "underworld"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "underworld_passage",
+    "name": "Underground Passage",
+    "build_cost": 150,
+    "build_time": 4,
+    "faction_build_actions": 5,
+    "maintenance_cost": 12,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "underworld",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "underworld"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "underworld_gambling_den",
+    "name": "Gambling Den",
+    "build_cost": 200,
+    "build_time": 5,
+    "faction_build_actions": 6,
+    "maintenance_cost": 15,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "underworld",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "underworld"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "temple_shrine_network",
+    "name": "Shrine Network",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 7,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "temple",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "temple"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "temple_pilgrim_hospice",
+    "name": "Pilgrim Hospice",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 10,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "temple",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "temple"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "temple_bell_tower",
+    "name": "Bell Tower",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 8,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "temple",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "temple"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "temple_sacred_library",
+    "name": "Sacred Library",
+    "build_cost": 130,
+    "build_time": 3,
+    "faction_build_actions": 4,
+    "maintenance_cost": 12,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "temple",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "temple"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "temple_grand_sanctum",
+    "name": "Grand Sanctum",
+    "build_cost": 200,
+    "build_time": 5,
+    "faction_build_actions": 6,
+    "maintenance_cost": 15,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "temple",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "temple"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "commons_public_market",
+    "name": "Public Market",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 7,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "commons",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "commons"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "commons_public_well",
+    "name": "Public Well",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 5,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "commons",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "commons"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "commons_common_house",
+    "name": "Common House",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 9,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "commons",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "commons"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "commons_tenement_block",
+    "name": "Tenement Block",
+    "build_cost": 100,
+    "build_time": 3,
+    "faction_build_actions": 4,
+    "maintenance_cost": 10,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "commons",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "commons"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "commons_street_paving",
+    "name": "Street Paving Network",
+    "build_cost": 175,
+    "build_time": 4,
+    "faction_build_actions": 5,
+    "maintenance_cost": 13,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "commons",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "commons"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "arcane_scribing_hall",
+    "name": "Scribing Hall",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 9,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "arcane",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "arcane"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "arcane_reagent_storeroom",
+    "name": "Reagent Storeroom",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 10,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "arcane",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "arcane"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "arcane_warding_workshop",
+    "name": "Warding Workshop",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 12,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "arcane",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "arcane"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "arcane_observation_tower",
+    "name": "Observation Tower",
+    "build_cost": 160,
+    "build_time": 4,
+    "faction_build_actions": 5,
+    "maintenance_cost": 13,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "arcane",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "arcane"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "arcane_sanctum",
+    "name": "Arcane Sanctum",
+    "build_cost": 200,
+    "build_time": 5,
+    "faction_build_actions": 6,
+    "maintenance_cost": 15,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "arcane",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "arcane"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "registry_records_hall",
+    "name": "Records Hall",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 8,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "registry",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "registry"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "registry_customs_office",
+    "name": "Customs Office",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 10,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "registry",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "registry"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "registry_messenger_station",
+    "name": "Messenger Station",
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 9,
+    "status": "active",
+    "health": 100,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "registry",
+        "field": "cap",
+        "value": 100
+      }
+    ],
+    "domains": [
+      "registry"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "registry_notary_offices",
+    "name": "Notary Offices",
+    "build_cost": 120,
+    "build_time": 3,
+    "faction_build_actions": 4,
+    "maintenance_cost": 11,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "registry",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "registry"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "registry_grand_registry",
+    "name": "Grand Registry",
+    "build_cost": 200,
+    "build_time": 5,
+    "faction_build_actions": 6,
+    "maintenance_cost": 15,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [
+      {
+        "target": "domain",
+        "target_id": "registry",
+        "field": "cap",
+        "value": 75
+      }
+    ],
+    "domains": [
+      "registry"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "tax_collectors_post",
+    "name": "Tax Collector's Post",
+    "category": "tax_collection",
+    "tax_level": 1,
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 10,
+    "status": "active",
+    "health": 100,
+    "effects": [],
+    "domains": [
+      "registry"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "tax_district_office",
+    "name": "District Tax Office",
+    "category": "tax_collection",
+    "tax_level": 2,
+    "build_cost": 0,
+    "build_time": 0,
+    "faction_build_actions": 0,
+    "maintenance_cost": 15,
+    "status": "active",
+    "health": 100,
+    "effects": [],
+    "domains": [
+      "registry"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "tax_customs_authority",
+    "name": "Customs Authority",
+    "category": "tax_collection",
+    "tax_level": 3,
+    "build_cost": 150,
+    "build_time": 3,
+    "faction_build_actions": 4,
+    "maintenance_cost": 20,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [],
+    "domains": [
+      "registry"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "tax_enforcement_bureau",
+    "name": "Tax Enforcement Bureau",
+    "category": "tax_collection",
+    "tax_level": 4,
+    "build_cost": 250,
+    "build_time": 4,
+    "faction_build_actions": 5,
+    "maintenance_cost": 25,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [],
+    "domains": [
+      "registry"
+    ],
+    "faction_level": false
+  },
+  {
+    "id": "tax_grand_revenue_office",
+    "name": "Grand Revenue Office",
+    "category": "tax_collection",
+    "tax_level": 5,
+    "build_cost": 400,
+    "build_time": 6,
+    "faction_build_actions": 6,
+    "maintenance_cost": 35,
+    "status": "under_construction",
+    "health": 0,
+    "effects": [],
+    "domains": [
+      "registry"
+    ],
+    "faction_level": false
+  }
+]

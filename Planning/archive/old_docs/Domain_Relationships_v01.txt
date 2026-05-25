@@ -1,0 +1,138 @@
+================================================================================
+CITY SIMULATION SYSTEM
+Domain Relationships — Working Document
+v0.1  —  IN PROGRESS
+================================================================================
+
+Relationship Traits:
+  Friend   — naturally assist, support, ally with
+  Foe      — naturally block, attack, compete with
+  Hide     — avoid attention from, obscure actions against
+  Client   — want something from, seek to use
+  Neutral  — no natural pull either way
+
+Mechanical effect on NPC behavior:
+  Friend:  Assist, Support, Recruit actions weighted toward this domain
+  Foe:     Attack, Block, Steal weighted toward this domain
+  Hide:    Obscure weighted when this domain active. Avoid drawing attention.
+  Client:  Spy, Assist, Recruit toward this domain. Seeking something specific.
+  Neutral: No weight modification.
+
+================================================================================
+LOCKED DOMAINS
+================================================================================
+
+--- STREET ---
+
+  Religion:         Friend
+  Police:           Hide
+  Transportation:   Client
+  Legal:            Hide
+  Health:           Client
+  Underworld:       Friend
+  High Society:     Foe
+  Political:        Hide
+  Finance:          Hide
+  Traditional Media:Hide
+  Social Media:     Friend
+  Bureaucracy:      Client
+  Industry:         Neutral
+  University:       Neutral
+
+
+--- POLITICAL ---
+
+  Bureaucracy:      Friend
+  Traditional Media:Client
+  Legal:            Client
+  Finance:          Friend
+  High Society:     Friend
+  Police:           Friend
+  Religion:         Client
+  University:       Client
+  Street:           Client
+  Industry:         Friend
+  Health:           Neutral
+  Transportation:   Neutral
+  Underworld:       Hide
+  Social Media:     Hide
+
+
+--- RELIGION ---
+
+  Street:           Friend
+  High Society:     Client
+  Political:        Neutral
+  University:       Foe
+  Traditional Media:Client
+  Bureaucracy:      Hide
+  Legal:            Hide
+  Finance:          Client
+  Health:           Friend
+  Underworld:       Foe
+  Police:           Neutral
+  Industry:         Neutral
+  Transportation:   Neutral
+  Social Media:     Hide
+
+
+--- BUREAUCRACY ---
+
+  Political:        Friend
+  Legal:            Friend
+  Finance:          Neutral
+  Industry:         Neutral
+  Health:           Friend
+  Transportation:   Friend
+  University:       Client
+  Police:           Friend
+  Street:           Neutral
+  Underworld:       Foe
+  Religion:         Neutral
+  High Society:     Neutral
+  Traditional Media:Hide
+  Social Media:     Hide
+
+
+================================================================================
+IN PROGRESS
+================================================================================
+
+--- FINANCE ---  (pending review)
+
+  Political:        Friend
+  Industry:         Friend
+  High Society:     Friend
+  Legal:            Client
+  Bureaucracy:      Client
+  Traditional Media:Client
+  University:       Client
+  Health:           Friend
+  Transportation:   Friend
+  Underworld:       Hide
+  Street:           Neutral
+  Police:           Neutral
+  Religion:         Neutral
+  Social Media:     Hide
+
+
+================================================================================
+PENDING
+================================================================================
+
+  Police
+  Underworld
+  Legal
+  Health
+  High Society
+  Industry
+  Traditional Media
+  Social Media
+  Transportation
+  University
+
+
+================================================================================
+END OF DOCUMENT
+City Simulation System — Domain Relationships v0.1
+================================================================================

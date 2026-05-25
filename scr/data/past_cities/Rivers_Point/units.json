@@ -1,0 +1,662 @@
+[
+  {
+    "id": "vorn_ashpike",
+    "name": "Vorn Ashpike",
+    "traits": [
+      "Ambitious",
+      "Expansionary"
+    ],
+    "edge": 12,
+    "grit": 8,
+    "health": 82,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "ironmongers",
+      "inertia": 8.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "guilds",
+        "rating": 3.22,
+        "entrench": 0.7
+      },
+      {
+        "domain_id": "noble_houses",
+        "rating": 1.89,
+        "entrench": 0.3
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "mira_tallow",
+    "name": "Mira Tallow",
+    "traits": [
+      "Opportunistic",
+      "Connected"
+    ],
+    "edge": 10,
+    "grit": 10,
+    "health": 78,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "traders_compact",
+      "inertia": 6.5
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "guilds",
+        "rating": 3.0,
+        "entrench": 0.55
+      },
+      {
+        "domain_id": "docks",
+        "rating": 1.67,
+        "entrench": 0.2
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "brek_hammerfield",
+    "name": "Brek Hammerfield",
+    "traits": [
+      "Cautious",
+      "Loyal"
+    ],
+    "edge": 7,
+    "grit": 13,
+    "health": 80,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "craftsmens_league",
+      "inertia": 6.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "guilds",
+        "rating": 2.56,
+        "entrench": 0.65
+      },
+      {
+        "domain_id": "commons",
+        "rating": 1.44,
+        "entrench": 0.3
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "dag_ironhook",
+    "name": "Dag Ironhook",
+    "traits": [
+      "Revengeful",
+      "Resilient"
+    ],
+    "edge": 14,
+    "grit": 7,
+    "health": 76,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "stevedores_union",
+      "inertia": 7.5
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "docks",
+        "rating": 3.22,
+        "entrench": 0.6
+      },
+      {
+        "domain_id": "commons",
+        "rating": 1.89,
+        "entrench": 0.35
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "ysel_runemark",
+    "name": "Ysel Runemark",
+    "traits": [
+      "Loner",
+      "Paranoid"
+    ],
+    "edge": 8,
+    "grit": 12,
+    "health": 74,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "river_pilots_guild",
+      "inertia": 7.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "docks",
+        "rating": 2.78,
+        "entrench": 0.7
+      },
+      {
+        "domain_id": "arcane",
+        "rating": 1.44,
+        "entrench": 0.2
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "orren_grasp",
+    "name": "Orren Grasp",
+    "traits": [
+      "Callous",
+      "Satisfied"
+    ],
+    "edge": 9,
+    "grit": 11,
+    "health": 72,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "warehouse_masters",
+      "inertia": 6.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "docks",
+        "rating": 2.56,
+        "entrench": 0.55
+      },
+      {
+        "domain_id": "registry",
+        "rating": 1.67,
+        "entrench": 0.25
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "edran_valdris",
+    "name": "Lord Edran Valdris",
+    "traits": [
+      "Ambitious",
+      "Cautious"
+    ],
+    "edge": 11,
+    "grit": 10,
+    "health": 85,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "house_valdris",
+      "inertia": 8.5
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "noble_houses",
+        "rating": 3.44,
+        "entrench": 0.75
+      },
+      {
+        "domain_id": "guilds",
+        "rating": 2.11,
+        "entrench": 0.4
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "sera_merren",
+    "name": "Lady Sera Merren",
+    "traits": [
+      "Satisfied",
+      "Cautious"
+    ],
+    "edge": 7,
+    "grit": 13,
+    "health": 80,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "house_merren",
+      "inertia": 7.5
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "noble_houses",
+        "rating": 3.0,
+        "entrench": 0.7
+      },
+      {
+        "domain_id": "registry",
+        "rating": 1.89,
+        "entrench": 0.35
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "aldric_calder",
+    "name": "Mayor Aldric Calder",
+    "traits": [
+      "Connected",
+      "Named"
+    ],
+    "edge": 10,
+    "grit": 10,
+    "health": 82,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "house_calder",
+      "inertia": 8.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "noble_houses",
+        "rating": 3.22,
+        "entrench": 0.65
+      },
+      {
+        "domain_id": "guilds",
+        "rating": 1.67,
+        "entrench": 0.25
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "captain_holt",
+    "name": "Captain Holt",
+    "traits": [
+      "Callous",
+      "Opportunistic"
+    ],
+    "edge": 11,
+    "grit": 9,
+    "health": 70,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "the_watch",
+      "inertia": 6.5
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "city_watch",
+        "rating": 2.78,
+        "entrench": 0.5
+      },
+      {
+        "domain_id": "underworld",
+        "rating": 1.44,
+        "entrench": 0.2
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "commander_fen",
+    "name": "Commander Fen",
+    "traits": [
+      "Loyal",
+      "Cautious"
+    ],
+    "edge": 8,
+    "grit": 12,
+    "health": 74,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "harbor_guard",
+      "inertia": 6.5
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "city_watch",
+        "rating": 2.56,
+        "entrench": 0.6
+      },
+      {
+        "domain_id": "docks",
+        "rating": 1.67,
+        "entrench": 0.3
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "scratch",
+    "name": "Scratch",
+    "traits": [
+      "Revengeful",
+      "Callous"
+    ],
+    "edge": 15,
+    "grit": 6,
+    "health": 68,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "dockside_brotherhood",
+      "inertia": 7.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "underworld",
+        "rating": 3.0,
+        "entrench": 0.5
+      },
+      {
+        "domain_id": "docks",
+        "rating": 1.89,
+        "entrench": 0.3
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "old_piece",
+    "name": "Old Piece",
+    "traits": [
+      "Paranoid",
+      "Anonymous"
+    ],
+    "edge": 9,
+    "grit": 11,
+    "health": 65,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "the_fences",
+      "inertia": 6.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "underworld",
+        "rating": 2.33,
+        "entrench": 0.55
+      },
+      {
+        "domain_id": "guilds",
+        "rating": 1.44,
+        "entrench": 0.2
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "ansel_brightwater",
+    "name": "High Priest Ansel Brightwater",
+    "traits": [
+      "Satisfied",
+      "Resilient"
+    ],
+    "edge": 6,
+    "grit": 14,
+    "health": 78,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "temple_flowing_passage",
+      "inertia": 7.5
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "temple",
+        "rating": 3.0,
+        "entrench": 0.7
+      },
+      {
+        "domain_id": "commons",
+        "rating": 1.89,
+        "entrench": 0.4
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "sister_wren",
+    "name": "Sister Wren",
+    "traits": [
+      "Resilient",
+      "Joiner"
+    ],
+    "edge": 7,
+    "grit": 13,
+    "health": 82,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "healing_house",
+      "inertia": 6.5
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "temple",
+        "rating": 2.56,
+        "entrench": 0.6
+      },
+      {
+        "domain_id": "commons",
+        "rating": 1.67,
+        "entrench": 0.3
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "mulek",
+    "name": "Mulek the Driver",
+    "traits": [
+      "Loyal",
+      "Resilient"
+    ],
+    "edge": 10,
+    "grit": 10,
+    "health": 72,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "caravan_workers",
+      "inertia": 5.5
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "commons",
+        "rating": 2.33,
+        "entrench": 0.45
+      },
+      {
+        "domain_id": "docks",
+        "rating": 1.44,
+        "entrench": 0.2
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "magister_coppervale",
+    "name": "Magister Coppervale",
+    "traits": [
+      "Loner",
+      "Paranoid"
+    ],
+    "edge": 8,
+    "grit": 12,
+    "health": 76,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "assayers_circle",
+      "inertia": 7.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "arcane",
+        "rating": 2.78,
+        "entrench": 0.65
+      },
+      {
+        "domain_id": "guilds",
+        "rating": 1.67,
+        "entrench": 0.25
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "jax_seeker",
+    "name": "Jax the Seeker",
+    "traits": [
+      "Connected",
+      "Opportunistic"
+    ],
+    "edge": 11,
+    "grit": 9,
+    "health": 70,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "wayfarers_lodge",
+      "inertia": 5.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "arcane",
+        "rating": 2.11,
+        "entrench": 0.4
+      },
+      {
+        "domain_id": "docks",
+        "rating": 1.44,
+        "entrench": 0.2
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "archivist_dunn",
+    "name": "Archivist Dunn",
+    "traits": [
+      "Cautious",
+      "Loyal"
+    ],
+    "edge": 6,
+    "grit": 14,
+    "health": 78,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "hall_of_records",
+      "inertia": 7.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "registry",
+        "rating": 2.78,
+        "entrench": 0.7
+      },
+      {
+        "domain_id": "noble_houses",
+        "rating": 1.44,
+        "entrench": 0.2
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  },
+  {
+    "id": "harbormaster_grell",
+    "name": "Harbormaster Grell",
+    "traits": [
+      "Callous",
+      "Satisfied"
+    ],
+    "edge": 9,
+    "grit": 11,
+    "health": 72,
+    "is_leader": true,
+    "is_npc": true,
+    "faction_1": {
+      "faction_id": "port_manifest_office",
+      "inertia": 6.0
+    },
+    "faction_2": null,
+    "faction_3": null,
+    "domains": [
+      {
+        "domain_id": "registry",
+        "rating": 2.56,
+        "entrench": 0.55
+      },
+      {
+        "domain_id": "docks",
+        "rating": 1.89,
+        "entrench": 0.35
+      }
+    ],
+    "focus_1": null,
+    "focus_2": null
+  }
+]

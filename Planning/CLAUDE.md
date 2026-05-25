@@ -1,0 +1,46 @@
+# Planning — Orientation
+
+The project's source of truth and its supporting tiers. Start here, then go to the right tier.
+
+## What lives where
+
+| Path | Holds |
+|------|-------|
+| `specs/` | **Source of truth for behavior** — one `[feature]_spec.md` per feature, with inline **Done when:** items |
+| `reference/` | Definitions specs cite (not testable): `data-models.md` (entities), `formulas.md` (contest math) |
+| `architecture/` | System shape: `system-overview.md` — stack, folder map, the cycle, key invariants |
+| `decisions/` | Decision log (`YYYY-MM-DD-title.md`) — append-only, point-in-time record |
+| `archive/` | Superseded specs/docs + `alignment.md` (the restructure audit trail) |
+| `Features_Todo.md` | Backlog + open design decisions |
+
+## Spec index
+
+Read top-down within a group; `cycle-runner` is the entry point.
+
+**Sim core — the spine**
+- [cycle-runner](specs/cycle-runner_spec.md) — orchestrates one cycle (sequential initiative); delegates to the rest
+- [actions](specs/actions_spec.md) — faction action types and how each resolves
+- [faction-behavior](specs/faction-behavior_spec.md) — NPC weight building, action selection, targeting
+- [personality-system](specs/personality-system_spec.md) — trait structure; how personality drives/evolves behavior
+
+**Governance — the Mayor (player)**
+- [mayor](specs/mayor_spec.md) — indirect, costly actions that pressure the city
+- [treasury](specs/treasury_spec.md) — gold, taxes, the moneylender
+- [projects](specs/projects_spec.md) — buildable city infrastructure + effects
+- [audience](specs/audience_spec.md) — Mayor↔leader LLM negotiation; the only path to binding deals
+
+**World & content**
+- [city-generation](specs/city-generation_spec.md) — initial city/domain/faction generation
+- [special-factions](specs/special-factions_spec.md) — The Public, moneylender, external threats
+- [events](specs/events_spec.md) — timed pressure sequences injected into the faction system
+
+**LLM layer**
+- [llm-system](specs/llm-system_spec.md) — translation between engine and any model provider (stub mode without one)
+- [llm-profiles](specs/llm-profiles_spec.md) — saved configs, key encryption, selection at game start
+
+## Quick pointers
+
+- Entities / fields → `reference/data-models.md`
+- Formulas / thresholds → `reference/formulas.md`
+- How a cycle actually runs → `specs/cycle-runner_spec.md` (authoritative) + `architecture/system-overview.md`
+- Why a past choice was made → `decisions/`

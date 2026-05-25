@@ -1,0 +1,1211 @@
+================================================================================
+CITY SIMULATION SYSTEM
+Mechanics Reference — App Development
+v0.6
+No descriptions. Numbers and rules only.
+================================================================================
+
+
+================================================================================
+1. DATA MODELS
+================================================================================
+
+--- 1.1 UNIT ---
+
+field               type / notes
+---------------------------------------------------------------------------
+id                  string — unique identifier
+name                string
+faction_1           faction_id | null  (primary — can lead here)
+faction_2           faction_id | null  (secondary)
+faction_3           faction_id | null  (tertiary)
+faction_leader_of   faction_id | null  (must match faction_1)
+traits              array of trait_id
+edge                int 1–19  (edge + grit = 20)
+grit                int 1–19  (edge + grit = 20)
+health              int 1–100
+health_max          int — creation health (cap for Rejuvenate)
+creation_cycle      int — cycle this unit was created
+domains             array of DomainRating
+focus_1             FocusSlot | null  (primary focus)
+focus_2             FocusSlot | null  (secondary focus)
+inertia             float — derived (see 3.4)
+is_npc              bool
+
+DomainRating object:
+  domain_id         string
+  rating            float  e.g. 4.67  (floor used for resolution)
+  entrench          float 0.00–1.00
+
+FactionSlot object (per slot):
+  faction_id        string
+  inertia           float 0.0–cap  (see 3.9)
+
+FocusSlot object:
+  target_id         string — unit_id or faction_id
+  target_type       enum: unit | faction | domain | goal
+  score             float 0.0–10.0
+  source_trait      trait_id | null
+
+
+--- 1.2 FACTION ---
+
+field               type / notes
+---------------------------------------------------------------------------
+id                  string
+name                string
+domain_primary      domain_id
+domains_secondary   array of domain_id
+rating              float — decimal e.g. 5.73  (floor used for resolution)
+traits              array of trait_id
+cohesion            int 1–10  (default 5 — see 2.8)
+leader_id           unit_id | null
+leadership_need     float 0.0–20.0
+health              int 1–100
+health_max          int — creation health
+member_ids          array of unit_id
+level_1_count       int — number of level 1 background members (no individual tracking)
+capacity            int — hard value per floor rating level (see 2.1)
+active_supporters   array of unit_id  (reset each cycle)
+
+
+--- 1.3 DOMAIN ---
+
+field               type / notes
+---------------------------------------------------------------------------
+id                  string
+name                string
+cap                 int — total weight supported  (SM: used as Attention)
+utilization         float — sum of unit logarithmic weights in domain
+drift               float — natural Entrench change per cycle (+/−)
+is_sm               bool
+
+
+--- 1.4 WORLD STATE ---
+
+field               type / notes
+---------------------------------------------------------------------------
+cycle               int
+chaos               array of {domain_id, level: int 0–10}
+power_vacuums       array of {domain_id, cycles_remaining: int, origin_unit_id}
+attention           float — SM domain utilization as Attention
+attention_state     enum: baseline | elevated | crisis
+
+
+================================================================================
+2. CONSTANTS & SCALES
+================================================================================
+
+--- 2.1 LOGARITHMIC WEIGHT TABLE ---
+
+level       weight (pts)    faction capacity at this floor
+---------------------------------------------------------------------------
+1           0               0   (does not count toward cap)
+2           2               2
+3           6               6
+4           16              16
+5           38              38
+6           84              84
+7           178             178
+8           366             366
+9           748             748
+10          1,520           1,520
+
+formula:    weight(n) = floor(n) === 1 ? 0 : 2^floor(n) − 2
+faction capacity = weight of floor(faction.rating)
+capacity steps immediately when floor rating changes
+
+
+--- 2.2 UNIT GROW TIMERS ---
+
+transition  cycles      increment per cycle
+---------------------------------------------------------------------------
+1 → 2       2           +0.5000
+2 → 3       4           +0.2500
+3 → 4       8           +0.1250
+4 → 5       16          +0.0625
+5 → 6       24          +0.0417
+6 → 7       36          +0.0278
+7 → 8       52          +0.0192
+8 → 9       72          +0.0139
+9 → 10      100         +0.0100
+
+
+--- 2.3 FACTION GROW TIMERS ---
+
+transition  formula         cycles      increment per cycle
+---------------------------------------------------------------------------
+1 → 2       1 × 1           1           +1.0000
+2 → 3       2 × 2           4           +0.2500
+3 → 4       3 × 3           9           +0.1111
+4 → 5       4 × 4           16          +0.0625
+5 → 6       5 × 5           25          +0.0400
+6 → 7       6 × 6           36          +0.0278
+7 → 8       7 × 7           49          +0.0204
+8 → 9       8 × 8           64          +0.0156
+9 → 10      9 × 9           81          +0.0123
+
+formula:    cycles = floor × floor
+            increment = 1 / (floor × floor)
+note:       modifiers to growth can be applied on top of base timer
+
+
+--- 2.4 DOMAIN CAP RESISTANCE ---
+
+utilization     effect
+---------------------------------------------------------------------------
+< 60%           Grow unopposed. Normal timers.
+60–85%          Passive resistance. +1 cycle on failed beat of domain average.
+85–95%          Auto-contested by highest unit each cycle. Timer pauses on fail.
+>= 95%          Grow blocked. Requires Attack or Steal first.
+
+
+--- 2.5 DOMAIN NATURAL ENTRENCH DRIFT (per cycle) ---
+
+domain              drift
+---------------------------------------------------------------------------
+Religion            +0.06
+Bureaucracy         +0.04
+University          +0.04
+Finance             +0.02
+Health               0.00
+Traditional Media   −0.02
+Legal               −0.02
+Political           −0.03
+Transportation      −0.03
+Industry            −0.03
+High Society        −0.04
+Street              −0.04
+Police              −0.04
+Underworld          −0.05
+Social Media        −0.08
+
+
+--- 2.6 ATTENTION STATES (SM domain) ---
+
+state           utilization range
+---------------------------------------------------------------------------
+Baseline        0–200
+Elevated        201–600
+Crisis          601+  (normal cycle order suspended)
+
+
+--- 2.7 FACTION INERTIA CAPS ---
+
+slot            base cap    leader modifier     net
+---------------------------------------------------------------------------
+faction_1       9           +2                  11
+faction_2       7           −1                   6
+faction_3       5           −1                   4
+
+trait modifiers (applied to all three slots):
+  Loner:        −2 / −3 / −4
+  Joiner:       +2 / +3 / +4
+
+combined examples:
+  Base:                      9 /  7 /  5
+  Leader only:              11 /  6 /  4
+  Loner only:                7 /  4 /  1
+  Joiner only:              11 / 10 /  9
+  Leader + Loner:            9 /  3 /  0
+  Leader + Joiner:          13 /  9 /  8
+
+note: Loner leader faction_3 cap = 0 — cannot maintain tertiary affiliation
+
+
+--- 2.8 FACTION CAPACITY THRESHOLDS ---
+
+utilization     behavior
+---------------------------------------------------------------------------
+< 40%           Recruit attempt 50% chance per cycle
+40–59%          Recruit attempt 30% chance per cycle
+60–79%          Recruit attempt 15% chance per cycle
+80%             Threshold — below: recruit mode. above: kick mode.
+80–90%          Kick attempt 10% chance per cycle
+90–95%          Kick attempt 25% chance per cycle
+95–99%          Kick attempt 50% chance per cycle
+100%+           Automatic kick this cycle
+
+faction trait modifiers:
+  Open:         recruit threshold 70%, kick threshold 90%
+  Insular:      recruit threshold 60%, kick threshold 75%
+  Hierarchical: kick targets lowest-ranked member (not lowest inertia)
+  Meritocratic: kick targets lowest domain rating (not lowest inertia)
+
+
+--- 2.9 FACTION COHESION ---
+
+Cohesion is a faction trait (int 1–10, default 5).
+Controls how much of a member unit's weight counts toward faction capacity.
+
+member_weight_contribution = unit_weight × (cohesion / 10)
+
+cohesion    multiplier
+---------------------------------------------------------------------------
+1           0.10
+2           0.20
+3           0.30
+4           0.40
+5           0.50          default
+6           0.60
+7           0.70
+8           0.80
+9           0.90
+10          1.00
+
+
+--- 2.10 FACTION EFFECTIVE POWER ---
+
+faction_effective_power = 0.75 + (support_utilization × 0.50)
+
+support_utilization = sum of active_supporters weights (cohesion adjusted)
+                      / faction capacity
+
+support_utilization     effective power
+---------------------------------------------------------------------------
+0.00  (no Support)      0.75×  (75% — baseline)
+0.50                    1.00×  (100%)
+1.00  (full Support)    1.25×  (125% — maximum)
+
+faction_action_rating = floor(faction.rating) × faction_effective_power
+
+leaderless penalty: faction_effective_power × 0.80  (additional 20% reduction)
+
+
+--- 2.11 ACTION POINTS ---
+
+Units:
+  action_points = floor(domain_rating) per domain per cycle
+  each action costs points equal to the level at which it is taken
+
+  example — unit Street 4 has 4 action points:
+    one level 4 action                     (costs 4 — done)
+    one level 3 + one level 1              (costs 3+1 — done)
+    one level 2 + one level 2              (costs 2+2 — done)
+    four level 1 actions                   (costs 1+1+1+1 — done)
+
+Factions:
+  action_points = floor(faction.rating / 2) per cycle
+  spending works the same — each action costs its level in points
+
+  faction rating 2.xx  →  1 action point
+  faction rating 3.xx  →  1 action point
+  faction rating 4.xx  →  2 action points
+  faction rating 5.xx  →  2 action points
+  faction rating 6.xx  →  3 action points
+  faction rating 7.xx  →  3 action points
+  faction rating 8.xx  →  4 action points
+  faction rating 9.xx  →  4 action points
+  faction rating 10.0  →  5 action points
+
+
+--- 2.12 FACTION TARGETING MODIFIER ---
+
+When a faction takes any targeted action:
+  target is a unit:     −1 to action roll
+  target is a faction:  +1 to action roll
+
+applies to: Spy, Block (Specific), Attack, Steal, and any other targeted action
+does not apply to: City-Wide Block, auto-triggered Recruit, Kick, Defend
+
+
+================================================================================
+3. CORE FORMULAS
+================================================================================
+
+--- 3.1 BASE RESOLUTION ---
+
+result = (floor(domain_rating) × 3) + edge_or_grit + random(−3, +3)
+
+edge    → offensive / active actions
+grit    → defensive / resistance rolls
+ties    → defender wins
+margin >= 3   → decisive result
+margin 1–2    → partial result
+
+
+--- 3.2 UNIT FACTION BONUS ---
+
+When a unit acts in their faction_1 primary domain:
+
+bonus = (faction.rating / unit_domain_rating) − 1
+effective_rating = unit_domain_rating + bonus
+
+examples:
+  unit Street 4, faction Street 6:
+    bonus = (6/4) − 1 = 0.50  →  effective 4.50
+
+  unit Street 2, faction Street 6:
+    bonus = (6/2) − 1 = 2.00  →  effective 4.00
+
+  unit Street 5, faction Street 5:
+    bonus = (5/5) − 1 = 0     →  effective 5.00
+
+applies to faction_1 primary domain only
+does not apply when unit takes Support Faction action
+
+
+--- 3.2b FACTION CONTESTED ROLL ---
+
+When a faction takes any contested action:
+
+offensive: result = (faction_action_rating × 3) + leader.edge + random(−3, +3)
+defensive: result = (faction_action_rating × 3) + leader.grit + random(−3, +3)
+
+leaderless faction:
+  result = (faction_action_rating × 3) + random(−3, +3)
+  no leader stat added — raw institutional weight and luck only
+
+faction targeting modifier applied after roll (see 2.12)
+
+
+--- 3.3 ENTRENCH ---
+
+// level change
+on_grow_up:       new_entrench = current_entrench × 0.25
+on_knocked_down:  new_entrench = min(current_entrench × 1.25, 1.00)
+
+// per cycle adjustments
+entrench += domain.drift
+entrench += 0.10   // if Entrench action taken this cycle
+entrench += 0.08   // if Defend action succeeded this cycle
+entrench += 0.05   // if unit is faction leader
+entrench += 0.04   // if assisted by ally this cycle
+entrench −= 0.15   // if attacked this cycle (even if defended successfully)
+entrench −= 0.05   // per Disruption Token on any domain
+entrench −= 0.08   // if faction is leaderless
+entrench −= 0.05   // if SM Attention is Elevated or Crisis
+
+entrench = clamp(entrench, 0.00, 1.00)
+
+// zero floor rule
+if entrench_start_of_cycle == 0.00 AND entrench_end_of_cycle == 0.00:
+    domain_rating −= 0.10
+
+
+--- 3.4 INERTIA (derived) ---
+
+inertia = grit + (floor(primary_domain_rating) × 0.5) + entrench_bonus
+
+entrench_bonus:
+  0.00–0.25   →  +0
+  0.26–0.50   →  +1
+  0.51–0.75   →  +2
+  0.76–1.00   →  +3
+
+
+--- 3.5 FOCUS ---
+
+// slots
+unit.focus_1   primary focus   decay rate −0.5 per cycle
+unit.focus_2   secondary focus decay rate −1.0 per cycle
+
+// new focus routing
+default:            new focus → focus_2
+Spontaneous trait:  new focus → focus_1
+                    old focus_1 → focus_2
+                    if focus_2 occupied → focus_2 lost
+
+// swap check (run each cycle)
+diff = focus_2.score − focus_1.score
+diff <= 0       swap_chance = 0%
+diff 1–2        swap_chance = 20%
+diff 3–4        swap_chance = 50%
+diff >= 5       swap_chance = 80%
+focus_1 == 0    swap_chance = 100%
+
+// focus score sources
+Revengeful triggered    +3
+Ambitious triggered     +3
+Expansionary triggered  +2
+Opportunistic triggered +2
+Loyal faction threatened +2
+Direct attack received  +2
+
+// focus score decay modifiers
+Revengeful trait:   focus_1 decay −= 0.3  (nearly zero)
+Satisfied trait:    both decays    += 0.5
+
+// focus clears
+score = 0.0 on: target neutralized, goal achieved
+Revengeful: does NOT clear on partial success
+Revengeful: if target removed by third party → focus transfers to remover
+
+
+--- 3.6 ENTRENCH DEFENSE BONUS ---
+
+entrench        grit bonus vs Attack/Steal
+---------------------------------------------------------------------------
+0.00–0.25       +0
+0.26–0.50       +1
+0.51–0.75       +2
+0.76–1.00       +3
+
+
+--- 3.7 MULTI-CYCLE SPY VISIBILITY ---
+
+completion_pct = cycles_completed / cycles_required
+
+completion_pct  obscure_resistance_modifier
+---------------------------------------------------------------------------
+0–25%           0
+26–50%          −1
+51–75%          −2
+76–99%          −3
+100%            action complete — not spyable as in-progress
+
+applies to all multi-cycle actions: Grow, Block, Recruit, Steal
+
+
+--- 3.8 DISRUPTION TOKENS ---
+
+on Grow interrupt:
+    domain_rating −= 0.10  (immediate)
+    grow_cycles_remaining += 2
+
+on return to Grow:
+    remove 1 token per cycle
+
+
+--- 3.9 FACTION INERTIA (per slot) ---
+
+// building
+each cycle as member:             +0.10
+action taken for this faction:    +0.20
+leading this faction:             +0.30
+survived attack together:         +0.15
+Loyal trait (faction_1 only):     +0.10 additional
+
+// draining
+faction loses domain rating:      −0.20
+faction leader removed:           −0.30
+faction acts against unit Focus:  −0.15
+Corrupt faction trait:            −0.05 per cycle
+
+// join starting value
+on Join:    faction_inertia = 1.0  (vulnerable window: cycles 1–3)
+
+// leave cost
+voluntary Leave:    focus drain = faction_inertia × 0.5
+high inertia Leave (>= 6.0): triggers faction Block or Attack on leaving unit
+
+
+--- 3.10 JOIN DESIRE (derived) ---
+
+base_desire = f(open_slots):
+    3 open slots:   0.9
+    2 open slots:   0.6
+    1 open slot:    0.3
+    0 open slots:   0.0  (must Leave before Joining)
+
+trait modifiers:
+    Joiner:   base_desire × 1.5
+    Loner:    base_desire × 0.2
+
+join_desire = clamp(base_desire × trait_modifier, 0.0, 1.0)
+
+
+================================================================================
+4. TRAITS
+================================================================================
+
+--- 4.1 UNIT TRAITS ---
+
+trait           action weight bias                  formula modifier
+---------------------------------------------------------------------------
+Expansionary    Grow+, Contest+, Steal+             −20% Grow timer below 80% cap
+Cautious        Defend+, Obscure+, Spy+             +2 on Defend/Obscure. Passive Spy at 75%
+Revengeful      Attack+, Block+ (high focus)        +2 vs focus target. Focus_1 decay −0.3
+Satisfied       Defend+, Assist+. Grow−, Attack−    +30% Grow timers. Both focus decays +0.5
+Callous         Attack+, Block+                     +2 on Attack. Attack weight bias only.
+                                                    Collateral mechanic removed.
+Opportunistic   Contest+, Steal+, Spy+              +2 on Contest. Spy reveals vacuums. Trace −20%
+Loyal           Assist(f1)+, Defend(f1)+            No exposure on faction_1 Assist. +2 Entrench/cycle
+Ambitious       Seek Leadership+, Grow+, Spy+       +2 Seek Leadership. Focus +3 on leadership open
+Loner           Join−, all faction inertia−         Inertia caps −2/−3/−4. join_desire × 0.2
+Joiner          Join+, all faction inertia+         Inertia caps +2/+3/+4. join_desire × 1.5
+Resilient       Rejuvenate+, Defend+                health decay −1 per cycle (net 0 natural decay)
+                                                    Rejuvenate costs half action slot
+Fragile         avoid Attack, avoid conflict        health decay +1 per cycle (net −2 natural)
+                                                    Attack health damage +3 on top of base
+Connected       Join+, Assist+, Recruit+            join_desire × 1.2. faction inertia builds +25% faster
+Paranoid        Obscure+, Spy+, Defend+             Obscure weight doubled in action pool
+                                                    +1 Spy resistance vs all Targeted Spy
+
+note: Spontaneous trait removed — subsumed into Focus mechanic directly
+
+SM-specific:
+Named           full cross-domain influence         no attack protection
+Anonymous       cross-domain influence × 0.5        incoming attack strength × 0.5
+                                                    Spy required to identify before targeting
+
+
+--- 4.2 FACTION TRAITS ---
+
+trait           mechanical effect
+---------------------------------------------------------------------------
+Open            recruit threshold 70%. kick threshold 90%. Join DC −2.
+Insular         recruit threshold 60%. kick threshold 75%. Join DC +3. Recruit outside −2.
+Hierarchical    Leadership Need 20% slower. Kick targets lowest-ranked.
+Meritocratic    Seek Leadership by domain rating not Grit. Kick targets lowest domain rating.
+Corrupt         Leader Edge +1 personal actions. Faction Entrench −0.03/cycle.
+Ideological     Join requires doctrine alignment check. +2 Grit vs external Attack.
+Expansionary    Grow timer −10%. Growth modifiers amplified.
+Defensive       faction auto-Defends primary domain each cycle at no action cost.
+
+
+--- 4.3 DOMAIN TRAITS ---
+
+trait           type        notes
+---------------------------------------------------------------------------
+Cohesion        int 1–10    Member weight contribution to faction capacity. Default 5.
+Drift           float       Natural Entrench change per cycle. See 2.5 for values.
+
+
+================================================================================
+5. ACTIONS
+================================================================================
+
+format:  ACTION  |  who  |  stat  |  gate  |  mechanic
+
+--- 5.1 GROWTH ACTIONS ---
+
+GROW
+  who:    unit or faction
+  stat:   Edge
+  gate:   none
+  mech:   unit:    rating += increment per cycle (see 2.2)
+          faction: rating += increment per cycle (see 2.3)
+          Disruption Token on interrupt: rating −0.10, timer +2 cycles
+          Cap resistance above 85% (see 2.4)
+          Spy resistance decays with completion % (see 3.7)
+          On level up: entrench × 0.25
+
+ASSIST
+  who:    unit
+  stat:   Edge
+  gate:   none
+  mech:   Grow: −10% timer per assisting level (max 80% reduction total)
+          Active action: +(assisting_level / 2) to result this cycle
+          After Assist: assistant gains +1 Spy on assisted unit for 1 year
+
+ENTRENCH
+  who:    unit
+  stat:   Grit
+  gate:   Level 2+ in target domain
+  mech:   +0.10 to entrench score in target domain
+          SM domain: also prevents rating decay this cycle
+          Full action slot — cannot act or defend same cycle
+
+SUPPORT FACTION
+  who:    unit
+  stat:   Edge
+  gate:   must be faction member. faction must act this cycle.
+  mech:   unit's cohesion-adjusted weight added to faction active_supporters
+          support_utilization recalculated (see 2.10)
+          faction_effective_power updated for this cycle only
+          multiple units may Support same faction same cycle
+          unit cannot take any other action this cycle
+          unit faction_inertia += 0.20 for this slot
+
+
+--- 5.2 INTELLIGENCE ACTIONS ---
+
+SPY (Passive)
+  who:    unit or faction
+  stat:   Edge
+  gate:   none
+  mech:   effective rating = floor(domain_rating) × 0.5
+          same domain only. reveals general activity only.
+          does NOT satisfy Spy gate
+          faction targeting modifier applies (see 2.12)
+
+SPY (Targeted)
+  who:    unit or faction
+  stat:   Edge
+  gate:   none
+  mech:   full domain rating
+          cross-domain allowed if logical
+          reveals: who, what, where, when, why
+          satisfies Spy gate for: Block(Specific), Attack, Steal, Expose
+          on fail: may alert target
+          faction targeting modifier applies (see 2.12)
+
+OBSCURE
+  who:    unit
+  stat:   Grit
+  gate:   none
+  mech:   self: split domain rating between action(n) and obscure(rating−n)
+          cross-domain: use different domain at full rating, full action cost
+          Spy must beat obscure level to penetrate
+          obscure level visible to GM only
+
+EXPOSE
+  who:    unit or faction
+  stat:   Edge
+  gate:   Targeted Spy (identity-specific) completed first
+  mech:   attacker: Edge + SM rating
+          defender: Grit + SM rating + anon_bonus (Grit doubled)
+          on win: Anon trait removed permanently
+                  all past actions potentially traceable
+                  every domain unit operates in: stability check
+                  Attention spike generated
+                  all previously targeted factions gain named enemy
+          faction targeting modifier applies (see 2.12)
+
+
+--- 5.3 CONFLICT ACTIONS ---
+
+BLOCK (City-Wide)
+  who:    unit or faction
+  stat:   Edge
+  gate:   none
+  mech:   effective rating = floor(domain_rating) × 0.5
+          affects ALL units attempting that activity in domain
+          generates Attention. any unit below block level is slowed or stopped
+          faction targeting modifier does NOT apply (not targeted)
+
+BLOCK (Specific)
+  who:    unit or faction
+  stat:   Edge
+  gate:   Targeted Spy on target
+  mech:   full domain rating. one target action only.
+          faction targeting modifier applies (see 2.12)
+
+ATTACK
+  who:    unit or faction
+  stat:   Edge (attacker) / Grit (defender)
+  gate:   Targeted Spy on target
+  mech:   attacker: Edge + domain (+ faction bonus if applicable, see 3.2)
+          defender: Grit + domain + entrench_bonus
+          margin >= 3:  target domain_rating −1  (decisive)
+          margin 1–2:   target domain Unstable  (partial)
+          tie or fail:  attacker exposed, target may retaliate without new Spy
+          faction targeting modifier applies (see 2.12)
+
+STEAL
+  who:    unit or faction
+  stat:   Edge (attacker) / Grit (defender)
+  gate:   Targeted Spy on target. Level 1+ in target domain required.
+  mech:   same resolution as Attack
+          on decisive win: target −1, attacker +1 in that domain
+          requires attacker has capacity to hold new level
+          trace: 50% chance within 2 cycles
+          cross-domain Steal: trace chance 75%
+          faction targeting modifier applies (see 2.12)
+
+DEFEND
+  who:    unit or faction
+  stat:   Grit
+  gate:   none
+  mech:   unit self-split: act at (rating−n), defend at n
+          cross-domain: full rating of different domain, full action cost
+          faction Defend: uses faction_action_rating (see 2.10), costs action slot
+          cross-domain Defend: visible to watchers
+
+CONTEST
+  who:    unit or faction
+  stat:   Edge
+  gate:   Power Vacuum active in domain
+  mech:   free action during 2-cycle window
+          roll Edge + domain each cycle of window
+          accumulate over both cycles. highest total wins.
+          tie: higher Grit wins
+          winner inherits abandoned infrastructure (not the rating)
+
+JOIN
+  who:    unit
+  stat:   Edge
+  gate:   open faction slot. faction in recruit mode OR unit passes entry check.
+  mech:   DC = base 5
+          Open: DC −2. Insular: DC +3. Ideological: doctrine check first.
+          on success: unit added to lowest slot. faction_inertia = 1.0.
+          on fail: cannot attempt same faction for 2 cycles
+
+LEAVE
+  who:    unit
+  stat:   Grit
+  gate:   none
+  mech:   focus drain = faction_inertia × 0.5
+          faction_inertia → 0
+          if faction_inertia >= 6.0: faction may Block or Attack leaving unit
+          slots below vacated slot promote up
+          if leaving faction_1 as leader: LN += 4.0 immediately
+
+KICK (faction-initiated)
+  who:    faction
+  stat:   n/a — auto-triggered
+  gate:   faction utilization >= 80%
+  mech:   target = lowest faction_inertia member
+          kicked unit: loses slot, inertia → 0, focus score +2
+          if kicked from faction_1: faction_2 promotes to faction_1
+
+RECRUIT
+  who:    unit or faction
+  stat:   Edge (recruiter) / Grit + Loyal modifier (target)
+  gate:   Targeted Spy on existing unit (not required for new unit)
+  mech:   new unit: Level 1 in faction primary domain, 2 cycles to activate
+          existing unit: Edge + domain vs Grit + faction_inertia
+          Loyal trait: +3 to target resistance
+          on win: unit joins lowest slot, inertia = 1.0. old faction alerted.
+          on fail: target's current faction alerted
+          faction targeting modifier applies when targeting existing unit (see 2.12)
+
+SEEK LEADERSHIP
+  who:    unit
+  stat:   Edge (challenger) / Grit (defender if existing leader)
+  gate:   must be faction member
+  mech:   leaderless: Edge + domain vs Leadership Need score
+          existing leader: Edge + domain vs leader Grit + domain
+          margin >= 3: immediate transfer, LN = 0
+          margin 1–2: leader Unstable 2 cycles
+          fail: challenger exposed, leader may expel
+
+
+--- 5.4 ACTION GATES SUMMARY ---
+
+gate                applies to
+---------------------------------------------------------------------------
+Spy gate            Block(Specific), Attack, Steal, Expose
+Domain gate         must hold Level 1 to act in domain
+Steal domain gate   must hold Level 1 in domain stealing into
+Contest gate        Power Vacuum must be active
+Leadership gate     must be faction member
+Entrench gate       must hold Level 2+ in domain
+Join gate           must have open faction slot
+Support gate        must be faction member, faction must act this cycle
+
+
+================================================================================
+6. NPC BEHAVIOR ENGINE
+================================================================================
+
+--- 6.1 ACTION SELECTION PRIORITY ---
+
+each cycle per NPC unit:
+  1. focus_1.score > inertia  →  directed action toward focus_1.target
+  2. focus_2.score > inertia  →  directed action toward focus_2.target
+  3. else: weighted random from trait action pool
+  4. apply 3–5% wildcard override regardless of weights
+
+directed action type selection:
+  still filtered through trait weights toward that target
+  prerequisite gates enforced (e.g. Spy before Attack)
+  if gate not met: take gate prerequisite action this cycle instead
+
+
+--- 6.2 BASE WEIGHT DISTRIBUTION BY TRAIT ---
+
+weights sum to 100. listed as primary action weights.
+
+trait           weight distribution
+---------------------------------------------------------------------------
+Expansionary    Grow 30, Contest 20, Steal 15, Spy 15, Support 10, Defend 5, other 5
+Cautious        Defend 30, Obscure 25, Spy 20, Grow 15, other 10
+Revengeful      Spy 30, Attack 25, Block 20, Defend 15, other 10
+Satisfied       Defend 35, Entrench 25, Assist 20, Support 10, other 10
+Callous         Attack 35, Block 25, Grow 20, Steal 15, other 5
+Opportunistic   Spy 25, Contest 25, Steal 20, Grow 15, other 15
+Loyal           Support 30, Assist 25, Defend 25, Grow 15, other 5
+Ambitious       Seek Leadership 30, Grow 25, Spy 20, Contest 15, other 10
+Loner           Entrench 35, Grow 30, Defend 25, other 10
+Joiner          Join 25, Support 20, Assist 20, Grow 20, Recruit 10, other 5
+
+
+--- 6.3 FOCUS SCORE AS TENSION MODIFIER ---
+
+tension = focus_1.score + focus_2.score
+
+tension 0–4:    weights near baseline
+tension 5–7:    primary trait weights × 1.5, others compressed
+tension 8–10:   primary trait weights × 2.0, near-exclusive
+
+
+--- 6.4 RESOLUTION ORDER PER CYCLE ---
+
+step    action
+---------------------------------------------------------------------------
+1       Units declare (NPC: auto-selected via behavior engine)
+2       Factions declare
+3       GM declares Force Actions, sets World Chaos per domain
+4       GM / Force Actions resolve
+5       Faction actions resolve (using faction_effective_power from supporters)
+6       Unit actions resolve
+7       Apply: Entrench changes, Focus decay, Leadership Need tick,
+               faction inertia changes, join_desire recalculate
+               reset active_supporters to empty for all factions
+8       World Chaos check — fire extraordinary action if triggered
+9       Cascade events process
+10      Faction capacity check — kick or recruit if triggered
+11      Cycle counter +1
+
+
+================================================================================
+7. WORLD CHAOS
+================================================================================
+
+field           value / notes
+---------------------------------------------------------------------------
+chaos_level     int 0–10 per domain. Set by GM each cycle.
+target          domain_id — GM selects domain, system selects unit
+unit selection  weighted random toward lower-rated units in domain
+effect          selected unit domain_rating treated as floor(rating) + 3 this cycle
+trait           extraordinary action fires through unit trait weights
+gate            prerequisite gates still apply
+hangover        chaos_level −= 2 next cycle in domain (auto). GM can override.
+visibility      hidden from players. GM dashboard only.
+
+chaos 0         no effect
+chaos 1–3       low probability extraordinary action fires
+chaos 4–6       moderate — something will probably happen
+chaos 7–9       high — extraordinary action likely, possibly multiple
+chaos 10        guaranteed — possibly multiple units affected
+
+
+================================================================================
+8. LEADERSHIP NEED
+================================================================================
+
+// accumulation
+each cycle leaderless:          +2.0
+external attack on faction:     +3.0
+faction loses domain rating:    +4.0
+successful Recruit action:      +1.0
+
+// thresholds
+LN >= 10:   visible to all factions (public signal)
+LN >= 20:   faction fragments — splinter check each cycle
+
+// leaderless proxy behavior
+each cycle: random member selected as acting proxy
+selection weighted by: member domain rating in faction primary domain
+selected member: increased chance of becoming leader this cycle
+leaderless faction effective power: 0.75 × 0.80 = 0.60 (additional 20% penalty)
+
+// Seek Leadership DC
+leaderless:     Edge + domain vs LN score
+existing leader: Edge + domain vs leader Grit + domain
+margin >= 3:    immediate transfer, LN = 0
+margin 1–2:     leader Unstable 2 cycles
+fail:           challenger exposed, leader may expel
+
+
+================================================================================
+9. CASCADE EVENTS
+================================================================================
+
+trigger: any unit with floor(domain_rating) >= 4 removed, collapsed, or vacated
+
+effects:
+  domain_pressure_relief    unit weight removed from cap utilization
+  faction_stability_hit     all member factions: stability check
+                            primary faction: hardest hit
+  leadership_vacuum         if unit was faction leader:
+                              faction leaderless, LN starts at 0
+  allied_focus_update       allied Revengeful units: focus score +2 toward source
+  rival_focus_update        rival Opportunistic units: scan for Contest actions
+  power_vacuum_open         2-cycle Contest window in affected domain(s)
+  sm_attention_spike        if unit had SM rating: Attention += unit SM weight
+
+power_vacuum duration:  2 cycles
+contest during vacuum:  free action, no Spy gate required
+
+
+================================================================================
+10. LEVEL 1 POOL
+================================================================================
+
+--- 11.1 DEFINITION ---
+
+Level 1 members are background population — not individually tracked.
+Stored as a single integer (level_1_count) on each faction.
+No names, no stats, no traits, no actions.
+Exist solely as weight in domain cap utilization and faction membership.
+
+Level 1s do not:
+  act
+  Support faction actions
+  take any action of any kind
+  appear in logs (except emergence events)
+
+Level 1s do:
+  consume faction capacity (cohesion-adjusted weight = 0 — level 1 weight is 0)
+  count toward total_members for drag calculation
+  have 1% chance per cycle per faction to emerge as Level 2
+
+
+--- 11.2 FACTION DRAG ---
+
+Level 1s create organizational drag on faction actions.
+Drag scales with level_1_ratio and faction floor rating.
+
+level_1_ratio = level_1_count / (level_1_count + len(member_ids))
+
+floor(faction.rating) <= 2:   drag = 0.0  (no drag ever)
+floor(faction.rating) == 3:   drag = level_1_ratio × 0.10
+floor(faction.rating) >= 4:   drag = level_1_ratio × 0.20
+
+faction_action_rating × (1 − drag)
+
+tuning values (adjust after testing):
+  drag_modifier_rating_3:   0.10
+  drag_modifier_rating_4+:  0.20
+
+
+--- 11.3 EMERGENCE ---
+
+Each cycle per faction:
+  roll 1% chance (0.01) that one level 1 emerges as Level 2
+
+on emergence:
+  level_1_count −= 1
+  create new basic unit (see Unit Generator section 12)
+    primary domain = faction.domain_primary
+    primary domain rating = 2.0
+    entrench = 0.0
+    traits = randomly assigned (see 12.1)
+    edge/grit = random balanced split
+    faction_1 = this faction, inertia = 1.0
+  log as dramatic event in narrative log
+
+
+================================================================================
+11. UNIT GENERATOR
+================================================================================
+
+Two modes: Random (used each cycle and for emergence) and GM-Directed.
+
+
+--- 12.1 RANDOM MODE ---
+
+Called each cycle to create 1 new named unit.
+Also called on Level 1 emergence (with primary domain forced).
+
+TRAITS
+  count distribution (weighted):
+    1 trait:  40%
+    2 traits: 30%
+    3 traits: 20%
+    4 traits:  8%
+    5 traits:  2%
+  selected randomly from unit trait pool
+  no duplicate traits allowed
+
+DOMAINS ABOVE 1
+  count distribution (weighted):
+    2 domains: 40%
+    3 domains: 30%
+    4 domains: 20%
+    5 domains: 10%
+  each domain rating distribution (weighted):
+    rating 2:  55%
+    rating 3:  30%
+    rating 4:  15%
+  maximum rating at generation: 4
+  primary domain = highest rated domain
+    ties broken randomly
+
+EDGE / GRIT
+  total always 20
+  split weighted toward balanced:
+    8/12 to 12/8:   most common (70%)
+    6/14 to 7/13:   less common (20%)
+    2/18 to 5/15:   rare (10%)
+  edge + grit always = 20
+
+ENTRENCH
+  all domains start at 0.0
+
+FACTION
+  none — unit arrives unaffiliated
+  join_desire = 0.9 (3 open slots)
+
+NAME
+  generated from name pool
+  or auto-assigned: "Unit_{id}"
+
+
+--- 12.2 GM-DIRECTED MODE ---
+
+GM provides:
+  primary_domain    string — required
+  primary_level     int 1–10 — required
+  name              string — optional (generator fills if blank)
+
+System generates:
+  remaining domains: random per 12.1
+  traits: random per 12.1
+  edge/grit: random per 12.1
+  entrench: 0.0 on all domains
+  faction: none — unaffiliated
+
+
+--- 12.3 EMERGENCE MODE ---
+
+Called when level 1 emerges from a faction.
+Same as Random Mode with these overrides:
+  primary_domain = faction.domain_primary  (forced)
+  primary_level  = 2  (forced)
+  faction_1      = emerging faction (assigned immediately, inertia = 1.0)
+  name           = auto-generated
+
+
+--- 12.4 CYCLE POPULATION EVENTS ---
+
+Each cycle in order:
+  1. Run Unit Generator (random mode) → 1 new unaffiliated unit enters city
+  2. For each faction: roll 1% emergence chance
+  3. New unaffiliated units have high join_desire
+     Factions with open capacity may Recruit them next cycle
+
+
+================================================================================
+12. UNSTABLE CONDITION
+================================================================================
+
+trigger:
+  Attack margin 1–2 (partial success)
+  Infrastructure destroyed (Supporting Ability removed)
+  Leader Seek Leadership loss (margin 1–2)
+
+effect:
+  −1 to all rolls involving that domain or role
+  visible to GM and watching units (signals weakness)
+
+duration:
+  2 cycles default
+  OR until unit takes Entrench action in that domain
+  OR until faction provides Defend action for that unit
+
+stacking:
+  multiple Unstable conditions on same domain: −1 per stack
+  maximum stack: −3
+
+
+================================================================================
+13. HEALTH
+================================================================================
+
+--- 15.1 UNIT HEALTH ---
+
+range:          1–100
+creation:       random 60–95
+emergence:      random 40–100
+floor:          1  (cannot go below 1)
+
+decay per cycle:
+  natural:                    −1
+  leading a faction:          −2  (in addition to natural)
+  attacked (partial 1–2):     −3
+  attacked (decisive 3+):     −8
+
+gain:
+  Rejuvenate action:          +10  (capped at health_max)
+
+Resilient trait modifier:
+  natural decay:              0  (−1 natural offset by trait)
+  Rejuvenate:                 half action slot cost
+
+Fragile trait modifier:
+  natural decay:              −2 per cycle total
+  attack health damage:       +3 on top of base values
+
+retirement check (each cycle):
+  health >= 50:   0% chance
+  health < 50:    (50 − health) / 100
+  example:
+    health 49:    1%
+    health 40:    10%
+    health 25:    25%
+    health 1:     49%
+
+on retirement:
+  unit removed from all factions
+  cascade event triggered if floor(domain_rating) >= 4
+  narrative log entry generated
+
+
+--- 15.2 FACTION HEALTH ---
+
+range:          1–100
+creation:       random 60–95
+floor:          1  (factions do not retire — health floors at 1)
+
+decay per cycle:
+  natural:                    −1
+  leaderless:                 −2  (in addition to natural)
+  attacked (partial 1–2):     −3
+  attacked (decisive 3+):     −8
+
+gain:
+  none defined yet  (deferred — future Rejuvenate equivalent)
+
+no retirement mechanic
+health signals faction vitality only
+future use: faction split when health drops below threshold
+
+health states (narrative signal only — no mechanical effect yet):
+  80–100:   healthy institution
+  50–79:    showing strain
+  25–49:    seriously weakened
+  1–24:     barely holding together  (future split mechanic territory)
+
+
+--- 15.3 REJUVENATE ACTION ---
+
+who:    unit
+stat:   Grit
+gate:   none
+mech:   health += 10
+        capped at unit.health_max (creation health)
+        full action slot — cannot act or defend same cycle
+        Resilient trait: costs half action slot instead
+
+
+================================================================================
+14. OPEN / PENDING
+================================================================================
+
+resolved in v0.6:
+  unit health            — stat defined. decay, gain, retirement chance.
+  faction health         — stat defined. decay only. no retirement. split deferred.
+  health_max field       — added to both unit and faction models.
+  creation_cycle field   — added to unit model.
+  trait updates          — Callous simplified. Spontaneous removed.
+                           Resilient, Fragile, Connected, Paranoid added.
+  Rejuvenate action      — defined (see 15.3).
+
+resolved in v0.5:
+  level 1 pool           — defined. no tracking. drag mechanic. emergence.
+  faction drag           — level_1_ratio × modifier by faction floor rating.
+  unit generator         — random, GM-directed, and emergence modes defined.
+  faction contested roll — leader edge/grit + faction_action_rating × 3.
+
+resolved in v0.4:
+  faction data model     — trimmed. parent_id and growth_desire removed.
+  faction rating         — decimal float like units. floor used for resolution.
+  faction capacity       — hard int per floor rating level. steps on floor change.
+  faction grow timers    — cycles = floor × floor. increment = 1/(floor × floor).
+  action points (units)  — floor(domain_rating) points per domain per cycle.
+  action points (factions)— floor(faction.rating / 2) points per cycle.
+  faction targeting      — vs unit: −1. vs faction: +1. all targeted actions.
+  combine action         — removed. faction system covers collective power.
+  parent/child factions  — removed. may revisit in future.
+
+still pending:
+  domain build-out       — 15 domains need caps, seed factions, seed units
+  action pass            — full review of all actions against current system
+  faction split          — triggered by low health. mechanic undefined.
+  secession event        — faction fragments at LN >= 20. mechanic undefined.
+  faction health gain    — Rejuvenate equivalent for factions. deferred.
+  faction rating growth  — base timer defined. modifiers not yet defined.
+  drag tuning values     — 0.10 / 0.20 placeholders until testing.
+  health attack values   — −3/−8 placeholders until testing.
+  victory conditions     — campaign arc structure. deferred.
+  cross-domain costs     — penalty for acting outside primary domain. deferred.
+
+
+================================================================================
+END OF DOCUMENT
+City Simulation System — Mechanics Reference v0.6
+================================================================================

@@ -1,0 +1,225 @@
+================================================================================
+CITY SIMULATION SYSTEM
+07 — Systems
+v0.6
+================================================================================
+
+================================================================================
+WORLD CHAOS
+================================================================================
+
+field           value / notes
+---------------------------------------------------------------------------
+chaos_level     int 0–10 per domain. Set by GM each cycle.
+target          domain_id — GM selects domain, system selects unit
+unit selection  weighted random toward lower-rated units in domain
+effect          selected unit domain_rating treated as floor(rating) + 3 this cycle
+trait           extraordinary action fires through unit trait weights
+gate            prerequisite gates still apply
+hangover        chaos_level −= 2 next cycle in domain (auto). GM can override.
+visibility      hidden from players. GM dashboard only.
+
+chaos 0         no effect
+chaos 1–3       low probability extraordinary action fires
+chaos 4–6       moderate — something will probably happen
+chaos 7–9       high — extraordinary action likely, possibly multiple
+chaos 10        guaranteed — possibly multiple units affected
+
+
+================================================================================
+LEADERSHIP NEED
+================================================================================
+
+// accumulation
+each cycle leaderless:          +2.0
+external attack on faction:     +3.0
+faction loses domain rating:    +4.0
+successful Recruit action:      +1.0
+
+// thresholds
+LN >= 10:   visible to all factions (public signal)
+LN >= 20:   faction fragments — splinter check each cycle
+
+// leaderless proxy behavior
+each cycle: random member selected as acting proxy
+selection weighted by: member domain rating in faction primary domain
+selected member: increased chance of becoming leader this cycle
+leaderless faction effective power: 0.75 × 0.80 = 0.60
+
+// Seek Leadership resolution
+leaderless:     Edge + domain vs LN score
+existing leader: Edge + domain vs leader Grit + domain
+margin >= 3:    immediate transfer, LN = 0
+margin 1–2:     leader Unstable 2 cycles
+fail:           challenger exposed, leader may expel
+
+
+================================================================================
+CASCADE EVENTS
+================================================================================
+
+trigger: any unit with floor(domain_rating) >= 4 removed, retired, or collapsed
+
+effects:
+  domain_pressure_relief    unit weight removed from cap utilization
+  faction_stability_hit     all member factions: stability check
+                            primary faction: hardest hit
+  leadership_vacuum         if unit was faction leader:
+                              faction leaderless, LN starts at 0
+  allied_focus_update       allied Revengeful units: focus score +2 toward source
+  rival_focus_update        rival Opportunistic units: scan for Contest actions
+  power_vacuum_open         2-cycle Contest window in affected domain(s)
+  sm_attention_spike        if unit had SM rating: Attention += unit SM weight
+  health_cascade            faction health −5 if unit was high-rated member
+
+power_vacuum duration:  2 cycles
+contest during vacuum:  free action, no Spy gate required
+
+
+================================================================================
+LEVEL 1 POOL
+================================================================================
+
+Level 1 members are background population — not individually tracked.
+Stored as level_1_count integer on each faction.
+No names, no stats, no traits, no actions.
+
+Level 1s do NOT:
+  act, Support, take any action
+  appear in logs (except emergence events)
+
+Level 1s DO:
+  count toward total_members for drag calculation
+  have 1% chance per cycle per faction to emerge as Level 2
+
+DRAG FORMULA:
+  level_1_ratio = level_1_count / (level_1_count + len(member_ids))
+
+  floor(faction.rating) <= 2:   drag = 0.0
+  floor(faction.rating) == 3:   drag = level_1_ratio × 0.10
+  floor(faction.rating) >= 4:   drag = level_1_ratio × 0.20
+
+  faction_action_rating × (1 − drag)
+
+  tuning values (adjust after testing):
+    drag_modifier_rating_3:   0.10
+    drag_modifier_rating_4+:  0.20
+
+EMERGENCE (1% per cycle per faction):
+  level_1_count −= 1
+  new unit created via Unit Generator (emergence mode)
+  logged as dramatic event
+
+
+================================================================================
+UNIT GENERATOR
+================================================================================
+
+Three modes: Random, GM-Directed, Emergence.
+
+--- RANDOM MODE (2 per cycle) ---
+
+TRAITS:       1: 40%, 2: 30%, 3: 20%, 4: 8%, 5: 2%
+DOMAINS:      2: 40%, 3: 30%, 4: 20%, 5: 10%  (domains above 1)
+RATINGS:      2: 55%, 3: 30%, 4: 15%, 5: 2%  (max at generation: 5)
+EDGE/GRIT:    8/12–12/8: 70%, 6/14–7/13: 20%, 2/18–5/15: 10%  (total=20)
+HEALTH:       random 60–95
+ENTRENCH:     0.0 on all domains
+FACTION:      none — unaffiliated
+PRIMARY:      highest rated domain (ties broken randomly)
+
+--- GM-DIRECTED MODE ---
+
+GM provides:  primary_domain (required), primary_level (required), name (optional)
+System fills: remaining domains, traits, edge/grit, entrench, health
+Faction:      none — unaffiliated
+
+--- EMERGENCE MODE ---
+
+Same as Random with overrides:
+  primary_domain = faction.domain_primary  (forced)
+  primary_level  = 2  (forced)
+  health         = random 40–100
+  faction_1      = emerging faction (inertia = 1.0)
+  name           = auto-generated
+
+
+================================================================================
+UNSTABLE CONDITION
+================================================================================
+
+trigger:
+  Harm margin 1–2 (partial success)
+  Infrastructure destroyed
+  Leader Seek Leadership loss (margin 1–2)
+
+effect:
+  −1 to all rolls involving that domain or role
+  visible to GM and watching units
+
+duration:
+  2 cycles default
+  OR until unit takes Entrench action in that domain
+  OR until faction provides Protect action for that unit
+
+stacking:
+  multiple conditions on same domain: −1 per stack
+  maximum stack: −3
+
+
+================================================================================
+HEALTH SYSTEM
+================================================================================
+
+--- UNIT HEALTH ---
+
+range: 1–100  |  creation: 60–95  |  emergence: 40–100  |  floor: 1
+
+decay:
+  natural:              −1 per cycle
+  leading a faction:    −1 every other cycle (even cycles only)
+                        effective average −0.5/cycle
+  attacked partial:     −3
+  attacked decisive:    −8
+
+gain:
+  Care action:          +10 (capped at 100)
+
+Resilient: natural decay = 0. Care = half action points.
+Fragile:   natural decay = −2 total. Harm damage +3.
+
+retirement check:
+  health >= 20:   0%
+  health < 20:    (20 − health) × 0.5 / 100
+    health 19:    0.5%
+    health 10:    5%
+    health 1:     9.5%
+
+on retirement:
+  removed from all factions
+  cascade if floor(domain_rating) >= 4
+  narrative log entry
+
+
+--- FACTION ENTRENCH ---
+
+range: 1–100  |  creation: 60–95  |  floor: 1  |  no retirement
+
+decay:
+  natural:              −1 per cycle
+  leaderless:           −2 additional
+  attacked partial:     −3
+  attacked decisive:    −8
+
+gain:   none defined (deferred — Care action for factions)
+
+entrench states (narrative signal):
+  80–100:   deeply entrenched
+  50–79:    showing strain
+  25–49:    losing grip
+  1–24:     barely holding — future faction split territory
+
+
+================================================================================
+END — 07_Systems
+================================================================================

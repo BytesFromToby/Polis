@@ -1,0 +1,224 @@
+================================================================================
+CITY SIMULATION SYSTEM
+05 — Actions
+v0.7
+================================================================================
+
+format:  ACTION  |  who  |  stat  |  gate  |  cost  |  mechanic
+
+================================================================================
+SHARED ACTIONS (unit and faction)
+================================================================================
+
+GROW
+  who:    unit or faction
+  stat:   Edge
+  gate:   none
+  cost:   floor(rating) action points
+  mech:   unit:    rating += increment per cycle (see 02_Constants)
+          faction: rating += increment per cycle (see 02_Constants)
+          Disruption Token on interrupt: rating -0.10, timer +2 cycles
+          cap resistance above 85% applies (see 02_Constants)
+          on level up: entrench x 0.25 (unit only)
+
+PROTECT
+  who:    unit or faction
+  stat:   Grit
+  gate:   none
+  cost:   floor(rating) action points
+  mech:   if Harm attempted against actor this cycle:
+            defend - reduce or negate incoming Harm
+            roll Grit + domain vs attacker roll
+          if NO Harm attempted this cycle:
+            unit:    entrench += 0.08
+            faction: entrench += 3
+          never a wasted action
+
+HARM
+  who:    unit or faction
+  stat:   Edge (attacker) / Grit (defender)
+  gate:   Expose on target first
+  cost:   floor(rating) action points
+  mech:   attacker: Edge + domain (+ faction bonus if applicable)
+          defender: Grit + domain + entrench_bonus
+          margin >= 3:  target domain_rating -1  (decisive)
+                        target health -8 (unit)
+                        target entrench -8 (faction)
+          margin 1-2:   target domain Unstable  (partial)
+                        target health -3 (unit)
+                        target entrench -3 (faction)
+          tie or fail:  attacker exposed via Cycle Event
+                        target may retaliate without new Expose
+          faction targeting modifier applies (see 02_Constants)
+
+BLOCK
+  who:    unit or faction
+  stat:   Edge
+  gate:   none
+  cost:   floor(rating) action points
+  mech:   target's action fails this cycle
+          target still spends action points
+          no prior Expose required
+          generates Cycle Event visible to all watchers
+
+EXPOSE
+  who:    unit or faction
+  stat:   Edge
+  gate:   none
+  cost:   floor(rating) action points
+  mech:   reveals target's current actions publicly
+          generates Cycle Event visible to all watchers
+          on success: target's action, domain, points all visible
+          feeds Focus scores for watching units
+          on fail: target alerted via Cycle Event
+          faction targeting modifier applies (see 02_Constants)
+
+STEAL
+  who:    unit or faction
+  stat:   Edge (attacker) / Grit (defender)
+  gate:   Expose on target first
+  cost:   floor(rating) action points
+  mech:   same domain only
+          attacker rating += half grow increment
+          target rating -= half grow increment
+          on fail: target alerted via Cycle Event
+          trace: 50% chance within 2 cycles
+          faction targeting modifier applies (see 02_Constants)
+
+SEEK LEADERSHIP
+  who:    unit
+  stat:   Edge (challenger) / Grit (defender if existing leader)
+  gate:   must be faction member
+  cost:   floor(rating) action points
+  mech:   leaderless: Edge + domain vs Leadership Need score
+          existing leader: Edge + domain vs leader Grit + domain
+          margin >= 3: immediate transfer, LN = 0
+                       faction Evolve may trigger on leadership change
+          margin 1-2:  leader Unstable 2 cycles
+          fail:        challenger exposed via Cycle Event
+                       leader may expel
+
+
+================================================================================
+UNIT-ONLY ACTIONS
+================================================================================
+
+CARE
+  who:    unit only
+  stat:   Grit
+  gate:   none
+  cost:   floor(rating) action points
+  mech:   health += 10  (capped at 100)
+          full action slot
+          Resilient trait: costs half action points instead
+
+OBSCURE
+  who:    unit only
+  stat:   Grit
+  gate:   none
+  cost:   floor(rating) action points
+  mech:   split rating between action(n) and obscure(rating-n)
+          Expose must beat obscure level to penetrate
+          obscure level visible to GM only, not rivals
+
+SUPPORT FACTION
+  who:    unit only
+  stat:   Edge
+  gate:   must be faction member
+          faction must act this cycle
+  cost:   all action points for this cycle
+  mech:   unit weight added to faction active_supporters
+          support_utilization recalculated (see 02_Constants)
+          faction_effective_power updated for this cycle only
+          multiple units may Support same faction same cycle
+          unit faction_inertia += 0.20 for this slot
+
+
+================================================================================
+FACTION-ONLY ACTIONS
+================================================================================
+
+RECRUIT
+  who:    faction only
+  stat:   Edge (faction) / Grit + entrench bonus (target)
+  gate:   none
+  cost:   floor(rating / 2) action points
+  mech:   faction_action_rating vs target grit + entrench_bonus
+          higher target entrench = harder to recruit
+          on win:  unit joins lowest slot, inertia = 1.0
+                   target's current faction alerted
+          on fail: target alerted, attempt visible via Cycle Event
+          auto-triggered at capacity thresholds (see 02_Constants)
+          faction targeting modifier applies (see 02_Constants)
+
+KICK
+  who:    faction only
+  stat:   Edge (faction) / Grit + entrench bonus (target)
+  gate:   none - deliberate OR auto-triggered at capacity threshold
+  cost:   floor(rating / 2) action points
+  mech:   faction_action_rating vs target grit + entrench_bonus
+          higher target entrench = harder to kick
+          on win:  unit loses slot, inertia -> 0
+                   focus score +2 (resentment)
+                   if kicked from faction_1: faction_2 promotes
+          on fail: unit stays, focus score +2 (resentment)
+                   Cycle Event generated
+
+EVOLVE
+  who:    faction only (requires leader)
+  stat:   n/a
+  gate:   leader must be present
+          leaderless faction cannot Evolve
+  cost:   floor(rating / 2) action points
+  mech:   25% - add one trait from leader's trait list
+                 that faction does not already have
+          25% - remove one trait from faction's trait list
+                 that leader does NOT have
+          50% - both: add one AND remove one
+          generates dramatic Cycle Event
+
+
+================================================================================
+ORGANIZATIONAL ACTIONS (auto-triggered - no action point cost)
+================================================================================
+
+JOIN
+  who:    unit
+  gate:   open faction slot
+          faction in recruit mode (utilization < 80%) OR
+          unit passes faction entry check
+  mech:   DC = base 5
+          Open trait:    DC -2
+          Insular trait: DC +3
+          Ideological:   doctrine check first
+          on success: unit added to lowest slot
+                      faction_inertia = 1.0
+                      join_desire recalculated
+          on fail: cannot attempt same faction for 2 cycles
+
+LEAVE
+  who:    unit
+  gate:   none
+  mech:   focus drain = faction_inertia x 0.5
+          faction_inertia -> 0
+          if faction_inertia >= 6.0: faction may Block leaving unit
+          slots below vacated slot promote up
+          if leaving faction_1 as leader: LN += 4.0 immediately
+
+
+================================================================================
+ACTION GATES SUMMARY
+================================================================================
+
+gate                applies to
+---------------------------------------------------------------------------
+Expose gate         Harm, Steal
+Leadership gate     Seek Leadership, Evolve (leader required)
+Faction gate        Support Faction, Recruit, Kick, Evolve
+Domain gate         must hold Level 1 to act in domain
+Join gate           must have open faction slot
+
+
+================================================================================
+END -- 05_Actions
+================================================================================

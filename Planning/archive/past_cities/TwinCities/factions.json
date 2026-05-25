@@ -1,0 +1,155 @@
+[
+  {
+    "id": "star_tribune",
+    "name": "Star Tribune",
+    "domain_primary": "traditional_media",
+    "rating": 6.45,
+    "traits": ["Defensive", "Hierarchical"],
+    "leader_id": "dana_morrow",
+    "leadership_need": 0.0,
+    "entrench": 82,
+    "member_ids": ["dana_morrow", "robert_kallas", "yolanda_reyes"],
+    "level_1_count": 25,
+    "relationships": [
+      {"faction_id": "wcco",    "trait": "Foe"},
+      {"faction_id": "mpr",     "trait": "Neutral"},
+      {"faction_id": "city_pages", "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "wcco",
+    "name": "WCCO",
+    "domain_primary": "traditional_media",
+    "rating": 6.45,
+    "traits": ["Expansionary"],
+    "leader_id": "frank_calder",
+    "leadership_need": 0.0,
+    "entrench": 78,
+    "member_ids": ["frank_calder", "sandra_voss"],
+    "level_1_count": 18,
+    "relationships": [
+      {"faction_id": "star_tribune", "trait": "Foe"},
+      {"faction_id": "city_pages",   "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "mpr",
+    "name": "MPR",
+    "domain_primary": "traditional_media",
+    "rating": 4.80,
+    "traits": ["Ideological"],
+    "leader_id": null,
+    "leadership_need": 4.0,
+    "entrench": 70,
+    "member_ids": [],
+    "level_1_count": 5,
+    "relationships": []
+  },
+  {
+    "id": "city_pages",
+    "name": "City Pages",
+    "domain_primary": "traditional_media",
+    "rating": 4.20,
+    "traits": ["Open"],
+    "leader_id": "rourke_simms",
+    "leadership_need": 0.0,
+    "entrench": 68,
+    "member_ids": ["rourke_simms"],
+    "level_1_count": 6,
+    "relationships": [
+      {"faction_id": "star_tribune", "trait": "Foe"},
+      {"faction_id": "wcco",         "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "the_onion",
+    "name": "The Onion",
+    "domain_primary": "traditional_media",
+    "rating": 4.10,
+    "traits": ["Insular"],
+    "leader_id": "petra_vance",
+    "leadership_need": 0.0,
+    "entrench": 72,
+    "member_ids": ["petra_vance"],
+    "level_1_count": 5,
+    "relationships": []
+  },
+  {
+    "id": "mayors_office",
+    "name": "Mayor's Office",
+    "domain_primary": "political",
+    "rating": 5.30,
+    "traits": ["Hierarchical", "Defensive"],
+    "leader_id": "councilman_pierce",
+    "leadership_need": 0.0,
+    "entrench": 75,
+    "member_ids": ["councilman_pierce", "aide_delgado"],
+    "level_1_count": 12,
+    "relationships": [
+      {"faction_id": "city_council_dfl",         "trait": "Friend"},
+      {"faction_id": "city_council_conservative", "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "city_council_dfl",
+    "name": "City Council DFL",
+    "domain_primary": "political",
+    "rating": 5.10,
+    "traits": ["Ideological"],
+    "leader_id": "rep_olawale",
+    "leadership_need": 0.0,
+    "entrench": 73,
+    "member_ids": ["rep_olawale", "aide_moss"],
+    "level_1_count": 10,
+    "relationships": [
+      {"faction_id": "mayors_office",             "trait": "Friend"},
+      {"faction_id": "city_council_conservative", "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "city_council_conservative",
+    "name": "City Council Conservative",
+    "domain_primary": "political",
+    "rating": 4.60,
+    "traits": ["Insular"],
+    "leader_id": "rep_hartman",
+    "leadership_need": 0.0,
+    "entrench": 71,
+    "member_ids": ["rep_hartman"],
+    "level_1_count": 8,
+    "relationships": [
+      {"faction_id": "mayors_office",  "trait": "Foe"},
+      {"faction_id": "city_council_dfl", "trait": "Foe"}
+    ]
+  },
+  {
+    "id": "north_mpls_community",
+    "name": "North Minneapolis Community",
+    "domain_primary": "street",
+    "rating": 4.30,
+    "traits": ["Open"],
+    "leader_id": "darnell_washington",
+    "leadership_need": 0.0,
+    "entrench": 65,
+    "member_ids": ["darnell_washington", "keisha_brooks"],
+    "level_1_count": 8,
+    "relationships": [
+      {"faction_id": "southside_alliance", "trait": "Friend"}
+    ]
+  },
+  {
+    "id": "southside_alliance",
+    "name": "Southside Alliance",
+    "domain_primary": "street",
+    "rating": 4.10,
+    "traits": ["Ideological"],
+    "leader_id": "maria_espinoza",
+    "leadership_need": 0.0,
+    "entrench": 64,
+    "member_ids": ["maria_espinoza"],
+    "level_1_count": 7,
+    "relationships": [
+      {"faction_id": "north_mpls_community", "trait": "Friend"}
+    ]
+  }
+]

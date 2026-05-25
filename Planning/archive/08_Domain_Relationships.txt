@@ -1,0 +1,349 @@
+================================================================================
+CITY SIMULATION SYSTEM
+08 — Domain Relationships
+v0.3  —  COMPLETE
+================================================================================
+
+Domain relationships define how each domain's NPC factions and units
+naturally orient toward other domains. These are built-in city properties
+— not individual faction decisions. They bias NPC action selection and
+target selection automatically each cycle.
+
+The self-referential entry (domain pointing to itself) defines the default
+relationship between factions within that domain. Specific faction-to-faction
+relationships override this default. See 01_Data_Models for faction.relationships.
+
+
+================================================================================
+RELATIONSHIP TRAITS
+================================================================================
+
+trait     NPC behavior effect
+---------------------------------------------------------------------------
+Friend    +weight toward Assist, Support, Recruit targeting this domain
+Foe       +weight toward Attack, Block, Steal targeting this domain
+Hide      +weight toward Obscure when this domain is active
+          -weight toward actions drawing this domain's attention
+Client    +weight toward Spy, Assist, Recruit targeting this domain
+          Seeking something specific from this domain
+Neutral   No modification to action weights
+
+
+================================================================================
+RESOLUTION ORDER FOR SAME-DOMAIN TARGETING
+================================================================================
+
+When faction A targets faction B in the same domain:
+  1. Check faction_A.relationships for faction_B — use if found
+  2. Fall back to domain.relationships[same_domain] — intra-domain default
+
+
+================================================================================
+HOW RELATIONSHIPS FEED INTO NPC BEHAVIOR
+================================================================================
+
+When an NPC unit or faction selects a target this cycle:
+
+1. Start with trait-based action weights (see 04_Traits)
+2. Apply focus bias if focus score > inertia
+3. Apply domain relationship modifiers:
+     For each domain in relationships array:
+       if trait == Friend:  boost probability of helpful actions toward that domain
+       if trait == Foe:     boost probability of hostile actions toward that domain
+       if trait == Hide:    suppress visible actions, boost Obscure
+       if trait == Client:  boost Spy and approach actions toward that domain
+4. Apply 3-5% wildcard override
+
+
+================================================================================
+DOMAIN RELATIONSHIP ARRAYS
+================================================================================
+
+--- STREET ---
+
+  Street:           Neutral   <- intra-domain default
+  Religion:         Friend
+  Police:           Hide
+  Transportation:   Client
+  Legal:            Hide
+  Health:           Client
+  Underworld:       Friend
+  High Society:     Foe
+  Political:        Hide
+  Finance:          Hide
+  Traditional Media:Hide
+  Social Media:     Friend
+  Bureaucracy:      Client
+  Industry:         Neutral
+  University:       Neutral
+
+
+--- POLITICAL ---
+
+  Political:        Foe       <- intra-domain default
+  Bureaucracy:      Friend
+  Traditional Media:Client
+  Legal:            Client
+  Finance:          Friend
+  High Society:     Friend
+  Police:           Friend
+  Religion:         Client
+  University:       Client
+  Street:           Client
+  Industry:         Friend
+  Health:           Neutral
+  Transportation:   Neutral
+  Underworld:       Hide
+  Social Media:     Hide
+
+
+--- RELIGION ---
+
+  Religion:         Neutral   <- intra-domain default
+  Street:           Friend
+  High Society:     Client
+  Political:        Neutral
+  University:       Foe
+  Traditional Media:Client
+  Bureaucracy:      Hide
+  Legal:            Hide
+  Finance:          Client
+  Health:           Friend
+  Underworld:       Foe
+  Police:           Neutral
+  Industry:         Neutral
+  Transportation:   Neutral
+  Social Media:     Hide
+
+
+--- BUREAUCRACY ---
+
+  Bureaucracy:      Friend    <- intra-domain default
+  Political:        Friend
+  Legal:            Friend
+  Finance:          Neutral
+  Industry:         Neutral
+  Health:           Friend
+  Transportation:   Friend
+  University:       Client
+  Police:           Friend
+  Street:           Neutral
+  Underworld:       Foe
+  Religion:         Neutral
+  High Society:     Neutral
+  Traditional Media:Hide
+  Social Media:     Hide
+
+
+--- FINANCE ---
+
+  Finance:          Foe       <- intra-domain default
+  Political:        Friend
+  Industry:         Friend
+  High Society:     Friend
+  Legal:            Client
+  Bureaucracy:      Client
+  Traditional Media:Client
+  University:       Neutral
+  Health:           Friend
+  Transportation:   Friend
+  Underworld:       Hide
+  Street:           Neutral
+  Police:           Neutral
+  Religion:         Neutral
+  Social Media:     Hide
+
+
+--- POLICE ---
+
+  Police:           Friend    <- intra-domain default
+  Bureaucracy:      Friend
+  Political:        Friend
+  Legal:            Friend
+  Underworld:       Foe
+  Street:           Foe
+  Finance:          Neutral
+  Industry:         Neutral
+  Health:           Client
+  Traditional Media:Hide
+  Social Media:     Hide
+  Religion:         Neutral
+  High Society:     Neutral
+  Transportation:   Neutral
+  University:       Neutral
+
+
+--- UNDERWORLD ---
+
+  Underworld:       Foe       <- intra-domain default
+  Street:           Friend
+  Finance:          Client
+  Legal:            Client
+  Police:           Hide
+  Political:        Client
+  Transportation:   Friend
+  High Society:     Hide
+  Traditional Media:Hide
+  Social Media:     Hide
+  Bureaucracy:      Client
+  Health:           Client
+  Religion:         Foe
+  Industry:         Neutral
+  University:       Neutral
+
+
+--- LEGAL ---
+
+  Legal:            Neutral   <- intra-domain default
+  Bureaucracy:      Friend
+  Political:        Friend
+  Finance:          Client
+  Police:           Friend
+  High Society:     Client
+  Industry:         Client
+  Traditional Media:Hide
+  Social Media:     Hide
+  Underworld:       Client
+  Street:           Neutral
+  Health:           Neutral
+  Religion:         Neutral
+  Transportation:   Neutral
+  University:       Neutral
+
+
+--- HEALTH ---
+
+  Health:           Friend    <- intra-domain default
+  Bureaucracy:      Friend
+  Finance:          Client
+  University:       Friend
+  Political:        Client
+  Industry:         Neutral
+  Legal:            Neutral
+  Police:           Neutral
+  Street:           Friend
+  Religion:         Friend
+  High Society:     Client
+  Traditional Media:Neutral
+  Social Media:     Hide
+  Underworld:       Foe
+  Transportation:   Neutral
+
+
+--- HIGH SOCIETY ---
+
+  High Society:     Neutral   <- intra-domain default
+  Finance:          Friend
+  Political:        Friend
+  Traditional Media:Client
+  Legal:            Client
+  University:       Client
+  Religion:         Friend
+  Health:           Friend
+  Industry:         Neutral
+  Bureaucracy:      Neutral
+  Police:           Neutral
+  Street:           Foe
+  Underworld:       Hide
+  Social Media:     Hide
+  Transportation:   Neutral
+
+
+--- INDUSTRY ---
+
+  Industry:         Foe       <- intra-domain default
+  Finance:          Friend
+  Transportation:   Friend
+  Political:        Client
+  Bureaucracy:      Client
+  Legal:            Client
+  University:       Client
+  Health:           Neutral
+  Police:           Neutral
+  Street:           Neutral
+  Religion:         Neutral
+  High Society:     Neutral
+  Traditional Media:Hide
+  Social Media:     Hide
+  Underworld:       Neutral
+
+
+--- TRADITIONAL MEDIA ---
+
+  Traditional Media:Foe       <- intra-domain default
+  Political:        Friend
+  University:       Friend
+  Legal:            Client
+  Finance:          Client
+  High Society:     Client
+  Bureaucracy:      Foe
+  Police:           Foe
+  Underworld:       Client
+  Street:           Client
+  Social Media:     Foe
+  Health:           Neutral
+  Industry:         Neutral
+  Religion:         Neutral
+  Transportation:   Neutral
+
+
+--- SOCIAL MEDIA ---
+
+  Social Media:     Foe       <- intra-domain default
+  Street:           Friend
+  Underworld:       Client
+  Traditional Media:Foe
+  Political:        Foe
+  Police:           Foe
+  High Society:     Foe
+  Religion:         Client
+  Finance:          Client
+  Bureaucracy:      Client
+  University:       Neutral
+  Health:           Neutral
+  Industry:         Neutral
+  Legal:            Neutral
+  Transportation:   Neutral
+
+
+--- TRANSPORTATION ---
+
+  Transportation:   Friend    <- intra-domain default
+  Industry:         Friend
+  Finance:          Friend
+  Bureaucracy:      Friend
+  Political:        Client
+  Underworld:       Foe
+  Street:           Friend
+  Health:           Neutral
+  Legal:            Neutral
+  Police:           Neutral
+  Religion:         Neutral
+  High Society:     Neutral
+  University:       Neutral
+  Traditional Media:Neutral
+  Social Media:     Neutral
+
+
+--- UNIVERSITY ---
+
+  University:       Neutral   <- intra-domain default
+  Traditional Media:Friend
+  Health:           Friend
+  Political:        Client
+  Finance:          Client
+  High Society:     Friend
+  Bureaucracy:      Client
+  Industry:         Friend
+  Religion:         Foe
+  Street:           Client
+  Social Media:     Neutral
+  Legal:            Neutral
+  Police:           Neutral
+  Transportation:   Neutral
+  Underworld:       Neutral
+
+
+================================================================================
+END -- 08_Domain_Relationships
+================================================================================
