@@ -223,6 +223,66 @@ The world of buying, selling, lending, and the games played with supply and pric
 > Character: `corrupt` (strong), `opportunistic` (moderate)
 > Leader: **Hieron the Patient** — soft-spoken and predatory; waits for famine the way others wait for harvest.
 
+### Guilds (*Demiourgoi*) — power by production
+
+The makers — those whose power is the things they build. Guilds *make* goods; Trade sells
+them, Harbor ships them. This is the city's largest domain — a crowded quarter of crafts.
+
+> **The Bronzehands** — *the smiths and metalworkers*
+> The forges — bronze and iron, arms, tools, fittings. Their hammers arm the city and shoe its every need.
+> Character: `industrious` (strong), `defensive` (slight)
+> Leader: **Akmon the Forgemaster** — soot-stained and blunt; guards the secrets of the forge like family.
+
+> **The Stonewrights** — *the masons and builders*
+> The stoneworkers who raise temples, walls, and monuments — the muscle behind every great public work, and hungry for the next big contract.
+> Character: `industrious` (strong), `ambitious` (moderate)
+> Leader: **Lithos the Master-Builder** — proud and driven; sees the city as unfinished and himself as the one to finish it.
+
+> **The Keelwrights** — *the shipwrights*
+> The yards that build the hulls — merchantmen and triremes alike. They rise and fall with the city's ambitions on the water.
+> Character: `industrious` (moderate), `expansionary` (moderate)
+> Leader: **Argeios the Keelwright** — steady and far-thinking; every keel he lays is a bet on a bigger fleet.
+
+> **The Kerameis** — *the potters and vase-painters of the kiln-quarter*
+> The clay-workers — everyday vessels and prized export ware. Numerous, ink-fingered, and prouder of their art than their station.
+> Character: `industrious` (moderate), `opportunistic` (slight)
+> Leader: **Pamphilos of the Kiln** — particular and vain; signs his finest work and remembers every slight.
+
+> **The Ovenmen** — *the millers and bakers*
+> The mills and ovens that turn grain into flour and flour into bread — the city's daily loaf, and a quiet lever whenever the granaries run low.
+> Character: `industrious` (moderate), `opportunistic` (moderate)
+> Leader: **Mazon the Baker** — flour-dusted and genial; smiles wider as the price of bread climbs.
+
+> **The Winepressers** — *the vintners and winemakers*
+> The presses and cellars behind the city's wine — from the rough stuff of the docks to the vintages of noble tables. Wine is everywhere, and so are they.
+> Character: `industrious` (moderate), `opportunistic` (slight)
+> Leader: **Oinops the Vintner** — ruddy and convivial; generous with a cup, shrewd over a ledger.
+
+> **The Oil-pressers** — *the olive-oil makers*
+> The presses that yield the city's olive oil — food, lamplight, athletes' sheen, and its single greatest export. Wealthy, and they know it.
+> Character: `industrious` (strong), `expansionary` (moderate)
+> Leader: **Elaios of the Press** — broad and unhurried; thinks in harvests and amphorae shipped abroad.
+
+> **The Tanners** — *the leatherworkers and hide-curers*
+> The reeking tan-yards at the edge of town — leather for armor, sandals, harness, and rigging. Rich, coarse, and loud in the assembly.
+> Character: `industrious` (moderate), `aggressive` (moderate)
+> Leader: **Bursas the Tanner** — blunt and foul-handed; a commoner's voice with a commoner's grudges.
+
+> **The Weavers** — *the textile-makers*
+> The looms that clothe the city — wool, linen, and dyed cloth for home and trade. Patient and domestic, and more powerful than their quiet suggests.
+> Character: `industrious` (moderate), `defensive` (moderate)
+> Leader: **Theano of the Loom** — soft-spoken and tireless; weaves alliances as readily as cloth.
+
+> **The Carpenters** — *the woodworkers and joiners*
+> The timber workshops — furniture, carts, beams, doors, tools. The frame behind daily life, beside (not in) the shipyards.
+> Character: `industrious` (strong), `conservative` (slight)
+> Leader: **Tekton the Joiner** — methodical and exacting; measures twice and trusts wood over words.
+
+> **The Perfumers** — *the makers of scented oils (myrepsoi)*
+> Blenders of *myron* — perfumed oils and unguents in alabaster flasks, sold to the rich and the temples alike. They deal in scent, flattery, and the secrets of every household they serve.
+> Character: `opportunistic` (moderate), `industrious` (slight)
+> Leader: **Myrrha of the Flask** — elegant and discreet; knows what the great families whisper, and to whom it's worth a word.
+
 ---
 
 ## Player title — the rank ladder
