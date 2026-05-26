@@ -314,6 +314,31 @@ skill and service.)
 > Character: `opportunistic` (moderate), `ambitious` (moderate)
 > Leader: **Chrysanthe of the Gem** — dazzling and watchful; dresses the powerful, and listens while she fastens the clasp.
 
+### Academy (*Akadēmeia*) — power by intellect
+
+The shapers of thought, argument, and knowledge — those whose power is what people *believe*
+and how they are persuaded. (The Professions apply skill; the Academy shapes minds.)
+
+> **The Grove** — *the philosophers' school*
+> The seekers of truth and virtue who teach the city's young men to think — principled, doctrinaire, and certain their ideas should steer the city.
+> Character: `ambitious` (moderate), `defensive` (slight)
+> Leader: **Sophron the Elder** — serene and unbending; gathers devoted students and distrusts those who argue for pay.
+
+> **The Sophists** — *the teachers of rhetoric, for a fee*
+> The masters of winning argument — they'll teach anyone with coin to out-talk an opponent, truth be damned. The Grove's bitter rivals.
+> Character: `opportunistic` (strong), `ambitious` (moderate)
+> Leader: **Protarchos the Sophist** — silver-tongued and amused; sells certainty to whoever pays, and means none of it.
+
+> **The Goldentongues** — *the public orators of the assembly*
+> The great speakers who move the crowd — eloquence as a weapon, capable of swinging the city in a single afternoon's speech.
+> Character: `ambitious` (strong), `aggressive` (moderate)
+> Leader: **Phrasikles the Orator** — thunderous and vain; lives for the roar of the crowd and the fall of a rival.
+
+> **The Stargazers** — *the astronomers, mathematicians, and natural philosophers*
+> The men of numbers and stars — calendars, geometry, the hidden order of things. Insular, austere, and quietly feared by those who trust prophecy over proof.
+> Character: `conservative` (moderate), `paranoid` (slight)
+> Leader: **Astron the Measurer** — cold and exact; speaks in numbers and sees patterns others would rather not know.
+
 ---
 
 ## Player title — the rank ladder
