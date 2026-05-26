@@ -63,11 +63,11 @@ used in-game; the Greek is flavor.
 | **Military** | *Stratos* — "the host" | The hoplite phalanx and the sellswords it absorbs. Power by **force of arms**. |
 | **Academy** | *Akadēmeia* — "the school" | Philosophers, sophists, rhetoricians. Power by **intellect** — shaping thought and opinion. |
 | **Harbor** | *Limēn* — "the port" | Shipping, the fleet, dock labor. Power by **command of the sea**. |
-| **Underclass** | *Metoikoi* — "resident outsiders" | Metics, the unfranchised, smugglers. Power at the **margins** — outside the law and the citizen rolls. |
 
-The canonical roster is these **nine domains**. The common people are handled by a separate
-future *population* system (not a domain); **Assembly** and **Council** are deferred to the
-future institutions feature (see the player-title note below).
+The canonical roster is these **eight domains**. Every domain is a set of groups the player
+can actually hold audience with — that is the test for what counts as a faction. The common
+people are handled by a separate future *population* system (not a domain); **Assembly** and
+**Council** are deferred to the future institutions feature (see the player-title note below).
 
 ---
 
@@ -222,6 +222,11 @@ The world of buying, selling, lending, and the games played with supply and pric
 > A cartel that buys up stock and sits on it — hoarding grain and goods to choke supply and spike the price, then selling at the city's worst hour.
 > Character: `corrupt` (strong), `opportunistic` (moderate)
 > Leader: **Hieron the Patient** — soft-spoken and predatory; waits for famine the way others wait for harvest.
+
+> **The Outland Houses** — *the resident-foreigner merchants (metoikoi)*
+> Wealthy foreign traders who pay the city's taxes and move much of its commerce, yet are barred from citizenship — prosperous, useful, and resentful of their place outside the rolls. The citizen Amphora Houses resent them right back.
+> Character: `ambitious` (strong), `opportunistic` (slight)
+> Leader: **Xenon the Outlander** — gracious and weary; rich enough to buy half the council, forbidden to sit on it.
 
 ### Guilds (*Demiourgoi*) — power by production
 
@@ -380,3 +385,9 @@ only — the player's mechanical role (the "Mayor" in `mayor_spec.md`) is unchan
   cities is dropped. Ancient Greek is the sole theme.
 - **Twin Cities / Minneapolis roster** — the original real-world placeholder (`data/*.json`),
   superseded by the Greek re-theme.
+- **Underclass domain** — cut (2026-05-26). A faction is a group the player can hold audience
+  with; the criminal underworld (thieves, smugglers, charlatans) fails that test. Its flavor
+  lives on instead as **events / external threats** (crime waves, smuggling that undercuts the
+  customs, fraud-cults) and as a cross-cutting **"criminal" role** carried by factions in other
+  domains. The one meetable faction — the **Metics** (wealthy resident foreigners) — was
+  rescued into **Trade** as the *Outland Houses*; freedmen fold into the future population system.
