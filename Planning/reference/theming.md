@@ -117,6 +117,36 @@ Rival noble houses, each an ancient name with its own claim on the city.
 > Character: `opportunistic` (strong), `corrupt` (slight)
 > Leader: **Demarete of the Skiadai** — gracious in public, ruthless in the dark.
 
+### Temples (*Hiereis*) — power by divine legitimacy
+
+Rival priesthoods and cults, each claiming the city's faith — and the wealth and authority
+that come with it. The first four are core; the last two are extras to keep or cut.
+
+> **The Tidesworn** — *priests of the Earth-Shaker (Poseidon)*
+> The sea-god's cult — storms, earthquakes, the harbor's fear. They claim the god's wrath as leverage.
+> Character: `aggressive` (moderate), `ambitious` (moderate)
+> Leader: **Nereus Halios** — booming and volatile; speaks of the god's anger as if it were his own.
+
+> **The Hearthwardens** — *keepers of the eternal flame (Hestia)*
+> Guardians of the city's sacred hearth, the unbroken civic fire. The still, traditional soul of the polis.
+> Character: `conservative` (strong), `defensive` (moderate)
+> Leader: **Hestaia the Unmoved** — serene, rigid; treats every reform as a draft on the flame.
+
+> **The Greenmantle** — *the harvest cult of the earth-mother (Demeter)*
+> The grain-and-fertility cult, rooted in the seasons; blesses the fields and feeds the festivals.
+> Character: `industrious` (moderate), `defensive` (slight)
+> Leader: **Chloris of the Furrow** — warm and patient; thinks in seasons, slow to anger and slow to forgive.
+
+> **The Raving Choir** — *ecstatic prophets of the mad god (Dionysos)*
+> Frenzied seers who prophesy in fits and whip crowds into ecstasy. Beloved, feared, uncontrollable.
+> Character: `destructive` (moderate), `opportunistic` (moderate)
+> Leader: **Eurymache the Raving** — wild-eyed, speaks in the god's tongue; no one knows what she'll do next.
+
+> **The Bright Order** — *the great oracle of the far-shooting god (Apollo)*
+> The establishment oracle — prestigious, panhellenic, consulted before wars and colonies. Kingmakers in robes.
+> Character: `ambitious` (strong), `opportunistic` (moderate)
+> Leader: **High Seer Aletheian** — calm and smiling; every prophecy is a move on a longer board.
+
 ---
 
 ## Player title — the rank ladder
