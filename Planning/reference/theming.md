@@ -172,6 +172,32 @@ commanders who would point them. The fourth is an extra to keep or cut.
 > Character: `expansionary` (strong), `ambitious` (moderate)
 > Leader: **Naukrates of the Long Oars** — bold and restless; dreams of a city whose walls are its ships.
 
+### Harbor (*Limēn*) — power by command of the sea
+
+The commercial maritime world — the labor, the boats, the authority, and the carrying trade
+that move goods and people across the water. (The *war* fleet sits under Military; Harbor is
+the civilian port.) Trade buys and sells; Harbor *moves and handles*.
+
+> **The Quaymen** — *the dockhands and stevedores*
+> The labor of the wharves — they load, unload, and haul. Numerous and organized; a word from them can still the whole port.
+> Character: `defensive` (moderate), `aggressive` (moderate)
+> Leader: **Brontes Bighand** — gruff and immovable; protective of his gangs and quick to down tools.
+
+> **The Netmenders** — *the fishing crews who feed the city*
+> The boat crews who work the waters — weather-beaten, independent, traditional. The city's daily catch and a food supply unto themselves.
+> Character: `conservative` (moderate), `defensive` (slight)
+> Leader: **Glaukos the Weathered** — salt-cured and plain-spoken; trusts the tide more than any magistrate.
+
+> **The Harborwardens** — *the port authority — berths, customs, bonded warehouses*
+> The officials who decide who docks, when, and at what toll — and who control the stored cargo. Gatekeepers who take their cut.
+> Character: `corrupt` (strong), `conservative` (slight)
+> Leader: **Warden Pheidon** — courteous and dry; every favor has a price, and he never forgets a ledger.
+
+> **The Saltroad Houses** — *the shipowners and freight-carriers (naukleroi)*
+> The owners of the merchant hulls that carry the city's cargo — they don't buy the goods, they move them, and they live to expand the routes.
+> Character: `expansionary` (strong), `ambitious` (moderate)
+> Leader: **Timaios the Farsailed** — restless and far-seeing; measures the city by how far its hulls reach.
+
 ---
 
 ## Player title — the rank ladder
