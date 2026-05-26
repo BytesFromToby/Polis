@@ -13,9 +13,10 @@ taxes — and can hold a live, **LLM-driven negotiation audience** with any fact
 where the faction's leader bargains in character and the outcome feeds back into the
 simulation.
 
-> **Status:** Active work-in-progress. The core engine, REST API, and browser UI are
-> functional end to end; features are still being added. This repository is published
-> as a demonstration of engineering practice and AI-assisted development workflow.
+> **Status:** Early alpha — active work-in-progress. The core engine, REST API, and
+> browser UI are functional end to end; features are still being added and things may
+> change. This repository is published as a demonstration of engineering practice and
+> AI-assisted development workflow.
 
 ---
 
@@ -87,7 +88,7 @@ start the sim, run cycles, and watch the events and faction standings update.
 > server instead, and rebuild (`npm run build`) before serving through the backend.
 > The API runs fine without a build — you just won't get the UI at `/`.
 
-### 5. Run the tests
+### 4. Run the tests
 ```bash
 cd backend
 py -m pytest tests/ -q
@@ -152,9 +153,10 @@ tools/        Audit and state-validation scripts
 
 ## Development workflow (AI-assisted)
 
-This project is built with a structured, spec-driven workflow rather than ad-hoc
-prompting. It's worth a look if you're interested in *how* to use AI coding tools
-rigorously:
+This project is built with **[Plumbline](https://github.com/BytesFromToby/Plumbline)**,
+my own structured, spec-driven workflow for AI-assisted coding — a set of skills that
+replace ad-hoc prompting with a disciplined pipeline. It's worth a look if you're
+interested in *how* to use AI coding tools rigorously:
 
 - **Specs are the source of truth** (`Planning/specs/`). Each feature carries inline
   *Done-when* acceptance criteria tagged `[automated]` or `[human-required]`.
