@@ -1,5 +1,25 @@
-# Vue 3 + Vite
+# City_Sim — Frontend
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Vue 3 (Options API) + Vite browser UI for the City_Sim engine. It provides the
+game-master interface: create a city, configure factions, run simulation cycles,
+view events and faction standings, and conduct mayor actions and LLM negotiation
+audiences.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+The backend (FastAPI) serves the built output from `dist/` at the app root, so for
+normal use you only need to build once and run the backend server.
+
+## Develop
+
+```bash
+npm install
+npm run dev      # hot-reloading dev server (expects the API on :8000)
+```
+
+## Build
+
+```bash
+npm run build    # outputs to dist/ — restart the backend server to pick it up
+```
+
+See the [root README](../README.md) for full setup and how the frontend fits into
+the overall system.

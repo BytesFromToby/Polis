@@ -9,6 +9,10 @@ venv/
 .venv/
 env/
 
+# Local environment config (the committed example is .env.example)
+.env
+.env.local
+
 # Databases — runtime state, regenerated from backend/data/*.json + startup seed
 *.db
 
