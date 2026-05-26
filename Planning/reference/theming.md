@@ -278,10 +278,41 @@ them, Harbor ships them. This is the city's largest domain — a crowded quarter
 > Character: `industrious` (strong), `conservative` (slight)
 > Leader: **Tekton the Joiner** — methodical and exacting; measures twice and trusts wood over words.
 
-> **The Perfumers** — *the makers of scented oils (myrepsoi)*
-> Blenders of *myron* — perfumed oils and unguents in alabaster flasks, sold to the rich and the temples alike. They deal in scent, flattery, and the secrets of every household they serve.
-> Character: `opportunistic` (moderate), `industrious` (slight)
+### The Professions (*Technitai*) — power by cultivated skill and public renown
+
+The skilled who rose by talent, not birth or making — those whose power is what they *can do*
+and the name it earns them. (Academy owns thought and persuasion; the Professions own applied
+skill and service.)
+
+> **The Asklepiads** — *the physicians and healers*
+> The secular doctors who trade in the one thing no one can refuse — health. Indispensable, and they know the worth of a cure withheld.
+> Character: `defensive` (moderate), `ambitious` (slight)
+> Leader: **Akesias the Physician** — calm and exacting; collects a quiet favor with every patient he saves.
+
+> **The Players** — *the actors, musicians, and poets of the stage*
+> The theatre folk who command the crowd's heart — beloved, mocking, and able to make or unmake a reputation in an afternoon's performance.
+> Character: `opportunistic` (strong), `ambitious` (slight)
+> Leader: **Komos of the Stage** — vain and magnetic; plays the audience like a lyre and never forgets a critic.
+
+> **The Garland-Chasers** — *the champion athletes and gymnasium trainers*
+> The victors of the games and the men who train them — living glory, courted by every faction that wants the crowd's adoration reflected onto itself.
+> Character: `ambitious` (strong), `aggressive` (slight)
+> Leader: **Pankrates the Victor** — proud and restless; measures his worth in wreaths and refuses to lose at anything.
+
+> **The Quillsworn** — *the city's clerks, record-keepers, and tax-farmers*
+> The bureaucrats who run the paperwork and the purse — registries, deeds, proclamations, and the collection of the city's taxes, which they bid to farm and quietly skim. They know where every document and every drachma sits.
+> Character: `conservative` (moderate), `corrupt` (moderate)
+> Leader: **Grapheus the Reckoner** — meticulous and unhurried; forgets nothing, files everything, and counts twice.
+
+> **The Perfumers** — *the purveyors of scented oils (myrepsoi)*
+> Blenders of *myron* for the rich and the temples — but their real trade is access: scent, flattery, and the secrets of every household they serve.
+> Character: `opportunistic` (moderate), `ambitious` (slight)
 > Leader: **Myrrha of the Flask** — elegant and discreet; knows what the great families whisper, and to whom it's worth a word.
+
+> **The Adorners** — *the jewelers and gem-setters to the great houses*
+> The high-end goldsmiths — diadems, signet rings, necklaces. Status made wearable, fitted to the elite they flatter — and they compete with the Perfumers to be closest to power.
+> Character: `opportunistic` (moderate), `ambitious` (moderate)
+> Leader: **Chrysanthe of the Gem** — dazzling and watchful; dresses the powerful, and listens while she fastens the clasp.
 
 ---
 
