@@ -198,6 +198,31 @@ the civilian port.) Trade buys and sells; Harbor *moves and handles*.
 > Character: `expansionary` (strong), `ambitious` (moderate)
 > Leader: **Timaios the Farsailed** — restless and far-seeing; measures the city by how far its hulls reach.
 
+### Trade (*Emporoi*) — power by exchange
+
+The world of buying, selling, lending, and the games played with supply and price. Trade
+*moves goods and coin*; it does not make them (Guilds) or carry them by sea (Harbor).
+
+> **The Amphora Houses** — *the great wholesale merchants*
+> The big import-export traders who deal in bulk — grain, oil, wine, slaves. The dominant commercial power, always reaching for a wider market.
+> Character: `expansionary` (strong), `ambitious` (moderate)
+> Leader: **Polemarchos the Stout** — jovial and grasping; counts the city's worth in cargoes landed.
+
+> **The Silverbench** — *the money-changers and lenders (trapezitai)*
+> The bankers at their tables — deposits, loans, currency, debt. Quiet, patient, and owed by half the city.
+> Character: `conservative` (strong), `corrupt` (slight)
+> Leader: **Aristion of the Bench** — cool and exact; never raises his voice, never forgives a default.
+
+> **The Stallmongers** — *the agora retailers and shopkeepers (kapeloi)*
+> The petty traders of the marketplace stalls — numerous, scrappy, working every angle for a thin margin.
+> Character: `opportunistic` (strong), `defensive` (moderate)
+> Leader: **Myrto Quicktongue** — sharp and fast-talking; speaks for the little traders and misses nothing.
+
+> **The Storehouse Ring** — *the warehouse speculators who corner the market*
+> A cartel that buys up stock and sits on it — hoarding grain and goods to choke supply and spike the price, then selling at the city's worst hour.
+> Character: `corrupt` (strong), `opportunistic` (moderate)
+> Leader: **Hieron the Patient** — soft-spoken and predatory; waits for famine the way others wait for harvest.
+
 ---
 
 ## Player title — the rank ladder
