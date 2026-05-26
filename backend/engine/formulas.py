@@ -1,5 +1,5 @@
 """
-formulas.py — Pure calculation functions for the City Simulation System v3.
+formulas.py — Pure calculation functions for Polis v3.
 
 v3 changes (2026-05-17):
   - Removed all unit-specific formulas (inertia, edge/grit, support, weight tables)

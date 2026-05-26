@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <nav>
-      <span class="brand">City Sim</span>
+      <span class="brand">Polis</span>
       <span class="muted">City Builder</span>
       <span class="spacer"></span>
       <button class="btn-subtle btn-sm" @click="$router.push('/home')">← Home</button>

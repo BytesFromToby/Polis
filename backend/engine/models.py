@@ -1,5 +1,5 @@
 """
-models.py — All dataclasses for the City Simulation System v3.
+models.py — All dataclasses for Polis v3.
 
 v3 changes (2026-05-17):
   - Unit removed entirely (DomainRating, FactionSlot, FocusSlot, NPCPlan removed)

@@ -24,10 +24,9 @@ class _CityDef(NamedTuple):
 
 _OFFICIAL_CITIES: list[_CityDef] = [
     _CityDef(
-        city_name="Twin Cities",
-        description="A modern metropolis of fifteen domains: traditional media, social media, "
-                    "political, street, religion, bureaucracy, finance, police, underworld, "
-                    "legal, health, high society, industry, transportation, and university.",
+        city_name="Unnamed Polis",
+        description="The default world. Faction and domain roster pending the "
+                    "ancient-Greek re-theme; loaded from data/.",
         data_dir="data",
     ),
     _CityDef(

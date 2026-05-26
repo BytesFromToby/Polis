@@ -1,4 +1,4 @@
-# System Overview — City Simulation Engine
+# System Overview — Polis Engine
 
 **Version:** v4
 **Date:** 2026-05-25
@@ -10,7 +10,7 @@ sequential-initiative; `Planning/specs/cycle-runner_spec.md` is authoritative.
 
 ## What the Simulation Is
 
-The city simulation models political, social, and economic conflict inside a fictional city.
+Polis models political, social, and economic conflict inside a fictional city.
 **Factions** act each cycle — one at a time, in random initiative order — contesting domain
 resources and reshaping the balance of power. Each faction has an embedded leader and a
 personality (traits). The primary output is a narrative log and full system log per cycle.
@@ -35,7 +35,7 @@ wraps around it.
 ## Folder Structure
 
 ```
-city_sim_Project/
+polis/
 │
 ├── backend/                    ← Python backend (engine, api, db, tests)
 │   ├── engine/                 ← Pure simulation logic

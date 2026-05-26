@@ -2,7 +2,7 @@
   <div class="title-wrap">
     <div class="title-box">
       <div class="title-city">Rivers Point</div>
-      <div class="title-sub">A city sim</div>
+      <div class="title-sub">An emergent political simulation</div>
 
       <p v-if="error" class="error-msg" style="margin-bottom:1rem">{{ error }}</p>
 

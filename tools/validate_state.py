@@ -14,7 +14,7 @@ Validates:
   - No duplicate IDs
 
 Usage:
-    python city_sim_Project/tools/validate_state.py
+    python tools/validate_state.py
 """
 from __future__ import annotations
 
@@ -233,7 +233,7 @@ def validate() -> ValidationResult:
 
 
 def main():
-    print("City Sim State Validator")
+    print("Polis State Validator")
     print("=" * 40)
     print(f"Data dir: {DATA_DIR}\n")
 

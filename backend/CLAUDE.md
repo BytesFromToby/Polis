@@ -1,4 +1,4 @@
-# City Sim — /backend
+# Polis — /backend
 
 Application code for the simulation engine, API, and database.
 

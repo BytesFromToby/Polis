@@ -1,4 +1,4 @@
-# City_Sim
+# Polis
 
 Python simulation engine featuring complex autonomous agent behavior, dynamic
 faction influence modeling, and emergent narrative generation.

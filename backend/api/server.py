@@ -46,9 +46,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="City Sim API",
+    title="Polis API",
     version="0.1.0",
-    description="FastAPI backend for the City Sim engine.",
+    description="FastAPI backend for the Polis engine.",
     lifespan=lifespan,
 )
 

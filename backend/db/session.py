@@ -1,8 +1,8 @@
 """
 db/session.py — SQLAlchemy engine and session factory.
 
-Database URL defaults to a local SQLite file (city_sim.db) in the working
-directory. Override by setting the CITY_SIM_DB_URL environment variable.
+Database URL defaults to a local SQLite file (polis.db) in the working
+directory. Override by setting the POLIS_DB_URL environment variable.
 
 Usage in FastAPI routes:
     from db.session import get_db
@@ -17,8 +17,8 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-_DEFAULT_DB_URL = "sqlite:///city_sim.db"
-DATABASE_URL: str = os.environ.get("CITY_SIM_DB_URL", _DEFAULT_DB_URL)
+_DEFAULT_DB_URL = "sqlite:///polis.db"
+DATABASE_URL: str = os.environ.get("POLIS_DB_URL", _DEFAULT_DB_URL)
 
 engine = create_engine(
     DATABASE_URL,

@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrap">
     <div class="login-box">
-      <h1>City Sim</h1>
+      <h1>Polis</h1>
       <p class="sub">GM Interface</p>
 
       <div class="login-tabs">

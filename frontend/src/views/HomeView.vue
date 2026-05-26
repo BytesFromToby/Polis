@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <nav>
-      <span class="brand">City Sim</span>
+      <span class="brand">Polis</span>
       <span class="nav-user">{{ store.username }}</span>
       <span class="spacer"></span>
       <button class="btn-subtle btn-sm" @click="showSettings = true" style="margin-right:0.5rem">Settings</button>

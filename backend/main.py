@@ -1,5 +1,5 @@
 """
-main.py — Entry point for the City Simulation System v3.
+main.py — Entry point for Polis v3.
 
 Usage:
     python main.py --cycles 50
@@ -73,7 +73,7 @@ def main():
     mayor = Mayor()
     treasury = Treasury()
 
-    print(f"City Simulation Engine v3")
+    print("Polis v3")
     print(f"  Cycles:   {args.cycles}")
     print(f"  Factions: {len(factions)}")
     print(f"  Domains:  {len(domains)}")

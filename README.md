@@ -1,4 +1,4 @@
-# City_Sim
+# Polis
 
 A Python simulation engine that models political, social, and economic conflict
 inside a fictional city. **Factions** — newsrooms, political blocs, community groups,
@@ -102,7 +102,7 @@ authentication and the optional LLM provider:
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `CITY_SIM_SECRET` | JWT signing secret — **set this in any real deployment** | `dev-secret-change-me` |
+| `POLIS_SECRET` | JWT signing secret — **set this in any real deployment** | `dev-secret-change-me` |
 | `LLM_PROVIDER` | `anthropic`, `openai_compat`, or `stub` | `stub` |
 | `LLM_API_KEY` | API key for the chosen provider | — |
 | `LLM_MODEL` | Model name | — |

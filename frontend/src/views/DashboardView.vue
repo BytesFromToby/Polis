@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <nav>
-      <span class="brand">City Sim</span>
+      <span class="brand">Polis</span>
       <span class="muted" style="font-size:0.85rem">
         Cycle <strong>{{ status.current_cycle }}</strong>
         <span class="tag" style="margin-left:0.5rem">{{ status.status }}</span>

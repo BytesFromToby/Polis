@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-SECRET_KEY: str = os.environ.get("CITY_SIM_SECRET", "dev-secret-change-me")
+SECRET_KEY: str = os.environ.get("POLIS_SECRET", "dev-secret-change-me")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 

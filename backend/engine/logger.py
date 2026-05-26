@@ -1,5 +1,5 @@
 """
-logger.py — Narrative log + system log for the City Simulation Engine v3.
+logger.py — Narrative log + system log for Polis v3.
 
 narrative.log — Dramatic events only, human readable (dramatic > 0).
 system.log    — Every cycle event in detail.
@@ -33,9 +33,9 @@ class SimLogger:
 
     def _write_header(self) -> None:
         sep = "=" * 72
-        self._narrative_file.write(f"{sep}\nCITY SIMULATION v3 — NARRATIVE LOG\n{sep}\n\n")
+        self._narrative_file.write(f"{sep}\nPOLIS v3 — NARRATIVE LOG\n{sep}\n\n")
         self._narrative_file.flush()
-        self._system_file.write(f"{sep}\nCITY SIMULATION v3 — SYSTEM LOG\n{sep}\n\n")
+        self._system_file.write(f"{sep}\nPOLIS v3 — SYSTEM LOG\n{sep}\n\n")
         self._system_file.flush()
 
     def log_cycle_event(self, event: "CycleEvent") -> None:

@@ -1,6 +1,6 @@
-# City_Sim — Frontend
+# Polis — Frontend
 
-Vue 3 (Options API) + Vite browser UI for the City_Sim engine. It provides the
+Vue 3 (Options API) + Vite browser UI for the Polis engine. It provides the
 game-master interface: create a city, configure factions, run simulation cycles,
 view events and faction standings, and conduct mayor actions and LLM negotiation
 audiences.
