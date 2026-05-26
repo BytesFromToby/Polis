@@ -147,6 +147,31 @@ that come with it. The first four are core; the last two are extras to keep or c
 > Character: `ambitious` (strong), `opportunistic` (moderate)
 > Leader: **High Seer Aletheian** — calm and smiling; every prophecy is a move on a longer board.
 
+### Military (*Stratos*) — power by force of arms
+
+The armed power of the city: the citizen soldiery, the hired companies, and the ambitious
+commanders who would point them. The fourth is an extra to keep or cut.
+
+> **The Shieldsworn** — *the citizen phalanx*
+> The hoplite militia of property-owning citizens, the city's backbone — and proud that only citizens should bear its spear.
+> Character: `defensive` (strong), `conservative` (moderate)
+> Leader: **Drakon the Steadfast** — stolid, dutiful; distrusts hired blades and glory-hounds alike.
+
+> **The Free Spears** — *the sellsword companies*
+> Professional soldiers for hire, foreign and rootless, loyal to coin and the next contract.
+> Character: `opportunistic` (strong), `corrupt` (moderate)
+> Leader: **Kallias the Coinbought** — affable, amoral; serves whoever pays and remembers who didn't.
+
+> **The Companions** — *a victorious general's sworn veterans*
+> The personal following of a celebrated commander — battle-hardened, devoted to their man over the city.
+> Character: `ambitious` (strong), `aggressive` (moderate)
+> Leader: **Antimachos the Laurelled** — charismatic and hungry; wears past victories like a claim on the future.
+
+> **The Oarsworn** — *the war fleet and its crews*
+> The triremes and the citizen-rowers who drive them — the city's reach across the sea, and a restless power base of the common man.
+> Character: `expansionary` (strong), `ambitious` (moderate)
+> Leader: **Naukrates of the Long Oars** — bold and restless; dreams of a city whose walls are its ships.
+
 ---
 
 ## Player title — the rank ladder
