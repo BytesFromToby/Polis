@@ -6,8 +6,7 @@ definitional, no **Done when:** items.
 **Date:** 2026-05-26
 
 Polis has **one canonical theme: an ancient-Greek city-state.** There is no multi-theme
-or themed-city-pack system. (The earlier medieval river-port city *Rivers Point* and the
-"pick a themed city" idea are **retired** — see Retired section.)
+or themed-city-pack system. 
 
 ---
 
@@ -45,9 +44,52 @@ Mechanical vocabulary that stays fixed regardless of theme:
 
 ---
 
+## Default names
+City name: Polis
+Mayor name: Kallisto
+
+---
+
+## Overall Theme
+
+**Polis is a free city by the sea** — a self-governing Greek city-state that bows to no king
+and trusts no single hand for long. It is proud, crowded, and quarrelsome: a few thousand
+citizens who believe the city belongs to them, and who will argue, bribe, sue, and shout to
+prove it. Its wealth comes off the water and out of the workshops; its glory comes from its
+temples, its games, and its fleet; its politics never sleep. To live here is to live inside an
+argument that never ends.
+
+Climb up from the harbor and the city rises in layers. Below, the docks and shipyards reek of
+pitch and brine, loud with stevedores and the crews of the war-fleet. Inland spreads the agora,
+the city's beating heart — merchants haggling, bankers reckoning at their tables, orators
+working the crowd, every rumor in the city bought and sold by noon. Above it all stand the
+temples on the heights, white marble catching the sun; and beyond the walls lie the olive groves
+and the estates of the old families who still believe the city is theirs by blood.
+
+**No one rules Polis.** Power is shared, contested, and forever in motion among its rival
+worlds — the old aristocratic houses, the guilds of makers, the merchant and banking houses,
+the skilled professions, the priesthoods and their oracles, the generals and the citizen-
+soldiers, the philosophers and orators of the schools. Each is proud, each is jealous, and none
+can command the rest. They court one another and knife one another in the same breath, and the
+city lurches forward on the sum of their schemes.
+
+This is a city always **one crisis from greatness or ruin.** A good harvest and a won war make
+it the envy of the sea; a famine, a plague, a lost fleet, or a clever demagogue can tip it into
+riot, exile, and the strong hand of a tyrant. Polis has buried more leaders than it remembers.
+It raises them up on the roar of the assembly and casts them down just as fast — and it is
+always, quietly, afraid of the one who will not let go.
+
+Into this steps the player. You do not own Polis and you cannot command it; you can only *work*
+it — endorse and condemn, bargain and betray, spend coin and spend favor, and lean on the
+factions until the city tilts your way. You begin as one presiding voice among many, and the
+long game is to climb toward an authority the city both craves and dreads. Polis will make you
+or break you. It usually does both.
+
+---
+
 ## Domain roster (LOCKED 2026-05-26)
 
-The nine canonical spheres of influence. Mechanically each is a domain with a cap, drift,
+The eight canonical spheres of influence. Mechanically each is a domain with a cap, drift,
 and a relationship row to every other domain.
 
 Each domain is a distinct answer to *"where does your power come from?"* The English name is
@@ -368,26 +410,6 @@ only — the player's mechanical role (the "Mayor" in `mayor_spec.md`) is unchan
 | 7 | **Tyrannos** | Tyrant | Sole ruler who seized power outside the constitution |
 | 8 | **Basileus** | King | Supreme sovereign rule — the top |
 
----
 
-## Open questions
 
-- **Polis name.** Defaults to "Polis"; players will be able to name their own city.
 
----
-
-## Retired
-
-- **Rivers Point** — the medieval/D&D river-port city (nine domains: guilds, docks, noble
-  houses, city watch, underworld, temple, commons, arcane, registry). No longer part of the
-  project; its data and seed entry are being removed.
-- **Themed-city packs / multi-theme selection** — the idea of choosing among multiple themed
-  cities is dropped. Ancient Greek is the sole theme.
-- **Twin Cities / Minneapolis roster** — the original real-world placeholder (`data/*.json`),
-  superseded by the Greek re-theme.
-- **Underclass domain** — cut (2026-05-26). A faction is a group the player can hold audience
-  with; the criminal underworld (thieves, smugglers, charlatans) fails that test. Its flavor
-  lives on instead as **events / external threats** (crime waves, smuggling that undercuts the
-  customs, fraud-cults) and as a cross-cutting **"criminal" role** carried by factions in other
-  domains. The one meetable faction — the **Metics** (wealthy resident foreigners) — was
-  rescued into **Trade** as the *Outland Houses*; freedmen fold into the future population system.
