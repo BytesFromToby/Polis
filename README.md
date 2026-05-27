@@ -1,12 +1,13 @@
 # Polis
 
 A Python simulation engine that models political, social, and economic conflict
-inside a fictional city. **Factions** — newsrooms, political blocs, community groups,
-criminal networks — act one at a time each cycle, contesting twelve domains of
-influence (Media, Political, Street, Finance, Police, Underworld, and more) and
-reshaping the balance of power. Each faction has an embedded leader and a
-personality that drives its choices. The result is emergent narrative: alliances,
-collapses, power vacuums, and chaos that no single rule scripts.
+inside a fictional ancient-Greek city-state. **Factions** — noble houses, priesthoods,
+merchant and banking houses, craftsmen's guilds, generals, and philosophers — act one
+at a time each cycle, contesting eight spheres of influence (Aristocracy, Guilds, Trade,
+the Professions, Temples, Military, Academy, and the Harbor) and reshaping the balance of
+power. Each faction has an embedded leader and a personality that drives its choices. The
+result is emergent narrative: alliances, collapses, power vacuums, and the slow tilt toward
+greatness or tyranny that no single rule scripts.
 
 A human **Mayor** can intervene — endorsing, condemning, brokering deals, levying
 taxes — and can hold a live, **LLM-driven negotiation audience** with any faction,

@@ -114,7 +114,7 @@ The Moneylender is a full faction structurally but operates outside domain polit
 ### Structure
 
 The Moneylender is a `Faction` with:
-- `domain: "finance"` (a non-playable domain with no cap or utilization)
+- `domain: "trade"` (a non-playable domain with no cap or utilization)
 - `floor: 3` (fixed — cannot grow or collapse in v1)
 - `rating: 3.0` (fixed)
 - `health: 100` (cannot be harmed directly in v1)
@@ -186,14 +186,14 @@ Threats can be:
 ### Threat Effects by Type
 
 **Bandits** (threat_level 1–3):
-- Chaos +1/cycle in street and underworld domains
+- Chaos +1/cycle in harbor and trade domains
 - Factions in affected domains: Harm weight +10 (opportunity)
 - Treasury: −5 × threat_level gold/cycle (trade disruption)
 
 **Rival City** (threat_level 2–5):
-- Dock domain factions: Grow penalty −5/cycle (diverted trade)
+- Harbor domain factions: Grow penalty −5/cycle (diverted trade)
 - City chaos +1/cycle
-- Event: "Trade Ship Seized" added to active events if dock domain chaos ≥ 4
+- Event: "Trade Ship Seized" added to active events if harbor domain chaos ≥ 4
 
 **Foreign Agent** (threat_level 1–4):
 - One random faction per cycle: reputation with Mayor −3 (disinformation)
@@ -201,9 +201,9 @@ Threats can be:
 - Occasionally adds `distrusts X` relational trait between two factions (see Events spec)
 
 **Plague Vector** (threat_level 1–5):
-- Health domain factions: health −2 × threat_level/cycle
+- Professions domain factions (the Asklepiad healers): health −2 × threat_level/cycle
 - The Public health −3/cycle
-- World chaos in health domain +1/cycle while active
+- World chaos in professions domain +1/cycle while active
 
 ### Removing Threats
 

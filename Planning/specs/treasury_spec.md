@@ -71,11 +71,11 @@ Tax rates are limited by the city's tax collection infrastructure. Each active t
 | 4 | 0.40 | High |
 | 5 | 0.50 | Punishing |
 
-Tax collection projects belong to the `registry` domain and have `category: "tax_collection"`. They have no domain cap effect — their value is purely the rate tier they unlock.
+Tax collection projects belong to the `professions` domain (the Quillsworn — clerks and tax-farmers) and have `category: "tax_collection"`. They have no domain cap effect — their value is purely the rate tier they unlock.
 
 If a tax collection project is destroyed, any domain currently taxed above the new maximum has its rate automatically capped down to the new maximum next cycle.
 
-**Rivers Point starts with 2** — Tax Collector's Post and District Tax Office — giving a starting maximum rate of 0.20.
+**Polis starts with 2** — Tax Collector's Post and District Tax Office — giving a starting maximum rate of 0.20.
 
 ---
 
@@ -104,7 +104,7 @@ Fixed costs are deducted each cycle automatically.
 
 | Cost | Amount/cycle | Notes |
 |---|---|---|
-| City guard payroll | 20 gold | Reduced guard = chaos +1 in underworld/street each cycle; 0 = Public reputation −5/cycle |
+| City guard payroll | 20 gold | Reduced guard = chaos +1 in harbor/trade each cycle; 0 = Public reputation −5/cycle |
 | Infrastructure maintenance | 2 gold × (active projects) | Each project costs ongoing upkeep |
 
 Optional costs (Mayor decides each cycle):
@@ -176,4 +176,4 @@ Recovery: if treasury returns to ≥ 0 before cycle 3, consequences stop. Mayor 
 
 Starting gold is set in city data. Default: 500 gold.
 
-Starting projects determine first-cycle infrastructure maintenance cost. A city with 5 docks and a city wall has a different baseline than a bare city.
+Starting projects determine first-cycle infrastructure maintenance cost. A city with 5 harbor wharves and a city wall has a different baseline than a bare city.

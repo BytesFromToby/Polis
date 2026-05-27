@@ -45,7 +45,7 @@ A trait entry in a faction's personality list.
 
 Examples:
 - `{ trait: "aggressive", intensity: "very", target_id: None }` — generally aggressive
-- `{ trait: "distrusts", intensity: "strong", target_id: "traders_compact" }` — distrusts a specific faction
+- `{ trait: "distrusts", intensity: "strong", target_id: "pyrrhidai" }` — distrusts a specific faction
 
 ---
 

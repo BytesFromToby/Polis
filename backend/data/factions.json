@@ -1,216 +1,822 @@
 [
   {
-    "id": "star_tribune",
-    "name": "Star Tribune",
-    "domain_primary": "traditional_media",
-    "rating": 3.42,
-    "health": 75,
-    "entrench": 82,
-    "leadership_need": 0.0,
-    "leader": {
-      "name": "Dana Morrow",
-      "traits": ["defensive", "conservative"],
-      "status": "present",
-      "personality_notes": ["Prefers institutional stability over growth"]
-    },
-    "traits": [
-      {"trait": "defensive",    "intensity": "strong"},
-      {"trait": "conservative", "intensity": "moderate"}
-    ],
-    "relationships": [
-      {"faction_id": "wcco",      "trait": "Foe"},
-      {"faction_id": "mpr",       "trait": "Neutral"},
-      {"faction_id": "city_pages","trait": "Foe"}
-    ]
-  },
-  {
-    "id": "wcco",
-    "name": "WCCO",
-    "domain_primary": "traditional_media",
-    "rating": 3.42,
-    "health": 70,
-    "entrench": 78,
-    "leadership_need": 0.0,
-    "leader": {
-      "name": "Frank Calder",
-      "traits": ["expansionary", "ambitious"],
-      "status": "present",
-      "personality_notes": ["Aggressive expansion, always looking for more territory"]
-    },
-    "traits": [
-      {"trait": "expansionary", "intensity": "strong"},
-      {"trait": "ambitious",    "intensity": "moderate"}
-    ],
-    "relationships": [
-      {"faction_id": "star_tribune", "trait": "Foe"},
-      {"faction_id": "city_pages",   "trait": "Foe"}
-    ]
-  },
-  {
-    "id": "mpr",
-    "name": "MPR",
-    "domain_primary": "traditional_media",
-    "rating": 2.69,
-    "health": 65,
-    "entrench": 70,
-    "leadership_need": 4.0,
-    "leader": null,
-    "traits": [
-      {"trait": "ambitious", "intensity": "moderate"}
-    ],
-    "relationships": []
-  },
-  {
-    "id": "city_pages",
-    "name": "City Pages",
-    "domain_primary": "traditional_media",
-    "rating": 2.42,
-    "health": 68,
-    "entrench": 68,
-    "leadership_need": 0.0,
-    "leader": {
-      "name": "Rourke Simms",
-      "traits": ["opportunistic"],
-      "status": "present",
-      "personality_notes": ["Scrappy, willing to go after stories others won't"]
-    },
-    "traits": [
-      {"trait": "opportunistic", "intensity": "moderate"}
-    ],
-    "relationships": [
-      {"faction_id": "star_tribune", "trait": "Foe"},
-      {"faction_id": "wcco",         "trait": "Foe"}
-    ]
-  },
-  {
-    "id": "the_onion",
-    "name": "The Onion",
-    "domain_primary": "traditional_media",
-    "rating": 2.38,
-    "health": 72,
-    "entrench": 72,
-    "leadership_need": 0.0,
-    "leader": {
-      "name": "Petra Vance",
-      "traits": ["paranoid"],
-      "status": "present",
-      "personality_notes": ["Insular, distrustful of outsiders, guards its niche jealously"]
-    },
-    "traits": [
-      {"trait": "paranoid", "intensity": "moderate"}
-    ],
-    "relationships": []
-  },
-  {
-    "id": "mayors_office",
-    "name": "Mayor's Office",
-    "domain_primary": "political",
-    "rating": 2.91,
-    "health": 78,
+    "id": "eumelidai",
+    "name": "The Eumelidai",
+    "domain_primary": "aristocracy",
+    "rating": 3.0,
+    "health": 80,
     "entrench": 75,
     "leadership_need": 0.0,
     "leader": {
-      "name": "Councilman Pierce",
-      "traits": ["defensive", "conservative"],
+      "name": "Lysandros the Elder",
+      "traits": ["conservative", "defensive"],
       "status": "present",
-      "personality_notes": ["Risk-averse, prefers maintaining the status quo"]
+      "personality_notes": ["Venerable, immovable; sees every change as decay."]
     },
     "traits": [
       {"trait": "conservative", "intensity": "strong"},
       {"trait": "defensive",    "intensity": "moderate"}
     ],
-    "relationships": [
-      {"faction_id": "city_council_dfl",          "trait": "Friend"},
-      {"faction_id": "city_council_conservative",  "trait": "Foe"}
-    ]
+    "relationships": []
   },
   {
-    "id": "city_council_dfl",
-    "name": "City Council DFL",
-    "domain_primary": "political",
-    "rating": 2.82,
-    "health": 73,
-    "entrench": 73,
+    "id": "pyrrhidai",
+    "name": "The Pyrrhidai",
+    "domain_primary": "aristocracy",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
     "leadership_need": 0.0,
     "leader": {
-      "name": "Rep Olawale",
+      "name": "Kleon Pyrrhos",
       "traits": ["ambitious", "expansionary"],
       "status": "present",
-      "personality_notes": ["Ideologically driven, pushes hard for policy wins"]
+      "personality_notes": ["Young, brilliant, impatient for primacy."]
     },
     "traits": [
       {"trait": "ambitious",    "intensity": "strong"},
-      {"trait": "expansionary", "intensity": "slight"}
+      {"trait": "expansionary", "intensity": "moderate"}
     ],
-    "relationships": [
-      {"faction_id": "mayors_office",             "trait": "Friend"},
-      {"faction_id": "city_council_conservative",  "trait": "Foe"}
-    ]
+    "relationships": []
   },
   {
-    "id": "city_council_conservative",
-    "name": "City Council Conservative",
-    "domain_primary": "political",
-    "rating": 2.6,
-    "health": 70,
-    "entrench": 71,
+    "id": "skiadai",
+    "name": "The Skiadai",
+    "domain_primary": "aristocracy",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
     "leadership_need": 0.0,
     "leader": {
-      "name": "Rep Hartman",
-      "traits": ["paranoid", "defensive"],
+      "name": "Demarete of the Skiadai",
+      "traits": ["opportunistic", "corrupt"],
       "status": "present",
-      "personality_notes": ["Insular bloc, suspicious of alliances, digs in hard"]
+      "personality_notes": ["Gracious in public, ruthless in the dark."]
     },
     "traits": [
-      {"trait": "paranoid",  "intensity": "moderate"},
-      {"trait": "defensive", "intensity": "slight"}
+      {"trait": "opportunistic", "intensity": "strong"},
+      {"trait": "corrupt",       "intensity": "slight"}
     ],
-    "relationships": [
-      {"faction_id": "mayors_office",    "trait": "Foe"},
-      {"faction_id": "city_council_dfl", "trait": "Foe"}
-    ]
+    "relationships": []
   },
   {
-    "id": "north_mpls_community",
-    "name": "North Minneapolis Community",
-    "domain_primary": "street",
-    "rating": 2.47,
-    "health": 65,
-    "entrench": 65,
+    "id": "tidesworn",
+    "name": "The Tidesworn",
+    "domain_primary": "temples",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
     "leadership_need": 0.0,
     "leader": {
-      "name": "Darnell Washington",
+      "name": "Nereus Halios",
+      "traits": ["aggressive", "ambitious"],
+      "status": "present",
+      "personality_notes": ["Booming and volatile; speaks of the god's anger as if it were his own."]
+    },
+    "traits": [
+      {"trait": "aggressive", "intensity": "moderate"},
+      {"trait": "ambitious",  "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "hearthwardens",
+    "name": "The Hearthwardens",
+    "domain_primary": "temples",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Hestaia the Unmoved",
+      "traits": ["conservative", "defensive"],
+      "status": "present",
+      "personality_notes": ["Serene, rigid; treats every reform as a draft on the flame."]
+    },
+    "traits": [
+      {"trait": "conservative", "intensity": "strong"},
+      {"trait": "defensive",    "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "greenmantle",
+    "name": "The Greenmantle",
+    "domain_primary": "temples",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Chloris of the Furrow",
+      "traits": ["industrious", "defensive"],
+      "status": "present",
+      "personality_notes": ["Warm and patient; thinks in seasons, slow to anger and slow to forgive."]
+    },
+    "traits": [
+      {"trait": "industrious", "intensity": "moderate"},
+      {"trait": "defensive",   "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "raving-choir",
+    "name": "The Raving Choir",
+    "domain_primary": "temples",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Eurymache the Raving",
+      "traits": ["destructive", "opportunistic"],
+      "status": "present",
+      "personality_notes": ["Wild-eyed, speaks in the god's tongue; no one knows what she'll do next."]
+    },
+    "traits": [
+      {"trait": "destructive",   "intensity": "moderate"},
+      {"trait": "opportunistic", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "bright-order",
+    "name": "The Bright Order",
+    "domain_primary": "temples",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "High Seer Aletheian",
+      "traits": ["ambitious", "opportunistic"],
+      "status": "present",
+      "personality_notes": ["Calm and smiling; every prophecy is a move on a longer board."]
+    },
+    "traits": [
+      {"trait": "ambitious",     "intensity": "strong"},
+      {"trait": "opportunistic", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "shieldsworn",
+    "name": "The Shieldsworn",
+    "domain_primary": "military",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Drakon the Steadfast",
+      "traits": ["defensive", "conservative"],
+      "status": "present",
+      "personality_notes": ["Stolid, dutiful; distrusts hired blades and glory-hounds alike."]
+    },
+    "traits": [
+      {"trait": "defensive",    "intensity": "strong"},
+      {"trait": "conservative", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "free-spears",
+    "name": "The Free Spears",
+    "domain_primary": "military",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Kallias the Coinbought",
+      "traits": ["opportunistic", "corrupt"],
+      "status": "present",
+      "personality_notes": ["Affable, amoral; serves whoever pays and remembers who didn't."]
+    },
+    "traits": [
+      {"trait": "opportunistic", "intensity": "strong"},
+      {"trait": "corrupt",       "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "companions",
+    "name": "The Companions",
+    "domain_primary": "military",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Antimachos the Laurelled",
+      "traits": ["ambitious", "aggressive"],
+      "status": "present",
+      "personality_notes": ["Charismatic and hungry; wears past victories like a claim on the future."]
+    },
+    "traits": [
+      {"trait": "ambitious",  "intensity": "strong"},
+      {"trait": "aggressive", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "oarsworn",
+    "name": "The Oarsworn",
+    "domain_primary": "military",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Naukrates of the Long Oars",
+      "traits": ["expansionary", "ambitious"],
+      "status": "present",
+      "personality_notes": ["Bold and restless; dreams of a city whose walls are its ships."]
+    },
+    "traits": [
+      {"trait": "expansionary", "intensity": "strong"},
+      {"trait": "ambitious",    "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "quaymen",
+    "name": "The Quaymen",
+    "domain_primary": "harbor",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Brontes Bighand",
+      "traits": ["defensive", "aggressive"],
+      "status": "present",
+      "personality_notes": ["Gruff and immovable; protective of his gangs and quick to down tools."]
+    },
+    "traits": [
+      {"trait": "defensive",  "intensity": "moderate"},
+      {"trait": "aggressive", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "netmenders",
+    "name": "The Netmenders",
+    "domain_primary": "harbor",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Glaukos the Weathered",
+      "traits": ["conservative", "defensive"],
+      "status": "present",
+      "personality_notes": ["Salt-cured and plain-spoken; trusts the tide more than any magistrate."]
+    },
+    "traits": [
+      {"trait": "conservative", "intensity": "moderate"},
+      {"trait": "defensive",    "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "harborwardens",
+    "name": "The Harborwardens",
+    "domain_primary": "harbor",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Warden Pheidon",
+      "traits": ["corrupt", "conservative"],
+      "status": "present",
+      "personality_notes": ["Courteous and dry; every favor has a price, and he never forgets a ledger."]
+    },
+    "traits": [
+      {"trait": "corrupt",      "intensity": "strong"},
+      {"trait": "conservative", "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "saltroad-houses",
+    "name": "The Saltroad Houses",
+    "domain_primary": "harbor",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Timaios the Farsailed",
+      "traits": ["expansionary", "ambitious"],
+      "status": "present",
+      "personality_notes": ["Restless and far-seeing; measures the city by how far its hulls reach."]
+    },
+    "traits": [
+      {"trait": "expansionary", "intensity": "strong"},
+      {"trait": "ambitious",    "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "amphora-houses",
+    "name": "The Amphora Houses",
+    "domain_primary": "trade",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Polemarchos the Stout",
+      "traits": ["expansionary", "ambitious"],
+      "status": "present",
+      "personality_notes": ["Jovial and grasping; counts the city's worth in cargoes landed."]
+    },
+    "traits": [
+      {"trait": "expansionary", "intensity": "strong"},
+      {"trait": "ambitious",    "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "silverbench",
+    "name": "The Silverbench",
+    "domain_primary": "trade",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Aristion of the Bench",
+      "traits": ["conservative", "corrupt"],
+      "status": "present",
+      "personality_notes": ["Cool and exact; never raises his voice, never forgives a default."]
+    },
+    "traits": [
+      {"trait": "conservative", "intensity": "strong"},
+      {"trait": "corrupt",      "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "stallmongers",
+    "name": "The Stallmongers",
+    "domain_primary": "trade",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Myrto Quicktongue",
+      "traits": ["opportunistic", "defensive"],
+      "status": "present",
+      "personality_notes": ["Sharp and fast-talking; speaks for the little traders and misses nothing."]
+    },
+    "traits": [
+      {"trait": "opportunistic", "intensity": "strong"},
+      {"trait": "defensive",     "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "storehouse-ring",
+    "name": "The Storehouse Ring",
+    "domain_primary": "trade",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Hieron the Patient",
+      "traits": ["corrupt", "opportunistic"],
+      "status": "present",
+      "personality_notes": ["Soft-spoken and predatory; waits for famine the way others wait for harvest."]
+    },
+    "traits": [
+      {"trait": "corrupt",       "intensity": "strong"},
+      {"trait": "opportunistic", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "outland-houses",
+    "name": "The Outland Houses",
+    "domain_primary": "trade",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Xenon the Outlander",
+      "traits": ["ambitious", "opportunistic"],
+      "status": "present",
+      "personality_notes": ["Gracious and weary; rich enough to buy half the council, forbidden to sit on it."]
+    },
+    "traits": [
+      {"trait": "ambitious",     "intensity": "strong"},
+      {"trait": "opportunistic", "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "bronzehands",
+    "name": "The Bronzehands",
+    "domain_primary": "guilds",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Akmon the Forgemaster",
+      "traits": ["industrious", "defensive"],
+      "status": "present",
+      "personality_notes": ["Soot-stained and blunt; guards the secrets of the forge like family."]
+    },
+    "traits": [
+      {"trait": "industrious", "intensity": "strong"},
+      {"trait": "defensive",   "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "stonewrights",
+    "name": "The Stonewrights",
+    "domain_primary": "guilds",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Lithos the Master-Builder",
+      "traits": ["industrious", "ambitious"],
+      "status": "present",
+      "personality_notes": ["Proud and driven; sees the city as unfinished and himself as the one to finish it."]
+    },
+    "traits": [
+      {"trait": "industrious", "intensity": "strong"},
+      {"trait": "ambitious",   "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "keelwrights",
+    "name": "The Keelwrights",
+    "domain_primary": "guilds",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Argeios the Keelwright",
+      "traits": ["industrious", "expansionary"],
+      "status": "present",
+      "personality_notes": ["Steady and far-thinking; every keel he lays is a bet on a bigger fleet."]
+    },
+    "traits": [
+      {"trait": "industrious",  "intensity": "moderate"},
+      {"trait": "expansionary", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "kerameis",
+    "name": "The Kerameis",
+    "domain_primary": "guilds",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Pamphilos of the Kiln",
+      "traits": ["industrious", "opportunistic"],
+      "status": "present",
+      "personality_notes": ["Particular and vain; signs his finest work and remembers every slight."]
+    },
+    "traits": [
+      {"trait": "industrious",   "intensity": "moderate"},
+      {"trait": "opportunistic", "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "ovenmen",
+    "name": "The Ovenmen",
+    "domain_primary": "guilds",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Mazon the Baker",
+      "traits": ["industrious", "opportunistic"],
+      "status": "present",
+      "personality_notes": ["Flour-dusted and genial; smiles wider as the price of bread climbs."]
+    },
+    "traits": [
+      {"trait": "industrious",   "intensity": "moderate"},
+      {"trait": "opportunistic", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "winepressers",
+    "name": "The Winepressers",
+    "domain_primary": "guilds",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Oinops the Vintner",
+      "traits": ["industrious", "opportunistic"],
+      "status": "present",
+      "personality_notes": ["Ruddy and convivial; generous with a cup, shrewd over a ledger."]
+    },
+    "traits": [
+      {"trait": "industrious",   "intensity": "moderate"},
+      {"trait": "opportunistic", "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "oil-pressers",
+    "name": "The Oil-pressers",
+    "domain_primary": "guilds",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Elaios of the Press",
+      "traits": ["industrious", "expansionary"],
+      "status": "present",
+      "personality_notes": ["Broad and unhurried; thinks in harvests and amphorae shipped abroad."]
+    },
+    "traits": [
+      {"trait": "industrious",  "intensity": "strong"},
+      {"trait": "expansionary", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "tanners",
+    "name": "The Tanners",
+    "domain_primary": "guilds",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Bursas the Tanner",
+      "traits": ["industrious", "aggressive"],
+      "status": "present",
+      "personality_notes": ["Blunt and foul-handed; a commoner's voice with a commoner's grudges."]
+    },
+    "traits": [
+      {"trait": "industrious", "intensity": "moderate"},
+      {"trait": "aggressive",  "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "weavers",
+    "name": "The Weavers",
+    "domain_primary": "guilds",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Theano of the Loom",
+      "traits": ["industrious", "defensive"],
+      "status": "present",
+      "personality_notes": ["Soft-spoken and tireless; weaves alliances as readily as cloth."]
+    },
+    "traits": [
+      {"trait": "industrious", "intensity": "moderate"},
+      {"trait": "defensive",   "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "carpenters",
+    "name": "The Carpenters",
+    "domain_primary": "guilds",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Tekton the Joiner",
+      "traits": ["industrious", "conservative"],
+      "status": "present",
+      "personality_notes": ["Methodical and exacting; measures twice and trusts wood over words."]
+    },
+    "traits": [
+      {"trait": "industrious",  "intensity": "strong"},
+      {"trait": "conservative", "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "asklepiads",
+    "name": "The Asklepiads",
+    "domain_primary": "professions",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Akesias the Physician",
+      "traits": ["defensive", "ambitious"],
+      "status": "present",
+      "personality_notes": ["Calm and exacting; collects a quiet favor with every patient he saves."]
+    },
+    "traits": [
+      {"trait": "defensive", "intensity": "moderate"},
+      {"trait": "ambitious", "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "players",
+    "name": "The Players",
+    "domain_primary": "professions",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Komos of the Stage",
       "traits": ["opportunistic", "ambitious"],
       "status": "present",
-      "personality_notes": ["Community-first, open to coalitions, pragmatic"]
+      "personality_notes": ["Vain and magnetic; plays the audience like a lyre and never forgets a critic."]
+    },
+    "traits": [
+      {"trait": "opportunistic", "intensity": "strong"},
+      {"trait": "ambitious",     "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "garland-chasers",
+    "name": "The Garland-Chasers",
+    "domain_primary": "professions",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Pankrates the Victor",
+      "traits": ["ambitious", "aggressive"],
+      "status": "present",
+      "personality_notes": ["Proud and restless; measures his worth in wreaths and refuses to lose at anything."]
+    },
+    "traits": [
+      {"trait": "ambitious",  "intensity": "strong"},
+      {"trait": "aggressive", "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "quillsworn",
+    "name": "The Quillsworn",
+    "domain_primary": "professions",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Grapheus the Reckoner",
+      "traits": ["conservative", "corrupt"],
+      "status": "present",
+      "personality_notes": ["Meticulous and unhurried; forgets nothing, files everything, and counts twice."]
+    },
+    "traits": [
+      {"trait": "conservative", "intensity": "moderate"},
+      {"trait": "corrupt",      "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "perfumers",
+    "name": "The Perfumers",
+    "domain_primary": "professions",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Myrrha of the Flask",
+      "traits": ["opportunistic", "ambitious"],
+      "status": "present",
+      "personality_notes": ["Elegant and discreet; knows what the great families whisper, and to whom it's worth a word."]
     },
     "traits": [
       {"trait": "opportunistic", "intensity": "moderate"},
       {"trait": "ambitious",     "intensity": "slight"}
     ],
-    "relationships": [
-      {"faction_id": "southside_alliance", "trait": "Friend"}
-    ]
+    "relationships": []
   },
   {
-    "id": "southside_alliance",
-    "name": "Southside Alliance",
-    "domain_primary": "street",
-    "rating": 2.38,
-    "health": 63,
-    "entrench": 64,
+    "id": "adorners",
+    "name": "The Adorners",
+    "domain_primary": "professions",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
     "leadership_need": 0.0,
     "leader": {
-      "name": "Maria Espinoza",
-      "traits": ["ambitious"],
+      "name": "Chrysanthe of the Gem",
+      "traits": ["opportunistic", "ambitious"],
       "status": "present",
-      "personality_notes": ["Driven by ideology, strong convictions, rallies community"]
+      "personality_notes": ["Dazzling and watchful; dresses the powerful, and listens while she fastens the clasp."]
     },
     "traits": [
-      {"trait": "ambitious", "intensity": "strong"}
+      {"trait": "opportunistic", "intensity": "moderate"},
+      {"trait": "ambitious",     "intensity": "moderate"}
     ],
-    "relationships": [
-      {"faction_id": "north_mpls_community", "trait": "Friend"}
-    ]
+    "relationships": []
+  },
+  {
+    "id": "grove",
+    "name": "The Grove",
+    "domain_primary": "academy",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Sophron the Elder",
+      "traits": ["ambitious", "defensive"],
+      "status": "present",
+      "personality_notes": ["Serene and unbending; gathers devoted students and distrusts those who argue for pay."]
+    },
+    "traits": [
+      {"trait": "ambitious", "intensity": "moderate"},
+      {"trait": "defensive", "intensity": "slight"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "sophists",
+    "name": "The Sophists",
+    "domain_primary": "academy",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Protarchos the Sophist",
+      "traits": ["opportunistic", "ambitious"],
+      "status": "present",
+      "personality_notes": ["Silver-tongued and amused; sells certainty to whoever pays, and means none of it."]
+    },
+    "traits": [
+      {"trait": "opportunistic", "intensity": "strong"},
+      {"trait": "ambitious",     "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "goldentongues",
+    "name": "The Goldentongues",
+    "domain_primary": "academy",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Phrasikles the Orator",
+      "traits": ["ambitious", "aggressive"],
+      "status": "present",
+      "personality_notes": ["Thunderous and vain; lives for the roar of the crowd and the fall of a rival."]
+    },
+    "traits": [
+      {"trait": "ambitious",  "intensity": "strong"},
+      {"trait": "aggressive", "intensity": "moderate"}
+    ],
+    "relationships": []
+  },
+  {
+    "id": "stargazers",
+    "name": "The Stargazers",
+    "domain_primary": "academy",
+    "rating": 3.0,
+    "health": 80,
+    "entrench": 75,
+    "leadership_need": 0.0,
+    "leader": {
+      "name": "Astron the Measurer",
+      "traits": ["conservative", "paranoid"],
+      "status": "present",
+      "personality_notes": ["Cold and exact; speaks in numbers and sees patterns others would rather not know."]
+    },
+    "traits": [
+      {"trait": "conservative", "intensity": "moderate"},
+      {"trait": "paranoid",     "intensity": "slight"}
+    ],
+    "relationships": []
   }
 ]

@@ -3,7 +3,7 @@
 **Version:** v2
 **Date:** 2026-05-17
 **Supersedes:** v1 (2026-03-29)
-**Status:** FUTURE FEATURE — not scheduled. Cities are currently hand-authored JSON templates in `scr/data/`. This spec describes the intended procedural generation system for when that changes.
+**Status:** FUTURE FEATURE — not scheduled. Cities are currently hand-authored JSON templates in `backend/data/`. This spec describes the intended procedural generation system for when that changes.
 
 Units removed. Leader embedded in Faction. SM domain removed. Starting projects added.
 
@@ -19,41 +19,26 @@ Generation runs in 5 steps in fixed order.
 
 ## Step 1 — Initialize Domains
 
-Create all 14 domain records (Social Media removed).
+Create all 8 domain records of the canonical ancient-Greek theme (see
+`Planning/reference/theming.md`).
 
-**The 14 domains:**
+**The 8 domains:**
 
-Street, Political, Religion, Bureaucracy, Finance, Police, Underworld, Legal, Health, High Society, Industry, Traditional Media, Transportation, University
+Aristocracy, Guilds, Trade, The Professions, Temples, Military, Academy, Harbor
 
 **For each domain:**
 
 | Field | Value |
 |---|---|
-| `id` | Kebab-case identifier |
+| `id` | Kebab-case identifier (e.g. `aristocracy`, `professions`) |
 | `name` | Display name |
 | `cap` | Random integer 500–1000 |
 | `utilization` | 0 |
-| `drift` | From table below |
-| `relationships` | From static domain relationship arrays |
+| `drift` | From the per-domain drift table (defaults to 0.0 until tuned) |
+| `relationships` | From static domain relationship arrays (full row to every domain) |
 
-**Drift values:**
-
-| Domain | Drift |
-|---|---|
-| Religion | +0.06 |
-| Bureaucracy | +0.04 |
-| University | +0.04 |
-| Finance | +0.02 |
-| Health | 0.00 |
-| Traditional Media | −0.02 |
-| Legal | −0.02 |
-| Political | −0.03 |
-| Transportation | −0.03 |
-| Industry | −0.03 |
-| High Society | −0.04 |
-| Street | −0.04 |
-| Police | −0.04 |
-| Underworld | −0.05 |
+**Drift values:** all domains default to `0.0`; per-domain drift is set during the balancing
+pass, not at first generation.
 
 ---
 
@@ -134,14 +119,14 @@ WorldState(
 
 Each city begins with a set of pre-built projects that define its baseline stats. These are defined in the city template, not randomly generated.
 
-**Example starting projects for Rivers Point:**
+**Example starting projects for Polis:**
 
 | Project | Effect |
 |---|---|
-| 5 Docks | Trade capacity baseline |
-| City Watch Garrison | Safety baseline |
-| Market Square | Commerce baseline |
-| Temple District | Religion domain bonus |
+| The Agora | Trade capacity baseline |
+| City Walls | Safety baseline |
+| The Acropolis Temple | Temples domain bonus |
+| The Harbor Mole | Harbor capacity baseline |
 
 Projects are stored in `projects.json`. See `projects_spec.md` (forthcoming) for full structure.
 
@@ -153,7 +138,7 @@ At generation, starting projects are loaded and their effects applied to world s
 
 After city generation:
 
-- All 14 domains exist with caps, drift, and relationships
+- All 8 domains exist with caps, drift, and relationships
 - At least one faction per domain (usually 2–5)
 - Every faction has a leader and 2–4 personality traits
 - No relational traits at start — emerge during play

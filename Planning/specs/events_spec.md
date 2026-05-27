@@ -107,30 +107,30 @@ New events are added to the active events list during Step 8.
 
 ## Example Events
 
-### Iron Mine Disaster
+### The Great Forge Fire
 ```
-trigger: random (high chaos in industry domain)
-target: ironmongers_faction
+trigger: random (high chaos in guilds domain)
+target: bronzehands
 duration: 2 cycles
 effects:
-  - ironmongers health: -5/cycle
-  - ironmongers entrench: -10 (one-time)
+  - bronzehands health: -5/cycle
+  - bronzehands entrench: -10 (one-time)
 cascade:
   delay: 1
-  target: docks_domain
+  target: harbor_domain
   effects:
-    - all dock factions Grow: -5/cycle for 2 cycles
+    - all harbor factions Grow: -5/cycle for 2 cycles
 ```
 
 ### Plague Outbreak
 ```
 trigger: scripted (cycle >= 15, public health < 40)
-target: health_domain
+target: professions_domain
 duration: 4 cycles
 effects:
-  - all health domain factions health: -3/cycle
+  - all professions domain factions health: -3/cycle
   - The Public health: -5/cycle
-  - world chaos in health: +2 (one-time)
+  - world chaos in professions: +2 (one-time)
 cascade:
   delay: 0
   target: The Public
@@ -141,10 +141,10 @@ cascade:
 ### Trade Ship Seized
 ```
 trigger: random (external threats active)
-target: docks_domain
+target: harbor_domain
 duration: 1 cycle
 effects:
-  - all dock factions Grow: blocked this cycle
+  - all harbor factions Grow: blocked this cycle
   - treasury income: -20 this cycle
 cascade: none
 ```
@@ -171,10 +171,10 @@ Each city has a JSON event deck: a list of event templates with their trigger co
 ```json
 [
   {
-    "id": "mine_disaster",
-    "name": "Mine Disaster",
+    "id": "forge_fire",
+    "name": "Forge Fire",
     "type": "random",
-    "trigger_conditions": {"domain": "industry", "min_chaos": 4},
+    "trigger_conditions": {"domain": "guilds", "min_chaos": 4},
     "weight": 3,
     "template": { ... }
   }

@@ -150,7 +150,7 @@ Factions destroy projects using the `SabotageProject` action (see Actions spec).
 - Health 0: status → `destroyed`, removed from play
 
 Why factions destroy projects:
-- Remove an opponent's advantage (docks help the Stevedores — burn the docks)
+- Remove an opponent's advantage (the wharves help the Quaymen — burn the wharves)
 - Create pressure on the Mayor (destroy what the Mayor built)
 - Destabilize a rival domain (destroy infrastructure, chaos spills over)
 - Deny a rival faction the benefit of their own faction-level project
@@ -160,35 +160,35 @@ Why factions destroy projects:
 ## Example Projects
 
 ### Dock Expansion
-- **Domains:** `["transportation", "finance"]`
+- **Domains:** `["harbor", "trade"]`
 - **Build cost:** 150 gold
 - **Build time:** 3 cycles
-- **Effect:** domain.cap +10 (transportation); treasury income +15 gold/cycle
+- **Effect:** domain.cap +10 (harbor); treasury income +15 gold/cycle
 - **Faction level:** No
 
 ### City Wall Section
-- **Domains:** `["political", "underworld"]`
+- **Domains:** `["military", "aristocracy"]`
 - **Build cost:** 200 gold
 - **Build time:** 5 cycles
-- **Effect:** External threats −5 to attack rolls; city guard effectiveness +10%
+- **Effect:** External threats −5 to attack rolls; garrison effectiveness +10%
 - **Faction level:** No
 
 ### Public Market
-- **Domains:** `["street", "finance"]`
+- **Domains:** `["trade", "harbor"]`
 - **Build cost:** 80 gold
 - **Build time:** 2 cycles
-- **Effect:** Public reputation +3/cycle; street factions Grow +5
+- **Effect:** Public reputation +3/cycle; trade factions Grow +5
 - **Faction level:** No
 
 ### Temple District Expansion
-- **Domains:** `["religion"]`
+- **Domains:** `["temples"]`
 - **Build cost:** 100 gold
 - **Build time:** 3 cycles
-- **Effect:** Religion entrench decay −0.02; Public reputation +2/cycle
+- **Effect:** Temples entrench decay −0.02; Public reputation +2/cycle
 - **Faction level:** No
 
 ### Guild Safehouse
-- **Domains:** `["underworld", "street"]`
+- **Domains:** `["guilds"]`
 - **Build cost:** 60 gold
 - **Build time:** 2 cycles
 - **Effect:** Owner faction: Steal +10 to rolls, Harm −5 to incoming rolls
@@ -201,9 +201,9 @@ Why factions destroy projects:
 A city begins with pre-existing infrastructure. These projects are already `active` with full effects at game start. They have no remaining build time or cost — they simply exist.
 
 Starting projects are defined in city data (JSON). Example starting city:
-- 5 Dock Berths (5 separate dock projects at reduced scale each)
-- City Watch Barracks
-- Main Market Square
+- 5 Harbor Wharves (5 separate wharf projects at reduced scale each)
+- City Walls
+- The Agora (main market square)
 
 Starting projects immediately incur maintenance costs and are vulnerable to destruction from cycle 1.
 

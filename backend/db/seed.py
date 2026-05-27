@@ -24,16 +24,10 @@ class _CityDef(NamedTuple):
 
 _OFFICIAL_CITIES: list[_CityDef] = [
     _CityDef(
-        city_name="Unnamed Polis",
-        description="The default world. Faction and domain roster pending the "
-                    "ancient-Greek re-theme; loaded from data/.",
+        city_name="Polis",
+        description="An ancient-Greek city-state of eight domains: aristocracy, guilds, "
+                    "trade, the professions, temples, military, academy, and harbor.",
         data_dir="data",
-    ),
-    _CityDef(
-        city_name="Rivers Point",
-        description="A river trading city of nine domains: guilds, docks, noble houses, "
-                    "city watch, underworld, temple, commons, arcane, and registry.",
-        data_dir="data/past_cities/Rivers_Point",
     ),
 ]
 
@@ -60,7 +54,7 @@ def seed_official_cities(db: Session, base_dir: str = ".") -> int:
             city_name=city_def.city_name,
             author="official",
             description=city_def.description,
-            setting="DnD",
+            setting="Greek",
             details="",
             is_official=True,
             published=True,
