@@ -91,6 +91,8 @@ def load_factions_from_json(path: str) -> Dict[str, Faction]:
             entrench=fc.get("entrench", 75),
             traits=traits,
             relationships=relationships,
+            blurb=fc.get("blurb", ""),
+            description=fc.get("description", ""),
             floor=int(fc.get("rating", 1.0)),
         )
         result[faction.id] = faction

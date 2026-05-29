@@ -142,7 +142,10 @@ class TestPromptBuilder:
             db=db,
             factions={"f1": faction},
             domains={},
-            city_setting=kwargs.get("city_setting", "DnD"),
+            city_setting=kwargs.get("city_setting", "Greek"),
+            city_name=kwargs.get("city_name", "Polis"),
+            player_name=kwargs.get("player_name", "Kallisto"),
+            player_title=kwargs.get("player_title", "Prytanis"),
         )
 
     def test_leader_name_in_prompt(self):
@@ -181,9 +184,35 @@ class TestPromptBuilder:
         prompt = self._build(faction=f)
         assert "crisis" in prompt.lower() or "fighting to survive" in prompt.lower()
 
-    def test_setting_tone_injected(self):
-        prompt = self._build(city_setting="DnD")
-        assert "guild" in prompt.lower() or "fantasy" in prompt.lower()
+    def test_canonical_briefing_injected(self):
+        prompt = self._build(city_name="Athenai", player_name="Perikles", player_title="Strategos")
+        # Identity substituted into the briefing
+        assert "Athenai" in prompt
+        assert "Perikles" in prompt
+        assert "Strategos" in prompt
+        # Briefing signatures present, and no blank leading tone line
+        assert "bows to no king" in prompt
+        assert "never a master" in prompt
+        assert not prompt.startswith("\n")
+
+    def test_setting_value_does_not_change_briefing(self):
+        # Single canonical theme: SETTING_TONE is gone and any/no setting yields the briefing.
+        import engine.llm.prompt_builder as pb
+        assert not hasattr(pb, "SETTING_TONE")
+        a = self._build(city_setting="DnD")
+        b = self._build(city_setting="")
+        assert "bows to no king" in a and "bows to no king" in b
+
+    def test_no_mayor_wording_uses_title(self):
+        prompt = self._build(player_title="Prytanis")
+        assert "Mayor" not in prompt        # player-facing copy renamed to the title
+        assert "Prytanis" in prompt
+
+    def test_voice_line_sharpened(self):
+        prompt = self._build()
+        assert "measured, not verbose" not in prompt
+        assert "sharp and vivid" in prompt   # brevity retained with edge
+        assert "sentences" in prompt
 
     def test_no_real_llm_calls_made(self):
         # PromptBuilder is pure data transformation — verify it imports no LLM client

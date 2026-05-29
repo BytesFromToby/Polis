@@ -71,6 +71,8 @@ class SimStatusResponse(BaseModel):
 
 class SimStartRequest(BaseModel):
     llm_profile_id: Optional[str] = None   # None = stub mode
+    player_name: Optional[str] = None      # None/blank → "Kallisto"
+    player_title: Optional[str] = None     # None/blank → "Prytanis"
 
 
 class SimPatchRequest(BaseModel):

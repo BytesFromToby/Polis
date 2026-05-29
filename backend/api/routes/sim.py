@@ -190,6 +190,14 @@ def start_sim(
 
     setup_run.status = "running"
     setup_run.current_cycle = 0
+    setup_run.player_name = (
+        req.player_name.strip() if req and req.player_name and req.player_name.strip()
+        else "Kallisto"
+    )
+    setup_run.player_title = (
+        req.player_title.strip() if req and req.player_title and req.player_title.strip()
+        else "Prytanis"
+    )
     if req and req.llm_profile_id:
         from db.models import LLMProfile
         profile = db.query(LLMProfile).filter_by(profile_id=req.llm_profile_id).first()

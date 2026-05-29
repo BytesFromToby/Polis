@@ -61,15 +61,26 @@ RATING_NARRATIVE: list[tuple[float, float, str]] = [
     (1.0, 1.99, "modest"),
 ]
 
-SETTING_TONE: dict[str, str] = {
-    "DnD":     "This is a fantasy city of guilds, coin, and shifting power. Speak accordingly.",
-    "modern":  "This is a contemporary city of politics, media, and institutions.",
-    "sci-fi":  "This is a future city of corporations, factions, and contested resources.",
-}
+# Single canonical theme (see Planning/reference/theming.md, "LLM situation briefing").
+# Placeholders are filled from the player's chosen city name, name, and title.
+GREEK_BRIEFING = (
+    "You are the leader of a faction in {city}, a free city-state of ancient Greece by "
+    "the sea that bows to no king. No one rules {city}. Power is shared and forever "
+    "contested among rival worlds — noble houses, guilds, merchants, priesthoods, "
+    "generals, and orators — each proud, each jealous, none able to command the rest. "
+    "You speak for your faction's interest first; you are loyal to your own, not to the "
+    "city and not to the {title}.\n"
+    "You have been summoned by, and stand before, the {title} {player_name} — a presiding "
+    "official who governs from above but cannot command you. They can only work you: "
+    "endorse and condemn, bargain and betray, spend coin and favor until the city tilts "
+    "their way. They have called this audience because they want something from you. Treat "
+    "them as a powerful figure to use, resist, or bargain with — never a master. Stay in "
+    "character at all times."
+)
 
-VALID_MAYOR_TERMS_TEMPLATE = """What the Mayor can offer you:
+VALID_MAYOR_TERMS_TEMPLATE = """What the {title} can offer you:
 {tax_line}
-- Public endorsement (immediate +10 reputation with Mayor)
+- Public endorsement (immediate +10 reputation with the {title})
 - Budget allocation to {domain} domain for 1–5 cycles (strengthens your domain's growth conditions)"""
 
 VALID_FACTION_TERMS_TEMPLATE = """What you can commit to:
@@ -78,14 +89,14 @@ VALID_FACTION_TERMS_TEMPLATE = """What you can commit to:
 
 SYSTEM_TEMPLATE = """{tone_line}
 
-You are {leader_name}, leader of {faction_name}.
+You are {leader_name}, leader of {faction_name}.{leader_note}
 
-{faction_name} is a {domain} organisation.{city_desc}
+{faction_name} is a {domain} organisation.{city_desc}{faction_desc}
 
 Your character:
 {trait_lines}
 
-Your relationship with the Mayor: {rep_label} ({rep_score:+d})
+Your relationship with the {title}: {rep_label} ({rep_score:+d})
 
 Your organisation right now:
 {health_line} Your influence is {rating_desc} (rating {rating:.2f}, floor {floor}). Organisationally you are {entrench_desc} ({entrench}/100).
@@ -100,7 +111,7 @@ What you remember:
 
 {valid_faction_terms}
 
-Speak in character throughout. Keep responses to 3–4 sentences — measured, not verbose.
+Speak in character throughout. Keep responses to 3–4 sentences — sharp and vivid, speaking with the pride and edge of who you are; never flat or fawning.
 On your third and final response only, after your closing words, output a <deal> block with this exact JSON:
 
 <deal>
@@ -115,7 +126,7 @@ On your third and final response only, after your closing words, output a <deal>
 </deal>
 
 Each entry in "mayor_terms" and "faction_terms" MUST be a JSON object — never a bare string:
-- Mayor terms: {{"type": "tax_exemption", "duration": <1-10>}}, {{"type": "endorsement"}}, or {{"type": "budget_allocation", "duration": <1-5>}}
+- {title} terms ("mayor_terms"): {{"type": "tax_exemption", "duration": <1-10>}}, {{"type": "endorsement"}}, or {{"type": "budget_allocation", "duration": <1-5>}}
 - Faction terms: {{"type": "committed_action", "action": "<one of: {valid_actions}>", "target_id": "<optional faction/project id, else empty string>", "duration": <1-10>}}, or {{"type": "committed_abstain", "action": "Harm", "target_id": "<faction id>", "duration": <1-10>}}
 
 If you accept, "faction_terms" must contain at least one object stating what you commit to in return — an accepted deal where you give nothing will be rejected.
@@ -242,10 +253,24 @@ class PromptBuilder:
         domains: dict,
         city_description: str = "",
         city_setting: str = "",
+        city_name: str = "Polis",
+        player_name: str = "Kallisto",
+        player_title: str = "Prytanis",
     ) -> str:
         leader_name = faction.leader.name if faction.leader else faction.name
-        tone_line = SETTING_TONE.get(city_setting, "")
+        leader_note = ""
+        if faction.leader and faction.leader.personality_notes:
+            note_text = " ".join(n.strip() for n in faction.leader.personality_notes if n.strip())
+            if note_text:
+                leader_note = f" {note_text}"
+        # Single canonical theme: always open with the Greek briefing (city_setting is
+        # accepted for back-compat but no longer selects a tone — see theming.md).
+        tone_line = GREEK_BRIEFING.format(
+            city=city_name, player_name=player_name, title=player_title,
+        )
         city_desc = f" {city_description.strip()}" if city_description.strip() else ""
+        fac_desc_text = getattr(faction, "description", "") or ""
+        faction_desc = f"\n{fac_desc_text.strip()}" if fac_desc_text.strip() else ""
 
         trait_lines = _trait_lines(faction, factions)
         rep_score = mayor.get_reputation(faction.id)
@@ -262,6 +287,7 @@ class PromptBuilder:
         valid_mayor = VALID_MAYOR_TERMS_TEMPLATE.format(
             tax_line=tax_line,
             domain=faction.domain_primary,
+            title=player_title,
         )
 
         valid_actions = "BuildProject, Protect, Grow"
@@ -269,10 +295,13 @@ class PromptBuilder:
 
         return SYSTEM_TEMPLATE.format(
             tone_line=tone_line,
+            title=player_title,
             leader_name=leader_name,
+            leader_note=leader_note,
             faction_name=faction.name,
             domain=faction.domain_primary,
             city_desc=city_desc,
+            faction_desc=faction_desc,
             trait_lines=trait_lines,
             rep_label=rep_label,
             rep_score=rep_score,

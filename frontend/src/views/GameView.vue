@@ -41,6 +41,7 @@
                   <span class="faction-name">{{ f.name }}</span>
                   <span class="muted faction-leader">{{ leaderName(f) }}</span>
                 </div>
+                <div class="faction-blurb" v-if="f.blurb">{{ f.blurb }}</div>
                 <div class="rating-row">
                   <div class="rating-bar-wrap">
                     <div class="rating-bar" :style="{ width: ratingPct(f) + '%', background: ratingColor(f) }"></div>
@@ -366,7 +367,7 @@ export default {
     ratingColor(f) {
       const pct = this.ratingPct(f)
       if (pct >= 60) return 'var(--accent)'
-      if (pct >= 30) return '#e2a740'
+      if (pct >= 30) return 'var(--accent2)'
       return 'var(--danger)'
     },
     leaderName(f) {
@@ -412,7 +413,7 @@ export default {
 .spacer { flex: 1; }
 
 .error-bar {
-  background: rgba(224, 92, 92, 0.1);
+  background: rgba(176, 84, 94, 0.12);
   border-bottom: 1px solid var(--danger);
   color: var(--danger);
   font-size: 0.85rem;
@@ -552,6 +553,7 @@ export default {
 }
 .faction-name { font-weight: 600; font-size: 0.85rem; }
 .faction-leader { font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.faction-blurb { font-size: 0.72rem; color: var(--muted); font-style: italic; margin: 0.15rem 0 0.35rem; line-height: 1.3; }
 
 /* Last action + audience button */
 .last-action {
@@ -625,7 +627,7 @@ export default {
   color: var(--text);
 }
 .log-event.dramatic {
-  color: #e2c97a;
+  color: var(--accent2);
 }
 
 /* Mayor panel */
@@ -681,7 +683,7 @@ export default {
   font-size: 0.85rem;
   text-align: left;
 }
-.picker-row:hover { border-color: var(--accent); background: rgba(124, 106, 245, 0.08); }
+.picker-row:hover { border-color: var(--accent); background: rgba(116, 182, 164, 0.10); }
 .project-name {
   flex: 1;
   overflow: hidden;

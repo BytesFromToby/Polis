@@ -10,16 +10,6 @@ or themed-city-pack system.
 
 ---
 
-## Tag Lines
-
-#1 Polis — rule the unruleable
-Polis — rule the city that devours its rulers
-Polis — climb the city that buries its masters
-Polis — they say no one can rule it. Prove them wrong.
-Polis — seize a city built to resist you
-Polis — rule the ungovernable
-Polis — master the city that bows to no one
-
 ## The premise
 
 The game models the struggle for influence inside a single ancient-Greek **polis** — a

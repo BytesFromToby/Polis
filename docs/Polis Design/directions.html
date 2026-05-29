@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Polis · Visual Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  /* ---- shared primitives ---- */
+  .scene {
+    position: relative; width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: 'Spectral', Georgia, serif;
+    display: flex; flex-direction: column;
+  }
+  .grain {
+    position: absolute; inset: 0; pointer-events: none;
+    opacity: .5; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .vignette { position: absolute; inset: 0; pointer-events: none; }
+  .meander-band { width: 100%; height: 22px; display: block; flex: none; }
+  .kicker {
+    font-family: 'Cinzel', serif; font-weight: 600;
+    letter-spacing: .42em; text-transform: uppercase;
+    font-size: 12px;
+  }
+  .wordmark {
+    font-family: 'Cinzel', serif; font-weight: 800;
+    letter-spacing: .14em; line-height: .92;
+    margin: 0;
+  }
+  .greek {
+    font-family: 'Cinzel', serif; font-weight: 500;
+    letter-spacing: .3em; text-transform: uppercase; font-size: 13px;
+  }
+  .tagline {
+    font-family: 'Spectral', serif; font-style: italic; font-weight: 400;
+    font-size: 17px; line-height: 1.5; max-width: 30ch;
+  }
+  .btn {
+    font-family: 'Cinzel', serif; font-weight: 600;
+    letter-spacing: .18em; text-transform: uppercase; font-size: 12px;
+    padding: 13px 26px; border: 1px solid transparent; cursor: pointer;
+    background: none; display: inline-flex; align-items: center; gap: 10px;
+  }
+  .rule { width: 54px; height: 1px; }
+  .seat {
+    font-family: 'Cinzel', serif; letter-spacing: .26em;
+    text-transform: uppercase; font-size: 10.5px; font-weight: 500;
+  }
+  /* ---- faction card fragment ---- */
+  .fcard { padding: 22px; position: relative; }
+  .fcard .dom { font-family:'Cinzel',serif; letter-spacing:.28em; text-transform:uppercase; font-size:10px; }
+  .fcard .name { font-family:'Cinzel',serif; font-weight:700; letter-spacing:.04em; font-size:24px; margin:7px 0 2px; }
+  .fcard .gloss { font-style:italic; font-size:14px; }
+  .fcard .desc { font-size:13.5px; line-height:1.55; margin:14px 0 16px; }
+  .meter { height:6px; width:100%; border-radius:0; position:relative; overflow:hidden; }
+  .meter > span { position:absolute; inset:0 auto 0 0; }
+  .trait { font-family:'Cinzel',serif; font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; padding:5px 10px; display:inline-block; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel">
+const { useState } = React;
+
+// Greek-key meander band — continuous baseline + repeating square-spiral hooks.
+function Meander({ color, bg, flip }) {
+  const tile = "M0,21 H24 M4,21 V4 H20 V16 H11 V10 H16";
+  return (
+    <svg className="meander-band" preserveAspectRatio="none" viewBox="0 0 480 22"
+         style={{ transform: flip ? 'scaleY(-1)' : 'none', background: bg || 'transparent' }}>
+      <defs>
+        <pattern id={"mp"+color.replace(/[^a-z0-9]/gi,'')} width="24" height="22" patternUnits="userSpaceOnUse">
+          <path d={tile} fill="none" stroke={color} strokeWidth="2" strokeLinecap="square" />
+        </pattern>
+      </defs>
+      <rect width="480" height="22" fill={"url(#mp"+color.replace(/[^a-z0-9]/gi,'')+")"} />
+    </svg>
+  );
+}
+
+// ---- TITLE SCREEN ----
+function Title({ p }) {
+  return (
+    <div className="scene" style={{ background: p.ink, color: p.text }}>
+      <div className="vignette" style={{ background: p.vignette }} />
+      <div className="grain" />
+      <Meander color={p.line2} />
+      <div style={{ position:'relative', flex:1, display:'flex', flexDirection:'column',
+                    justifyContent:'center', padding:'0 64px' }}>
+        <div className="kicker" style={{ color: p.accent }}>A Free City by the Sea</div>
+        <h1 className="wordmark" style={{ color: p.text, fontSize:'110px',
+              textShadow: p.glow, marginTop:14 }}>POLIS</h1>
+        <div style={{ display:'flex', alignItems:'center', gap:18, marginTop:6 }}>
+          <span className="rule" style={{ background: p.accent }} />
+          <span className="greek" style={{ color: p.accentDim }}>Πόλις</span>
+          <span className="rule" style={{ background: p.accent }} />
+        </div>
+        <p className="tagline" style={{ color: p.textDim, marginTop:24 }}>
+          No one rules Polis. Power is shared, contested, and forever in motion —
+          and the city is always one crisis from greatness or ruin.
+        </p>
+        <div style={{ display:'flex', gap:14, marginTop:32 }}>
+          <button className="btn" style={{ background: p.accent, color: p.ink,
+                borderColor: p.accent }}>Enter the City</button>
+          <button className="btn" style={{ color: p.text, borderColor: p.line }}>Continue</button>
+        </div>
+      </div>
+      <div style={{ position:'relative', display:'flex', justifyContent:'space-between',
+                    padding:'0 64px 26px' }}>
+        <span className="seat" style={{ color: p.textDim }}>You preside as ✦ Prytanis</span>
+        <span className="seat" style={{ color: p.textDim }}>{p.label}</span>
+      </div>
+    </div>
+  );
+}
+
+// ---- FACTION CARD FRAGMENT ----
+function Fragment({ p }) {
+  return (
+    <div className="scene" style={{ background: p.ink2, color: p.text, padding:24, justifyContent:'center' }}>
+      <div className="grain" />
+      <div className="fcard" style={{ background: p.surface, border:`1px solid ${p.line}`,
+            boxShadow: p.cardShadow }}>
+        <span style={{ position:'absolute', top:0, left:0, width:3, bottom:0, background:p.accent }} />
+        <div className="dom" style={{ color: p.accent }}>Aristocracy · Eupatridai</div>
+        <div className="name" style={{ color: p.text }}>The Pyrrhidai</div>
+        <div className="gloss" style={{ color: p.textDim }}>“the fire-blooded”</div>
+        <p className="desc" style={{ color: p.textDim }}>
+          New money married into old blood — hungry to displace the senior clan and
+          take the city by right.
+        </p>
+        <div style={{ display:'flex', justifyContent:'space-between', fontSize:10,
+              fontFamily:"'Cinzel',serif", letterSpacing:'.18em', textTransform:'uppercase',
+              color:p.textDim, marginBottom:6 }}>
+          <span>Influence</span><span style={{color:p.accent}}>Rising</span>
+        </div>
+        <div className="meter" style={{ background: p.line }}>
+          <span style={{ background:`linear-gradient(90deg, ${p.accentDim}, ${p.accent})`, width:'68%' }} />
+        </div>
+        <div style={{ display:'flex', gap:8, marginTop:16 }}>
+          <span className="trait" style={{ color:p.accent, border:`1px solid ${p.line}` }}>Ambitious · strong</span>
+          <span className="trait" style={{ color:p.textDim, border:`1px solid ${p.line}` }}>Expansionary</span>
+        </div>
+        <div style={{ display:'flex', gap:10, marginTop:20 }}>
+          <button className="btn" style={{ flex:1, justifyContent:'center', background:p.accent,
+                color:p.ink, borderColor:p.accent, padding:'11px 0' }}>Endorse</button>
+          <button className="btn" style={{ flex:1, justifyContent:'center', color:p.danger,
+                borderColor:p.danger, padding:'11px 0' }}>Condemn</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---- PALETTES ----
+const A = { // Candleflame — ink & gold
+  label:'A · Candleflame', ink:'#0E0B07', ink2:'#100C08', surface:'#1C160D',
+  line:'#3A2E1B', line2:'#5A4827', accent:'#CDA64E', accentDim:'#8C6E36',
+  text:'#ECE2CC', textDim:'#A1916E', danger:'#B5454C',
+  vignette:'radial-gradient(120% 90% at 30% 28%, rgba(205,166,78,.16), rgba(0,0,0,0) 55%), radial-gradient(140% 120% at 80% 120%, rgba(0,0,0,.6), rgba(0,0,0,0))',
+  glow:'0 0 60px rgba(205,166,78,.18)', cardShadow:'0 24px 60px rgba(0,0,0,.55)'
+};
+const B = { // Wine-dark & bronze (verdigris)
+  label:'B · Wine-Dark', ink:'#0C0A0C', ink2:'#0F0A0D', surface:'#1B1117',
+  line:'#3A2330', line2:'#5E3B4C', accent:'#74B6A4', accentDim:'#3F756A',
+  text:'#ECE6D6', textDim:'#9C8E92', danger:'#B0545E',
+  vignette:'radial-gradient(120% 90% at 70% 25%, rgba(116,182,164,.13), rgba(0,0,0,0) 55%), radial-gradient(140% 120% at 25% 120%, rgba(40,12,24,.7), rgba(0,0,0,0))',
+  glow:'0 0 60px rgba(116,182,164,.16)', cardShadow:'0 24px 60px rgba(0,0,0,.6)'
+};
+const C = { // Black-figure — terracotta & ink
+  label:'C · Black-Figure', ink:'#0B0907', ink2:'#0E0B08', surface:'#1A120B',
+  line:'#3A2818', line2:'#5E3E22', accent:'#CC5E2E', accentDim:'#8A3F1E',
+  text:'#E8D9BC', textDim:'#A4906F', danger:'#A23A33',
+  vignette:'radial-gradient(120% 90% at 28% 30%, rgba(204,94,46,.15), rgba(0,0,0,0) 52%), radial-gradient(140% 120% at 82% 120%, rgba(0,0,0,.62), rgba(0,0,0,0))',
+  glow:'0 0 60px rgba(204,94,46,.2)', cardShadow:'0 24px 60px rgba(0,0,0,.6)'
+};
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="titles" title="Title Screens" subtitle="Three palettes within the dark-intrigue world — pick a direction">
+        <DCArtboard id="ta" label="A · Candleflame — ink & gold" width={900} height={560}><Title p={A} /></DCArtboard>
+        <DCArtboard id="tb" label="B · Wine-Dark — verdigris bronze" width={900} height={560}><Title p={B} /></DCArtboard>
+        <DCArtboard id="tc" label="C · Black-Figure — terracotta" width={900} height={560}><Title p={C} /></DCArtboard>
+      </DCSection>
+      <DCSection id="frags" title="UI Fragment — faction card" subtitle="Same component in each palette">
+        <DCArtboard id="fa" label="A · Candleflame" width={440} height={520}><Fragment p={A} /></DCArtboard>
+        <DCArtboard id="fb" label="B · Wine-Dark" width={440} height={520}><Fragment p={B} /></DCArtboard>
+        <DCArtboard id="fc" label="C · Black-Figure" width={440} height={520}><Fragment p={C} /></DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

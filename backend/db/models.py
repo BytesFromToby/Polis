@@ -82,6 +82,11 @@ class SimRun(Base):
     description: Mapped[str] = mapped_column(String, default="")
     details:     Mapped[str] = mapped_column(String, default="")
 
+    # Player identity (set at new-game start; title is a fixed default until the
+    # rank-ladder system exists — see reference/theming.md)
+    player_name:  Mapped[str] = mapped_column(String, default="Kallisto")
+    player_title: Mapped[str] = mapped_column(String, default="Prytanis")
+
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 

@@ -1,16 +1,24 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #0f0f13;
-  --surface:  #1a1a22;
-  --border:   #2e2e3a;
-  --accent:   #7c6af5;
-  --accent2:  #4fc3a1;
-  --danger:   #e05c5c;
-  --text:     #d4d4e0;
-  --muted:    #7a7a90;
-  --radius:   6px;
-  --gap:      1rem;
+  /* Polis · Wine-Dark palette — see docs/Polis Design/colors_and_type.css */
+  --bg:            #0C0A0C;   /* ink-900 — page                 */
+  --bg-raised:     #140C10;   /* ink-800 — panels on the page   */
+  --surface:       #1B1117;   /* ink-700 — cards                */
+  --surface-raised:#241820;   /* ink-600 — menus above cards    */
+  --border:        #3A2330;   /* line-dk                        */
+  --line-strong:   #5E3B4C;
+  --accent:        #74B6A4;   /* verdigris-300 — brand primary  */
+  --accent-strong: #AED6C9;   /* verdigris-200                  */
+  --accent-weak:   #2A5F53;   /* verdigris-600                  */
+  --on-accent:     #0C0A0C;   /* dark text on verdigris fill    */
+  --accent2:       #C99F5C;   /* bronze-300 — wealth / positive */
+  --danger:        #B0545E;   /* wine-400 — conflict / loss     */
+  --on-danger:     #F4EFE4;   /* bone-100                       */
+  --text:          #ECE6D6;   /* bone-200 — primary text        */
+  --muted:         #9C8E92;   /* bone-400 — meta text           */
+  --radius:        4px;       /* Polis is carved, not soft      */
+  --gap:           1rem;
 }
 
 body {
@@ -74,9 +82,9 @@ button, .btn {
 button:hover, .btn:hover { opacity: 0.85; }
 button:disabled, .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
 .btn-subtle  { background: var(--border); color: var(--text); }
-.btn-danger  { background: var(--danger); color: #fff; }
+.btn-danger  { background: var(--danger); color: var(--on-danger); }
 .btn-sm      { padding: 0.25rem 0.6rem; font-size: 0.8rem; }
 
 /* ── Forms ── */
@@ -155,4 +163,4 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .login-box .sub  { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.85rem; }
 .login-tabs      { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
 .login-tabs button { flex: 1; background: var(--border); color: var(--muted); }
-.login-tabs button.active { background: var(--accent); color: #fff; }
+.login-tabs button.active { background: var(--accent); color: var(--on-accent); }

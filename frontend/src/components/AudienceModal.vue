@@ -9,6 +9,11 @@
 
       <p v-if="fatalError" class="err" style="margin-bottom:0.75rem">{{ fatalError }}</p>
 
+      <div class="audience-intro" v-if="faction.description || leaderLine">
+        <div class="audience-desc" v-if="faction.description">{{ faction.description }}</div>
+        <div class="audience-leader" v-if="leaderLine">{{ leaderLine }}</div>
+      </div>
+
       <!-- Transcript -->
       <div class="transcript">
 
@@ -195,6 +200,12 @@ export default {
     factionName() {
       return this.faction?.name || this.faction?.id || 'Faction'
     },
+    leaderLine() {
+      const l = this.faction?.leader
+      if (!l) return ''
+      const note = (l.personality_notes || []).join(' ').trim()
+      return note ? `${l.name} — ${note}` : (l.name || '')
+    },
     concluded() {
       return this.phase === 'done'
     },
@@ -338,8 +349,8 @@ export default {
 
 <style scoped>
 .audience-modal {
-  background: var(--bg, #1a1a2e);
-  border: 1px solid var(--border, #333);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius, 8px);
   width: 580px;
   max-width: 96vw;
@@ -360,6 +371,9 @@ export default {
 .modal-title { font-size: 1rem; font-weight: 700; }
 
 .err { font-size: 0.82rem; color: var(--danger); }
+.audience-intro { margin-bottom: 0.85rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+.audience-desc { font-size: 0.85rem; color: var(--muted); font-style: italic; line-height: 1.4; }
+.audience-leader { font-size: 0.82rem; color: var(--text, #ddd); margin-top: 0.4rem; line-height: 1.4; }
 
 /* Transcript */
 .transcript {
@@ -383,11 +397,11 @@ export default {
 .mayor-turn {
   background: rgba(255,255,255,0.04);
   border: 1px solid var(--border);
-  border-left: 3px solid #555;
+  border-left: 3px solid var(--line-strong);
   align-self: flex-end;
   max-width: 90%;
 }
-.faction-turn.accepted { border-left-color: #4caf7d; }
+.faction-turn.accepted { border-left-color: var(--accent); }
 .faction-turn.rejected { border-left-color: var(--danger); }
 
 .turn-label {
@@ -408,7 +422,7 @@ export default {
   color: var(--muted);
   margin: 0.15rem 0 0.1rem 0.2rem;
 }
-.deal-status.tone-yes { color: #4caf7d; }
+.deal-status.tone-yes { color: var(--accent); }
 .deal-status.tone-no  { color: var(--danger); }
 
 /* Typing indicator */
@@ -433,7 +447,7 @@ export default {
   border: 1px solid var(--accent);
   border-radius: var(--radius, 6px);
   padding: 0.6rem 0.75rem;
-  background: rgba(124, 106, 245, 0.06);
+  background: rgba(116, 182, 164, 0.07);
 }
 .confirm-label { font-size: 0.82rem; font-weight: 600; margin-bottom: 0.5rem; }
 .terms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.6rem; }
@@ -453,13 +467,13 @@ export default {
   gap: 0.2rem;
   flex-shrink: 0;
 }
-.deal-yes { background: rgba(76, 175, 125, 0.12); border: 1px solid rgba(76, 175, 125, 0.4); }
-.deal-no  { background: rgba(224, 92, 92, 0.08);  border: 1px solid rgba(224, 92, 92, 0.35); }
+.deal-yes { background: rgba(116, 182, 164, 0.12); border: 1px solid rgba(116, 182, 164, 0.4); }
+.deal-no  { background: rgba(176, 84, 94, 0.12);  border: 1px solid rgba(176, 84, 94, 0.4); }
 .deal-verdict { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
-.deal-yes .deal-verdict { color: #4caf7d; }
+.deal-yes .deal-verdict { color: var(--accent); }
 .deal-no  .deal-verdict { color: var(--danger); }
 .deal-note { font-size: 0.78rem; color: var(--muted); }
-.deal-note.warn { color: #e2a740; }
+.deal-note.warn { color: var(--accent2); }
 
 /* Input */
 .input-area {

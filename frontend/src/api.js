@@ -89,7 +89,11 @@ export const sim = {
   runs:      (userId)          => get(`/users/${userId}/runs`),
   deleteRun: (userId, runId)   => del(`/users/${userId}/runs/${runId}`),
   switch:    (userId, runId)   => post(`/users/${userId}/sim/switch/${runId}`),
-  start:  (userId, llmProfileId) => post(`/users/${userId}/sim/start`, { llm_profile_id: llmProfileId || null }),
+  start:  (userId, llmProfileId, identity = {}) => post(`/users/${userId}/sim/start`, {
+    llm_profile_id: llmProfileId || null,
+    player_name: identity.player_name || null,
+    player_title: identity.player_title || null,
+  }),
   step:   (userId)    => post(`/users/${userId}/sim/step`),
   run:    (userId, n) => post(`/users/${userId}/sim/run/${n}`),
   pause:   (userId)       => post(`/users/${userId}/sim/pause`),

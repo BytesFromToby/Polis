@@ -60,6 +60,9 @@ class Faction:
     traits: List[FactionTrait] = field(default_factory=list)
     relationships: List[FactionRelationship] = field(default_factory=list)
 
+    blurb: str = ""                # short gloss (left-panel); from theming.md
+    description: str = ""          # full identity line (audience + prompt); from theming.md
+
     floor: int = -1                # last confirmed level; -1 = auto-init
     active_block_target: str = ""  # faction_id of standing block trap; "" if none
 

@@ -1,0 +1,299 @@
+/* =============================================================================
+   POLIS · colors_and_type.css
+   The foundation tokens for the Polis design system.
+
+   Two themes, one identity:
+     • Wine-Dark  (dark)   — default. Candlelit, conspiratorial, ink & verdigris.
+     • Papyrus    (light)  — aged paper, sepia ink, the same verdigris & bronze.
+
+   Verdigris (the patina of old bronze statues) is the signature accent in BOTH.
+   Bronze is the warm secondary. Wine/oxblood carries conflict & danger.
+
+   Usage:
+     <html data-theme="dark">  ... default, may be omitted
+     <html data-theme="light"> ... papyrus
+
+   Fonts (Google Fonts — see README "Typography"; these are SELECTIONS, no brand
+   font files were supplied):
+     Cinzel            — inscriptional Roman capitals (display, titles, labels)
+     Spectral          — humanist serif for screen reading (body, the voice)
+     Cormorant Garamond— high-contrast editorial accent (pull-quotes, marketing)
+   ============================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap');
+
+/* -----------------------------------------------------------------------------
+   1. PRIMITIVES — raw values. Reference these only inside semantic tokens below.
+   ----------------------------------------------------------------------------- */
+:root {
+  /* — Verdigris (brand primary): the green patina of weathered bronze — */
+  --verdigris-100: #DCEDE6;
+  --verdigris-200: #AED6C9;
+  --verdigris-300: #74B6A4;   /* dark-theme accent           */
+  --verdigris-400: #4E9484;
+  --verdigris-500: #357567;   /* light-theme accent          */
+  --verdigris-600: #2A5F53;
+  --verdigris-700: #1F4840;
+
+  /* — Bronze (brand secondary): cast & gilded metal — */
+  --bronze-200: #E3C792;
+  --bronze-300: #C99F5C;      /* dark-theme bronze           */
+  --bronze-400: #A87C3A;
+  --bronze-500: #8A5F26;      /* light-theme bronze          */
+  --bronze-600: #6E4A1B;
+
+  /* — Wine / oxblood (conflict, danger, the wine-dark sea) — */
+  --wine-300: #C56770;
+  --wine-400: #B0545E;        /* dark-theme danger           */
+  --wine-500: #8A2B33;        /* light-theme danger          */
+  --wine-600: #5E1A22;
+  --wine-900: #2A121A;        /* deep wine surface tint      */
+
+  /* — Ink neutrals (wine-tinted blacks → bone) for the dark theme — */
+  --ink-900: #0C0A0C;
+  --ink-850: #0F0A0D;
+  --ink-800: #140C10;
+  --ink-750: #181016;
+  --ink-700: #1B1117;
+  --ink-600: #241820;
+  --ink-500: #2E2029;
+  --line-dk: #3A2330;
+  --line-dk-strong: #5E3B4C;
+  --bone-100: #F4EFE4;
+  --bone-200: #ECE6D6;
+  --bone-300: #C9BEB0;
+  --bone-400: #9C8E92;
+  --bone-500: #6E6168;
+
+  /* — Papyrus neutrals (aged paper → sepia ink) for the light theme — */
+  --pap-100: #F4ECD8;         /* lightest card / highlight   */
+  --pap-200: #EFE6CF;         /* raised paper                */
+  --pap-300: #E7DBBF;         /* page background             */
+  --pap-400: #DECFAC;         /* sunk / inset                */
+  --pap-line: #CBB78D;
+  --pap-line-strong: #A88F63;
+  --sepia-900: #241710;       /* darkest ink                 */
+  --sepia-800: #3A271A;
+  --sepia-600: #5A4632;       /* muted brown ink             */
+  --sepia-400: #897157;       /* faint brown                 */
+
+  /* — Static brand constants (do not flip with theme) — */
+  --c-verdigris: var(--verdigris-400);
+  --c-bronze: var(--bronze-400);
+  --c-wine: var(--wine-500);
+}
+
+/* -----------------------------------------------------------------------------
+   2. SEMANTIC TOKENS — flip per theme. ALWAYS reference these in components.
+   ----------------------------------------------------------------------------- */
+
+/* ===== Wine-Dark (dark) — default ===== */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:            var(--ink-900);   /* app/page background        */
+  --bg-raised:     var(--ink-800);   /* panels sitting on the page */
+  --surface:       var(--ink-700);   /* cards                      */
+  --surface-raised:var(--ink-600);   /* cards/menus above cards    */
+  --surface-sunk:  var(--ink-850);   /* wells, insets, tracks      */
+
+  --line:          var(--line-dk);         /* hairlines, dividers  */
+  --line-strong:   var(--line-dk-strong);  /* emphasized borders   */
+
+  --fg-1:          var(--bone-200);  /* primary text               */
+  --fg-2:          var(--bone-300);  /* secondary text             */
+  --fg-3:          var(--bone-400);  /* muted / meta text          */
+  --fg-faint:      var(--bone-500);  /* disabled, watermarks       */
+
+  --accent:        var(--verdigris-300);  /* verdigris — primary  */
+  --accent-weak:   var(--verdigris-600);
+  --accent-strong: var(--verdigris-200);
+  --on-accent:     var(--ink-900);   /* text/icon on accent fill   */
+
+  --bronze:        var(--bronze-300);
+  --bronze-weak:   var(--bronze-500);
+
+  --danger:        var(--wine-400);  /* condemn, conflict, loss    */
+  --danger-weak:   var(--wine-600);
+  --on-danger:     var(--bone-100);
+
+  /* surface wash for the wine-tinted vignette */
+  --vignette: radial-gradient(120% 90% at 70% 22%, rgba(116,182,164,.10), rgba(0,0,0,0) 55%),
+              radial-gradient(150% 130% at 22% 130%, rgba(42,18,26,.65), rgba(0,0,0,0));
+  --glow-accent: 0 0 48px rgba(116,182,164,.16);
+}
+
+/* ===== Papyrus (light) ===== */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:            var(--pap-300);
+  --bg-raised:     var(--pap-200);
+  --surface:       var(--pap-100);
+  --surface-raised:#FBF6E9;
+  --surface-sunk:  var(--pap-400);
+
+  --line:          var(--pap-line);
+  --line-strong:   var(--pap-line-strong);
+
+  --fg-1:          var(--sepia-900);
+  --fg-2:          var(--sepia-600);
+  --fg-3:          var(--sepia-400);
+  --fg-faint:      #A99272;
+
+  --accent:        var(--verdigris-500);
+  --accent-weak:   var(--verdigris-200);
+  --accent-strong: var(--verdigris-600);
+  --on-accent:     var(--pap-100);
+
+  --bronze:        var(--bronze-500);
+  --bronze-weak:   var(--bronze-300);
+
+  --danger:        var(--wine-500);
+  --danger-weak:   var(--wine-300);
+  --on-danger:     var(--pap-100);
+
+  --vignette: radial-gradient(130% 100% at 50% -10%, rgba(255,250,235,.6), rgba(0,0,0,0) 60%),
+              radial-gradient(150% 140% at 50% 120%, rgba(168,143,99,.18), rgba(0,0,0,0));
+  --glow-accent: 0 0 0 rgba(0,0,0,0);
+}
+
+/* -----------------------------------------------------------------------------
+   3. TYPOGRAPHY tokens
+   ----------------------------------------------------------------------------- */
+:root {
+  --font-display: 'Cinzel', 'Trajan Pro', Georgia, serif;   /* inscriptional caps */
+  --font-body:    'Spectral', Georgia, 'Times New Roman', serif;
+  --font-accent:  'Cormorant Garamond', Georgia, serif;     /* editorial display  */
+
+  /* Modular scale (~1.28), base 17px. Game UI / decks may scale up wholesale. */
+  --text-xs:   12px;
+  --text-sm:   14px;
+  --text-base: 17px;
+  --text-md:   19px;
+  --text-lg:   22px;
+  --text-xl:   28px;
+  --text-2xl:  36px;
+  --text-3xl:  46px;
+  --text-4xl:  60px;
+  --text-5xl:  78px;
+  --text-display: 104px;
+
+  --leading-tight: 1.12;
+  --leading-snug:  1.32;
+  --leading-body:  1.6;
+
+  /* Inscriptional tracking — Cinzel wants air; Spectral does not */
+  --track-display: .06em;
+  --track-caps:    .26em;   /* kickers / labels */
+  --track-caps-sm: .18em;   /* buttons          */
+  --track-body:    0;
+}
+
+/* -----------------------------------------------------------------------------
+   4. SEMANTIC TYPE CLASSES — drop-in. Color comes from --fg-1 by default.
+   ----------------------------------------------------------------------------- */
+.t-display, .t-h1, .t-h2, .t-h3, .t-kicker, .t-greek, .t-eyebrow {
+  font-family: var(--font-display);
+  color: var(--fg-1);
+}
+.t-display {
+  font-weight: 800; font-size: var(--text-display);
+  letter-spacing: var(--track-display); line-height: .92; margin: 0;
+}
+.t-h1 { font-weight: 700; font-size: var(--text-3xl); letter-spacing: .04em; line-height: var(--leading-tight); margin: 0; }
+.t-h2 { font-weight: 700; font-size: var(--text-2xl); letter-spacing: .03em; line-height: var(--leading-tight); margin: 0; }
+.t-h3 { font-weight: 600; font-size: var(--text-xl); letter-spacing: .02em; line-height: var(--leading-snug); margin: 0; }
+
+/* Cinzel small-caps utilities for labels, eyebrows, the Greek gloss line */
+.t-kicker, .t-eyebrow {
+  font-weight: 600; font-size: var(--text-xs);
+  text-transform: uppercase; letter-spacing: var(--track-caps);
+  color: var(--accent);
+}
+.t-greek {
+  font-weight: 500; font-size: var(--text-sm);
+  text-transform: uppercase; letter-spacing: var(--track-caps);
+  color: var(--fg-3);
+}
+
+/* Body — Spectral */
+.t-lead { font-family: var(--font-body); font-weight: 400; font-size: var(--text-md); line-height: var(--leading-body); color: var(--fg-2); margin: 0; }
+.t-body { font-family: var(--font-body); font-weight: 400; font-size: var(--text-base); line-height: var(--leading-body); color: var(--fg-2); margin: 0; }
+.t-small { font-family: var(--font-body); font-weight: 400; font-size: var(--text-sm); line-height: var(--leading-snug); color: var(--fg-3); margin: 0; }
+
+/* Editorial quote — Cormorant */
+.t-quote {
+  font-family: var(--font-accent); font-style: italic; font-weight: 500;
+  font-size: var(--text-2xl); line-height: 1.28; color: var(--fg-1); margin: 0;
+}
+
+/* -----------------------------------------------------------------------------
+   5. SHAPE, ELEVATION, MOTION — squared & monumental, not rounded.
+   ----------------------------------------------------------------------------- */
+:root {
+  /* Polis is carved, not soft. Radii are minimal by design. */
+  --radius-0: 0px;       /* default — sharp stone edges          */
+  --radius-1: 2px;       /* faint softening on small controls    */
+  --radius-2: 4px;       /* cards, inputs (max for most UI)       */
+  --radius-pill: 999px;  /* chips/tokens only                    */
+
+  --border-hair: 1px;
+  --border-frame: 2px;   /* meander / framed panels               */
+
+  /* Elevation — deep, soft shadows in the dark; subtle in papyrus */
+  --shadow-1: 0 1px 0 rgba(0,0,0,.4);
+  --shadow-2: 0 10px 30px rgba(0,0,0,.45);
+  --shadow-3: 0 24px 60px rgba(0,0,0,.55);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,.04);
+
+  /* Spacing — 4px base grid */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+  --space-9: 96px;
+
+  /* Motion — measured, weighted; nothing bouncy. Things settle like stone. */
+  --ease-standard: cubic-bezier(.2, .7, .2, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+}
+[data-theme="light"] {
+  --shadow-1: 0 1px 0 rgba(122,99,58,.18);
+  --shadow-2: 0 8px 22px rgba(90,70,40,.16);
+  --shadow-3: 0 18px 44px rgba(90,70,40,.20);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+/* -----------------------------------------------------------------------------
+   6. TEXTURES — papyrus fiber + ink grain, built in CSS (no image assets).
+   ----------------------------------------------------------------------------- */
+.tex-grain::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  opacity: .5; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* Papyrus fibre weave — faint cross-hatch of warm lines */
+.tex-papyrus {
+  background-color: var(--pap-300);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(168,143,99,.06) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(168,143,99,.05) 0 1px, transparent 1px 5px),
+    radial-gradient(140% 120% at 50% 0%, rgba(255,250,235,.45), rgba(0,0,0,0) 60%);
+}
+
+/* -----------------------------------------------------------------------------
+   7. BASE RESET (opt-in via .polis on a root container)
+   ----------------------------------------------------------------------------- */
+.polis {
+  background: var(--bg);
+  color: var(--fg-1);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.polis ::selection { background: var(--accent); color: var(--on-accent); }

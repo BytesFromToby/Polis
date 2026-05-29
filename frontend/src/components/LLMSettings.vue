@@ -44,8 +44,8 @@
           </div>
           <div style="display:flex; align-items:center; gap:0.4rem">
             <span v-if="testResults[p.profile_id]" class="tag"
-                  :style="{ background: testResults[p.profile_id].ok ? '#16a34a' : '#dc2626' }"
-                  style="font-size:0.72rem; color:#fff">
+                  :style="{ background: testResults[p.profile_id].ok ? 'var(--accent)' : 'var(--danger)', color: testResults[p.profile_id].ok ? 'var(--on-accent)' : 'var(--on-danger)' }"
+                  style="font-size:0.72rem">
               {{ testResults[p.profile_id].ok ? 'ok' : 'fail' }}
             </span>
             <button class="btn-subtle btn-sm" @click="testProfile(p)"

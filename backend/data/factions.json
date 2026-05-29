@@ -9,15 +9,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Lysandros the Elder",
-      "traits": ["conservative", "defensive"],
+      "traits": [
+        "conservative",
+        "defensive"
+      ],
       "status": "present",
-      "personality_notes": ["Venerable, immovable; sees every change as decay."]
+      "personality_notes": [
+        "Venerable, immovable; sees every change as decay."
+      ]
     },
     "traits": [
-      {"trait": "conservative", "intensity": "strong"},
-      {"trait": "defensive",    "intensity": "moderate"}
+      {
+        "trait": "conservative",
+        "intensity": "strong"
+      },
+      {
+        "trait": "defensive",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "\"the well-flocked,\" old wealth in land and herds",
+    "description": "The senior clan: vast estates, an ancient name, treats the city as theirs by right."
   },
   {
     "id": "pyrrhidai",
@@ -29,15 +42,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Kleon Pyrrhos",
-      "traits": ["ambitious", "expansionary"],
+      "traits": [
+        "ambitious",
+        "expansionary"
+      ],
       "status": "present",
-      "personality_notes": ["Young, brilliant, impatient for primacy."]
+      "personality_notes": [
+        "Young, brilliant, impatient for primacy."
+      ]
     },
     "traits": [
-      {"trait": "ambitious",    "intensity": "strong"},
-      {"trait": "expansionary", "intensity": "moderate"}
+      {
+        "trait": "ambitious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "expansionary",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "\"the fire-blooded\"",
+    "description": "A rising house, new money married into old blood, hungry to displace the Eumelidai."
   },
   {
     "id": "skiadai",
@@ -49,15 +75,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Demarete of the Skiadai",
-      "traits": ["opportunistic", "corrupt"],
+      "traits": [
+        "opportunistic",
+        "corrupt"
+      ],
       "status": "present",
-      "personality_notes": ["Gracious in public, ruthless in the dark."]
+      "personality_notes": [
+        "Gracious in public, ruthless in the dark."
+      ]
     },
     "traits": [
-      {"trait": "opportunistic", "intensity": "strong"},
-      {"trait": "corrupt",       "intensity": "slight"}
+      {
+        "trait": "opportunistic",
+        "intensity": "strong"
+      },
+      {
+        "trait": "corrupt",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "\"the shadowed\"",
+    "description": "A once-great house in decline, clinging on through favors, debts, and quiet leverage."
   },
   {
     "id": "tidesworn",
@@ -69,15 +108,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Nereus Halios",
-      "traits": ["aggressive", "ambitious"],
+      "traits": [
+        "aggressive",
+        "ambitious"
+      ],
       "status": "present",
-      "personality_notes": ["Booming and volatile; speaks of the god's anger as if it were his own."]
+      "personality_notes": [
+        "Booming and volatile; speaks of the god's anger as if it were his own."
+      ]
     },
     "traits": [
-      {"trait": "aggressive", "intensity": "moderate"},
-      {"trait": "ambitious",  "intensity": "moderate"}
+      {
+        "trait": "aggressive",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "ambitious",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "priests of the Earth-Shaker (Poseidon)",
+    "description": "The sea-god's cult — storms, earthquakes, the harbor's fear. They claim the god's wrath as leverage."
   },
   {
     "id": "hearthwardens",
@@ -89,15 +141,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Hestaia the Unmoved",
-      "traits": ["conservative", "defensive"],
+      "traits": [
+        "conservative",
+        "defensive"
+      ],
       "status": "present",
-      "personality_notes": ["Serene, rigid; treats every reform as a draft on the flame."]
+      "personality_notes": [
+        "Serene, rigid; treats every reform as a draft on the flame."
+      ]
     },
     "traits": [
-      {"trait": "conservative", "intensity": "strong"},
-      {"trait": "defensive",    "intensity": "moderate"}
+      {
+        "trait": "conservative",
+        "intensity": "strong"
+      },
+      {
+        "trait": "defensive",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "keepers of the eternal flame (Hestia)",
+    "description": "Guardians of the city's sacred hearth, the unbroken civic fire. The still, traditional soul of the polis."
   },
   {
     "id": "greenmantle",
@@ -109,15 +174,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Chloris of the Furrow",
-      "traits": ["industrious", "defensive"],
+      "traits": [
+        "industrious",
+        "defensive"
+      ],
       "status": "present",
-      "personality_notes": ["Warm and patient; thinks in seasons, slow to anger and slow to forgive."]
+      "personality_notes": [
+        "Warm and patient; thinks in seasons, slow to anger and slow to forgive."
+      ]
     },
     "traits": [
-      {"trait": "industrious", "intensity": "moderate"},
-      {"trait": "defensive",   "intensity": "slight"}
+      {
+        "trait": "industrious",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "defensive",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the harvest cult of the earth-mother (Demeter)",
+    "description": "The grain-and-fertility cult, rooted in the seasons; blesses the fields and feeds the festivals."
   },
   {
     "id": "raving-choir",
@@ -129,15 +207,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Eurymache the Raving",
-      "traits": ["destructive", "opportunistic"],
+      "traits": [
+        "destructive",
+        "opportunistic"
+      ],
       "status": "present",
-      "personality_notes": ["Wild-eyed, speaks in the god's tongue; no one knows what she'll do next."]
+      "personality_notes": [
+        "Wild-eyed, speaks in the god's tongue; no one knows what she'll do next."
+      ]
     },
     "traits": [
-      {"trait": "destructive",   "intensity": "moderate"},
-      {"trait": "opportunistic", "intensity": "moderate"}
+      {
+        "trait": "destructive",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "opportunistic",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "ecstatic prophets of the mad god (Dionysos)",
+    "description": "Frenzied seers who prophesy in fits and whip crowds into ecstasy. Beloved, feared, uncontrollable."
   },
   {
     "id": "bright-order",
@@ -149,15 +240,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "High Seer Aletheian",
-      "traits": ["ambitious", "opportunistic"],
+      "traits": [
+        "ambitious",
+        "opportunistic"
+      ],
       "status": "present",
-      "personality_notes": ["Calm and smiling; every prophecy is a move on a longer board."]
+      "personality_notes": [
+        "Calm and smiling; every prophecy is a move on a longer board."
+      ]
     },
     "traits": [
-      {"trait": "ambitious",     "intensity": "strong"},
-      {"trait": "opportunistic", "intensity": "moderate"}
+      {
+        "trait": "ambitious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "opportunistic",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the great oracle of the far-shooting god (Apollo)",
+    "description": "The establishment oracle — prestigious, panhellenic, consulted before wars and colonies. Kingmakers in robes."
   },
   {
     "id": "shieldsworn",
@@ -169,15 +273,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Drakon the Steadfast",
-      "traits": ["defensive", "conservative"],
+      "traits": [
+        "defensive",
+        "conservative"
+      ],
       "status": "present",
-      "personality_notes": ["Stolid, dutiful; distrusts hired blades and glory-hounds alike."]
+      "personality_notes": [
+        "Stolid, dutiful; distrusts hired blades and glory-hounds alike."
+      ]
     },
     "traits": [
-      {"trait": "defensive",    "intensity": "strong"},
-      {"trait": "conservative", "intensity": "moderate"}
+      {
+        "trait": "defensive",
+        "intensity": "strong"
+      },
+      {
+        "trait": "conservative",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the citizen phalanx",
+    "description": "The hoplite militia of property-owning citizens, the city's backbone — and proud that only citizens should bear its spear."
   },
   {
     "id": "free-spears",
@@ -189,15 +306,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Kallias the Coinbought",
-      "traits": ["opportunistic", "corrupt"],
+      "traits": [
+        "opportunistic",
+        "corrupt"
+      ],
       "status": "present",
-      "personality_notes": ["Affable, amoral; serves whoever pays and remembers who didn't."]
+      "personality_notes": [
+        "Affable, amoral; serves whoever pays and remembers who didn't."
+      ]
     },
     "traits": [
-      {"trait": "opportunistic", "intensity": "strong"},
-      {"trait": "corrupt",       "intensity": "moderate"}
+      {
+        "trait": "opportunistic",
+        "intensity": "strong"
+      },
+      {
+        "trait": "corrupt",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the sellsword companies",
+    "description": "Professional soldiers for hire, foreign and rootless, loyal to coin and the next contract."
   },
   {
     "id": "companions",
@@ -209,15 +339,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Antimachos the Laurelled",
-      "traits": ["ambitious", "aggressive"],
+      "traits": [
+        "ambitious",
+        "aggressive"
+      ],
       "status": "present",
-      "personality_notes": ["Charismatic and hungry; wears past victories like a claim on the future."]
+      "personality_notes": [
+        "Charismatic and hungry; wears past victories like a claim on the future."
+      ]
     },
     "traits": [
-      {"trait": "ambitious",  "intensity": "strong"},
-      {"trait": "aggressive", "intensity": "moderate"}
+      {
+        "trait": "ambitious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "aggressive",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "a victorious general's sworn veterans",
+    "description": "The personal following of a celebrated commander — battle-hardened, devoted to their man over the city."
   },
   {
     "id": "oarsworn",
@@ -229,15 +372,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Naukrates of the Long Oars",
-      "traits": ["expansionary", "ambitious"],
+      "traits": [
+        "expansionary",
+        "ambitious"
+      ],
       "status": "present",
-      "personality_notes": ["Bold and restless; dreams of a city whose walls are its ships."]
+      "personality_notes": [
+        "Bold and restless; dreams of a city whose walls are its ships."
+      ]
     },
     "traits": [
-      {"trait": "expansionary", "intensity": "strong"},
-      {"trait": "ambitious",    "intensity": "moderate"}
+      {
+        "trait": "expansionary",
+        "intensity": "strong"
+      },
+      {
+        "trait": "ambitious",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the war fleet and its crews",
+    "description": "The triremes and the citizen-rowers who drive them — the city's reach across the sea, and a restless power base of the common man."
   },
   {
     "id": "quaymen",
@@ -249,15 +405,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Brontes Bighand",
-      "traits": ["defensive", "aggressive"],
+      "traits": [
+        "defensive",
+        "aggressive"
+      ],
       "status": "present",
-      "personality_notes": ["Gruff and immovable; protective of his gangs and quick to down tools."]
+      "personality_notes": [
+        "Gruff and immovable; protective of his gangs and quick to down tools."
+      ]
     },
     "traits": [
-      {"trait": "defensive",  "intensity": "moderate"},
-      {"trait": "aggressive", "intensity": "moderate"}
+      {
+        "trait": "defensive",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "aggressive",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the dockhands and stevedores",
+    "description": "The labor of the wharves — they load, unload, and haul. Numerous and organized; a word from them can still the whole port."
   },
   {
     "id": "netmenders",
@@ -269,15 +438,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Glaukos the Weathered",
-      "traits": ["conservative", "defensive"],
+      "traits": [
+        "conservative",
+        "defensive"
+      ],
       "status": "present",
-      "personality_notes": ["Salt-cured and plain-spoken; trusts the tide more than any magistrate."]
+      "personality_notes": [
+        "Salt-cured and plain-spoken; trusts the tide more than any magistrate."
+      ]
     },
     "traits": [
-      {"trait": "conservative", "intensity": "moderate"},
-      {"trait": "defensive",    "intensity": "slight"}
+      {
+        "trait": "conservative",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "defensive",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the fishing crews who feed the city",
+    "description": "The boat crews who work the waters — weather-beaten, independent, traditional. The city's daily catch and a food supply unto themselves."
   },
   {
     "id": "harborwardens",
@@ -289,15 +471,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Warden Pheidon",
-      "traits": ["corrupt", "conservative"],
+      "traits": [
+        "corrupt",
+        "conservative"
+      ],
       "status": "present",
-      "personality_notes": ["Courteous and dry; every favor has a price, and he never forgets a ledger."]
+      "personality_notes": [
+        "Courteous and dry; every favor has a price, and he never forgets a ledger."
+      ]
     },
     "traits": [
-      {"trait": "corrupt",      "intensity": "strong"},
-      {"trait": "conservative", "intensity": "slight"}
+      {
+        "trait": "corrupt",
+        "intensity": "strong"
+      },
+      {
+        "trait": "conservative",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the port authority — berths, customs, bonded warehouses",
+    "description": "The officials who decide who docks, when, and at what toll — and who control the stored cargo. Gatekeepers who take their cut."
   },
   {
     "id": "saltroad-houses",
@@ -309,15 +504,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Timaios the Farsailed",
-      "traits": ["expansionary", "ambitious"],
+      "traits": [
+        "expansionary",
+        "ambitious"
+      ],
       "status": "present",
-      "personality_notes": ["Restless and far-seeing; measures the city by how far its hulls reach."]
+      "personality_notes": [
+        "Restless and far-seeing; measures the city by how far its hulls reach."
+      ]
     },
     "traits": [
-      {"trait": "expansionary", "intensity": "strong"},
-      {"trait": "ambitious",    "intensity": "moderate"}
+      {
+        "trait": "expansionary",
+        "intensity": "strong"
+      },
+      {
+        "trait": "ambitious",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the shipowners and freight-carriers (naukleroi)",
+    "description": "The owners of the merchant hulls that carry the city's cargo — they don't buy the goods, they move them, and they live to expand the routes."
   },
   {
     "id": "amphora-houses",
@@ -329,15 +537,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Polemarchos the Stout",
-      "traits": ["expansionary", "ambitious"],
+      "traits": [
+        "expansionary",
+        "ambitious"
+      ],
       "status": "present",
-      "personality_notes": ["Jovial and grasping; counts the city's worth in cargoes landed."]
+      "personality_notes": [
+        "Jovial and grasping; counts the city's worth in cargoes landed."
+      ]
     },
     "traits": [
-      {"trait": "expansionary", "intensity": "strong"},
-      {"trait": "ambitious",    "intensity": "moderate"}
+      {
+        "trait": "expansionary",
+        "intensity": "strong"
+      },
+      {
+        "trait": "ambitious",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the great wholesale merchants",
+    "description": "The big import-export traders who deal in bulk — grain, oil, wine, slaves. The dominant commercial power, always reaching for a wider market."
   },
   {
     "id": "silverbench",
@@ -349,15 +570,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Aristion of the Bench",
-      "traits": ["conservative", "corrupt"],
+      "traits": [
+        "conservative",
+        "corrupt"
+      ],
       "status": "present",
-      "personality_notes": ["Cool and exact; never raises his voice, never forgives a default."]
+      "personality_notes": [
+        "Cool and exact; never raises his voice, never forgives a default."
+      ]
     },
     "traits": [
-      {"trait": "conservative", "intensity": "strong"},
-      {"trait": "corrupt",      "intensity": "slight"}
+      {
+        "trait": "conservative",
+        "intensity": "strong"
+      },
+      {
+        "trait": "corrupt",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the money-changers and lenders (trapezitai)",
+    "description": "The bankers at their tables — deposits, loans, currency, debt. Quiet, patient, and owed by half the city."
   },
   {
     "id": "stallmongers",
@@ -369,15 +603,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Myrto Quicktongue",
-      "traits": ["opportunistic", "defensive"],
+      "traits": [
+        "opportunistic",
+        "defensive"
+      ],
       "status": "present",
-      "personality_notes": ["Sharp and fast-talking; speaks for the little traders and misses nothing."]
+      "personality_notes": [
+        "Sharp and fast-talking; speaks for the little traders and misses nothing."
+      ]
     },
     "traits": [
-      {"trait": "opportunistic", "intensity": "strong"},
-      {"trait": "defensive",     "intensity": "moderate"}
+      {
+        "trait": "opportunistic",
+        "intensity": "strong"
+      },
+      {
+        "trait": "defensive",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the agora retailers and shopkeepers (kapeloi)",
+    "description": "The petty traders of the marketplace stalls — numerous, scrappy, working every angle for a thin margin."
   },
   {
     "id": "storehouse-ring",
@@ -389,15 +636,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Hieron the Patient",
-      "traits": ["corrupt", "opportunistic"],
+      "traits": [
+        "corrupt",
+        "opportunistic"
+      ],
       "status": "present",
-      "personality_notes": ["Soft-spoken and predatory; waits for famine the way others wait for harvest."]
+      "personality_notes": [
+        "Soft-spoken and predatory; waits for famine the way others wait for harvest."
+      ]
     },
     "traits": [
-      {"trait": "corrupt",       "intensity": "strong"},
-      {"trait": "opportunistic", "intensity": "moderate"}
+      {
+        "trait": "corrupt",
+        "intensity": "strong"
+      },
+      {
+        "trait": "opportunistic",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the warehouse speculators who corner the market",
+    "description": "A cartel that buys up stock and sits on it — hoarding grain and goods to choke supply and spike the price, then selling at the city's worst hour."
   },
   {
     "id": "outland-houses",
@@ -409,15 +669,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Xenon the Outlander",
-      "traits": ["ambitious", "opportunistic"],
+      "traits": [
+        "ambitious",
+        "opportunistic"
+      ],
       "status": "present",
-      "personality_notes": ["Gracious and weary; rich enough to buy half the council, forbidden to sit on it."]
+      "personality_notes": [
+        "Gracious and weary; rich enough to buy half the council, forbidden to sit on it."
+      ]
     },
     "traits": [
-      {"trait": "ambitious",     "intensity": "strong"},
-      {"trait": "opportunistic", "intensity": "slight"}
+      {
+        "trait": "ambitious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "opportunistic",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the resident-foreigner merchants (metoikoi)",
+    "description": "Wealthy foreign traders who pay the city's taxes and move much of its commerce, yet are barred from citizenship — prosperous, useful, and resentful of their place outside the rolls. The citizen Amphora Houses resent them right back."
   },
   {
     "id": "bronzehands",
@@ -429,15 +702,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Akmon the Forgemaster",
-      "traits": ["industrious", "defensive"],
+      "traits": [
+        "industrious",
+        "defensive"
+      ],
       "status": "present",
-      "personality_notes": ["Soot-stained and blunt; guards the secrets of the forge like family."]
+      "personality_notes": [
+        "Soot-stained and blunt; guards the secrets of the forge like family."
+      ]
     },
     "traits": [
-      {"trait": "industrious", "intensity": "strong"},
-      {"trait": "defensive",   "intensity": "slight"}
+      {
+        "trait": "industrious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "defensive",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the smiths and metalworkers",
+    "description": "The forges — bronze and iron, arms, tools, fittings. Their hammers arm the city and shoe its every need."
   },
   {
     "id": "stonewrights",
@@ -449,15 +735,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Lithos the Master-Builder",
-      "traits": ["industrious", "ambitious"],
+      "traits": [
+        "industrious",
+        "ambitious"
+      ],
       "status": "present",
-      "personality_notes": ["Proud and driven; sees the city as unfinished and himself as the one to finish it."]
+      "personality_notes": [
+        "Proud and driven; sees the city as unfinished and himself as the one to finish it."
+      ]
     },
     "traits": [
-      {"trait": "industrious", "intensity": "strong"},
-      {"trait": "ambitious",   "intensity": "moderate"}
+      {
+        "trait": "industrious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "ambitious",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the masons and builders",
+    "description": "The stoneworkers who raise temples, walls, and monuments — the muscle behind every great public work, and hungry for the next big contract."
   },
   {
     "id": "keelwrights",
@@ -469,15 +768,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Argeios the Keelwright",
-      "traits": ["industrious", "expansionary"],
+      "traits": [
+        "industrious",
+        "expansionary"
+      ],
       "status": "present",
-      "personality_notes": ["Steady and far-thinking; every keel he lays is a bet on a bigger fleet."]
+      "personality_notes": [
+        "Steady and far-thinking; every keel he lays is a bet on a bigger fleet."
+      ]
     },
     "traits": [
-      {"trait": "industrious",  "intensity": "moderate"},
-      {"trait": "expansionary", "intensity": "moderate"}
+      {
+        "trait": "industrious",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "expansionary",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the shipwrights",
+    "description": "The yards that build the hulls — merchantmen and triremes alike. They rise and fall with the city's ambitions on the water."
   },
   {
     "id": "kerameis",
@@ -489,15 +801,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Pamphilos of the Kiln",
-      "traits": ["industrious", "opportunistic"],
+      "traits": [
+        "industrious",
+        "opportunistic"
+      ],
       "status": "present",
-      "personality_notes": ["Particular and vain; signs his finest work and remembers every slight."]
+      "personality_notes": [
+        "Particular and vain; signs his finest work and remembers every slight."
+      ]
     },
     "traits": [
-      {"trait": "industrious",   "intensity": "moderate"},
-      {"trait": "opportunistic", "intensity": "slight"}
+      {
+        "trait": "industrious",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "opportunistic",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the potters and vase-painters of the kiln-quarter",
+    "description": "The clay-workers — everyday vessels and prized export ware. Numerous, ink-fingered, and prouder of their art than their station."
   },
   {
     "id": "ovenmen",
@@ -509,15 +834,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Mazon the Baker",
-      "traits": ["industrious", "opportunistic"],
+      "traits": [
+        "industrious",
+        "opportunistic"
+      ],
       "status": "present",
-      "personality_notes": ["Flour-dusted and genial; smiles wider as the price of bread climbs."]
+      "personality_notes": [
+        "Flour-dusted and genial; smiles wider as the price of bread climbs."
+      ]
     },
     "traits": [
-      {"trait": "industrious",   "intensity": "moderate"},
-      {"trait": "opportunistic", "intensity": "moderate"}
+      {
+        "trait": "industrious",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "opportunistic",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the millers and bakers",
+    "description": "The mills and ovens that turn grain into flour and flour into bread — the city's daily loaf, and a quiet lever whenever the granaries run low."
   },
   {
     "id": "winepressers",
@@ -529,15 +867,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Oinops the Vintner",
-      "traits": ["industrious", "opportunistic"],
+      "traits": [
+        "industrious",
+        "opportunistic"
+      ],
       "status": "present",
-      "personality_notes": ["Ruddy and convivial; generous with a cup, shrewd over a ledger."]
+      "personality_notes": [
+        "Ruddy and convivial; generous with a cup, shrewd over a ledger."
+      ]
     },
     "traits": [
-      {"trait": "industrious",   "intensity": "moderate"},
-      {"trait": "opportunistic", "intensity": "slight"}
+      {
+        "trait": "industrious",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "opportunistic",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the vintners and winemakers",
+    "description": "The presses and cellars behind the city's wine — from the rough stuff of the docks to the vintages of noble tables. Wine is everywhere, and so are they."
   },
   {
     "id": "oil-pressers",
@@ -549,15 +900,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Elaios of the Press",
-      "traits": ["industrious", "expansionary"],
+      "traits": [
+        "industrious",
+        "expansionary"
+      ],
       "status": "present",
-      "personality_notes": ["Broad and unhurried; thinks in harvests and amphorae shipped abroad."]
+      "personality_notes": [
+        "Broad and unhurried; thinks in harvests and amphorae shipped abroad."
+      ]
     },
     "traits": [
-      {"trait": "industrious",  "intensity": "strong"},
-      {"trait": "expansionary", "intensity": "moderate"}
+      {
+        "trait": "industrious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "expansionary",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the olive-oil makers",
+    "description": "The presses that yield the city's olive oil — food, lamplight, athletes' sheen, and its single greatest export. Wealthy, and they know it."
   },
   {
     "id": "tanners",
@@ -569,15 +933,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Bursas the Tanner",
-      "traits": ["industrious", "aggressive"],
+      "traits": [
+        "industrious",
+        "aggressive"
+      ],
       "status": "present",
-      "personality_notes": ["Blunt and foul-handed; a commoner's voice with a commoner's grudges."]
+      "personality_notes": [
+        "Blunt and foul-handed; a commoner's voice with a commoner's grudges."
+      ]
     },
     "traits": [
-      {"trait": "industrious", "intensity": "moderate"},
-      {"trait": "aggressive",  "intensity": "moderate"}
+      {
+        "trait": "industrious",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "aggressive",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the leatherworkers and hide-curers",
+    "description": "The reeking tan-yards at the edge of town — leather for armor, sandals, harness, and rigging. Rich, coarse, and loud in the assembly."
   },
   {
     "id": "weavers",
@@ -589,15 +966,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Theano of the Loom",
-      "traits": ["industrious", "defensive"],
+      "traits": [
+        "industrious",
+        "defensive"
+      ],
       "status": "present",
-      "personality_notes": ["Soft-spoken and tireless; weaves alliances as readily as cloth."]
+      "personality_notes": [
+        "Soft-spoken and tireless; weaves alliances as readily as cloth."
+      ]
     },
     "traits": [
-      {"trait": "industrious", "intensity": "moderate"},
-      {"trait": "defensive",   "intensity": "moderate"}
+      {
+        "trait": "industrious",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "defensive",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the textile-makers",
+    "description": "The looms that clothe the city — wool, linen, and dyed cloth for home and trade. Patient and domestic, and more powerful than their quiet suggests."
   },
   {
     "id": "carpenters",
@@ -609,15 +999,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Tekton the Joiner",
-      "traits": ["industrious", "conservative"],
+      "traits": [
+        "industrious",
+        "conservative"
+      ],
       "status": "present",
-      "personality_notes": ["Methodical and exacting; measures twice and trusts wood over words."]
+      "personality_notes": [
+        "Methodical and exacting; measures twice and trusts wood over words."
+      ]
     },
     "traits": [
-      {"trait": "industrious",  "intensity": "strong"},
-      {"trait": "conservative", "intensity": "slight"}
+      {
+        "trait": "industrious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "conservative",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the woodworkers and joiners",
+    "description": "The timber workshops — furniture, carts, beams, doors, tools. The frame behind daily life, beside (not in) the shipyards."
   },
   {
     "id": "asklepiads",
@@ -629,15 +1032,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Akesias the Physician",
-      "traits": ["defensive", "ambitious"],
+      "traits": [
+        "defensive",
+        "ambitious"
+      ],
       "status": "present",
-      "personality_notes": ["Calm and exacting; collects a quiet favor with every patient he saves."]
+      "personality_notes": [
+        "Calm and exacting; collects a quiet favor with every patient he saves."
+      ]
     },
     "traits": [
-      {"trait": "defensive", "intensity": "moderate"},
-      {"trait": "ambitious", "intensity": "slight"}
+      {
+        "trait": "defensive",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "ambitious",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the physicians and healers",
+    "description": "The secular doctors who trade in the one thing no one can refuse — health. Indispensable, and they know the worth of a cure withheld."
   },
   {
     "id": "players",
@@ -649,15 +1065,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Komos of the Stage",
-      "traits": ["opportunistic", "ambitious"],
+      "traits": [
+        "opportunistic",
+        "ambitious"
+      ],
       "status": "present",
-      "personality_notes": ["Vain and magnetic; plays the audience like a lyre and never forgets a critic."]
+      "personality_notes": [
+        "Vain and magnetic; plays the audience like a lyre and never forgets a critic."
+      ]
     },
     "traits": [
-      {"trait": "opportunistic", "intensity": "strong"},
-      {"trait": "ambitious",     "intensity": "slight"}
+      {
+        "trait": "opportunistic",
+        "intensity": "strong"
+      },
+      {
+        "trait": "ambitious",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the actors, musicians, and poets of the stage",
+    "description": "The theatre folk who command the crowd's heart — beloved, mocking, and able to make or unmake a reputation in an afternoon's performance."
   },
   {
     "id": "garland-chasers",
@@ -669,15 +1098,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Pankrates the Victor",
-      "traits": ["ambitious", "aggressive"],
+      "traits": [
+        "ambitious",
+        "aggressive"
+      ],
       "status": "present",
-      "personality_notes": ["Proud and restless; measures his worth in wreaths and refuses to lose at anything."]
+      "personality_notes": [
+        "Proud and restless; measures his worth in wreaths and refuses to lose at anything."
+      ]
     },
     "traits": [
-      {"trait": "ambitious",  "intensity": "strong"},
-      {"trait": "aggressive", "intensity": "slight"}
+      {
+        "trait": "ambitious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "aggressive",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the champion athletes and gymnasium trainers",
+    "description": "The victors of the games and the men who train them — living glory, courted by every faction that wants the crowd's adoration reflected onto itself."
   },
   {
     "id": "quillsworn",
@@ -689,15 +1131,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Grapheus the Reckoner",
-      "traits": ["conservative", "corrupt"],
+      "traits": [
+        "conservative",
+        "corrupt"
+      ],
       "status": "present",
-      "personality_notes": ["Meticulous and unhurried; forgets nothing, files everything, and counts twice."]
+      "personality_notes": [
+        "Meticulous and unhurried; forgets nothing, files everything, and counts twice."
+      ]
     },
     "traits": [
-      {"trait": "conservative", "intensity": "moderate"},
-      {"trait": "corrupt",      "intensity": "moderate"}
+      {
+        "trait": "conservative",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "corrupt",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the city's clerks, record-keepers, and tax-farmers",
+    "description": "The bureaucrats who run the paperwork and the purse — registries, deeds, proclamations, and the collection of the city's taxes, which they bid to farm and quietly skim. They know where every document and every drachma sits."
   },
   {
     "id": "perfumers",
@@ -709,15 +1164,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Myrrha of the Flask",
-      "traits": ["opportunistic", "ambitious"],
+      "traits": [
+        "opportunistic",
+        "ambitious"
+      ],
       "status": "present",
-      "personality_notes": ["Elegant and discreet; knows what the great families whisper, and to whom it's worth a word."]
+      "personality_notes": [
+        "Elegant and discreet; knows what the great families whisper, and to whom it's worth a word."
+      ]
     },
     "traits": [
-      {"trait": "opportunistic", "intensity": "moderate"},
-      {"trait": "ambitious",     "intensity": "slight"}
+      {
+        "trait": "opportunistic",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "ambitious",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the purveyors of scented oils (myrepsoi)",
+    "description": "Blenders of myron for the rich and the temples — but their real trade is access: scent, flattery, and the secrets of every household they serve."
   },
   {
     "id": "adorners",
@@ -729,15 +1197,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Chrysanthe of the Gem",
-      "traits": ["opportunistic", "ambitious"],
+      "traits": [
+        "opportunistic",
+        "ambitious"
+      ],
       "status": "present",
-      "personality_notes": ["Dazzling and watchful; dresses the powerful, and listens while she fastens the clasp."]
+      "personality_notes": [
+        "Dazzling and watchful; dresses the powerful, and listens while she fastens the clasp."
+      ]
     },
     "traits": [
-      {"trait": "opportunistic", "intensity": "moderate"},
-      {"trait": "ambitious",     "intensity": "moderate"}
+      {
+        "trait": "opportunistic",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "ambitious",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the jewelers and gem-setters to the great houses",
+    "description": "The high-end goldsmiths — diadems, signet rings, necklaces. Status made wearable, fitted to the elite they flatter — and they compete with the Perfumers to be closest to power."
   },
   {
     "id": "grove",
@@ -749,15 +1230,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Sophron the Elder",
-      "traits": ["ambitious", "defensive"],
+      "traits": [
+        "ambitious",
+        "defensive"
+      ],
       "status": "present",
-      "personality_notes": ["Serene and unbending; gathers devoted students and distrusts those who argue for pay."]
+      "personality_notes": [
+        "Serene and unbending; gathers devoted students and distrusts those who argue for pay."
+      ]
     },
     "traits": [
-      {"trait": "ambitious", "intensity": "moderate"},
-      {"trait": "defensive", "intensity": "slight"}
+      {
+        "trait": "ambitious",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "defensive",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the philosophers' school",
+    "description": "The seekers of truth and virtue who teach the city's young men to think — principled, doctrinaire, and certain their ideas should steer the city."
   },
   {
     "id": "sophists",
@@ -769,15 +1263,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Protarchos the Sophist",
-      "traits": ["opportunistic", "ambitious"],
+      "traits": [
+        "opportunistic",
+        "ambitious"
+      ],
       "status": "present",
-      "personality_notes": ["Silver-tongued and amused; sells certainty to whoever pays, and means none of it."]
+      "personality_notes": [
+        "Silver-tongued and amused; sells certainty to whoever pays, and means none of it."
+      ]
     },
     "traits": [
-      {"trait": "opportunistic", "intensity": "strong"},
-      {"trait": "ambitious",     "intensity": "moderate"}
+      {
+        "trait": "opportunistic",
+        "intensity": "strong"
+      },
+      {
+        "trait": "ambitious",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the teachers of rhetoric, for a fee",
+    "description": "The masters of winning argument — they'll teach anyone with coin to out-talk an opponent, truth be damned. The Grove's bitter rivals."
   },
   {
     "id": "goldentongues",
@@ -789,15 +1296,28 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Phrasikles the Orator",
-      "traits": ["ambitious", "aggressive"],
+      "traits": [
+        "ambitious",
+        "aggressive"
+      ],
       "status": "present",
-      "personality_notes": ["Thunderous and vain; lives for the roar of the crowd and the fall of a rival."]
+      "personality_notes": [
+        "Thunderous and vain; lives for the roar of the crowd and the fall of a rival."
+      ]
     },
     "traits": [
-      {"trait": "ambitious",  "intensity": "strong"},
-      {"trait": "aggressive", "intensity": "moderate"}
+      {
+        "trait": "ambitious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "aggressive",
+        "intensity": "moderate"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the public orators of the assembly",
+    "description": "The great speakers who move the crowd — eloquence as a weapon, capable of swinging the city in a single afternoon's speech."
   },
   {
     "id": "stargazers",
@@ -809,14 +1329,27 @@
     "leadership_need": 0.0,
     "leader": {
       "name": "Astron the Measurer",
-      "traits": ["conservative", "paranoid"],
+      "traits": [
+        "conservative",
+        "paranoid"
+      ],
       "status": "present",
-      "personality_notes": ["Cold and exact; speaks in numbers and sees patterns others would rather not know."]
+      "personality_notes": [
+        "Cold and exact; speaks in numbers and sees patterns others would rather not know."
+      ]
     },
     "traits": [
-      {"trait": "conservative", "intensity": "moderate"},
-      {"trait": "paranoid",     "intensity": "slight"}
+      {
+        "trait": "conservative",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "paranoid",
+        "intensity": "slight"
+      }
     ],
-    "relationships": []
+    "relationships": [],
+    "blurb": "the astronomers, mathematicians, and natural philosophers",
+    "description": "The men of numbers and stars — calendars, geometry, the hidden order of things. Insular, austere, and quietly feared by those who trust prophecy over proof."
   }
 ]

@@ -49,6 +49,8 @@ def _migrate() -> None:
     """Add columns/tables that existing DBs may be missing (forward-only migrations)."""
     _add_column_if_missing("cities",    "llm_config_json",  "TEXT")
     _add_column_if_missing("sim_runs",  "llm_profile_id",   "TEXT")
+    _add_column_if_missing("sim_runs",  "player_name",      "TEXT DEFAULT 'Kallisto'")
+    _add_column_if_missing("sim_runs",  "player_title",     "TEXT DEFAULT 'Prytanis'")
 
 
 def _add_column_if_missing(table: str, column: str, col_type: str) -> None:

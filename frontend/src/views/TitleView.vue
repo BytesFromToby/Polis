@@ -6,17 +6,33 @@
 
       <p v-if="error" class="error-msg" style="margin-bottom:1rem">{{ error }}</p>
 
-      <div v-if="!showLoad" class="btn-group">
-        <button class="btn-primary btn-large" @click="newGame" :disabled="busy">
-          {{ busy === 'new' ? 'Starting…' : 'New Game' }}
+      <div v-if="!showLoad && !showNew" class="btn-group">
+        <button class="btn-primary btn-large" @click="showNew = true" :disabled="busy">
+          New Game
         </button>
         <button class="btn-subtle btn-large" @click="openLoad" :disabled="busy">
           Load Game
         </button>
       </div>
 
+      <!-- New game form -->
+      <div v-else-if="showNew" class="btn-group">
+        <label class="field">
+          <span>Your name</span>
+          <input v-model="playerName" maxlength="40" :disabled="busy" @keyup.enter="startGame" />
+        </label>
+        <label class="field">
+          <span>City name</span>
+          <input v-model="cityName" maxlength="40" :disabled="busy" @keyup.enter="startGame" />
+        </label>
+        <button class="btn-primary btn-large" @click="startGame" :disabled="busy">
+          {{ busy === 'new' ? 'Starting…' : 'Start' }}
+        </button>
+        <button class="btn-subtle btn-sm" @click="showNew = false" :disabled="busy">← Back</button>
+      </div>
+
       <!-- Load game panel -->
-      <div v-else>
+      <div v-else-if="showLoad">
         <div class="panel-header" style="margin-bottom:0.75rem">
           <h3>Saved Runs</h3>
           <button class="btn-subtle btn-sm" @click="showLoad = false">← Back</button>
@@ -50,6 +66,9 @@ export default {
       busy: null,
       error: '',
       showLoad: false,
+      showNew: false,
+      playerName: 'Kallisto',
+      cityName: 'Polis',
       runs: [],
     }
   },
@@ -63,7 +82,7 @@ export default {
     }
   },
   methods: {
-    async newGame() {
+    async startGame() {
       this.error = ''
       this.busy = 'new'
       try {
@@ -71,8 +90,12 @@ export default {
         const official = cityList.find(c => c.is_official) || cityList[0]
         if (!official) throw new Error('No official city found. Check server seed.')
 
-        await city.load(store.userId, official.city_id, 'gm')
-        await sim.start(store.userId)
+        const cityName = (this.cityName || '').trim() || 'Polis'
+        const playerName = (this.playerName || '').trim() || 'Kallisto'
+
+        await city.load(store.userId, official.city_id)
+        await city.patch(store.userId, { city_name: cityName })
+        await sim.start(store.userId, null, { player_name: playerName, player_title: 'Prytanis' })
         store.simStatus = null
         this.$router.push('/game')
       } catch (e) {
@@ -150,6 +173,29 @@ export default {
   padding: 0.7rem 1rem;
   font-size: 1rem;
 }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  text-align: left;
+}
+.field span {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.field input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font-size: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text, inherit);
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
 .run-row {
   padding: 0.6rem 0.75rem;
   border: 1px solid var(--border);
@@ -160,7 +206,7 @@ export default {
   transition: background 0.15s;
 }
 .run-row:hover {
-  background: rgba(124, 106, 245, 0.08);
+  background: rgba(116, 182, 164, 0.10);
   border-color: var(--accent);
 }
 </style>

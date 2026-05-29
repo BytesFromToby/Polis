@@ -78,6 +78,9 @@ def begin_audience_step(
     domains: dict,
     city_description: str = "",
     city_setting: str = "",
+    city_name: str = "Polis",
+    player_name: str = "Kallisto",
+    player_title: str = "Prytanis",
     llm_config: Optional[LLMConfig] = None,
 ) -> dict:
     """Phase 1 — build context + run step 1 (faction opens). Returns opaque state dict."""
@@ -87,6 +90,7 @@ def begin_audience_step(
         faction=faction, run_id=run_id, mayor=mayor, db=db,
         factions=factions, domains=domains,
         city_description=city_description, city_setting=city_setting,
+        city_name=city_name, player_name=player_name, player_title=player_title,
     )
     messages: list[dict] = [{"role": "user", "content": _OPENING_USER_MSG}]
     messages_sent = list(messages)
@@ -239,6 +243,9 @@ def run_audience(
     domains: dict,
     city_description: str = "",
     city_setting: str = "",
+    city_name: str = "Polis",
+    player_name: str = "Kallisto",
+    player_title: str = "Prytanis",
     llm_config: Optional[LLMConfig] = None,
 ) -> AudienceResult:
     """
@@ -265,6 +272,9 @@ def run_audience(
         domains=domains,
         city_description=city_description,
         city_setting=city_setting,
+        city_name=city_name,
+        player_name=player_name,
+        player_title=player_title,
     )
 
     messages: list[dict] = []

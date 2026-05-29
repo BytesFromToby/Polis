@@ -93,7 +93,7 @@
                      style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem">
                   <span style="width:90px; flex-shrink:0; color:var(--muted)">{{ d.name }}</span>
                   <div style="flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden">
-                    <div :style="{ width: d.pct + '%', background: d.pct >= 90 ? 'var(--danger)' : d.pct >= 60 ? '#e2a740' : 'var(--accent)', height: '100%' }"></div>
+                    <div :style="{ width: d.pct + '%', background: d.pct >= 90 ? 'var(--danger)' : d.pct >= 60 ? 'var(--accent2)' : 'var(--accent)', height: '100%' }"></div>
                   </div>
                   <span style="width:70px; text-align:right; flex-shrink:0">
                     {{ Math.round(d.utilization) }} / {{ d.cap }}
@@ -379,5 +379,5 @@ export default {
 </script>
 
 <style scoped>
-.domain-group-header td { background: rgba(124,106,245,0.06); padding: 0.35rem 0.5rem; }
+.domain-group-header td { background: rgba(116,182,164,0.07); padding: 0.35rem 0.5rem; }
 </style>

@@ -195,9 +195,16 @@ You can commit to:
 
 #### City Setting / Tone
 
-`city.setting` and `city.description` are injected as a preamble paragraph before the character block. A DnD city gets a different register than a modern political sim. The prompt builder reads the setting string and selects an appropriate tone note:
+> **Superseded (2026-05-29) by `player-identity_spec.md`.** The multi-theme `SETTING_TONE`
+> dict described below is removed. Polis has one canonical theme (`reference/theming.md`),
+> so the prompt always opens with the canonical Greek **situation briefing** from
+> `reference/theming.md`, with the city name, player name, and player title substituted in.
+> The historical description is kept below for context only.
+
+~~`city.setting` and `city.description` are injected as a preamble paragraph before the character block. A DnD city gets a different register than a modern political sim. The prompt builder reads the setting string and selects an appropriate tone note:~~
 
 ```python
+# REMOVED — replaced by the single canonical briefing (see player-identity_spec.md).
 SETTING_TONE = {
     "DnD":    "This is a fantasy city of guilds, coin, and power. Speak accordingly.",
     "modern": "This is a contemporary city of politics, media, and institutions.",

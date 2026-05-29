@@ -319,8 +319,8 @@ export default {
 
 <style scoped>
 .mayor-modal {
-  background: var(--bg, #1a1a2e);
-  border: 1px solid var(--border, #333);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius, 8px);
   width: 860px;
   max-width: 96vw;
@@ -355,18 +355,18 @@ export default {
   padding: 0.4rem 0.6rem;
   border-radius: var(--radius, 6px);
   margin-bottom: 0.75rem;
-  background: rgba(100, 200, 100, 0.1);
-  border: 1px solid rgba(100, 200, 100, 0.3);
+  background: rgba(116, 182, 164, 0.1);
+  border: 1px solid rgba(116, 182, 164, 0.3);
 }
 .result-banner.dramatic {
-  background: rgba(226, 201, 122, 0.12);
-  border-color: rgba(226, 201, 122, 0.4);
-  color: #e2c97a;
+  background: rgba(201, 159, 92, 0.12);
+  border-color: rgba(201, 159, 92, 0.4);
+  color: var(--accent2);
 }
 .result-banner.fail {
-  background: rgba(224, 92, 92, 0.1);
-  border-color: var(--danger, #e05c5c);
-  color: var(--danger, #e05c5c);
+  background: rgba(176, 84, 94, 0.12);
+  border-color: var(--danger);
+  color: var(--danger);
 }
 .result-outcome {
   font-weight: 700;

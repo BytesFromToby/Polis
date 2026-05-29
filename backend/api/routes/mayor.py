@@ -359,6 +359,20 @@ def _get_city_description(session, db) -> str:
     return ""
 
 
+def _get_audience_identity(session, db) -> tuple[str, str, str]:
+    """Return (city_name, player_name, player_title) for the prompt, with defaults."""
+    from db.models import SimRun, City as CityModel
+    run = db.query(SimRun).filter_by(run_id=session.run_id).first()
+    player_name = (run.player_name if run and run.player_name else "Kallisto")
+    player_title = (run.player_title if run and run.player_title else "Prytanis")
+    city_name = "Polis"
+    if run:
+        city_row = db.query(CityModel).filter_by(city_id=run.city_id).first()
+        if city_row and city_row.city_name:
+            city_name = city_row.city_name
+    return city_name, player_name, player_title
+
+
 @router.post("/mayor/audience/begin", response_model=AudienceBeginResponse)
 def audience_begin(
     user_id: str,
@@ -385,12 +399,14 @@ def audience_begin(
         raise HTTPException(status_code=400, detail="Insufficient action points")
 
     from engine.llm.audiences import begin_audience_step, AudienceError
+    city_name, player_name, player_title = _get_audience_identity(session, db)
     try:
         state = begin_audience_step(
             faction=faction, mayor=mayor,
             run_id=session.run_id, cycle=session.world.cycle,
             db=db, factions=factions, domains=session.domains or {},
             city_description=_get_city_description(session, db),
+            city_name=city_name, player_name=player_name, player_title=player_title,
             llm_config=_get_llm_config(session, db),
         )
     except AudienceError as exc:
