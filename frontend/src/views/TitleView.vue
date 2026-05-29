@@ -1,7 +1,7 @@
 <template>
   <div class="title-wrap">
     <div class="title-box">
-      <div class="title-city">Rivers Point</div>
+      <div class="title-city">Polis</div>
       <div class="title-sub">An emergent political simulation</div>
 
       <p v-if="error" class="error-msg" style="margin-bottom:1rem">{{ error }}</p>
@@ -68,10 +68,10 @@ export default {
       this.busy = 'new'
       try {
         const cityList = await cities.list()
-        const rp = cityList.find(c => c.city_name === 'Rivers Point')
-        if (!rp) throw new Error('Rivers Point city not found. Check server seed.')
+        const official = cityList.find(c => c.is_official) || cityList[0]
+        if (!official) throw new Error('No official city found. Check server seed.')
 
-        await city.load(store.userId, rp.city_id, 'gm')
+        await city.load(store.userId, official.city_id, 'gm')
         await sim.start(store.userId)
         store.simStatus = null
         this.$router.push('/game')

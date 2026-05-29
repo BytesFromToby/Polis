@@ -29,6 +29,7 @@ from api.schemas import (
     AudienceBeginRequest, AudienceBeginResponse,
     AudienceReplyRequest, AudienceReplyResponse,
     AudienceConcludeRequest, AudienceConcludeResponse,
+    AudienceFinalizeRequest, AudienceFinalizeResponse,
     ProjectResponse, CommissionProjectRequest,
 )
 from api.sessions import SimSession, get_session
@@ -188,7 +189,23 @@ def get_mayor(
         cooldowns=dict(m.cooldowns),
         exemptions=dict(m.exemptions),
         committed_actions=list(m.committed_actions),
+        deals={did: _deal_to_dict(d) for did, d in m.deals.items()},
     )
+
+
+def _deal_to_dict(d) -> dict:
+    """Serialize an engine Deal for the UI (keys match what the frontend reads)."""
+    from engine.llm.audiences import _term_to_dict
+    return {
+        "deal_id": d.id,
+        "faction_id": d.faction_id,
+        "status": d.status,
+        "cycles_remaining": d.cycles_remaining,
+        "total_duration": d.total_duration,
+        "rep_cost_if_broken": d.rep_cost_if_broken,
+        "mayor_terms": [_term_to_dict(t) for t in d.mayor_terms],
+        "faction_terms": [_term_to_dict(t) for t in d.faction_terms],
+    }
 
 
 @router.post("/mayor/exempt")
@@ -386,6 +403,7 @@ def audience_begin(
         faction_id=req.faction_id,
         step1_narrative=state["step1_narrative"],
         action_points=mayor.action_points,
+        debug=state.get("debug_begin"),
     )
 
 
@@ -409,7 +427,10 @@ def audience_reply(
         raise HTTPException(status_code=500, detail=str(exc))
 
     session.audience_state = updated
-    return AudienceReplyResponse(step3_narrative=updated["step3_narrative"])
+    return AudienceReplyResponse(
+        step3_narrative=updated["step3_narrative"],
+        debug=updated.get("debug_reply"),
+    )
 
 
 @router.post("/mayor/audience/conclude", response_model=AudienceConcludeResponse)
@@ -431,8 +452,7 @@ def audience_conclude(
     if faction is None:
         raise HTTPException(status_code=404, detail=f"Faction {faction_id} not found")
 
-    from engine.llm.audiences import conclude_audience_step, AudienceError
-    from engine.mayor.actions import MEET_COOLDOWN
+    from engine.llm.audiences import conclude_audience_step, AudienceError, _term_to_dict
     try:
         result = conclude_audience_step(
             state=state,
@@ -446,17 +466,66 @@ def audience_conclude(
     except AudienceError as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
-    session.mayor.cooldowns[faction_id] = MEET_COOLDOWN
-    session.audience_state = None
+    # Faction declined → already finalised (memory + cooldown set in the engine); clear state.
+    # Faction accepted → keep state for the Mayor's confirmation via /finalize.
+    if result.finalized:
+        session.audience_state = None
 
     return AudienceConcludeResponse(
         step1_narrative=result.step1_narrative,
         step3_narrative=result.step3_narrative,
         step5_narrative=result.step5_narrative,
         accepted=result.accepted,
+        finalized=result.finalized,
+        proposed_mayor_terms=[_term_to_dict(t) for t in result.mayor_terms],
+        proposed_faction_terms=[_term_to_dict(t) for t in result.faction_terms],
         deal_id=result.deal_id,
         memory_note=result.memory_note,
         parse_error=result.parse_error,
+        action_points=session.mayor.action_points,
+        debug=state.get("debug_conclude"),
+    )
+
+
+@router.post("/mayor/audience/finalize", response_model=AudienceFinalizeResponse)
+def audience_finalize(
+    user_id: str,
+    req: AudienceFinalizeRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Mayor confirmation — seal or discard a faction-accepted deal."""
+    _auth(user_id, current_user)
+    session = _get_session(user_id, db)
+    state = session.audience_state
+    if not state or not state.get("pending_parsed"):
+        raise HTTPException(status_code=400, detail="No audience awaiting confirmation.")
+
+    faction_id = state.get("faction_id", "")
+    faction = (session.factions or {}).get(faction_id)
+    if faction is None:
+        raise HTTPException(status_code=404, detail=f"Faction {faction_id} not found")
+
+    from engine.llm.audiences import finalize_audience, AudienceError
+    try:
+        result = finalize_audience(
+            state=state,
+            mayor_accepts=req.mayor_accepts,
+            faction=faction,
+            mayor=session.mayor,
+            run_id=session.run_id,
+            cycle=session.world.cycle,
+            db=db,
+        )
+    except AudienceError as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    session.audience_state = None
+
+    return AudienceFinalizeResponse(
+        accepted=result.accepted,
+        deal_id=result.deal_id,
+        memory_note=result.memory_note,
         action_points=session.mayor.action_points,
     )
 

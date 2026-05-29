@@ -154,6 +154,17 @@ class ResponseParser:
                         parse_error="tax_exemption rejected: domain already has an exempt faction",
                     )
 
+        # A binding deal needs a commitment from BOTH sides. If either side ends up
+        # empty (LLM gave nothing in return, or terms were dropped), treat as rejected.
+        if not mayor_terms or not faction_terms:
+            return ParsedAudienceResponse(
+                narrative=narrative,
+                memory_note=memory_note,
+                accepted=False,
+                reasoning=reasoning,
+                parse_error="deal rejected: one side committed nothing",
+            )
+
         return ParsedAudienceResponse(
             narrative=narrative,
             memory_note=memory_note,

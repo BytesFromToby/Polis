@@ -29,21 +29,6 @@
           <div class="action-group">
             <div class="group-label">Political</div>
 
-            <!-- Meet with Faction -->
-            <div class="action-row" :class="{ disabled: ap < 1 || busy }">
-              <div class="action-row-header">
-                <span class="action-name">Meet with Faction</span>
-                <span class="ap-cost">1 AP</span>
-              </div>
-              <select v-model="audienceFactionId" class="act-select">
-                <option value="">Select faction</option>
-                <option v-for="f in factionList" :key="f.id" :value="f.id">{{ f.name }}</option>
-              </select>
-              <div class="action-hint">LLM audience · negotiate a deal · 5-cycle cooldown</div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy || !audienceFactionId"
-                      @click="openAudience">Audience ▸</button>
-            </div>
-
             <!-- Endorse -->
             <div class="action-row" :class="{ disabled: ap < 1 || busy }">
               <div class="action-row-header">
@@ -252,23 +237,14 @@
       </div>
     </div>
   </div>
-
-  <AudienceModal
-    v-if="showAudience && audienceFaction"
-    :faction="audienceFaction"
-    @close="showAudience = false"
-    @acted="onAudienceActed"
-  />
 </template>
 
 <script>
 import { mayor as mayorApi } from '../api.js'
 import { store } from '../store.js'
-import AudienceModal from './AudienceModal.vue'
 
 export default {
   name: 'MayorActionsModal',
-  components: { AudienceModal },
   props: {
     factions: { type: Object, default: () => ({}) },
     domains:  { type: Object, default: () => ({}) },
@@ -290,8 +266,6 @@ export default {
       rumorAbout: '',
       exemptFaction: '',
       exemptCycles: 5,
-      audienceFactionId: '',
-      showAudience: false,
     }
   },
   watch: {
@@ -306,9 +280,6 @@ export default {
     factionList() {
       return Object.values(this.factions || {})
     },
-    audienceFaction() {
-      return this.audienceFactionId ? (this.factions || {})[this.audienceFactionId] : null
-    },
     leaderlessFactions() {
       return Object.values(this.factions || {}).filter(f => !f.leader || !f.leader.name)
     },
@@ -320,15 +291,6 @@ export default {
   methods: {
     factionName(id) {
       return this.factions[id]?.name || id
-    },
-    openAudience() {
-      if (!this.audienceFactionId) return
-      this.showAudience = true
-    },
-    onAudienceActed(result) {
-      this.ap = result.action_points
-      this.$emit('acted', result)
-      // do NOT close — let the user click OK inside AudienceModal
     },
     async doAct(action, targetId = '', targetId2 = '', cycles = this.exemptCycles) {
       this.actError = null

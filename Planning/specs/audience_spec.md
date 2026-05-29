@@ -1,9 +1,15 @@
 # Audience Specification
 
-**Version:** v2
-**Date:** 2026-05-20
+**Version:** v3
+**Date:** 2026-05-28
 
 The Mayor can request a formal audience with a faction leader. Audiences are the only way to create binding deals. The faction leader is driven by an LLM that opens the scene, negotiates through two player exchanges, and delivers a final decision.
+
+> **v3 changes:** a deal accepted by the faction is no longer created automatically — the
+> Mayor must confirm it (Accept/Decline) before it is sealed (see **Mayor Confirmation**).
+> Each step now also returns a **debug payload** (the prompt sent and the raw response) for
+> always-on inspection (see **Debug Instrumentation**), and the UI shows a per-step
+> **deal-status label** (see **Deal-Status Display**).
 
 ---
 
@@ -17,7 +23,7 @@ An audience is a structured five-step conversation:
 4. **Player prompts again** — the mayor has one final input
 5. **AI concludes** — faction leader delivers their decision and, if accepting, the agreed terms
 
-A completed audience either produces a `Deal` or produces nothing. There is no partial agreement.
+A completed audience either produces a `Deal` or produces nothing. There is no partial agreement. When the faction accepts, the Mayor still has the final say — the deal is created only after the Mayor confirms (see **Mayor Confirmation**).
 
 ---
 
@@ -95,9 +101,90 @@ The player's second and final input. They accept what's on the table, modify the
 </deal>
 ```
 
-The `<deal>` block is parsed by the response parser. The in-character text is shown to the player. Invalid terms are dropped silently — if remaining terms are empty on either side, the deal is treated as rejected. `memory_note` (≤10 words) must always be present and is written to `faction_memory` regardless of outcome.
+The `<deal>` block is parsed by the response parser. The in-character text is shown to the player. Invalid terms are dropped silently — if remaining terms are empty on either side, the deal is treated as rejected.
+
+**Conclusion no longer commits.** Step 5 parses the faction's decision and proposed terms but does **not** create the `Deal`, apply mayor/faction terms, or write the memory note when the faction accepts — those are deferred to **Mayor Confirmation**. The parsed result is held in the audience state. `memory_note` (≤10 words) is always produced by the LLM; it is written to `faction_memory` at the moment the audience is finalised (see Mayor Confirmation), reflecting the final outcome.
 
 See `llm-system_spec.md` for the full system prompt structure, trait translation, response parser, and memory compression logic.
+
+---
+
+## Mayor Confirmation
+
+After Step 5, control returns to the Mayor before any binding deal exists.
+
+- **Faction declines** (`accepted: false`): the audience is finalised immediately — no
+  deal is created, no terms apply, the memory note is written ("no deal reached" or the
+  LLM's note), and the per-faction cooldown is set. The Mayor is shown the outcome; there
+  is nothing to confirm.
+- **Faction accepts** (`accepted: true`): the deal is **not** yet created. The Mayor is
+  shown the proposed terms (mayor-side and faction-side) and chooses:
+  - **Accept** — the `Deal` is created, mayor terms applied, faction `committed_*` fields
+    set, memory note written ("deal reached" / the LLM note), cooldown set.
+  - **Decline** — no deal is created, no terms apply, a memory note is written recording
+    that the Mayor declined the agreed terms, and the cooldown is set.
+
+The action point for the audience is spent at the start (Step 1) regardless of outcome —
+confirming or declining costs no additional AP. The cooldown is set when the audience is
+finalised, in every branch.
+
+**Flow shape (backend):**
+- `conclude` runs Step 5, parses, and — only on faction-decline — finalises and clears the
+  audience state. On faction-accept it stores the parsed result and returns
+  `accepted: true` with the proposed terms, **without** creating the deal.
+- A new `finalize` step takes the Mayor's decision (`mayor_accepts: bool`). It is only
+  required when the faction accepted. It creates-or-discards the deal accordingly, writes
+  the memory note, sets the cooldown, and clears the audience state.
+
+**Done when:**
+- When the faction accepts, `conclude` creates no `Deal` and applies no mayor/faction terms — `mayor.deals` is unchanged after conclude  `[automated]`
+- After a faction-accept conclude, `finalize` with `mayor_accepts: true` creates exactly one `Deal`, applies the mayor terms, and sets the faction's `committed_*` fields  `[automated]`
+- After a faction-accept conclude, `finalize` with `mayor_accepts: false` creates no `Deal` and applies no terms, but still sets the faction cooldown  `[automated]`
+- When the faction declines, the audience finalises without a `finalize` call: no deal, memory note written, cooldown set  `[automated]`
+- A memory note is written for every finalised audience (accept-confirmed, accept-declined, faction-declined)  `[automated]`
+- The audience UI shows Accept/Decline controls only when the faction accepted, and shows a terminal outcome (no confirm controls) when the faction declined  `[human-required]`
+
+---
+
+## Deal-Status Display
+
+The UI shows a deal-status label beneath each faction speech so the player can read where
+the negotiation stands. The label is **computed on the client from the current step** — it
+does not change the LLM contract and the LLM does not emit interim structured terms.
+
+- After Step 1 (faction opens): "no terms on the table yet"
+- After Step 3 (faction counters): "negotiating"
+- After Step 5 (faction concludes): the verdict — accepted (with the proposed terms) or
+  declined; once the Mayor confirms, the sealed/declined final state.
+
+Exact wording is a UI choice; the semantics above are the contract.
+
+**Done when:**
+- A status label appears under each faction speech, reflecting opening → negotiating → verdict as the conversation advances  `[human-required]`
+- The status after Step 5 distinguishes faction-accepted (showing the proposed terms) from faction-declined  `[human-required]`
+
+---
+
+## Debug Instrumentation
+
+Every audience step returns a **debug payload** alongside its narrative, so the exact LLM
+interaction can be inspected. The payload is always returned (no flag) and surfaced in the
+UI by two always-present, collapsed-by-default controls at the bottom of the audience:
+
+- **Show JSON** — reveals the full request sent to the LLM for each interaction: the
+  system prompt and the `messages` array.
+- **Debug** — reveals every LLM call across the whole audience: for each, the prompt sent
+  (system + messages) and the raw response text returned (before parsing).
+
+The request payload (`system`, `messages`) and the raw response already exist server-side
+in the audience state; this exposes them per step to the client. The Step 5 raw response
+is the unparsed text (the `<deal>` block intact), distinct from the in-character narrative
+shown in the transcript.
+
+**Done when:**
+- Each audience step response (`begin`, `reply`, `conclude`) includes a debug payload containing the request sent to the LLM (system prompt + messages) and the raw response text for that step  `[automated]`
+- The Step 5 debug response is the raw unparsed LLM text including the `<deal>` block, distinct from the displayed narrative  `[automated]`
+- The audience UI shows "Show JSON" and "Debug" controls at the bottom, collapsed by default, expanding to the request JSON and the full per-call request+response history respectively  `[human-required]`
 
 ---
 

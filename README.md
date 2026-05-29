@@ -1,36 +1,28 @@
-# Polis
+# Polis - 
 
-A Python simulation engine that models political, social, and economic conflict
-inside a fictional ancient-Greek city-state. **Factions** — noble houses, priesthoods,
-merchant and banking houses, craftsmen's guilds, generals, and philosophers — act one
-at a time each cycle, contesting eight spheres of influence (Aristocracy, Guilds, Trade,
-the Professions, Temples, Military, Academy, and the Harbor) and reshaping the balance of
-power. Each faction has an embedded leader and a personality that drives its choices. The
-result is emergent narrative: alliances, collapses, power vacuums, and the slow tilt toward
-greatness or tyranny that no single rule scripts.
+A Python simulation engine that models political, social, and economic conflict inside a fictional ancient-Greek city-state. **Factions** — noble houses, priesthoods, merchant, craftsmen's guilds, generals, and philosophers — act one at a time each cycle, contesting eight spheres of influence (Aristocracy, Temples, the Harbor and more) reshaping the balance of power. Each faction has an embedded leader and a personality that drives its choices. The result is emergent narrative: alliances, collapses, power vacuums, and the slow tilt toward greatness or tyranny that no single rule scripts.
 
-A human **Mayor** can intervene — endorsing, condemning, brokering deals, levying
-taxes — and can hold a live, **LLM-driven negotiation audience** with any faction,
+The player **Mayor** can intervene — endorsing, condemning, brokering deals, levying
+taxes — and can hold live, **LLM-driven negotiation audiences** with any faction,
 where the faction's leader bargains in character and the outcome feeds back into the
 simulation.
 
-> **Status:** Early alpha — active work-in-progress. The core engine, REST API, and
-> browser UI are functional end to end; features are still being added and things may
-> change. This repository is published as a demonstration of engineering practice and
-> AI-assisted development workflow.
+**Status:** Early alpha — active work-in-progress. The core engine, REST API, and
+ none-graphical browser UI are functional end to end; features are still being added and things may change. This repository is published as a demonstration of engineering practice and AI-assisted development workflow.
 
 ---
 
-## Why this project is interesting
+## Why this project is unique
 
-- **Pure rules engine at the core.** `engine/` has no HTTP, no database, no UI — just
-  deterministic simulation logic. Everything else wraps around it. This keeps the
-  hard part testable and portable.
+- **Pure rules engine at the core.** `engine/`  just a deterministic simulation logic. Everything else wraps around it. This keeps the mechanics testable and portable.
 - **Emergent, not scripted.** Outcomes come from faction traits, contest math, and
   sequential initiative (factions act in random order and react to each other within
   the same cycle), not from hand-authored event chains.
 - **LLM negotiation that affects state.** Faction audiences are real multi-turn
-  dialogues; the agreed terms are parsed back into structured deals the engine honors.
+  dialogues; the facions remember the conversations. The agreed terms are parsed back into structured deals. The factions and player can hold to them or break them depending on how the conversations go
+
+
+  <-- might move to a different secontion> 
 - **234 automated tests, running in ~1.2s.** The contest math, cycle order, events,
   mayor actions, and LLM parsing are all covered.
 - **Built with a disciplined AI-assisted workflow** (see below).

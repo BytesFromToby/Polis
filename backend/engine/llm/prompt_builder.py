@@ -114,6 +114,11 @@ On your third and final response only, after your closing words, output a <deal>
 }}
 </deal>
 
+Each entry in "mayor_terms" and "faction_terms" MUST be a JSON object — never a bare string:
+- Mayor terms: {{"type": "tax_exemption", "duration": <1-10>}}, {{"type": "endorsement"}}, or {{"type": "budget_allocation", "duration": <1-5>}}
+- Faction terms: {{"type": "committed_action", "action": "<one of: {valid_actions}>", "target_id": "<optional faction/project id, else empty string>", "duration": <1-10>}}, or {{"type": "committed_abstain", "action": "Harm", "target_id": "<faction id>", "duration": <1-10>}}
+
+If you accept, "faction_terms" must contain at least one object stating what you commit to in return — an accepted deal where you give nothing will be rejected.
 If no deal is reached set "accepted": false and leave term arrays empty.
 memory_note must always be present even on rejection."""
 
@@ -281,4 +286,5 @@ class PromptBuilder:
             memory_notes=memory_notes,
             valid_mayor_terms=valid_mayor,
             valid_faction_terms=valid_faction,
+            valid_actions=valid_actions,
         )

@@ -226,6 +226,7 @@ class MayorResponse(BaseModel):
     cooldowns: Dict[str, int]
     exemptions: Dict[str, int]
     committed_actions: List[dict]
+    deals: Dict[str, dict] = {}
 
 
 class ExemptFactionRequest(BaseModel):
@@ -256,6 +257,12 @@ class MayorActResponse(BaseModel):
     dramatic: bool = False
 
 
+class AudienceDebug(BaseModel):
+    system: str
+    messages: list[dict]
+    raw_response: str
+
+
 class AudienceBeginRequest(BaseModel):
     faction_id: str
 
@@ -264,6 +271,7 @@ class AudienceBeginResponse(BaseModel):
     faction_id: str
     step1_narrative: str
     action_points: int
+    debug: Optional[AudienceDebug] = None
 
 
 class AudienceReplyRequest(BaseModel):
@@ -272,6 +280,7 @@ class AudienceReplyRequest(BaseModel):
 
 class AudienceReplyResponse(BaseModel):
     step3_narrative: str
+    debug: Optional[AudienceDebug] = None
 
 
 class AudienceConcludeRequest(BaseModel):
@@ -283,9 +292,24 @@ class AudienceConcludeResponse(BaseModel):
     step3_narrative: str
     step5_narrative: str
     accepted: bool
+    finalized: bool = True
+    proposed_mayor_terms: list[dict] = []
+    proposed_faction_terms: list[dict] = []
     deal_id: Optional[str] = None
     memory_note: str = ""
     parse_error: str = ""
+    action_points: int
+    debug: Optional[AudienceDebug] = None
+
+
+class AudienceFinalizeRequest(BaseModel):
+    mayor_accepts: bool
+
+
+class AudienceFinalizeResponse(BaseModel):
+    accepted: bool
+    deal_id: Optional[str] = None
+    memory_note: str = ""
     action_points: int
 
 

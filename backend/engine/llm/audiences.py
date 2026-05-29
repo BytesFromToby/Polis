@@ -49,6 +49,9 @@ class AudienceResult:
         deal_id: Optional[str],
         memory_note: str,
         parse_error: str = "",
+        finalized: bool = True,
+        mayor_terms: Optional[list] = None,
+        faction_terms: Optional[list] = None,
     ):
         self.step1_narrative = step1_narrative
         self.step3_narrative = step3_narrative
@@ -57,6 +60,11 @@ class AudienceResult:
         self.deal_id = deal_id
         self.memory_note = memory_note
         self.parse_error = parse_error
+        # v3: finalized is False after a faction-accept conclude, until the Mayor confirms.
+        self.finalized = finalized
+        # v3: proposed terms surfaced so the Mayor can review before confirming.
+        self.mayor_terms = mayor_terms if mayor_terms is not None else []
+        self.faction_terms = faction_terms if faction_terms is not None else []
 
 
 def begin_audience_step(
@@ -81,6 +89,7 @@ def begin_audience_step(
         city_description=city_description, city_setting=city_setting,
     )
     messages: list[dict] = [{"role": "user", "content": _OPENING_USER_MSG}]
+    messages_sent = list(messages)
     step1_text = _call(client, system, messages)
     messages.append({"role": "assistant", "content": step1_text})
     return {
@@ -88,6 +97,7 @@ def begin_audience_step(
         "messages": messages,
         "step1_narrative": step1_text,
         "llm_config": cfg,
+        "debug_begin": _debug(system, messages_sent, step1_text),
     }
 
 
@@ -96,9 +106,14 @@ def reply_audience_step(*, state: dict, mayor_opening: str) -> dict:
     cfg = state["llm_config"]
     client = LLMClient(cfg)
     messages = list(state["messages"]) + [{"role": "user", "content": mayor_opening}]
+    messages_sent = list(messages)
     step3_text = _call(client, state["system"], messages)
     messages.append({"role": "assistant", "content": step3_text})
-    return {**state, "messages": messages, "step3_narrative": step3_text, "mayor_opening": mayor_opening}
+    return {
+        **state, "messages": messages, "step3_narrative": step3_text,
+        "mayor_opening": mayor_opening,
+        "debug_reply": _debug(state["system"], messages_sent, step3_text),
+    }
 
 
 def conclude_audience_step(
@@ -111,7 +126,13 @@ def conclude_audience_step(
     cycle: int,
     db: "Session",
 ) -> AudienceResult:
-    """Phase 3 — mayor's closing offer → faction concludes (step 5) + deal resolution."""
+    """
+    Phase 3 — mayor's closing offer → faction concludes (step 5).
+
+    v3: no longer commits a deal when the faction accepts. The parsed result is stashed
+    on `state` and returned with `finalized=False` so the Mayor can confirm (see
+    `finalize_audience`). A faction *decline* is terminal and finalised here.
+    """
     cfg = state["llm_config"]
     # Step 5 must fit narrative + full deal JSON; ensure tokens are sufficient
     if cfg.max_tokens < 1200:
@@ -123,26 +144,85 @@ def conclude_audience_step(
 
     parsed = _RESPONSE_PARSER.parse(step5_text, faction, mayor)
 
-    deal_id = None
-    if parsed.accepted and parsed.mayor_terms is not None:
-        deal_id = _create_deal(parsed, faction, mayor, run_id, cycle, db)
-        _apply_mayor_terms(parsed, faction, mayor, cycle)
-        _apply_faction_terms(parsed, faction)
+    # Stash for the finalize step / debug.
+    state["pending_parsed"] = parsed
+    state["step5_raw"] = step5_text
+    state["mayor_closing"] = mayor_closing
+    state["debug_conclude"] = _debug(state["system"], messages, step5_text)
 
-    _MEMORY_WRITER.write_note(
-        run_id=run_id, faction_id=faction.id, cycle=cycle,
-        note=parsed.memory_note or ("deal reached" if parsed.accepted else "no deal reached"),
-        note_type="audience", db=db, llm_client=client,
-    )
+    # Faction declined → terminal, finalise now (writes memory note, sets cooldown).
+    if not parsed.accepted:
+        return finalize_audience(
+            state=state, mayor_accepts=False,
+            faction=faction, mayor=mayor, run_id=run_id, cycle=cycle, db=db,
+        )
 
+    # Faction accepted → defer to Mayor confirmation. No deal, no terms, no memory yet.
     return AudienceResult(
         step1_narrative=state["step1_narrative"],
         step3_narrative=state.get("step3_narrative", ""),
         step5_narrative=parsed.narrative,
-        accepted=parsed.accepted,
-        deal_id=deal_id,
+        accepted=True,
+        deal_id=None,
         memory_note=parsed.memory_note,
         parse_error=parsed.parse_error,
+        finalized=False,
+        mayor_terms=parsed.mayor_terms,
+        faction_terms=parsed.faction_terms,
+    )
+
+
+def finalize_audience(
+    *,
+    state: dict,
+    mayor_accepts: bool,
+    faction: "Faction",
+    mayor: "Mayor",
+    run_id: str,
+    cycle: int,
+    db: "Session",
+) -> AudienceResult:
+    """
+    Phase 4 (v3) — resolve a concluded audience on the Mayor's decision.
+
+    Reads the parsed result stashed on `state` by `conclude_audience_step`:
+    - mayor_accepts and faction accepted → create the deal, apply terms.
+    - otherwise → no deal, no terms.
+    In every branch writes the memory note and sets the faction cooldown.
+    """
+    parsed = state["pending_parsed"]
+    client = LLMClient(state["llm_config"])
+
+    deal_id = None
+    if mayor_accepts and parsed.accepted and parsed.mayor_terms is not None:
+        deal_id = _create_deal(parsed, faction, mayor, run_id, cycle, db)
+        _apply_mayor_terms(parsed, faction, mayor, cycle)
+        _apply_faction_terms(parsed, faction)
+        note = parsed.memory_note or "deal reached"
+    elif parsed.accepted and not mayor_accepts:
+        note = parsed.memory_note or "mayor declined terms"
+    else:
+        note = parsed.memory_note or "no deal reached"
+
+    _MEMORY_WRITER.write_note(
+        run_id=run_id, faction_id=faction.id, cycle=cycle,
+        note=note, note_type="audience", db=db, llm_client=client,
+    )
+
+    from engine.mayor.actions import MEET_COOLDOWN
+    mayor.cooldowns[faction.id] = MEET_COOLDOWN
+
+    return AudienceResult(
+        step1_narrative=state.get("step1_narrative", ""),
+        step3_narrative=state.get("step3_narrative", ""),
+        step5_narrative=parsed.narrative,
+        accepted=bool(mayor_accepts and parsed.accepted),
+        deal_id=deal_id,
+        memory_note=note,
+        parse_error=parsed.parse_error,
+        finalized=True,
+        mayor_terms=parsed.mayor_terms,
+        faction_terms=parsed.faction_terms,
     )
 
 
@@ -229,6 +309,9 @@ def run_audience(
         deal_id=deal_id,
         memory_note=parsed.memory_note,
         parse_error=parsed.parse_error,
+        finalized=True,
+        mayor_terms=parsed.mayor_terms,
+        faction_terms=parsed.faction_terms,
     )
 
 
@@ -239,6 +322,18 @@ def _call(client: LLMClient, system: str, messages: list[dict]) -> str:
         return client.complete(system, messages)
     except LLMError as exc:
         raise AudienceError(f"LLM call failed: {exc}") from exc
+
+
+def _debug(system: str, messages: list[dict], raw_response: str) -> dict:
+    """Capture the exact request sent to the LLM and the raw response, for inspection.
+
+    Copies are taken so later mutation of the message list does not alter the record.
+    """
+    return {
+        "system": system,
+        "messages": [dict(m) for m in messages],
+        "raw_response": raw_response,
+    }
 
 
 def _create_deal(parsed, faction: "Faction", mayor: "Mayor", run_id: str, cycle: int, db: "Session") -> str:

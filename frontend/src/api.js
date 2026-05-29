@@ -145,6 +145,7 @@ export const mayor = {
   audienceBegin:    (userId, faction_id)   => post(`/users/${userId}/mayor/audience/begin`,    { faction_id }),
   audienceReply:    (userId, mayor_opening) => post(`/users/${userId}/mayor/audience/reply`,    { mayor_opening }),
   audienceConclude: (userId, mayor_closing) => post(`/users/${userId}/mayor/audience/conclude`, { mayor_closing }),
+  audienceFinalize: (userId, mayor_accepts) => post(`/users/${userId}/mayor/audience/finalize`, { mayor_accepts }),
 }
 
 // ── Projects ──────────────────────────────────────────────────────────────────
