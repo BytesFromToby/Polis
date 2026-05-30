@@ -660,8 +660,8 @@
     "faction_level": false
   },
   {
-    "id": "academy_scribing_hall",
-    "name": "Scribing Hall",
+    "id": "academy_scriptorium",
+    "name": "Scriptorium",
     "build_cost": 0,
     "build_time": 0,
     "faction_build_actions": 0,
@@ -682,8 +682,8 @@
     "faction_level": false
   },
   {
-    "id": "academy_reagent_storeroom",
-    "name": "Reagent Storeroom",
+    "id": "academy_instrument_hall",
+    "name": "Instrument Hall",
     "build_cost": 0,
     "build_time": 0,
     "faction_build_actions": 0,
@@ -704,8 +704,8 @@
     "faction_level": false
   },
   {
-    "id": "academy_warding_workshop",
-    "name": "Warding Workshop",
+    "id": "academy_mechanics_workshop",
+    "name": "Mechanics' Workshop",
     "build_cost": 0,
     "build_time": 0,
     "faction_build_actions": 0,

@@ -45,7 +45,12 @@ Domain + id-prefix remap:
   (`api/routes/sim.py`) and for the mayor catalog (`api/routes/mayor.py`); the seeded official
   city stores only domains/factions/world_state, not projects.
 
-## Known residue (not in scope of the user's decision)
-A few academy display names still read fantasy-magic rather than Greek-scholarly
-(`Reagent Storeroom`, `Warding Workshop`, `Scribing Hall`). Only `Arcane Sanctum` →
-`Scholars' Sanctum` was changed. The rest are left for an optional flavor pass.
+## Academy flavor pass (follow-up, same day)
+The academy projects originally kept fantasy-magic display names from the legacy `arcane`
+domain. All are now Greek-scholarly (id + name updated together, safe because no code/test/save
+references these ids):
+- `Arcane Sanctum` → `Scholars' Sanctum` (`academy_sanctum`)
+- `Scribing Hall` → `Scriptorium` (`academy_scriptorium`)
+- `Reagent Storeroom` → `Instrument Hall` (`academy_instrument_hall`)
+- `Warding Workshop` → `Mechanics' Workshop` (`academy_mechanics_workshop`)
+- `Observation Tower` kept (astronomy — already on-theme)
