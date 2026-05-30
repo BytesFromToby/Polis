@@ -93,7 +93,7 @@ Some actions cost multiple points and lock commitment across several cycles (see
 - Mayor revokes an active deal unilaterally at any time, at no AP cost
 - Mayor reputation with that faction: −`deal.rep_cost_if_broken_by_mayor` (10–35, set at negotiation)
 - Mayor reputation with The Public: −8
-- All mayor-side deal terms revoked immediately (exemptions removed, budget allocations cancelled)
+- All mayor-side deal terms revoked immediately (exemptions removed)
 - Faction's committed terms released — faction resumes autonomous behavior
 - Faction gains `angry at mayor` relational trait (moderate intensity)
 - Other factions in the same domain: −3 reputation with mayor

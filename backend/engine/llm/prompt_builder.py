@@ -80,12 +80,13 @@ GREEK_BRIEFING = (
 
 VALID_MAYOR_TERMS_TEMPLATE = """What the {title} can offer you:
 {tax_line}
-- Public endorsement (immediate +10 reputation with the {title})
-- Budget allocation to {domain} domain for 1–5 cycles (strengthens your domain's growth conditions)"""
+- Public endorsement (immediate +10 reputation with the {title})"""
 
-VALID_FACTION_TERMS_TEMPLATE = """What you can commit to:
-- Taking a specific action ({valid_actions}) every turn for 1–10 cycles (target optional)
-- Refraining from Harm or Steal against a named faction for 1–10 cycles"""
+VALID_FACTION_TERMS_TEMPLATE = """What you can commit to (one commitment, every turn for 1–10 cycles):
+- Grow — invest in your own strength; no target
+- Protect — raise your defenses; you take less Harm from ALL rivals; no target
+- BuildProject — work to build a specific city project; name the project
+- Refrain from Harm or Steal against one named faction"""
 
 SYSTEM_TEMPLATE = """{tone_line}
 
@@ -126,8 +127,12 @@ On your third and final response only, after your closing words, output a <deal>
 </deal>
 
 Each entry in "mayor_terms" and "faction_terms" MUST be a JSON object — never a bare string:
-- {title} terms ("mayor_terms"): {{"type": "tax_exemption", "duration": <1-10>}}, {{"type": "endorsement"}}, or {{"type": "budget_allocation", "duration": <1-5>}}
-- Faction terms: {{"type": "committed_action", "action": "<one of: {valid_actions}>", "target_id": "<optional faction/project id, else empty string>", "duration": <1-10>}}, or {{"type": "committed_abstain", "action": "Harm", "target_id": "<faction id>", "duration": <1-10>}}
+- {title} terms ("mayor_terms"): {{"type": "tax_exemption", "duration": <1-10>}} or {{"type": "endorsement"}}
+- Your terms ("faction_terms") — commit to exactly ONE:
+  - {{"type": "committed_action", "action": "Grow", "duration": <1-10>}}
+  - {{"type": "committed_action", "action": "Protect", "duration": <1-10>}}
+  - {{"type": "committed_action", "action": "BuildProject", "target_id": "<a project id>", "duration": <1-10>}}
+  - {{"type": "committed_abstain", "action": "Harm" | "Steal", "target_id": "<a faction id>", "duration": <1-10>}}
 
 If you accept, "faction_terms" must contain at least one object stating what you commit to in return — an accepted deal where you give nothing will be rejected.
 If no deal is reached set "accepted": false and leave term arrays empty.

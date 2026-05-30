@@ -1,9 +1,15 @@
 # Audience Specification
 
-**Version:** v3
-**Date:** 2026-05-28
+**Version:** v4
+**Date:** 2026-05-29
 
 The Mayor can request a formal audience with a faction leader. Audiences are the only way to create binding deals. The faction leader is driven by an LLM that opens the scene, negotiates through two player exchanges, and delivers a final decision.
+
+> **v4 changes:** the deal-term set is clarified so the LLM negotiates coherently — each term
+> now carries a plain "what it does" line and explicit per-action targeting (see **Valid Deal
+> Terms**). The dead `budget_allocation` Mayor term is removed (it was never applied). `Grow`
+> and `Protect` are untargeted; only `BuildProject` (a project) and `committed_abstain` (a
+> faction) take a target.
 
 > **v3 changes:** a deal accepted by the faction is no longer created automatically — the
 > Mayor must confirm it (Accept/Decline) before it is sealed (see **Mayor Confirmation**).
@@ -39,24 +45,45 @@ The player selects a faction to meet. No terms are pre-selected. The negotiation
 
 ## Valid Deal Terms
 
-The LLM is told what is mechanically possible. The player negotiates freely — the LLM steers toward valid outcomes and will not promise things that cannot be implemented.
+The LLM is told what is mechanically possible **and what each term does**, so it negotiates
+coherently and steers toward valid, implementable outcomes. The prompt must explain every term
+in plain language and state its targeting — the leader should never, e.g., offer to "Protect
+you from House X," because Protect has no target.
 
 ### Mayor can offer (one or more per deal):
 
-| Term | Effect | Constraint |
-|---|---|---|
-| `tax_exemption` | Exempt faction from taxation for N cycles | N = 1–10; max one exemption per domain at a time |
-| `endorsement` | Immediate +10 reputation with mayor | No constraint |
-| `budget_allocation` | Faction's domain gets `drift +0.02` for N cycles | N = 1–5 |
+| Term | What it does | Target | Constraint |
+|---|---|---|---|
+| `tax_exemption` | Exempts the faction from taxation for N cycles | — | N = 1–10; max one exemption per domain at a time |
+| `endorsement` | Immediate +10 reputation with the Mayor | — | No constraint |
 
 ### Faction can commit to (one per deal):
 
-| Term | Description | Notes |
-|---|---|---|
-| `committed_action` | Faction takes a specific action every turn for N cycles | Must be a valid action for that faction; target optional |
-| `committed_abstain` | Faction will not Harm or Steal a named faction for N cycles | Stored as action + target pair |
+Exactly one of the following, repeated every turn for N cycles (N = 1–10):
 
-N = 1–10 cycles for all faction terms.
+| Term | What it does | Target |
+|---|---|---|
+| `committed_action` · `Grow` | The faction invests in its own strength (raises rating/health) | none |
+| `committed_action` · `Protect` | The faction defends itself — higher entrenchment and reduced incoming Harm from **all** rivals | none |
+| `committed_action` · `BuildProject` | The faction works to build a specific city project | a project |
+| `committed_abstain` | The faction refrains from Harm or Steal against one named faction | a faction |
+
+**Targeting is per-action.** Only `BuildProject` (target = a project) and `committed_abstain`
+(target = a faction) take a target. `Grow` and `Protect` are untargeted; any `target_id`
+supplied for them is dropped by the parser.
+
+> `budget_allocation` was a Mayor term in v3 but was never wired to any effect; it is removed
+> as of v4. It is no longer offered, accepted, or documented. A removed or otherwise unknown
+> term type appearing in a `<deal>` is **dropped, and the rest of the deal still parses**
+> (drop-and-continue) — it never fails an otherwise-valid deal.
+
+**Done when:**
+- `budget_allocation` appears in no spec, reference doc, or backend source file  `[automated]`
+- The built audience system prompt lists only `tax_exemption` and `endorsement` as Mayor terms, and gives a plain "what it does" line for each faction action (`Grow`, `Protect`, `BuildProject`) and for `committed_abstain`  `[automated]`
+- In the prompt's `<deal>` schema, a `target_id` is shown only for `BuildProject` and `committed_abstain` — not for `Grow` or `Protect`  `[automated]`
+- The response parser clears `target_id` on a `committed_action` of `Grow` or `Protect`, and preserves it for `BuildProject`  `[automated]`
+- A `<deal>` that offers `budget_allocation` **alongside** a valid Mayor term drops only `budget_allocation` and still seals on the valid term  `[automated]`
+- A `<deal>` whose **only** Mayor term is `budget_allocation` yields no deal — it is dropped, leaving the Mayor side empty (one-sided), and `mayor.deals` is unchanged  `[automated]`
 
 ---
 
@@ -217,7 +244,7 @@ The mayor can break any active deal at any time. This is a deliberate player act
 - `deal.status → broken_by_mayor`
 - Mayor reputation with that faction: `−deal.rep_cost_if_broken_by_mayor` (10–35)
 - Mayor reputation with The Public: −8
-- All mayor-side terms revoked immediately (exemption removed from `mayor.exemptions`, budget allocation cancelled)
+- All mayor-side terms revoked immediately (exemption removed from `mayor.exemptions`)
 - Faction's committed terms released — `faction.committed_action` cleared, faction resumes autonomous behavior
 - Faction gains `angry at mayor` relational trait at **moderate** intensity — persists until natural decay, biases their actions toward Harm/Block targeting mayor interests
 - Other factions in the same domain: −3 reputation with mayor (word travels)

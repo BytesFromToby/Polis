@@ -326,7 +326,7 @@ class ExternalThreat:
 
 @dataclass
 class DealTerm:
-    type: str           # "tax_exemption"|"endorsement"|"budget_allocation"|"committed_action"|"committed_abstain"
+    type: str           # "tax_exemption"|"endorsement"|"committed_action"|"committed_abstain"
     action: str = ""    # action name for committed_action / committed_abstain
     target_id: str = "" # faction/project id for committed_action target or committed_abstain target
     duration: int = 0   # cycles; 1-10

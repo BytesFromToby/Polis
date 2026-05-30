@@ -189,7 +189,7 @@ Street, Political, Religion, Bureaucracy, Finance, Police, Underworld, Legal, He
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| `type` | `str` | required | `"tax_exemption"` \| `"endorsement"` \| `"budget_allocation"` \| `"committed_action"` \| `"committed_abstain"` |
+| `type` | `str` | required | `"tax_exemption"` \| `"endorsement"` \| `"committed_action"` \| `"committed_abstain"` |
 | `action` | `str` | `""` | Action name — used for `committed_action` and `committed_abstain` |
 | `target_id` | `str` | `""` | Target faction/project id — used for `committed_action` with a target and `committed_abstain` |
 | `duration` | `int` | `0` | Cycles; 1–10 |

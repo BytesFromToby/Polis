@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from engine.models import Deal, DealTerm, Mayor, Faction
 
 VALID_TERM_TYPES = {
-    "tax_exemption", "endorsement", "budget_allocation",
+    "tax_exemption", "endorsement",
     "committed_action", "committed_abstain",
 }
 
@@ -29,7 +29,6 @@ _STRING_TERM_MAP = {
     "public_endorsement": {"type": "endorsement", "duration": 3},
     "endorsement": {"type": "endorsement", "duration": 3},
     "tax_exemption": {"type": "tax_exemption", "duration": 5},
-    "budget_allocation": {"type": "budget_allocation", "duration": 3},
 }
 
 
@@ -203,7 +202,7 @@ class ResponseParser:
                 continue
             term_type = item.get("type", "")
             if term_type not in VALID_TERM_TYPES:
-                return [], f"unknown term type: {term_type!r}"
+                continue  # drop-and-continue: skip removed/unknown terms, keep the rest
 
             action = str(item.get("action", ""))
             target_id = str(item.get("target_id", ""))
@@ -212,6 +211,10 @@ class ResponseParser:
 
             if term_type in ("committed_action",) and action not in VALID_FACTION_ACTIONS:
                 return [], f"invalid committed_action: {action!r}"
+
+            # Targeting is per-action: only BuildProject takes a target. Grow/Protect are untargeted.
+            if term_type == "committed_action" and action != "BuildProject":
+                target_id = ""
 
             terms.append(DealTerm(
                 type=term_type,
