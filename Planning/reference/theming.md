@@ -12,7 +12,7 @@ or themed-city-pack system.
 
 ## Tag Lines
 
-#1 Polis — rule the unruleable
+#1 Polis — rule the unrulable
 Polis — rule the city that devours its rulers
 Polis — climb the city that buries its masters
 Polis — they say no one can rule it. Prove them wrong.
