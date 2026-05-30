@@ -72,3 +72,28 @@ def test_loader_accepts_greek_data():
     world, factions, domains = loaders.load_state_from_json(DATA_DIR)
     assert len(domains) == 8
     assert len(factions) == 41
+
+
+def test_every_project_uses_a_greek_domain():
+    """No legacy domains survive in projects.json — each project's `domains` and any
+    domain-targeting effect must name one of the 8 Greek domains (surveyor finding #1)."""
+    projects = _load("projects.json")
+    assert projects, "projects.json is empty"
+    for p in projects:
+        for dom in p["domains"]:
+            assert dom in EXPECTED_DOMAIN_IDS, f"{p['id']}: legacy domain {dom!r}"
+        for eff in p.get("effects", []):
+            if eff.get("target") == "domain":
+                assert eff["target_id"] in EXPECTED_DOMAIN_IDS, \
+                    f"{p['id']}: effect targets legacy domain {eff['target_id']!r}"
+
+
+def test_no_legacy_domain_prefixes_in_project_ids():
+    """Project ids carry no cut/renamed legacy-domain prefix (docks_, noble_houses_, etc.)."""
+    legacy_prefixes = (
+        "docks_", "noble_houses_", "city_watch_", "underworld_",
+        "temple_", "commons_", "arcane_", "registry_",
+    )
+    projects = _load("projects.json")
+    for p in projects:
+        assert not p["id"].startswith(legacy_prefixes), f"legacy id prefix: {p['id']}"

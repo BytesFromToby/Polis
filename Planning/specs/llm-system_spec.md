@@ -185,7 +185,6 @@ Mayor can offer:
 - Tax exemption for 1–10 cycles  [OR: "Tax exemption is not available — 
   one is already active in {domain}"]
 - Public endorsement (immediate, one-time)
-- Budget allocation to {domain} for 1–5 cycles
 
 You can commit to:
 - Taking a specific action (BuildProject, Protect, Grow) every turn for 
@@ -214,17 +213,32 @@ SETTING_TONE = {
 
 #### Full Prompt Structure
 
+> **Superseded — the prompt's opening, identity, and deal-term wording now live in newer specs.**
+> Three sections of this spec predate the Greek theme conversion and no longer describe the built
+> prompt. Treat the following as the authority for those parts:
+> - **Opening / setting / player identity** → `player-identity_spec.md`. The prompt opens with the
+>   single canonical Greek briefing (from `reference/theming.md`) with city name, player name, and
+>   title substituted in. There is no per-setting "tone note", and the player is the **Prytanis**
+>   (a title), not "the Mayor".
+> - **Leader voice + faction description** → `faction-descriptions_spec.md`. The character block now
+>   injects the leader's `personality_notes` and the faction's `description`, and the voice
+>   instruction is "sharp and vivid… never flat or fawning" (not "measured, not verbose").
+> - **Valid deal terms + `<deal>` schema** → `audience_spec.md` (v4, "Valid Deal Terms"). Per-action
+>   targeting, no `budget_allocation`, drop-and-continue parsing.
+>
+> The sections below remain accurate: the **trait/state/memory narrative** assembly and the
+> **`<deal>` envelope fields** (accepted / rep_cost / memory_note / reasoning semantics). The
+> skeleton is kept for that structural reference only:
+
 ```
-[City tone note — from setting]
+[Greek briefing — canonical, from theming.md; see player-identity_spec]
 
-You are [Leader Name], leader of [Faction Name].
-
-[Faction Name] is a [domain] organisation. [city.description — 1 sentence if set]
+[Leader personality + faction description; see faction-descriptions_spec]
 
 Your character:
 [Trait sentences, one per line]
 
-Your relationship with the Mayor: [reputation label] ([score])
+Your relationship with the Prytanis: [reputation label] ([score])
 
 Your organisation right now:
 [Health narrative]. Your influence is [rating narrative] (rating [X.X], floor [N]).
@@ -236,21 +250,17 @@ Recent events (last 5 cycles):
 What you remember:
 [Memory notes, one per line]
 
-What you can commit to in a deal:
-[Valid faction terms]
+What you can commit to in a deal:  [see audience_spec — Valid Deal Terms]
+What the Prytanis can offer you:   [see audience_spec — Valid Deal Terms]
 
-What the Mayor can offer you:
-[Valid mayor terms with constraints]
-
-Speak in character throughout. Keep responses to 3–4 sentences — measured,
-not verbose. On your third and final response only, after your closing words,
-output a <deal> block with this exact JSON structure:
+[Voice instruction; see faction-descriptions_spec]. On your third and final
+response only, after your closing words, output a <deal> block:
 
 <deal>
 {
   "accepted": true | false,
-  "mayor_terms": [...],
-  "faction_terms": [...],
+  "mayor_terms": [...],   # schema in audience_spec
+  "faction_terms": [...], # schema in audience_spec
   "rep_cost_if_broken_by_mayor": <int 10–35>,
   "memory_note": "<10 words or fewer — what you will remember about this meeting>",
   "reasoning": "<one sentence, out of character>"
@@ -281,7 +291,7 @@ Parses the LLM's step 5 conclusion output.
 #### Validation
 
 ```python
-VALID_MAYOR_TERM_TYPES = {"tax_exemption", "endorsement", "budget_allocation"}
+VALID_MAYOR_TERM_TYPES = {"tax_exemption", "endorsement"}
 VALID_FACTION_TERM_TYPES = {"committed_action", "committed_abstain"}
 VALID_ACTIONS = {"BuildProject", "Protect", "Grow", "Harm", "Steal", "Block"}
 DURATION_RANGE = range(1, 11)

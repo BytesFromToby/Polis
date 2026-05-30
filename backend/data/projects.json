@@ -110,7 +110,7 @@
     "faction_level": false
   },
   {
-    "id": "docks_dock_berths",
+    "id": "harbor_dock_berths",
     "name": "Dock Berths",
     "build_cost": 0,
     "build_time": 0,
@@ -121,18 +121,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "docks",
+        "target_id": "harbor",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "docks"
+      "harbor"
     ],
     "faction_level": false
   },
   {
-    "id": "docks_chandlery",
+    "id": "harbor_chandlery",
     "name": "Chandlery",
     "build_cost": 0,
     "build_time": 0,
@@ -143,18 +143,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "docks",
+        "target_id": "harbor",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "docks"
+      "harbor"
     ],
     "faction_level": false
   },
   {
-    "id": "docks_rope_walk",
+    "id": "harbor_rope_walk",
     "name": "Rope Walk",
     "build_cost": 0,
     "build_time": 0,
@@ -165,18 +165,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "docks",
+        "target_id": "harbor",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "docks"
+      "harbor"
     ],
     "faction_level": false
   },
   {
-    "id": "docks_harbormasters_tower",
+    "id": "harbor_harbormasters_tower",
     "name": "Harbormaster's Tower",
     "build_cost": 160,
     "build_time": 4,
@@ -187,18 +187,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "docks",
+        "target_id": "harbor",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "docks"
+      "harbor"
     ],
     "faction_level": false
   },
   {
-    "id": "docks_dry_dock",
+    "id": "harbor_dry_dock",
     "name": "Dry Dock",
     "build_cost": 200,
     "build_time": 5,
@@ -209,18 +209,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "docks",
+        "target_id": "harbor",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "docks"
+      "harbor"
     ],
     "faction_level": false
   },
   {
-    "id": "noble_houses_manor_expansion",
+    "id": "aristocracy_manor_expansion",
     "name": "Manor Expansion",
     "build_cost": 0,
     "build_time": 0,
@@ -231,18 +231,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "noble_houses",
+        "target_id": "aristocracy",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "noble_houses"
+      "aristocracy"
     ],
     "faction_level": false
   },
   {
-    "id": "noble_houses_estate_gardens",
+    "id": "aristocracy_estate_gardens",
     "name": "Estate Gardens",
     "build_cost": 0,
     "build_time": 0,
@@ -253,18 +253,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "noble_houses",
+        "target_id": "aristocracy",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "noble_houses"
+      "aristocracy"
     ],
     "faction_level": false
   },
   {
-    "id": "noble_houses_guard_barracks",
+    "id": "aristocracy_guard_barracks",
     "name": "Private Guard Barracks",
     "build_cost": 0,
     "build_time": 0,
@@ -275,18 +275,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "noble_houses",
+        "target_id": "aristocracy",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "noble_houses"
+      "aristocracy"
     ],
     "faction_level": false
   },
   {
-    "id": "noble_houses_salon",
+    "id": "aristocracy_salon",
     "name": "Salon & Reception Hall",
     "build_cost": 150,
     "build_time": 3,
@@ -297,18 +297,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "noble_houses",
+        "target_id": "aristocracy",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "noble_houses"
+      "aristocracy"
     ],
     "faction_level": false
   },
   {
-    "id": "noble_houses_noble_archive",
+    "id": "aristocracy_noble_archive",
     "name": "Noble Archive",
     "build_cost": 200,
     "build_time": 5,
@@ -319,18 +319,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "noble_houses",
+        "target_id": "aristocracy",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "noble_houses"
+      "aristocracy"
     ],
     "faction_level": false
   },
   {
-    "id": "city_watch_watch_posts",
+    "id": "military_watch_posts",
     "name": "Watch Post Network",
     "build_cost": 0,
     "build_time": 0,
@@ -341,18 +341,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "city_watch",
+        "target_id": "military",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "city_watch"
+      "military"
     ],
     "faction_level": false
   },
   {
-    "id": "city_watch_barracks",
+    "id": "military_barracks",
     "name": "Guard Barracks",
     "build_cost": 0,
     "build_time": 0,
@@ -363,18 +363,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "city_watch",
+        "target_id": "military",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "city_watch"
+      "military"
     ],
     "faction_level": false
   },
   {
-    "id": "city_watch_holding_cells",
+    "id": "military_holding_cells",
     "name": "Holding Cells",
     "build_cost": 0,
     "build_time": 0,
@@ -385,18 +385,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "city_watch",
+        "target_id": "military",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "city_watch"
+      "military"
     ],
     "faction_level": false
   },
   {
-    "id": "city_watch_armory",
+    "id": "military_armory",
     "name": "Armory",
     "build_cost": 150,
     "build_time": 3,
@@ -407,18 +407,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "city_watch",
+        "target_id": "military",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "city_watch"
+      "military"
     ],
     "faction_level": false
   },
   {
-    "id": "city_watch_training_ground",
+    "id": "military_training_ground",
     "name": "Training Ground",
     "build_cost": 200,
     "build_time": 5,
@@ -429,128 +429,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "city_watch",
+        "target_id": "military",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "city_watch"
+      "military"
     ],
     "faction_level": false
   },
   {
-    "id": "underworld_safe_houses",
-    "name": "Safe House Network",
-    "build_cost": 0,
-    "build_time": 0,
-    "faction_build_actions": 0,
-    "maintenance_cost": 8,
-    "status": "active",
-    "health": 100,
-    "effects": [
-      {
-        "target": "domain",
-        "target_id": "underworld",
-        "field": "cap",
-        "value": 100
-      }
-    ],
-    "domains": [
-      "underworld"
-    ],
-    "faction_level": false
-  },
-  {
-    "id": "underworld_fences_depot",
-    "name": "Fence's Depot",
-    "build_cost": 0,
-    "build_time": 0,
-    "faction_build_actions": 0,
-    "maintenance_cost": 10,
-    "status": "active",
-    "health": 100,
-    "effects": [
-      {
-        "target": "domain",
-        "target_id": "underworld",
-        "field": "cap",
-        "value": 100
-      }
-    ],
-    "domains": [
-      "underworld"
-    ],
-    "faction_level": false
-  },
-  {
-    "id": "underworld_alley_clinic",
-    "name": "Back-Alley Clinic",
-    "build_cost": 0,
-    "build_time": 0,
-    "faction_build_actions": 0,
-    "maintenance_cost": 9,
-    "status": "active",
-    "health": 100,
-    "effects": [
-      {
-        "target": "domain",
-        "target_id": "underworld",
-        "field": "cap",
-        "value": 100
-      }
-    ],
-    "domains": [
-      "underworld"
-    ],
-    "faction_level": false
-  },
-  {
-    "id": "underworld_passage",
-    "name": "Underground Passage",
-    "build_cost": 150,
-    "build_time": 4,
-    "faction_build_actions": 5,
-    "maintenance_cost": 12,
-    "status": "under_construction",
-    "health": 0,
-    "effects": [
-      {
-        "target": "domain",
-        "target_id": "underworld",
-        "field": "cap",
-        "value": 75
-      }
-    ],
-    "domains": [
-      "underworld"
-    ],
-    "faction_level": false
-  },
-  {
-    "id": "underworld_gambling_den",
-    "name": "Gambling Den",
-    "build_cost": 200,
-    "build_time": 5,
-    "faction_build_actions": 6,
-    "maintenance_cost": 15,
-    "status": "under_construction",
-    "health": 0,
-    "effects": [
-      {
-        "target": "domain",
-        "target_id": "underworld",
-        "field": "cap",
-        "value": 75
-      }
-    ],
-    "domains": [
-      "underworld"
-    ],
-    "faction_level": false
-  },
-  {
-    "id": "temple_shrine_network",
+    "id": "temples_shrine_network",
     "name": "Shrine Network",
     "build_cost": 0,
     "build_time": 0,
@@ -561,18 +451,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "temple",
+        "target_id": "temples",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "temple"
+      "temples"
     ],
     "faction_level": false
   },
   {
-    "id": "temple_pilgrim_hospice",
+    "id": "temples_pilgrim_hospice",
     "name": "Pilgrim Hospice",
     "build_cost": 0,
     "build_time": 0,
@@ -583,18 +473,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "temple",
+        "target_id": "temples",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "temple"
+      "temples"
     ],
     "faction_level": false
   },
   {
-    "id": "temple_bell_tower",
+    "id": "temples_bell_tower",
     "name": "Bell Tower",
     "build_cost": 0,
     "build_time": 0,
@@ -605,18 +495,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "temple",
+        "target_id": "temples",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "temple"
+      "temples"
     ],
     "faction_level": false
   },
   {
-    "id": "temple_sacred_library",
+    "id": "temples_sacred_library",
     "name": "Sacred Library",
     "build_cost": 130,
     "build_time": 3,
@@ -627,18 +517,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "temple",
+        "target_id": "temples",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "temple"
+      "temples"
     ],
     "faction_level": false
   },
   {
-    "id": "temple_grand_sanctum",
+    "id": "temples_grand_sanctum",
     "name": "Grand Sanctum",
     "build_cost": 200,
     "build_time": 5,
@@ -649,18 +539,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "temple",
+        "target_id": "temples",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "temple"
+      "temples"
     ],
     "faction_level": false
   },
   {
-    "id": "commons_public_market",
+    "id": "trade_public_market",
     "name": "Public Market",
     "build_cost": 0,
     "build_time": 0,
@@ -671,18 +561,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "commons",
+        "target_id": "trade",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "commons"
+      "trade"
     ],
     "faction_level": false
   },
   {
-    "id": "commons_public_well",
+    "id": "trade_public_well",
     "name": "Public Well",
     "build_cost": 0,
     "build_time": 0,
@@ -693,18 +583,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "commons",
+        "target_id": "trade",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "commons"
+      "trade"
     ],
     "faction_level": false
   },
   {
-    "id": "commons_common_house",
+    "id": "trade_common_house",
     "name": "Common House",
     "build_cost": 0,
     "build_time": 0,
@@ -715,18 +605,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "commons",
+        "target_id": "trade",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "commons"
+      "trade"
     ],
     "faction_level": false
   },
   {
-    "id": "commons_tenement_block",
+    "id": "trade_tenement_block",
     "name": "Tenement Block",
     "build_cost": 100,
     "build_time": 3,
@@ -737,18 +627,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "commons",
+        "target_id": "trade",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "commons"
+      "trade"
     ],
     "faction_level": false
   },
   {
-    "id": "commons_street_paving",
+    "id": "trade_street_paving",
     "name": "Street Paving Network",
     "build_cost": 175,
     "build_time": 4,
@@ -759,18 +649,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "commons",
+        "target_id": "trade",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "commons"
+      "trade"
     ],
     "faction_level": false
   },
   {
-    "id": "arcane_scribing_hall",
+    "id": "academy_scribing_hall",
     "name": "Scribing Hall",
     "build_cost": 0,
     "build_time": 0,
@@ -781,18 +671,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "arcane",
+        "target_id": "academy",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "arcane"
+      "academy"
     ],
     "faction_level": false
   },
   {
-    "id": "arcane_reagent_storeroom",
+    "id": "academy_reagent_storeroom",
     "name": "Reagent Storeroom",
     "build_cost": 0,
     "build_time": 0,
@@ -803,18 +693,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "arcane",
+        "target_id": "academy",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "arcane"
+      "academy"
     ],
     "faction_level": false
   },
   {
-    "id": "arcane_warding_workshop",
+    "id": "academy_warding_workshop",
     "name": "Warding Workshop",
     "build_cost": 0,
     "build_time": 0,
@@ -825,18 +715,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "arcane",
+        "target_id": "academy",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "arcane"
+      "academy"
     ],
     "faction_level": false
   },
   {
-    "id": "arcane_observation_tower",
+    "id": "academy_observation_tower",
     "name": "Observation Tower",
     "build_cost": 160,
     "build_time": 4,
@@ -847,19 +737,19 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "arcane",
+        "target_id": "academy",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "arcane"
+      "academy"
     ],
     "faction_level": false
   },
   {
-    "id": "arcane_sanctum",
-    "name": "Arcane Sanctum",
+    "id": "academy_sanctum",
+    "name": "Scholars' Sanctum",
     "build_cost": 200,
     "build_time": 5,
     "faction_build_actions": 6,
@@ -869,18 +759,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "arcane",
+        "target_id": "academy",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "arcane"
+      "academy"
     ],
     "faction_level": false
   },
   {
-    "id": "registry_records_hall",
+    "id": "professions_records_hall",
     "name": "Records Hall",
     "build_cost": 0,
     "build_time": 0,
@@ -891,18 +781,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "registry",
+        "target_id": "professions",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "registry"
+      "professions"
     ],
     "faction_level": false
   },
   {
-    "id": "registry_customs_office",
+    "id": "professions_customs_office",
     "name": "Customs Office",
     "build_cost": 0,
     "build_time": 0,
@@ -913,18 +803,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "registry",
+        "target_id": "professions",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "registry"
+      "professions"
     ],
     "faction_level": false
   },
   {
-    "id": "registry_messenger_station",
+    "id": "professions_messenger_station",
     "name": "Messenger Station",
     "build_cost": 0,
     "build_time": 0,
@@ -935,18 +825,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "registry",
+        "target_id": "professions",
         "field": "cap",
         "value": 100
       }
     ],
     "domains": [
-      "registry"
+      "professions"
     ],
     "faction_level": false
   },
   {
-    "id": "registry_notary_offices",
+    "id": "professions_notary_offices",
     "name": "Notary Offices",
     "build_cost": 120,
     "build_time": 3,
@@ -957,18 +847,18 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "registry",
+        "target_id": "professions",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "registry"
+      "professions"
     ],
     "faction_level": false
   },
   {
-    "id": "registry_grand_registry",
+    "id": "professions_grand_registry",
     "name": "Grand Registry",
     "build_cost": 200,
     "build_time": 5,
@@ -979,13 +869,13 @@
     "effects": [
       {
         "target": "domain",
-        "target_id": "registry",
+        "target_id": "professions",
         "field": "cap",
         "value": 75
       }
     ],
     "domains": [
-      "registry"
+      "professions"
     ],
     "faction_level": false
   },
@@ -1002,7 +892,7 @@
     "health": 100,
     "effects": [],
     "domains": [
-      "registry"
+      "professions"
     ],
     "faction_level": false
   },
@@ -1019,7 +909,7 @@
     "health": 100,
     "effects": [],
     "domains": [
-      "registry"
+      "professions"
     ],
     "faction_level": false
   },
@@ -1036,7 +926,7 @@
     "health": 0,
     "effects": [],
     "domains": [
-      "registry"
+      "professions"
     ],
     "faction_level": false
   },
@@ -1053,7 +943,7 @@
     "health": 0,
     "effects": [],
     "domains": [
-      "registry"
+      "professions"
     ],
     "faction_level": false
   },
@@ -1070,7 +960,7 @@
     "health": 0,
     "effects": [],
     "domains": [
-      "registry"
+      "professions"
     ],
     "faction_level": false
   }
