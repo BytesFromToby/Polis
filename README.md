@@ -110,7 +110,7 @@ Provider SDKs (`anthropic`, `openai`) are optional and imported only when used.
 
 `engine/` imports only the standard library and itself; `api/` wraps it in HTTP, `db/`
 persists snapshots, and `frontend/` talks to the API over HTTP only. See
-[`docs/architecture.md`](docs/architecture.md) for the full system map.
+[`Planning/reference/architecture.md`](Planning/reference/architecture.md) for the full system map.
 
 ---
 
@@ -157,8 +157,8 @@ backend/      Python backend
   data/       JSON seed data (domains, factions, projects, world state)
   tests/      pytest suite
 frontend/     Vue 3 + Vite browser UI
-Planning/     Specs, reference docs, decision records (the Plumbline tier)
-docs/         As-built architecture, long-term goals, design system
+Planning/     Specs, reference (incl. architecture), proposals, decisions (the Plumbline tier)
+docs/         Design system + in-play screenshots
 ```
 
 ---

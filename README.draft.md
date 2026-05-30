@@ -204,8 +204,8 @@ backend/      Python backend
   data/       JSON seed data (domains, factions, projects, world state)
   tests/      pytest suite
 frontend/     Vue 3 + Vite browser UI
-Planning/     Specs, reference docs, decision records (the Plumbline tier)
-docs/         Architecture, long-term goals, design system, screenshots
+Planning/     Specs, reference (incl. architecture), proposals, decisions (the Plumbline tier)
+docs/         Design system + in-play screenshots
 ```
 
 ---

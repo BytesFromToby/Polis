@@ -7,11 +7,11 @@ The project's source of truth and its supporting tiers. Start here, then go to t
 | Path | Holds |
 |------|-------|
 | `specs/` | **Source of truth for behavior** — one `[feature]_spec.md` per feature, with inline **Done when:** items |
-| `reference/` | Definitions specs cite (not testable): `data-models.md` (entities), `formulas.md` (contest math) |
+| `reference/` | As-built truth specs cite (not testable): `data-models.md` (entities), `formulas.md` (contest math), `architecture.md` (system map) |
+| `proposals/` | Forward-looking design docs for not-yet-built features (subsystems / cross-cutting mechanics) |
+| `blueprints/` | Per-feature build plans from `foreman` (`[feature]_BP.md`) |
 | `decisions/` | Decision log (`YYYY-MM-DD-title.md`) — append-only, point-in-time record |
-
-The as-built system map lives in `../docs/architecture.md` (documentation, not planning).
-| `Features_Todo.md` | Backlog + open design decisions |
+| `archive/` | Retired docs — shipped proposals, superseded specs |
 
 ## Spec index
 
@@ -42,5 +42,5 @@ Read top-down within a group; `cycle-runner` is the entry point.
 
 - Entities / fields → `reference/data-models.md`
 - Formulas / thresholds → `reference/formulas.md`
-- How a cycle actually runs → `specs/cycle-runner_spec.md` (authoritative) + `../docs/architecture.md`
+- How a cycle actually runs → `specs/cycle-runner_spec.md` (authoritative) + `reference/architecture.md`
 - Why a past choice was made → `decisions/`
