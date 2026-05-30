@@ -30,13 +30,20 @@ Read top-down within a group; `cycle-runner` is the entry point.
 - [audience](specs/audience_spec.md) — Mayor↔leader LLM negotiation; the only path to binding deals
 
 **World & content**
-- [city-generation](specs/city-generation_spec.md) — initial city/domain/faction generation
 - [special-factions](specs/special-factions_spec.md) — The Public, moneylender, external threats
 - [events](specs/events_spec.md) — timed pressure sequences injected into the faction system
 
 **LLM layer**
 - [llm-system](specs/llm-system_spec.md) — translation between engine and any model provider (stub mode without one)
 - [llm-profiles](specs/llm-profiles_spec.md) — saved configs, key encryption, selection at game start
+
+**Setup & presentation**
+- [player-identity](specs/player-identity_spec.md) — new-game capture of player + city name and title; threaded into the prompt
+- [faction-descriptions](specs/faction-descriptions_spec.md) — faction blurb/description in the audience prompt and UI
+- [game-ui](specs/game-ui_spec.md) — the Vue browser interface
+
+**Not built** (see `proposals/`)
+- [city-generation](proposals/city-generation.md) — procedural city/domain/faction generation
 
 ## Quick pointers
 

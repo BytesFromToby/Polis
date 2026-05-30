@@ -1,9 +1,11 @@
-# City Generation Specification
+# City Generation — Proposal
 
 **Version:** v2
 **Date:** 2026-05-17
 **Supersedes:** v1 (2026-03-29)
-**Status:** FUTURE FEATURE — not scheduled. Cities are currently hand-authored JSON templates in `backend/data/`. This spec describes the intended procedural generation system for when that changes.
+**Status:** PROPOSAL — not built, not scheduled. Cities are currently hand-authored JSON templates
+in `backend/data/`. This is a forward-looking design doc for the procedural generation system for
+when that changes. Promote via a Spec Impact section when scheduled (see `proposals/README.md`).
 
 Units removed. Leader embedded in Faction. SM domain removed. Starting projects added.
 
