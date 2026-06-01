@@ -257,7 +257,7 @@ The world of buying, selling, lending, and the games played with supply and pric
 *moves goods and coin*; it does not make them (Guilds) or carry them by sea (Harbor).
 
 > **The Amphora Houses** — *the great wholesale merchants*
-> The big import-export traders who deal in bulk — grain, oil, wine, slaves. The dominant commercial power, always reaching for a wider market.
+> The big import-export traders who deal in bulk — grain, oil, wine, and timber. The dominant commercial power, always reaching for a wider market.
 > Character: `expansionary` (strong), `ambitious` (moderate)
 > Leader: **Polemarchos the Stout** — jovial and grasping; counts the city's worth in cargoes landed.
 
