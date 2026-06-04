@@ -438,9 +438,9 @@ export default {
 }
 .panel:last-child { border-right: none; }
 
-.panel-left   { width: 280px; flex-shrink: 0; }
+.panel-left   { width: 300px; flex-shrink: 0; }
 .panel-center { flex: 1; padding: 0; }
-.panel-right  { width: 240px; flex-shrink: 0; }
+.panel-right  { width: 260px; flex-shrink: 0; }
 
 /* Center column: Mayor window on top, Event Log below */
 .panel-center { display: flex; flex-direction: column; gap: 0; }
@@ -659,6 +659,8 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding-right: 0.75rem;     /* keep domain labels clear of the scrollbar */
+  scrollbar-gutter: stable;
 }
 .project-row {
   display: flex;

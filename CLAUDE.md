@@ -77,8 +77,8 @@ with `surveyor` (spec-vs-code drift) and `walkthrough` (maintenance pass) run wh
 
 <!-- Retired (already removed from project): updateprocess → folded into Change rules above;
      speccheck → surveyor; improve → walkthrough.
-     (CONFIRM) surveyor + walkthrough are not yet registered as runnable skills here —
-     they live in H:/my_skills/plumbline/. Registering them is a separate step. -->
+     surveyor + walkthrough are registered at user level (~/.claude/skills/, sourced from
+     H:/my_skills/plumbline/) and runnable here — confirmed 2026-06-02. -->
 
 ## Naming conventions
 - Specs: `feature-name_spec.md`

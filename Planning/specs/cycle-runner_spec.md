@@ -1,8 +1,9 @@
 # Cycle Runner Specification
 
-**Version:** v1.1
+**Version:** v1.2
 **Date:** 2026-05-19
 **Updated:** 2026-05-23 — Documented full orchestration as implemented in `runner.py`; subsystem detail delegated to their own specs.
+**Updated:** 2026-06-02 — Retrofitted `Done when:` acceptance criteria at the orchestration level (runner-owned behavior only; subsystem criteria stay in their own specs). No behavior change.
 
 Sequential initiative model. Factions act one at a time in random order. State updates between turns — later factions see what earlier factions did. Replaces the old batch declaration/resolution model.
 
@@ -59,11 +60,18 @@ Then run `apply_tax_effects()`:
 - Public reputation delta from domain tax rates
 - Exempted faction +5 Mayor reputation per cycle remaining
 
+**Done when:**
+- When `treasury` and `mayor` are provided, the treasury step and tax effects run before the action loop and their results are included in the cycle's results; when either is absent, `run_cycle` skips them and still completes  `[automated]`
+
 ---
 
 ## Step 1 — Initiative
 
 Shuffle all factions whose `status != "destroyed"` into a random order. Store as the cycle's `initiative_order: List[str]` (faction ids). This order is internal — it is not shown in the public log.
+
+**Done when:**
+- Only factions with `status != "destroyed"` are placed in `initiative_order` — a destroyed faction never acts and produces no action result for the cycle  `[automated]`
+- `initiative_order` is re-rolled every cycle — no ordering is carried over between `run_cycle` calls (there is no persistent initiative advantage)  `[automated]`
 
 ---
 
@@ -106,6 +114,13 @@ Resolve the selected action immediately. Update state. Add `CycleEvent` to the c
 - `SabotageProject`: project defense rating includes build bonus accumulated so far this cycle (`min(2, project.build_actions_this_cycle)`)
 - `Block` action: set `faction.active_block_target = target_id`; log as guarded stance with no target named
 
+**Done when:**
+- A decisive block cancels the target faction's action that turn — no action result is recorded for it  `[automated]`
+- A partial block downgrades the target's action that turn — `Harm` → `Grow` and `Steal` → `Grow`; other action types are unaffected  `[automated]`
+- A failed block leaves the target's action unchanged  `[automated]`
+- A block is consumed after it fires regardless of outcome — the blocker's `active_block_target` is cleared  `[automated]`
+- When two factions hold blocks on the same target, only the first in initiative order fires that cycle; the other stays armed  `[automated]`
+
 ---
 
 ## Step 3 — Project Ticks
@@ -122,6 +137,12 @@ For each project:
 **All projects:**
 - Reset `build_actions_this_cycle = 0`
 
+**Done when:**
+- After project ticking, every project's `build_actions_this_cycle` is 0  `[automated]`
+
+> Construction-progress and completion transitions (`under_construction → active`) and effect
+> application are owned by `projects_spec.md`; the runner only invokes the project tick here.
+
 ---
 
 ## Step 4 — End of Cycle
@@ -136,6 +157,17 @@ Run in this order:
 7. **Mayor cooldowns** — decrement all `mayor.cooldowns` values; remove when 0
 8. **Mayor exemptions** — decrement all `mayor.exemptions` values; remove when 0
 9. **Cycle counter** — `world.cycle += 1`
+
+**Done when:**
+- `world.cycle` increases by exactly 1 per `run_cycle` call  `[automated]`
+- N successive `run_cycle` calls leave `world.cycle == N` (starting from 0)  `[automated]`
+- Domain `utilization` is recalculated from current faction weights each cycle — no stale value carries over  `[automated]`
+- `run_cycle` returns a `CycleResult` whose `events` is a list of `CycleEvent` and whose `faction_actions` is a non-negative count that excludes `Skip` actions  `[automated]`
+
+> Subsystem end-of-cycle detail (trait evolution, chaos, collapse, power vacuums, Mayor
+> cooldown/exemption/commitment/reputation ticking) is owned by `faction-behavior_spec.md`,
+> `events_spec.md`, and `mayor_spec.md`. The runner's contract is that these run, in this order,
+> once per cycle.
 
 ---
 
@@ -158,6 +190,9 @@ The public log (`CycleEvent` narrative) follows these rules for information visi
 | Any other action | Standard action narrative |
 
 The target of a placed Block is never in the public log. It only becomes visible when the block fires.
+
+**Done when:**
+- A Block action's public-log `CycleEvent` names no target; the blocked faction's identity appears in a public-log entry only when the block fires  `[automated]`
 
 ---
 
