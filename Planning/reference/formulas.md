@@ -2,26 +2,33 @@
 
 The current faction-contest math. Reference doc — definitional, no **Done when:** items.
 **Verified against `scr/engine/formulas.py` (v3, units removed), 2026-05-25.**
+**Updated 2026-06-03 (demo-redesign):** rank widened to 1–10, linear-ish grow curve, faction-weight table dropped, entrench removed. *Ahead of code until the redesign build lands — verify with inspector after. See `../proposals/demo-redesign.md`.*
 Subsystem-specific math (treasury interest, entrench decay, health) lives with its own
 spec/module, not here.
 
 ---
 
-## Rating ceiling
-`RATING_MAX = 5.0` — faction rating is clamped to 1.0–5.0.
+## Rank ceiling
+`RANK_MAX = 10.0` — faction rank is clamped to 1.0–10.0. `level = int(rank)`.
 
 ## Grow increment
-Per-cycle rating gain toward the next level: `1 / (2^n + 1)` where `n = floor level`.
+Per-cycle rank gain toward the next level: `1 / (n + 1)` where `n = level` (`int(rank)`).
+Retired `1/(2^n+1)` — the `2^n` is unusable across 10 levels. Provisional curve; tune by feel.
 
-| Level | Cycles to next | Increment/cycle |
-|-------|----------------|-----------------|
-| 1 | 3 | 0.3333 |
-| 2 | 5 | 0.2000 |
-| 3 | 9 | 0.1111 |
-| 4 | 17 | 0.0588 |
+| Level n | Increment/cycle | Grows to next |
+|---------|-----------------|---------------|
+| 1 | 0.500 | 2 |
+| 2 | 0.333 | 3 |
+| 3 | 0.250 | 4 |
+| 4 | 0.200 | 5 |
+| 5 | 0.167 | 6 |
+| 9 | 0.100 | 10 |
+
+A successful **Grow** adds the increment to `rank`; crossing an integer is the level-up beat (~54 grows to climb 1→10).
 
 ## Faction roll
-`d20 + floor(rating) + modifier`. Leaderless penalty (−2) is applied by the caller when relevant.
+`d20 + floor(rating) + modifier`, where `floor(rating)` = `level` (now 1–10). Leaderless penalty (−2) applied by the caller when relevant.
+*Open "roll dial": whether to feed the raw float instead of `floor(rating)` so power scales gradually — deferred (note: it's coupled to Steal balance).*
 
 ## Contest resolution
 Roll attacker vs defender; `margin = attacker_roll − defender_roll`.
@@ -32,12 +39,8 @@ Roll attacker vs defender; `margin = attacker_roll − defender_roll`.
 | 1–4 | partial |
 | ≤ 0 | fail (defender wins ties) |
 
-## Faction weight (for domain utilization)
-Weight contributed to a domain by faction level:
-
-| Level | 1 | 2 | 3 | 4 | 5 |
-|-------|---|---|---|---|---|
-| Weight | 0 | 2 | 4 | 8 | 16 |
+## Domain utilization
+A faction contributes its **level** (`int(rank)`) to its domain's `utilization`; a domain's `cap` is a **level budget**. Replaces the retired exponential weight table (`0,2,4,8,16`). The cap-resistance ramp below is unchanged for now — full cap rework is parked.
 
 ## Domain cap resistance
 From `utilization / cap`:

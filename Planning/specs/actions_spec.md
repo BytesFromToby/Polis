@@ -1,27 +1,25 @@
 # Actions Specification
 
-**Version:** v4
-**Date:** 2026-05-19
-**Supersedes:** v3 (2026-05-17)
+**Version:** v5
+**Date:** 2026-06-03
+**Supersedes:** v4 (2026-05-19)
 
-Units removed. Simplified action set. Recruit removed. BuildProject and SabotageProject added. Harm restricted to same domain. Project defense system added.
+Demo redesign. Rank is now a float **1.0–10.0** (`level = int(rank)`); `entrench` removed. Health is a **breaking-point buffer**, not a death meter — factions are permanent. **Block removed. Aid added** (cooperation). Harm damages health; Protect is an immediate heal. See `../proposals/demo-redesign.md` and `../reference/formulas.md`.
 
 ---
 
 ## Action Economy
 
-Each faction takes **one action per cycle**. No budget system. No action levels.
-
-Action selection is driven by the faction behavior engine (see `faction-behavior_spec.md`).
+Each faction takes **one action per cycle**. No budget system, no action levels. Action selection is driven by the faction behavior engine (see `faction-behavior_spec.md`).
 
 ---
 
 ## Contest Resolution
 
-All contested actions use the same resolution formula:
+Contested actions (Harm, Steal) use the same formula:
 
 ```
-attacker_roll = d20 + floor(attacker.rating)
+attacker_roll = d20 + floor(attacker.rating)     # floor(rating) = level, 1–10
 defender_roll = d20 + floor(defender.rating)
 margin = attacker_roll - defender_roll
 ```
@@ -33,164 +31,101 @@ margin = attacker_roll - defender_roll
 | 0 | Tie — defender wins |
 | < 0 | Fail |
 
-Leaderless faction penalty: −2 to all rolls.
+Leaderless faction penalty: −2 to all rolls. (Open "roll dial": whether to feed raw `rank` instead of `floor(rating)` — deferred; see `formulas.md`.)
 
 ---
 
 ## Action Set
 
+Five faction actions: **Grow · Protect · Aid · Harm · Steal**. Project actions (BuildProject / SabotageProject) are retained pending the projects rework — see the bottom of this spec.
+
 ### Grow
 
-**Who:** Faction
-**Contested:** No
+**Who:** Faction · **Contested:** No
 
-Rating advances by `grow_increment(floor(rating))` and health increases by `3` (capped at 100).
+Adds `1 / (level + 1)` to `rank` (`level = int(rank)`). When the new rank crosses an integer, `level` rises by 1 — the **level-up beat** (Dramatic event). Growth decelerates with level (low levels rise fast); see `formulas.md`.
 
-```
-grow_increment(n) = 1 / (2^n + 1)
-```
+- Rank capped at **10.0**.
+- Hard-blocked when `domain.utilization >= domain.cap` (no rank gain that cycle).
 
-| Floor (N) | Increment |
-|---|---|
-| 1 | 0.333 |
-| 2 | 0.200 |
-| 3 | 0.111 |
-| 4 | 0.059 |
-
-Rating capped at 5.0. Hard-blocked when `domain.utilization >= domain.cap`.
-
-Floor advance requires `entrench >= 50`. A faction that clears the rating threshold but has low entrenchment stays at its current floor until it consolidates.
-
-**CycleEvent:** Dramatic on floor advance.
-
----
-
-### Harm
-
-**Who:** Faction
-**Target:** Faction in the same domain as the attacker
-**Contested:** Yes
-
-On decisive: target loses `0.25` rating and `10` entrench.
-On partial: target loses `10` entrench only.
-On fail: no effect.
-
-Rating cannot drop below 1.0. Entrench floors at 0.
-
-**CycleEvent:** Dramatic on rating damage.
-
----
-
-### Block
-
-**Who:** Faction
-**Target:** A specific faction — hidden from public log
-**Contested:** Yes — fires when target next acts
-
-When a faction takes Block, it sets a standing trap against a chosen target. The public log shows only that the faction has taken a guarded stance — the target is never named until the block fires.
-
-The block persists across cycles until it fires. A faction can hold only one active block at a time; taking a new Block action replaces the existing target silently.
-
-**Timing:** At the start of the target's turn (in any cycle), the block fires before they select their action:
-
-- Decisive: target's action this turn is cancelled
-- Partial: target's action downgraded — Harm becomes Grow, Steal becomes Grow; other actions unaffected
-- Fail: target acts normally
-
-Block is consumed after firing regardless of outcome. If the target skips their action (5% chance), the block does not fire.
-
-**Public log:**
-- When placed: *"[Faction] takes a guarded stance."*
-- When fired (any outcome): *"[Blocker] intercepts [Target]..."* — target is now visible
-
-**CycleEvent:** Dramatic on decisive.
-
----
+**Done when:**
+- A successful Grow increases `rank` by `1/(level+1)` for the actor's current level  `[automated]`
+- When a Grow pushes `rank` across an integer, `level` increases by exactly 1 and a Dramatic level-up event is recorded  `[automated]`
+- Grow produces no rank gain when `domain.utilization >= domain.cap`  `[automated]`
+- `rank` never exceeds 10.0  `[automated]`
 
 ### Protect
 
-**Who:** Faction
-**Contested:** No
+**Who:** Faction · **Contested:** No
 
-Increases entrench by `10` (capped at 100) and health by `5` (capped at 100).
-Creates a defensive modifier for this cycle: incoming Harm reduced by one outcome tier (decisive → partial, partial → fail).
+Immediately restores the actor's `health` by **50** (capped at 100). No lingering or round-long modifier.
 
-**CycleEvent:** Not dramatic.
+**Done when:**
+- Protect raises the actor's `health` by 50, capped at 100  `[automated]`
 
----
+### Aid
+
+**Who:** Faction · **Target:** an allied faction (`relationship == "Friend"` or an `allied with X` trait) · **Contested:** No
+
+Restores the **target ally's** `health` by **25** (capped at 100). Allowed **across domains** (alliances may span domains).
+
+**Done when:**
+- Aid raises the target ally's `health` by 25, capped at 100  `[automated]`
+- Aid's only valid targets are Friend / `allied with` factions, and it may target an ally in a different domain  `[automated]`
+
+### Harm
+
+**Who:** Faction · **Target:** a faction in the **same domain**, **not level 1** · **Contested:** Yes
+
+Damages the target faction's `health`:
+
+- Decisive: −30 health
+- Partial: −15 health
+- Fail: no effect
+
+Health floors at 0. When health reaches 0 the faction **Breaks** (resolution in `cycle-runner_spec.md` — 75% level −1 / 25% leader death; health resets to 75).
+
+**Done when:**
+- Harm decisive reduces target `health` by 30; partial by 15; fail leaves it unchanged  `[automated]`
+- Target `health` never drops below 0  `[automated]`
+- Harm cannot select a level-1 faction as its target  `[automated]`
+- Harm targets only factions in the attacker's own domain  `[automated]`
 
 ### Steal
 
-**Who:** Faction
-**Target:** Faction in the same domain as the attacker
-**Contested:** Yes
+**Who:** Faction · **Target:** a faction in the **same domain**, **not level 1** · **Contested:** Yes
 
-On decisive: actor +0.20 rating, target −0.20 rating.
-On partial: actor +0.10 rating, target −0.10 rating.
-On fail: no effect; target alerted (relational trait may shift).
+Transfers rank from target to actor — **half the attacker's grow increment**: `0.5 / (attacker_level + 1)`.
 
-Rating floors at 1.0. Steal cannot push a faction below floor 1.
+- Decisive: transfer the full amount
+- Partial: transfer half the amount
+- Fail: no effect
 
-**CycleEvent:** Dramatic on decisive.
+Actor `rank` gains the amount (capped 10.0); target `rank` loses it (floored at **1.0**).
+
+**Done when:**
+- Steal decisive transfers `0.5/(attacker_level+1)` rank from target to actor; partial transfers half that  `[automated]`
+- Target `rank` never drops below 1.0 and actor `rank` never exceeds 10.0  `[automated]`
+- Steal cannot select a level-1 faction as its target  `[automated]`
+- Steal targets only factions in the attacker's own domain  `[automated]`
 
 ---
+
+## Project Actions (pending rework)
+
+*Retained from v4 — the projects rework is a separate, later pass; mechanics here are unchanged for now. See `projects_spec.md`.*
 
 ### BuildProject
-
-**Who:** Faction whose `domain_primary` is in the project's `domains` list
-**Target:** A project with `status == "under_construction"` or `status == "active"`
-**Contested:** No — roll d20 + floor(rating) vs DC 12
-
-On success: project `health += 100 / project.faction_build_actions` (construction progress).
-On fail: no effect.
-
-**Defense bonus:** Each successful BuildProject on a project this cycle grants it +1 to its defense rating for that cycle, capped at +2 total across all build actions. This makes actively-maintained projects harder to sabotage.
-
-**CycleEvent:** Dramatic on construction completion.
-
----
+**Who:** Faction whose `domain_primary` is in the project's `domains` list · **Target:** a project `under_construction` or `active` · **Contested:** No — roll `d20 + floor(rating)` vs DC 12. On success `health += 100 / project.faction_build_actions`. Each successful build this cycle grants the project +1 defense (max +2).
 
 ### SabotageProject
-
-**Who:** Any faction (no domain restriction)
-**Target:** Any project with `status == "under_construction"` or `status == "active"`
-**Contested:** Yes — attacker rolls d20 + floor(rating) vs project defense roll
-
-**Project defense rating:**
-
-```
-project_defense_rating = max(1, project.health // 20)
-```
-
-| Health | Defense Rating |
-|---|---|
-| 81–100 | 5 |
-| 61–80 | 4 |
-| 41–60 | 3 |
-| 21–40 | 2 |
-| 1–20 | 1 |
-
-Plus any BuildProject defense bonus earned this cycle (+1 per success, max +2).
-
-Project rolls: `d20 + project_defense_rating`.
-
-On decisive: project health −25.
-On partial: project health −10.
-On fail: no effect.
-
-If project health reaches 0: status → `destroyed`, removed from play.
-
-**CycleEvent:** Dramatic on decisive.
+**Who:** Any faction · **Target:** any `under_construction`/`active` project · **Contested:** Yes — attacker vs `d20 + project_defense_rating (+ build bonus)`, where `project_defense_rating = max(1, project.health // 20)`. Decisive −25 health, partial −10, fail none. Health 0 → `destroyed` (projects *can* be destroyed; factions cannot).
 
 ---
 
 ## Removed Actions
 
-The following actions are removed:
-
-- **Recruit** (v4) — removed; faction health growth handled via Grow and organic events
-- Obscure — human player mechanic, not needed for AI factions
-- Expose — same
-- Support Faction — unit-based pooling mechanic, units are gone
-- Seek Leadership — replaced by faction leadership events
-- Join / Leave / Kick — unit membership actions, units are gone
+- **Block** (v5) — removed. The hidden delayed-fire trap added cross-cycle timing complexity for little demo value; faction conflict is now Grow / Protect / Aid / Harm / Steal.
+- **Recruit** (v4) — faction health growth handled via Protect / Aid and organic events.
+- **Obscure / Expose** — human-player mechanics, not needed for AI factions.
+- **Support Faction / Seek Leadership / Join / Leave / Kick** — unit-based mechanics; units are gone.

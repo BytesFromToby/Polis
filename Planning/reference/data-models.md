@@ -6,6 +6,7 @@ no **Done when:** items. (Re-tiered from `specs/data-models_spec.md`, 2026-05-25
 **Version:** v6
 **Date:** 2026-05-19
 **Updated:** 2026-05-23 — Aligned with `engine/models.py` (data-models speccheck pass): added `Faction.floor`/`leadership_need`, `ActionResult.margin`; reconciled helper names, outcome values, and field defaults; delegated special-factions/events entities to their own specs.
+**Updated:** 2026-06-03 (demo-redesign) — rank → 1.0–10.0; **`floor` and `entrench` removed** (`level = int(rating)`); domain utilization = Σ level; `power_vacuums` dropped (factions are permanent). *Ahead of code until the redesign build — see `../proposals/demo-redesign.md`.*
 
 Units removed. Leader embedded in Faction. SM domain removed. Personality system added to Faction.
 
@@ -56,15 +57,11 @@ Examples:
 | `id` | `str` | required | Yes | Unique identifier |
 | `name` | `str` | required | Yes | Display name |
 | `domain_primary` | `str` | required | Yes | Primary domain id |
-| `rating` | `float` | `1.0` | Yes | 1.0–5.0; floor used for action resolution |
-| `floor` | `int` | `int(rating)` | Yes | Last *confirmed* level; advances step-wise (entrench-gated). Distinct from the `floor_rating` property (`int(rating)`); auto-inits to `int(rating)` |
-| `health` | `int` | `75` | Yes | 1–100 |
-| `entrench` | `int` | `75` | Yes | 1–100; organizational entrenchment |
+| `rating` | `float` | `1.0` | Yes | The faction's **rank**, 1.0–10.0. `level = int(rating)` (the `floor_rating` property). Float fraction = growth progress; integer crossing = the level-up beat |
+| `health` | `int` | `75` | Yes | 1–100. A **Break** (health → 0) resets it to 75 |
 | `leader` | `Leader` | required | Yes | Embedded leader — every faction always has one |
 | `traits` | `List[FactionTrait]` | `[]` | Yes | Personality trait list with intensity and optional target |
-| `relationships` | `List[FactionRelationship]` | `[]` | Yes | Specific faction-to-faction overrides |
-| `active_block_target` | `str` | `""` | Yes | Faction id of standing block trap; `""` if none; persists until fired |
-| `committed_action` | `str` | `""` | Yes | Action name if faction is under a deal commitment; `""` if none |
+| `relationships` | `List[FactionRelationship]` | `[]` | Yes | Specific faction-to-faction overrides || `committed_action` | `str` | `""` | Yes | Action name if faction is under a deal commitment; `""` if none |
 | `committed_target` | `str` | `""` | Yes | Target id for the committed action; `""` if no target required |
 | `committed_deal_id` | `str` | `""` | Yes | Deal id this commitment comes from; `""` if none |
 | `committed_abstain_action` | `str` | `""` | Yes | Action type faction has agreed not to take; `""` if none |
@@ -74,8 +71,6 @@ Examples:
 
 | Field | Type | Notes |
 |---|---|---|
-| `action_cancelled` | `bool` | Set True when a decisive block fires against this faction this turn |
-| `action_downgraded` | `bool` | Set True when a partial block fires; action is downgraded before resolution |
 | `unstable_stacks` | `int` | Penalty stacks; −1 per stack to rolls, max 3 |
 
 **Helper methods:**
@@ -97,8 +92,8 @@ Examples:
 |---|---|---|---|---|
 | `id` | `str` | required | Yes | Unique identifier |
 | `name` | `str` | required | Yes | Display name |
-| `cap` | `int` | required | Yes | Max weight capacity |
-| `utilization` | `float` | `0.0` | Yes | Sum of faction weights in domain |
+| `cap` | `int` | required | Yes | **Level budget** — max total faction level the domain holds (full cap rework parked) |
+| `utilization` | `float` | `0.0` | Yes | **Sum of faction levels** in the domain |
 | `drift` | `float` | `0.0` | Yes | Natural utilization change per cycle |
 | `relationships` | `List[DomainRelationship]` | `[]` | Yes | Domain-to-domain dispositions |
 
@@ -131,9 +126,7 @@ Street, Political, Religion, Bureaucracy, Finance, Police, Underworld, Legal, He
 | Field | Type | Default | Persistent | Notes |
 |---|---|---|---|---|
 | `cycle` | `int` | `0` | Yes | Current cycle number |
-| `chaos` | `Dict[str, float]` | `{}` | Yes | Domain id → chaos value |
-| `power_vacuums` | `List[dict]` | `[]` | Yes | `{domain_id, cycles_remaining}` |
-| `initiative_order` | `List[str]` | `[]` | No | Faction ids in turn order for the current cycle; re-rolled each cycle |
+| `chaos` | `Dict[str, float]` | `{}` | Yes | Domain id → chaos value || `initiative_order` | `List[str]` | `[]` | No | Faction ids in turn order for the current cycle; re-rolled each cycle |
 
 ---
 

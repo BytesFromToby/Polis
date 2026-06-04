@@ -1,10 +1,10 @@
 # Faction Behavior Specification
 
-**Version:** v3
-**Date:** 2026-05-19
-**Supersedes:** v2 (2026-05-19)
+**Version:** v4
+**Date:** 2026-06-03
+**Supersedes:** v3 (2026-05-19)
 
-Units removed. Faction is the sole autonomous agent. Behavior driven by personality trait list, not static weight tables. Recruit removed. BuildProject and SabotageProject added. Sequential model: behavior engine called per-turn with live state.
+Demo redesign: **Block removed, Aid added**; entrench-based modifiers gone; aggression targeting now excludes level-1 factions; near-cap logic uses `utilization = Σ level`. Rank is a float 1–10 (`level = int(rank)`). Faction is the sole autonomous agent; behavior driven by personality traits; sequential per-turn with live state.
 
 ---
 
@@ -32,7 +32,7 @@ Start from default weights:
 BASE_WEIGHTS = {
     "Grow":            40,
     "Harm":            20,
-    "Block":           15,
+    "Aid":             10,
     "Protect":         25,
     "Steal":           20,
     "BuildProject":    15,
@@ -57,10 +57,10 @@ For each trait in `faction.traits`, apply modifiers scaled by intensity:
 
 | Trait | Modifiers |
 |---|---|
-| `aggressive` | Harm +20, Steal +10, Block +5 |
-| `defensive` | Protect +25, Block +15, Grow +5 |
+| `aggressive` | Harm +20, Steal +10 |
+| `defensive` | Protect +25, Aid +10, Grow +5 |
 | `ambitious` | Grow +25, Steal +15, Harm +5 |
-| `paranoid` | Protect +20, Block +20, Grow −5 |
+| `paranoid` | Protect +20, Grow −5 |
 | `opportunistic` | Steal +20, Grow +15, Harm +10 |
 | `expansionary` | Grow +25, Steal +10, Harm +5 |
 | `conservative` | Protect +15, Grow +10, Harm −10 |
@@ -72,23 +72,22 @@ Relational traits (targeted at a specific faction) apply only when that faction 
 
 | Trait | Targeted modifier |
 |---|---|
-| `distrusts X` | Block +15, Protect +10 when X is available target |
+| `distrusts X` | Protect +15 when X is available target |
 | `angry at X` | Harm +25, Steal +15 when X is available target |
-| `trusts X` | Harm −15 when X is the only available target |
-| `allied with X` | Harm −20 when X is available target |
+| `trusts X` | Harm −15, Aid +10 when X is available target |
+| `allied with X` | Harm −20, Aid +20 when X is available target |
 
 ### Step 3 — Apply State Modifiers
 
 | Condition | Effect |
 |---|---|
 | `faction.health < 30` | Protect +20, Grow +15, Harm −10 |
-| `faction.entrench < 30` | Protect +15 |
-| `domain.utilization >= domain.cap * 0.9` | Grow −20, Steal +15 |
+| `domain.utilization >= domain.cap * 0.9` (utilization = Σ level) | Grow −20, Steal +15 |
+| An allied faction is at `health < 50` (Friend / `allied with`) | Aid +25 |
 | Project under construction in faction's domain | BuildProject +20 |
 | Faction owns a damaged/critical project | BuildProject +30 |
 | Rival faction owns a project in faction's domain | SabotageProject +20 |
 | Faction has `faction_level` project active | Protect +10 (protect their investment) |
-| _(cooperative logic — TODO: revisit)_ | — |
 
 ### Step 4 — Select Action
 
@@ -96,12 +95,20 @@ Sample from weighted distribution. 5% chance faction takes no action this cycle 
 
 ### Step 5 — Select Target
 
-Target selection for contested actions (Harm, Block, Steal):
+Target selection for contested aggression (Harm, Steal). **Eligible targets are same-domain and not level 1.**
 
-1. If a relational trait targets a specific faction — weight that faction ×3
-2. Foe domain relationship — weight factions in Foe domains ×2
-3. Weakest rival in same domain (lowest rating) — baseline
+1. If a relational trait (`angry at`) targets a specific *eligible* faction — weight that faction ×3
+2. Foe domain relationship — weight eligible factions in Foe domains ×2
+3. Weakest eligible rival in the domain (lowest rank) — baseline
 4. Random eligible faction — fallback
+
+If no eligible target exists (e.g. every domain rival is level 1), the aggression is dropped and the engine re-selects (typically Grow or Protect).
+
+**Aid target selection** (allies only — `Friend` or `allied with X`; may be cross-domain):
+1. Allied faction with the lowest health — baseline (shore up the most endangered ally)
+2. Random allied faction — fallback
+
+If the faction has no ally, Aid is not selected.
 
 Protect and Grow require no target.
 
@@ -116,15 +123,6 @@ Protect and Grow require no target.
 4. Random eligible project — fallback
 
 Note: weights 1 and 2 stack if both conditions apply (project owned by hostile faction AND in a Foe domain).
-
-**Block target selection:**
-1. Faction with `angry at` or hostile relational trait — weight ×3
-2. Faction that Harmed or Stole from this faction in recent cycles — weight ×2
-3. Highest-rated faction in same domain — baseline threat
-4. Random eligible faction — fallback
-
-A faction with an existing active block does not take Block again (already armed). The behavior engine skips Block as an option if `faction.active_block_target != ""`.
-
 ### Output
 
 Returns `FactionPlan` with selected action, target, and domain.
