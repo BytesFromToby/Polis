@@ -19,7 +19,7 @@ from engine.models import (
     WorldState, Leader,
     Project, ProjectEffect,
 )
-from engine.formulas import faction_weight
+from engine.formulas import faction_weight, base_cap_from_fill
 
 _DEFAULT_PROJECTS_PATH = os.path.join(os.path.dirname(__file__), "data", "projects.json")
 
@@ -141,8 +141,18 @@ def load_state_from_json(
         factions = _generate_factions_from_domains(domains)
 
     _recalculate_utilization(factions, domains)
+    _freeze_base_caps(domains)
 
     return world, factions, domains
+
+
+def _freeze_base_caps(domains: Dict[str, Domain]) -> None:
+    """Set each domain's frozen base_cap from its starting fill (Σ level), and seed
+    the live cap to match. Called once at load; authored `cap` in domains.json is
+    ignored for the budget. Projects move the live cap from here (see runner)."""
+    for domain in domains.values():
+        domain.base_cap = base_cap_from_fill(domain.utilization)
+        domain.cap = domain.base_cap
 
 
 def load_projects(path: Optional[str] = None) -> Dict[str, Project]:

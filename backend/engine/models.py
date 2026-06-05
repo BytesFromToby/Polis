@@ -114,6 +114,7 @@ class Domain:
     id: str
     name: str
     cap: int
+    base_cap: int = 0          # frozen at game start = round(initial Σ level × CAP_HEADROOM_MULT)
     utilization: float = 0.0
     drift: float = 0.0
     relationships: List[DomainRelationship] = field(default_factory=list)
@@ -206,11 +207,12 @@ class Project:
     build_time: int
     faction_build_actions: int = 4  # successful faction actions required to complete
     cycles_built: int = 0
-    category: str = "standard"       # "standard" | "tax_collection"
+    category: str = "standard"       # "standard" | "base" | "tax_collection"
     tax_level: int = 0               # 1–5 for tax_collection projects; 0 otherwise
     faction_level: bool = False      # True = effects apply only to initiated_by faction
     status: str = "under_construction"  # "under_construction"|"active"|"damaged"|"critical"|"destroyed"
-    health: int = 0  # build progress 0→100 during construction; structural health 0→100 when active
+    health: int = 0  # structural health 0→100 when active (base projects use build_progress while building)
+    build_progress: int = 0  # base projects: work units 0→4 during construction (4 = complete)
     effects: List[ProjectEffect] = field(default_factory=list)
     maintenance_cost: int = 10
     initiated_by: str = "mayor"     # "mayor" | faction_id; owner for faction_level effects

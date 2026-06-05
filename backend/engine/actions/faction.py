@@ -150,7 +150,12 @@ def resolve_steal(faction: Faction, target: Faction) -> ActionResult:
 # ── BUILD PROJECT ─────────────────────────────────────────────────────────────
 
 def resolve_build_project(faction: Faction, project: Project) -> ActionResult:
-    """Faction contributes construction work. DC 12. d20 + level."""
+    """Faction contributes construction work. DC 12, d20 + level.
+    Base projects build in work units (4 = complete) and are domain-gated; legacy
+    (standard/tax_collection) projects keep the v4 health-as-progress path."""
+    if project.category == "base":
+        return _build_base_project(faction, project)
+
     if project.status not in ("under_construction", "active"):
         return ActionResult(
             "BuildProject", faction.id, project.id, "blocked",
@@ -179,10 +184,53 @@ def resolve_build_project(faction: Faction, project: Project) -> ActionResult:
         )
 
 
+def _build_base_project(faction: Faction, project: Project) -> ActionResult:
+    """Base project: 4 work units to complete. Domain-gated (own domain only).
+    Each successful d20+level vs DC 12 adds one work unit; 4 units → active."""
+    if faction.domain_primary not in project.domains:
+        return ActionResult(
+            "BuildProject", faction.id, project.id, "blocked",
+            narrative=f"{faction.name} cannot build {project.name} — not its domain.",
+        )
+    if project.status != "under_construction":
+        return ActionResult(
+            "BuildProject", faction.id, project.id, "blocked",
+            narrative=f"{faction.name} cannot build {project.name} — already complete.",
+        )
+
+    roll = random.randint(1, 20) + faction.level
+    if roll < 12:
+        return ActionResult(
+            "BuildProject", faction.id, project.id, "fail",
+            narrative=f"{faction.name} labors on {project.name} but makes little headway.",
+        )
+
+    project.build_progress += 1
+    project.build_actions_this_cycle += 1
+    completed = project.build_progress >= 4
+    if completed:
+        project.status = "active"
+        project.health = 100
+    return ActionResult(
+        "BuildProject", faction.id, project.id, "success",
+        delta=1.0, dramatic=completed,
+        narrative=(
+            f"{faction.name} advances {project.name} ({project.build_progress}/4)."
+            + (" It is complete and now stands active." if completed else "")
+        ),
+    )
+
+
 # ── SABOTAGE PROJECT ──────────────────────────────────────────────────────────
 
 def resolve_sabotage_project(faction: Faction, project: Project) -> ActionResult:
-    """Any faction can sabotage any project. Contested vs project defense rating."""
+    """Any faction can sabotage any built project. Contested vs project defense rating.
+    A base project under construction has no structural health yet — nothing to burn."""
+    if project.category == "base" and project.status == "under_construction":
+        return ActionResult(
+            "SabotageProject", faction.id, project.id, "blocked",
+            narrative=f"{project.name} is still a building site — nothing to sabotage yet.",
+        )
     if project.status == "destroyed":
         return ActionResult(
             "SabotageProject", faction.id, project.id, "blocked",

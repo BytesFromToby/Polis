@@ -3,9 +3,13 @@ import pytest
 from engine.models import Project, ProjectEffect, Faction, Domain, Treasury, Mayor, WorldState, MayorAction, Leader
 from engine.projects.processing import (
     tick_projects, apply_project_effects, harm_project,
-    repair_project, commission_project,
+    repair_project, commission_project, mayor_buy_build_unit,
 )
+from engine.actions.faction import resolve_build_project, resolve_sabotage_project
 from engine.cycle.runner import run_cycle
+from engine.mayor.treasury import process_treasury_step0
+from engine.formulas import project_cap_contribution
+import engine.actions.faction as faction_mod
 
 
 def make_faction(fid="f1", domain="trade", floor=None, rating=2.0, health=75):
@@ -43,6 +47,102 @@ class TestBuildActionsReset:
         project.build_actions_this_cycle = 1
         tick_projects({"p1": project}, {}, {}, make_treasury(gold=500))
         assert project.build_actions_this_cycle == 0
+
+
+# ── Base-project build model (4 work units) ───────────────────────────────────
+
+def make_base_project(pid="harbor_base_1", domain="harbor", status="under_construction",
+                      build_progress=0, build_cost=0):
+    return Project(id=pid, name="Docks", domains=[domain], build_cost=build_cost,
+                   build_time=4, category="base", status=status,
+                   build_progress=build_progress, health=0)
+
+
+def force_roll(monkeypatch, value):
+    """Force d20 in resolve_build_project (roll = value + level)."""
+    monkeypatch.setattr(faction_mod.random, "randint", lambda a, b: value)
+
+
+class TestBuildModel:
+    def test_faction_success_adds_one_unit(self, monkeypatch):
+        force_roll(monkeypatch, 20)
+        f = make_faction("f1", "harbor", rating=2.0)
+        p = make_base_project()
+        r = resolve_build_project(f, p)
+        assert r.outcome == "success"
+        assert p.build_progress == 1
+
+    def test_faction_fail_adds_nothing(self, monkeypatch):
+        force_roll(monkeypatch, 1)  # 1 + level 2 = 3 < 12
+        f = make_faction("f1", "harbor", rating=2.0)
+        p = make_base_project()
+        r = resolve_build_project(f, p)
+        assert r.outcome == "fail"
+        assert p.build_progress == 0
+
+    def test_cross_domain_blocked(self):
+        f = make_faction("f1", "military", rating=2.0)
+        p = make_base_project(domain="harbor")
+        r = resolve_build_project(f, p)
+        assert r.outcome == "blocked"
+        assert p.build_progress == 0
+
+    def test_completion_at_four_units(self, monkeypatch):
+        force_roll(monkeypatch, 20)
+        f = make_faction("f1", "harbor", rating=2.0)
+        p = make_base_project(build_progress=3)
+        r = resolve_build_project(f, p)
+        assert p.build_progress == 4
+        assert p.status == "active"
+        assert p.health == 100
+        assert r.dramatic is True
+
+    def test_mayor_buy_adds_unit_and_charges(self):
+        p = make_base_project()
+        treasury = make_treasury(gold=500)
+        mayor = make_mayor(action_points=3)
+        r = mayor_buy_build_unit(p, treasury, mayor)
+        assert r.outcome == "decisive"
+        assert p.build_progress == 1
+        assert treasury.gold == 450
+        assert mayor.action_points == 2
+
+    def test_mayor_buy_insufficient_gold_no_charge(self):
+        p = make_base_project()
+        treasury = make_treasury(gold=40)
+        mayor = make_mayor(action_points=3)
+        r = mayor_buy_build_unit(p, treasury, mayor)
+        assert r.outcome == "fail"
+        assert p.build_progress == 0
+        assert treasury.gold == 40
+        assert mayor.action_points == 3  # AP refunded
+
+    def test_mayor_buy_no_ap_no_charge(self):
+        p = make_base_project()
+        treasury = make_treasury(gold=500)
+        mayor = make_mayor(action_points=0)
+        r = mayor_buy_build_unit(p, treasury, mayor)
+        assert r.outcome == "fail"
+        assert p.build_progress == 0
+        assert treasury.gold == 500
+
+    def test_mayor_can_rush_three_units_one_turn(self):
+        p = make_base_project()
+        treasury = make_treasury(gold=500)
+        mayor = make_mayor(action_points=3)
+        while mayor.action_points > 0:
+            mayor_buy_build_unit(p, treasury, mayor)
+        assert p.build_progress == 3
+        assert treasury.gold == 350  # 3 × 50
+
+    def test_no_build_cost_deducted(self):
+        # build_cost is high but base build never charges it (faction labor is free;
+        # Mayor buy charges a flat 50, not build_cost).
+        p = make_base_project(build_cost=999)
+        treasury = make_treasury(gold=500)
+        mayor = make_mayor(action_points=1)
+        mayor_buy_build_unit(p, treasury, mayor)
+        assert treasury.gold == 450  # only the flat 50, not 999
 
 
 # ── Construction ──────────────────────────────────────────────────────────────
@@ -274,3 +374,81 @@ class TestProjectCycleIntegration:
             run_cycle(world, factions, domains, mayor=mayor, treasury=treasury, projects=projects)
 
         assert project.status == "active"
+
+
+# ── Base-project sabotage & maintenance (Slice 4) ─────────────────────────────
+
+def _force_sabotage(monkeypatch, atk, dfn):
+    """Force the two d20 rolls inside resolve_sabotage_project (attacker, defender)."""
+    seq = iter([atk, dfn])
+    monkeypatch.setattr(faction_mod.random, "randint", lambda a, b: next(seq))
+
+
+def make_active_base(pid="harbor_base_1", domain="harbor", health=100):
+    return Project(id=pid, name="Docks", domains=[domain], build_cost=0, build_time=4,
+                   category="base", status="active", health=health, build_progress=4)
+
+
+class TestSabotageBase:
+    def test_decisive_minus_25(self, monkeypatch):
+        _force_sabotage(monkeypatch, 20, 1)  # big positive margin → decisive
+        f = make_faction("f1", "harbor", rating=2.0)
+        p = make_active_base(health=100)
+        r = resolve_sabotage_project(f, p)
+        assert r.outcome == "decisive"
+        assert p.health == 75
+
+    def test_partial_minus_10(self, monkeypatch):
+        # level 2, defense 5 (health 100): margin = (10+2)-(4+5) = 3 → partial
+        _force_sabotage(monkeypatch, 10, 4)
+        f = make_faction("f1", "harbor", rating=2.0)
+        p = make_active_base(health=100)
+        r = resolve_sabotage_project(f, p)
+        assert r.outcome == "partial"
+        assert p.health == 90
+
+    def test_fail_no_damage(self, monkeypatch):
+        _force_sabotage(monkeypatch, 1, 20)  # big negative margin → fail
+        f = make_faction("f1", "harbor", rating=2.0)
+        p = make_active_base(health=100)
+        r = resolve_sabotage_project(f, p)
+        assert r.outcome == "fail"
+        assert p.health == 100
+
+    def test_not_domain_gated(self, monkeypatch):
+        _force_sabotage(monkeypatch, 20, 1)
+        f = make_faction("f1", "military", rating=2.0)  # different domain than the project
+        p = make_active_base(domain="harbor", health=100)
+        r = resolve_sabotage_project(f, p)
+        assert r.outcome != "blocked"
+        assert p.health == 75
+
+    def test_destroyed_at_zero_and_no_cap(self, monkeypatch):
+        _force_sabotage(monkeypatch, 20, 1)
+        f = make_faction("f1", "harbor", rating=2.0)
+        p = make_active_base(health=20)   # defense_rating 1; decisive -25 → 0
+        resolve_sabotage_project(f, p)
+        assert p.status == "destroyed"
+        assert project_cap_contribution(p) == 0
+
+
+class TestMaintenanceBase:
+    def test_maintenance_is_two_times_active_count(self):
+        treasury = make_treasury(gold=500)
+        mayor = make_mayor()
+        results = process_treasury_step0(treasury, mayor, {}, {}, active_project_count=3)
+        maint = [r for r in results if r.action == "ProjectMaintenance"]
+        assert len(maint) == 1
+        assert maint[0].outcome == "no_op"
+        assert maint[0].delta == -6.0  # 2 × 3
+
+    def test_maintenance_skipped_when_broke_no_damage(self):
+        treasury = make_treasury(gold=0)
+        mayor = make_mayor()
+        project = make_active_base(health=100)  # standalone — must be untouched
+        results = process_treasury_step0(treasury, mayor, {}, {}, active_project_count=3)
+        maint = [r for r in results if r.action == "ProjectMaintenance"]
+        assert len(maint) == 1
+        assert maint[0].outcome == "fail"
+        assert treasury.gold == 0          # not driven negative by maintenance
+        assert project.health == 100       # maintenance never damages projects

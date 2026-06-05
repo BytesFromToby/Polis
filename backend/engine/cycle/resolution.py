@@ -104,6 +104,13 @@ def _execute(
         if target:
             return resolve_steal(faction, target)
     if action == "BuildProject" and plan.target_id:
+        if plan.target_id.startswith("new_base:"):
+            from ..projects import initiate_base_project
+            domain_id = plan.target_id.split(":", 1)[1]
+            new_project = initiate_base_project(domain_id, projects, faction.id)
+            if new_project:
+                return resolve_build_project(faction, new_project)
+            return None
         project = projects.get(plan.target_id)
         if project:
             return resolve_build_project(faction, project)

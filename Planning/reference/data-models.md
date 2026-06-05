@@ -92,7 +92,8 @@ Examples:
 |---|---|---|---|---|
 | `id` | `str` | required | Yes | Unique identifier |
 | `name` | `str` | required | Yes | Display name |
-| `cap` | `int` | required | Yes | **Level budget** — max total faction level the domain holds (full cap rework parked) |
+| `cap` | `int` | required | Yes | **Level budget** — re-derived each cycle: `base_cap + Σ project_cap_contribution` (see formulas.md) |
+| `base_cap` | `int` | `0` | Yes | Frozen at game start = `round(starting Σ level × CAP_HEADROOM_MULT)`; authored `cap` ignored |
 | `utilization` | `float` | `0.0` | Yes | **Sum of faction levels** in the domain |
 | `drift` | `float` | `0.0` | Yes | Natural utilization change per cycle |
 | `relationships` | `List[DomainRelationship]` | `[]` | Yes | Domain-to-domain dispositions |
@@ -259,15 +260,16 @@ Street, Political, Religion, Bureaucracy, Finance, Police, Underworld, Legal, He
 | `id` | `str` | required | Unique identifier |
 | `name` | `str` | required | Display name |
 | `domains` | `List[str]` | required | Domains this project belongs to; factions in any listed domain can build, attack, or receive effects |
-| `build_cost` | `int` | required | Gold drawn from treasury on commission |
-| `build_time` | `int` | required | Cycle fallback for completion |
-| `faction_build_actions` | `int` | `4` | Successful faction actions required to complete |
-| `cycles_built` | `int` | `0` | Fallback cycle counter |
-| `category` | `str` | `"standard"` | `"standard"` \| `"tax_collection"` |
+| `build_cost` | `int` | required | Legacy (tax_collection only); **base projects ignore it** — no upfront lump |
+| `build_time` | `int` | required | Legacy (tax_collection only); base projects use `build_progress` (4 work units) |
+| `faction_build_actions` | `int` | `4` | Legacy (tax_collection only) |
+| `cycles_built` | `int` | `0` | Fallback cycle counter (legacy) |
+| `category` | `str` | `"standard"` | `"standard"` \| `"base"` \| `"tax_collection"` |
 | `tax_level` | `int` | `0` | 1–5 for tax_collection projects; unlocks that rate tier |
-| `faction_level` | `bool` | `False` | When True, effects apply only to the faction matching `initiated_by`; Mayor cannot commission |
-| `status` | `str` | `"under_construction"` | `"under_construction"` \| `"active"` \| `"damaged"` \| `"destroyed"` |
-| `health` | `int` | `0` | Build progress 0→100 during construction; structural health 0→100 when active |
+| `faction_level` | `bool` | `False` | Retired by the projects rework (no bespoke/faction-level effects); kept for back-compat |
+| `status` | `str` | `"under_construction"` | `"under_construction"` \| `"active"` \| `"damaged"` \| `"critical"` \| `"destroyed"` |
+| `health` | `int` | `0` | Structural health 0→100 when active (base projects build via `build_progress`, not health) |
+| `build_progress` | `int` | `0` | **Base projects:** work units 0→4 during construction; 4 = complete (→ active, health 100) |
 | `effects` | `List[ProjectEffect]` | `[]` | Applied each cycle while active |
 | `maintenance_cost` | `int` | `10` | Stored per-project; treasury deducts flat `2 × active_project_count` globally |
 | `initiated_by` | `str` | `"mayor"` | `"mayor"` or faction_id; doubles as effect owner when `faction_level=True` |

@@ -1,216 +1,143 @@
 # Projects Specification
 
-**Version:** v4
-**Date:** 2026-05-19
+**Version:** v5
+**Date:** 2026-06-05
+**Supersedes:** v4 (2026-05-19)
 
-Projects are persistent city infrastructure — physical things that exist, take time to build, and can be destroyed. They give factions a natural reason to act across domains and create meaningful stakes in the city's physical state.
+Demo rework. Base projects are now **repeatable, counted infrastructure** — one type per domain — and they are the **lever that grows a domain's `cap`**. A project is no longer a unique structure with a hand-authored effect; it's a stackable thing factions and the Mayor build to expand a domain's ceiling. Build is unified to **4 work units**. Source of decisions: `../proposals/projects-rework.md`. Math: `../reference/formulas.md`. Faction model (rank/level/health, Break, `utilization = Σ level`): `../specs/faction-behavior_spec.md`, `../specs/cycle-runner_spec.md`.
 
----
-
-## Overview
-
-A project is a structure with:
-- A build cost and build time
-- A permanent effect on city baseline stats when complete
-- Faction involvement during construction
-- Vulnerability to attack and disaster
+This rework reconciles the v4 spec's stale `floor`/`entrench`/bespoke-effect references — all removed by the demo redesign.
 
 ---
 
-## Project Structure
+## Scope
 
-```python
-@dataclass
-class Project:
-    id: str
-    name: str
-    domains: List[str]     # domains this project belongs to; factions in any listed domain can build, attack, or receive effects
-    build_cost: int        # gold from treasury
-    build_time: int        # cycles to complete (fallback if no faction works on it)
-    faction_build_actions: int = 4  # successful faction actions required to complete
-    cycles_built: int = 0  # fallback cycle counter
-    category: str = "standard"       # "standard" | "tax_collection"
-    tax_level: int = 0               # 1–5 for tax_collection projects; unlocks that rate tier
-    faction_level: bool = False      # True = effects apply only to the faction that built it (initiated_by)
-    status: str = "under_construction"  # "under_construction" | "active" | "damaged" | "critical" | "destroyed"
-    health: int = 0        # dual purpose: build progress (0→100) during construction; structural health (0→100) when active
-    effects: List[ProjectEffect] = field(default_factory=list)
-    maintenance_cost: int = 10  # stored per-project; treasury uses flat 2 × active_project_count (see Treasury spec)
-    initiated_by: str = "mayor"  # "mayor" | faction_id; doubles as effect owner when faction_level=True
-    # cycle-only (not persisted):
-    build_actions_this_cycle: int = 0  # counts successful BuildProject actions this cycle; resets each cycle
-```
-
-```python
-@dataclass
-class ProjectEffect:
-    target: str       # "domain" | "faction" | "treasury" | "world"
-    target_id: str    # id of the entity being affected
-    field: str        # what is modified (e.g. "drift", "rating", "gold_per_cycle")
-    value: float
-    condition: str = "always"  # "always" | "active" | "damaged"
-```
+- **Does:** define **base projects** (one repeatable type per domain, uniform `+2` cap when intact, counted), fuse them with the domain-cap system (`cap = base_cap + Σ project contribution`, where `base_cap = round(initial Σ level × CAP_HEADROOM_MULT)`), and unify the build model to 4 work units built by faction labor (chancy) or Mayor gold (guaranteed).
+- **Does NOT:** rework `tax_collection` projects — they are **out of scope for v5**, left exactly as coded (they retain the legacy `build_cost`/`build_time`/`faction_build_actions` fields, which therefore are NOT removed from the model).
+- **Does NOT:** implement count-scaling difficulty ("each new one harder") — the `count` is exposed but no difficulty hooks onto it yet (deferred).
+- **Does NOT:** restore `faction_level` projects or bespoke per-project `ProjectEffect`s — removed; a richer special tier may be rebuilt later on top of this model.
 
 ---
 
-## Build Process
+## Concepts & Data
 
-### Initiation
+A **base project** is a project with `category == "base"`. Each completed base project is its **own instance** (own `health`, individually sabotageable). All base projects in a domain share the same name (e.g. every Harbor base project is a `Docks`); `count` = the number of base-project instances of that type in the domain (derived — used for display and future scaling).
 
-Projects are initiated by:
-- The Mayor (costs action points — see Mayor spec)
-- A faction (faction declares a project during declaration phase; must have floor ≥ 3)
+**Base project names** (one per domain):
 
-Mayor-initiated projects draw from the city treasury. Faction-initiated projects use faction resources (future: faction treasury or health investment).
+| Domain | Name | | Domain | Name |
+|---|---|---|---|---|
+| harbor | Docks | | academy | Lyceum |
+| trade | Agora | | aristocracy | Estate |
+| guilds | Workshop | | temples | Temenos |
+| military | Barracks | | professions | Gymnasion |
 
-### Construction Phase
+Project fields used by base projects: `id`, `name`, `domains` (single-element: the owning domain), `category="base"`, `status`, `health`, `build_progress` (0–4 work units, construction only), `initiated_by`. Legacy fields (`build_cost`, `build_time`, `faction_build_actions`, `tax_level`, `faction_level`, `effects`) are **unused by base projects** but retained on the dataclass for `tax_collection`.
 
-Each cycle a project is under construction:
-
-1. **Faction work:** A faction whose `domain_primary` is in the project's `domains` list may spend its action on `BuildProject`. Roll `d20 + floor(rating)` vs DC 12. On success, `health += 100 / faction_build_actions`. Example: `faction_build_actions = 4` means each successful action adds 25 health.
-2. **Sabotage:** Any faction (no domain restriction) may spend its action on `SabotageProject`. See Actions spec for resolution. Under-construction projects start at health 0, giving defense_rating 1 — they are fragile until progress is made.
-3. **Completion check:** If `health >= 100` OR `cycles_built >= build_time` (fallback), status → `active`, health reset to 100.
-
-Mayor can accelerate construction by spending treasury: 50 gold = −1 build cycle (once per cycle max).
-
-### Locking Mayor Actions
-
-When the Mayor initiates a project, action points are committed over build time:
-
-| Build time | Action cost |
-|---|---|
-| 1–2 cycles | 2 action points (paid upfront) |
-| 3–5 cycles | 1 action point/cycle during construction |
-| 6+ cycles | 1 action point every other cycle during construction |
-
-If the Mayor abandons a project mid-construction: treasury cost is lost, action commitment ends, half-built project is removed from play (ruins — no effect).
+`CAP_HEADROOM_MULT = 1.20` lives in `engine/formulas.py` as a named constant.
 
 ---
 
-## Active Projects
+## Feature: Domain cap derivation
 
-When `status == "active"`, the project's effects apply each cycle. Effects are persistent until the project is destroyed.
+A domain's `cap` is no longer authored data — it is derived. At game start (cycle 0), `base_cap` is fixed from the starting faction fill; thereafter the only thing that moves a domain's cap is its active base projects, by their health tier. Cap is re-derived each cycle.
 
-If `faction_level == True`, effects apply only to the faction whose id matches `initiated_by`. The Mayor cannot commission faction-level projects.
+- Input: a domain, its factions (for the cycle-0 base), and its base-project instances.
+- Output: the domain's current `cap` (int).
 
-Projects require ongoing maintenance (see Treasury spec). The treasury pays a flat `2 × active_project_count` gold per cycle covering all projects collectively. If the treasury cannot cover maintenance, it is silently skipped for that cycle (no per-project damage — maintenance failure cascades via treasury bankruptcy rules instead).
+Rules:
+- `base_cap[domain] = round(initial_fill × 1.20)`, where `initial_fill = Σ level` of that domain's factions **at cycle 0**. Computed once at load; frozen thereafter. (Authored `cap` values in `data/domains.json` are ignored/overwritten.)
+- Each cycle: `cap[domain] = base_cap[domain] + Σ contribution(p)` over **active** base projects `p` in the domain, where `contribution` is by health tier:
+  - intact (health 51–100) → **+2**
+  - damaged (health 21–50) → **+1**
+  - critical (health 1–20) → **0**
+  - under-construction / destroyed → **0** (not active)
+- `utilization` (Σ level) is unchanged; cap is compared against it by the existing cap-resistance ramp and Grow blocking.
+- If utilization exceeds a freshly-lowered cap (e.g. a Docks was destroyed), no faction is forced down — growth simply blocks until utilization falls below cap again.
 
----
-
-## Project Defense
-
-When targeted by `SabotageProject`, the project rolls its own defense:
-
-```
-project_defense_rating = max(1, project.health // 20)
-project_defense_roll = d20 + project_defense_rating + build_bonus
-```
-
-| Health | Defense Rating |
-|---|---|
-| 81–100 | 5 |
-| 61–80 | 4 |
-| 41–60 | 3 |
-| 21–40 | 2 |
-| 1–20 | 1 |
-
-**Build bonus:** Each successful `BuildProject` action on this project this cycle adds +1, capped at +2. Factions choosing to build rather than act offensively are actively defending the project.
-
-A fully healthy project defends like a floor-5 faction. A damaged project spirals — easier to attack, harder to repair.
+**Done when:**
+- At cycle 0, each domain's `base_cap == round(initial Σ level × 1.20)` and authored `data/domains.json` cap values do not affect it  `[automated]`
+- A domain with no base projects has `cap == base_cap` every cycle  `[automated]`
+- One intact base project raises the domain's `cap` by exactly 2; a damaged one by 1; a critical, under-construction, or destroyed one by 0  `[automated]`
+- Cap is re-derived each cycle (damaging an active base project from intact→damaged drops that domain's cap by 1 the same cycle)  `[automated]`
+- `CAP_HEADROOM_MULT` is a single named constant in `engine/formulas.py` (changing it changes every domain's base_cap)  `[automated]`
 
 ---
 
-## Project Health
+## Feature: Build model (4 work units)
 
-Projects have structural health (0–100).
+A base project completes after **4 work units**. There are two ways to add a unit, with different cost and reliability.
 
-| Health | Status | Effect |
-|---|---|---|
-| 100–51 | Intact | Full effects |
-| 50–21 | Damaged | Effects halved |
-| 20–1 | Critical | Effects at 25%; −5 health/cycle |
-| 0 | Destroyed | Removed from play |
+- Input: an under-construction base project; a builder (a faction action, or a Mayor buy).
+- Output: `build_progress` incremented (or not); on reaching 4 → status `active`, `health = 100`.
 
-Health damage comes from:
-- Faction Harm action (targeted at project, not a faction)
-- Random events (disasters, fires)
-- Neglected maintenance
+Rules:
+- **Faction `BuildProject`** — a faction whose `domain_primary` is the project's domain spends its action: roll `d20 + level` vs **DC 12**. Success → `build_progress += 1`; failure → no change. **Domain-gated** (a faction cannot build a project outside its domain — that resolves `blocked`). Free (costs only the action).
+- **Mayor buy** — the Mayor spends **50 gold + 1 action point** → `build_progress += 1`, guaranteed. Repeatable within a turn while gold and action points remain (3 AP + 150 gold → +3 units). If gold < 50 or no action point: no unit added and nothing is charged.
+- Reaching `build_progress == 4` flips the project to `active` with `health = 100` in the same resolution that added the 4th unit.
+- The legacy upfront `build_cost` is **not charged** for base projects.
 
-Health can be repaired: Mayor spends 30 gold + 1 action point → restore 25 health.
-
----
-
-## Destroying Projects
-
-Factions destroy projects using the `SabotageProject` action (see Actions spec). Any faction can target any project regardless of domain.
-
-- Decisive: project health −25
-- Partial: project health −10
-- Fail: no effect
-- Health 0: status → `destroyed`, removed from play
-
-Why factions destroy projects:
-- Remove an opponent's advantage (the wharves help the Quaymen — burn the wharves)
-- Create pressure on the Mayor (destroy what the Mayor built)
-- Destabilize a rival domain (destroy infrastructure, chaos spills over)
-- Deny a rival faction the benefit of their own faction-level project
+**Done when:**
+- A successful faction `BuildProject` (roll ≥ 12) on an own-domain base project adds exactly 1 work unit; a failed roll adds 0  `[automated]`
+- A faction `BuildProject` targeting a base project outside its `domain_primary` resolves `blocked` and adds 0  `[automated]`
+- A Mayor buy with ≥50 gold and ≥1 action point adds exactly 1 work unit and deducts 50 gold + 1 AP  `[automated]`
+- A Mayor buy with <50 gold or 0 action points adds 0 work units and deducts nothing  `[automated]`
+- With 3 action points and ≥150 gold, the Mayor can add 3 work units in one turn  `[automated]`
+- A base project reaching 4 work units becomes `active` with `health == 100` in that same resolution  `[automated]`
+- No `build_cost` (lump gold) is deducted when a base project is initiated or built  `[automated]`
 
 ---
 
-## Example Projects
+## Feature: Initiation
 
-### Dock Expansion
-- **Domains:** `["harbor", "trade"]`
-- **Build cost:** 150 gold
-- **Build time:** 3 cycles
-- **Effect:** domain.cap +10 (harbor); treasury income +15 gold/cycle
-- **Faction level:** No
+A base project comes into being when a builder breaks ground in a domain that has none under construction. At most **one** base project per domain may be under construction at a time.
 
-### City Wall Section
-- **Domains:** `["military", "aristocracy"]`
-- **Build cost:** 200 gold
-- **Build time:** 5 cycles
-- **Effect:** External threats −5 to attack rolls; garrison effectiveness +10%
-- **Faction level:** No
+- Input: a domain with no base project currently `under_construction`.
+- Output: a new base-project instance (`status="under_construction"`, `build_progress=0`, named for the domain), to which the breaking-ground build action then applies normally.
 
-### Public Market
-- **Domains:** `["trade", "harbor"]`
-- **Build cost:** 80 gold
-- **Build time:** 2 cycles
-- **Effect:** Public reputation +3/cycle; trade factions Grow +5
-- **Faction level:** No
+Rules:
+- **Mayor** may initiate a base project in **any** domain, any time (subject to the one-under-construction-per-domain rule). The Mayor buy that breaks ground creates the instance, then applies its guaranteed +1 unit.
+- **NPC factions** initiate under **near-cap pressure**: a faction whose own domain has `utilization ≥ 0.85 × cap` **and** no base project under construction there may choose `BuildProject`, which creates the instance and applies its build roll. A faction never initiates when a base project is already under construction in its domain, and never below the 0.85 threshold via this path.
+- Initiation has **no level gate and no resource cost** beyond the breaking-ground build action itself.
 
-### Temple District Expansion
-- **Domains:** `["temples"]`
-- **Build cost:** 100 gold
-- **Build time:** 3 cycles
-- **Effect:** Temples entrench decay −0.02; Public reputation +2/cycle
-- **Faction level:** No
-
-### Guild Safehouse
-- **Domains:** `["guilds"]`
-- **Build cost:** 60 gold
-- **Build time:** 2 cycles
-- **Effect:** Owner faction: Steal +10 to rolls, Harm −5 to incoming rolls
-- **Faction level:** Yes (only the initiating faction benefits)
+**Done when:**
+- Initiating creates one base-project instance with `status=="under_construction"`, `build_progress` starting at 0, and the domain's base-project name  `[automated]`
+- At most one base project per domain is `under_construction` at once (a second initiation in the same domain is refused while one is in progress)  `[automated]`
+- An NPC faction can select `BuildProject` to initiate when its domain is `≥ 0.85 × cap` with none under construction; it does not select initiation when one is already under construction in its domain  `[automated]`
+- The Mayor can initiate a base project in a domain with no factions of its own  `[automated]`
 
 ---
 
-## Starting Projects
+## Feature: Damage, defense & destruction (unchanged from v4)
 
-A city begins with pre-existing infrastructure. These projects are already `active` with full effects at game start. They have no remaining build time or cost — they simply exist.
+Active base projects retain v4 structural health, defense, and sabotage behavior. `SabotageProject` is **open to any faction** (no domain gate) — the deliberate asymmetry vs. domain-gated building.
 
-Starting projects are defined in city data (JSON). Example starting city:
-- 5 Harbor Wharves (5 separate wharf projects at reduced scale each)
-- City Walls
-- The Agora (main market square)
+- Input: an active/damaged base project targeted by `SabotageProject` (a base project still `under_construction` is not a valid target — it builds via `build_progress`, not structural `health`, so it has none to lose).
+- Output: reduced `health`; `destroyed` at 0.
 
-Starting projects immediately incur maintenance costs and are vulnerable to destruction from cycle 1.
+Rules (carried from v4):
+- Sabotage is contested: attacker `d20 + level` vs `d20 + project_defense_rating (+ build bonus)`, where `project_defense_rating = max(1, health // 20)` and build bonus = successful builds this cycle (cap +2).
+- Decisive: `health −25`; partial: `−10`; fail: none. `health` floors at 0 → `status = "destroyed"` (projects, unlike factions, can be destroyed).
+- A destroyed base project is removed from play and contributes 0 to cap (see Cap derivation).
+
+**Done when:**
+- A decisive Sabotage reduces a base project's `health` by 25; partial by 10; fail by 0  `[automated]`
+- A base project whose `health` reaches 0 becomes `destroyed` and stops contributing to its domain's cap  `[automated]`
+- `SabotageProject` is not domain-gated (a faction can target a base project outside its own domain)  `[automated]`
 
 ---
 
-## Project Listing
+## Feature: Maintenance (unchanged from v4)
 
-The full list of available projects is defined in a data file (`data/projects.json`). Each entry includes id, name, domain, costs, and effects. The Mayor and factions select from this list when initiating.
+The treasury pays a flat `2 × active_project_count` gold per cycle covering all active projects collectively (base and tax_collection). Stacked base projects therefore carry upkeep — a natural brake on unbounded cap growth. If the treasury cannot cover it, maintenance is silently skipped that cycle (no per-project damage).
 
-Custom projects (edge cases or event-driven) may be injected by the event system with non-standard parameters.
+**Done when:**
+- Treasury maintenance per cycle equals `2 × (count of active projects)`  `[automated]`
+- When the treasury cannot afford maintenance, it is skipped with no project taking damage  `[automated]`
+
+---
+
+## Open Questions
+
+- **Count-scaling difficulty (deferred).** `count` (active base projects of a type in a domain) is exposed but nothing scales off it yet. When wanted, "each new one is harder" attaches to one of: more work units, a higher DC, or higher Mayor gold/cycle. Not part of this build.
+- **tax_collection rework (later).** Tax projects are left on the v4 model this pass; a future spec moves them onto the work-unit build model and decides whether any ship pre-built at game start.

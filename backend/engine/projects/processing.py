@@ -264,3 +264,117 @@ def commission_project(
         outcome="decisive", delta=-float(build_cost),
         narrative=f"Project commissioned: {project.name} ({build_time} cycles to build)",
     )
+
+
+# ── Base-project initiation ────────────────────────────────────────────────────
+
+# One repeatable base project per domain; building it raises the domain's cap.
+BASE_PROJECT_NAMES: Dict[str, str] = {
+    "harbor":      "Docks",
+    "trade":       "Agora",
+    "guilds":      "Workshop",
+    "military":    "Barracks",
+    "temples":     "Temenos",
+    "academy":     "Lyceum",
+    "aristocracy": "Estate",
+    "professions": "Gymnasion",
+}
+
+
+def base_project_name(domain_id: str) -> str:
+    return BASE_PROJECT_NAMES.get(domain_id, f"{domain_id.replace('_', ' ').title()} Works")
+
+
+def initiate_base_project(
+    domain_id: str,
+    projects: Dict[str, Project],
+    initiated_by: str = "mayor",
+) -> Optional[Project]:
+    """Break ground on a new base project in a domain. Refuses (returns None) if a
+    base project is already under construction there — at most one per domain at a
+    time. Otherwise creates and registers a fresh under-construction instance."""
+    for p in projects.values():
+        if (getattr(p, "category", "standard") == "base"
+                and domain_id in p.domains
+                and p.status == "under_construction"):
+            return None
+
+    existing = sum(
+        1 for p in projects.values()
+        if getattr(p, "category", "standard") == "base" and domain_id in p.domains
+    )
+    project = Project(
+        id=f"{domain_id}_base_{existing + 1}",
+        name=base_project_name(domain_id),
+        domains=[domain_id],
+        build_cost=0,
+        build_time=4,
+        category="base",
+        status="under_construction",
+        build_progress=0,
+        health=0,
+        initiated_by=initiated_by,
+    )
+    projects[project.id] = project
+    return project
+
+
+# ── Mayor build buy (base projects) ────────────────────────────────────────────
+
+def mayor_buy_build_unit(project: Project, treasury: Treasury, mayor: "Mayor") -> ActionResult:
+    """Mayor spends 50 gold + 1 action point to add one guaranteed work unit to an
+    under-construction base project. Repeatable per action point. On the 4th unit
+    the project becomes active. Nothing is charged if AP or gold is insufficient."""
+    cost_gold = 50
+    cost_ap = 1
+    if not mayor.spend(cost_ap):
+        return ActionResult(
+            action="BuildBuy", actor_id="mayor", target_id=project.id,
+            outcome="fail", narrative="Build buy failed: insufficient action points",
+        )
+    if treasury.gold < cost_gold:
+        mayor.action_points += cost_ap  # refund
+        return ActionResult(
+            action="BuildBuy", actor_id="mayor", target_id=project.id,
+            outcome="fail", narrative=f"Build buy failed: need {cost_gold} gold, have {treasury.gold}",
+        )
+    treasury.gold -= cost_gold
+    treasury.expenditure_this_cycle += cost_gold
+    project.build_progress += 1
+    completed = project.build_progress >= 4
+    if completed:
+        project.status = "active"
+        project.health = 100
+    return ActionResult(
+        action="BuildBuy", actor_id="mayor", target_id=project.id,
+        outcome="decisive", delta=-float(cost_gold), dramatic=completed,
+        narrative=(
+            f"The treasury funds work on {project.name} ({project.build_progress}/4)."
+            + (" It is complete and now stands active." if completed else "")
+        ),
+    )
+
+
+def mayor_build_base(
+    domain_id: str,
+    projects: Dict[str, Project],
+    treasury: Treasury,
+    mayor: "Mayor",
+) -> ActionResult:
+    """Mayor-facing entry: build a base project in any domain. Uses the domain's
+    in-progress base project if one exists, otherwise initiates one, then funds a
+    work unit (50 gold + 1 AP). The Mayor is not gated by cap or faction presence."""
+    project = next(
+        (p for p in projects.values()
+         if getattr(p, "category", "standard") == "base"
+         and domain_id in p.domains and p.status == "under_construction"),
+        None,
+    )
+    if project is None:
+        project = initiate_base_project(domain_id, projects, "mayor")
+        if project is None:
+            return ActionResult(
+                action="BuildBuy", actor_id="mayor", target_id=None,
+                outcome="fail", narrative=f"Cannot break ground in {domain_id}.",
+            )
+    return mayor_buy_build_unit(project, treasury, mayor)

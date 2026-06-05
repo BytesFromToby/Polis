@@ -20,6 +20,33 @@ if TYPE_CHECKING:
 RATING_MAX: float = 10.0    # faction rank ceiling (1.0–10.0); level = int(rating)
 
 
+# ── Domain cap (projects rework) ───────────────────────────────────────────────
+
+CAP_HEADROOM_MULT: float = 1.20   # starting cap = round(initial Σ level × this)
+
+
+def base_cap_from_fill(fill: float) -> int:
+    """A domain's frozen base cap: round(starting Σ level × CAP_HEADROOM_MULT).
+    Set once at game start; thereafter only base projects move the live cap."""
+    return round(fill * CAP_HEADROOM_MULT)
+
+
+def project_cap_contribution(project) -> int:
+    """How much an individual base project adds to its domain's cap, by health tier.
+    Only `category == "base"` projects that are active/damaged contribute:
+    intact (health 51–100) → +2, damaged (21–50) → +1, else (critical,
+    under_construction, destroyed, or non-base) → 0."""
+    if getattr(project, "category", "standard") != "base":
+        return 0
+    if project.status not in ("active", "damaged"):
+        return 0
+    if project.health >= 51:
+        return 2
+    if project.health >= 21:
+        return 1
+    return 0
+
+
 # ── Grow ──────────────────────────────────────────────────────────────────────
 
 def grow_increment(level: int) -> float:

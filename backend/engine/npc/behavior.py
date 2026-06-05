@@ -175,9 +175,17 @@ def select_faction_action(
 
     # Remove project actions if no valid targets exist
     buildable = _get_buildable_projects(faction, projects)
-    sabotageable = [p for p in projects.values() if p.status != "destroyed"]
-    if not buildable:
+    sabotageable = [
+        p for p in projects.values()
+        if p.status != "destroyed"
+        and not (getattr(p, "category", "standard") == "base" and p.status == "under_construction")
+    ]
+    can_initiate = _can_initiate_base(faction, domains, projects)
+    if not buildable and not can_initiate:
         weights.pop("BuildProject", None)
+    elif can_initiate:
+        # near-cap pressure: pull toward breaking ground on a cap-raising base project
+        weights["BuildProject"] = weights.get("BuildProject", 0.0) + 20
     if not sabotageable:
         weights.pop("SabotageProject", None)
 
@@ -211,6 +219,13 @@ def select_faction_action(
     elif action == "BuildProject":
         project_target = _pick_build_target(faction, buildable)
         if project_target is None:
+            if can_initiate:
+                # break ground on a new base project in the faction's own domain
+                return FactionPlan(
+                    faction.id, action,
+                    target_id=f"new_base:{faction.domain_primary}",
+                    domain=faction.domain_primary,
+                )
             action = "Grow"
         else:
             return FactionPlan(faction.id, action, target_id=project_target, domain=faction.domain_primary)
@@ -307,11 +322,37 @@ def _get_buildable_projects(
     faction: Faction,
     projects: Dict[str, Project],
 ) -> List[Project]:
-    return [
-        p for p in projects.values()
-        if p.status in ("under_construction", "active")
-        and faction.domain_primary in p.domains
-    ]
+    out: List[Project] = []
+    for p in projects.values():
+        if faction.domain_primary not in p.domains:
+            continue
+        if getattr(p, "category", "standard") == "base":
+            # a base project is buildable only while under construction (active = done)
+            if p.status == "under_construction":
+                out.append(p)
+        elif p.status in ("under_construction", "active"):
+            out.append(p)
+    return out
+
+
+def _can_initiate_base(
+    faction: Faction,
+    domains: Dict[str, Domain],
+    projects: Dict[str, Project],
+) -> bool:
+    """A faction may break ground on a new base project in its own domain when that
+    domain is near cap (utilization ≥ 85% of cap) and none is already under construction."""
+    domain = domains.get(faction.domain_primary)
+    if domain is None or domain.cap <= 0:
+        return False
+    if domain.utilization < 0.85 * domain.cap:
+        return False
+    for p in projects.values():
+        if (getattr(p, "category", "standard") == "base"
+                and faction.domain_primary in p.domains
+                and p.status == "under_construction"):
+            return False
+    return True
 
 
 def _pick_build_target(faction: Faction, buildable: List[Project]) -> Optional[str]:

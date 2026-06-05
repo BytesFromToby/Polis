@@ -14,7 +14,7 @@ from ..models import (
     Faction, Domain, WorldState, ActionResult, CycleResult, CycleEvent,
     Mayor, Treasury, MayorAction, Project, GameEvent, ThePublic, ExternalThreat,
 )
-from ..formulas import faction_weight
+from ..formulas import faction_weight, project_cap_contribution
 from ..events import process_world_chaos, process_active_events, roll_for_random_events
 from .resolution import run_sequential_actions
 from .end_of_cycle import run_end_of_cycle, run_leadership_events, run_break_sweep
@@ -65,20 +65,29 @@ def run_cycle(
 
     cycle_num = world.cycle
     all_results: List[ActionResult] = []
+    # Use the caller's projects dict directly so runtime-initiated base projects persist.
+    if projects is None:
+        projects = {}
 
     # ── Step 0: Pre-cycle setup ───────────────────────────────────────────────
 
-    # Recalculate domain utilization (Σ level)
+    # Recalculate domain utilization (Σ level) and re-derive cap
+    # (base_cap frozen at load + Σ active base-project contribution).
     for domain_id, domain in domains.items():
         domain.utilization = sum(
             faction_weight(faction.level)
             for faction in factions.values()
             if faction.domain_primary == domain_id
         )
+        domain.cap = domain.base_cap + sum(
+            project_cap_contribution(p)
+            for p in (projects or {}).values()
+            if domain_id in p.domains
+        )
 
     # Treasury: income + fixed expenditure
     if treasury is not None and mayor is not None:
-        n_active = sum(1 for p in (projects or {}).values() if p.status == "active")
+        n_active = sum(1 for p in projects.values() if p.status == "active")
         treasury_results = process_treasury_step0(
             treasury, mayor, factions, domains,
             active_project_count=n_active, logger=logger,
@@ -101,7 +110,7 @@ def run_cycle(
 
     # ── Steps 1–2: Sequential initiative action loop ─────────────────────────
     resolution_results = run_sequential_actions(
-        world, factions, domains, projects or {}, cycle_num, logger
+        world, factions, domains, projects, cycle_num, logger
     )
     all_results.extend(resolution_results)
 

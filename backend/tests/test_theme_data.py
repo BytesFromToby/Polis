@@ -75,11 +75,13 @@ def test_loader_accepts_greek_data():
 
 
 def test_every_project_uses_a_greek_domain():
-    """No legacy domains survive in projects.json — each project's `domains` and any
-    domain-targeting effect must name one of the 8 Greek domains (surveyor finding #1)."""
-    projects = _load("projects.json")
-    assert projects, "projects.json is empty"
-    for p in projects:
+    """Base projects are runtime-initiated from the code catalog (projects.json starts
+    empty); the catalog must cover exactly the 8 Greek domains and name no legacy one.
+    Any pre-loaded projects (e.g. future tax_collection) must also be Greek-domained."""
+    from engine.projects import BASE_PROJECT_NAMES
+    assert set(BASE_PROJECT_NAMES) == EXPECTED_DOMAIN_IDS
+
+    for p in _load("projects.json"):
         for dom in p["domains"]:
             assert dom in EXPECTED_DOMAIN_IDS, f"{p['id']}: legacy domain {dom!r}"
         for eff in p.get("effects", []):
