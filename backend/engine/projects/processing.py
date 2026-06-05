@@ -31,6 +31,9 @@ def tick_projects(
                     outcome="decisive", dramatic=True,
                     narrative=f"{project.name} has collapsed and been destroyed",
                 ))
+        # Per-cycle build counter resets after ticking (it only grants defense for the
+        # cycle in which the builds happened — see cycle-runner_spec Break Resolution / §3).
+        project.build_actions_this_cycle = 0
     return results
 
 

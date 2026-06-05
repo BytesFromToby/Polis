@@ -103,7 +103,7 @@ A faction **never dies.** When an action (normally Harm) brings a faction's `hea
 
 1. Roll the consequence:
    - **75% → level −1.** `rank` drops to `(level − 1).0` — the bottom of the lower tier; in-progress fraction lost. **If the faction is already level 1, this branch is a reprieve — no rank change.**
-   - **25% → leader death.** The current leader is replaced by an auto-generated leader (new name, fresh traits, empty `personality_notes`); the new leader's `status = "weakened"` for 1 cycle.
+   - **25% → leader death.** The current leader is replaced by an auto-generated leader (new name, fresh traits, empty `personality_notes`); the new leader's `status = "present"` (full strength). *(A `weakened` window was considered but dropped: the leadership flow escalates `weakened`→`absent`→replace, which would turn the recovery window into a leadership crisis — see Deviations_faction-actions-redesign_2026-06-05.md §2.)*
 2. `health` resets to **75**.
 3. Log a Dramatic Break event (a level drop, or a leadership fall).
 
@@ -111,7 +111,7 @@ Level-1 factions cannot be *targeted* by Harm or Steal (see `actions_spec.md`), 
 
 **Done when:**
 - A faction whose `health` reaches 0 has `health` reset to 75 the same cycle and is never removed from play  `[automated]`
-- On a Break exactly one consequence applies; with a forced roll, the level-drop branch sets `rank = (level−1).0` and the leader-death branch installs a new `weakened` leader  `[automated]`
+- On a Break exactly one consequence applies; with a forced roll, the level-drop branch sets `rank = (level−1).0` and the leader-death branch installs a new `present` (full-strength) leader  `[automated]`
 - A level-1 faction that Breaks keeps `level == 1` (the level-drop branch is a no-op)  `[automated]`
 - Over many forced Breaks the split approximates 75% level-drop / 25% leader-death  `[automated]`
 

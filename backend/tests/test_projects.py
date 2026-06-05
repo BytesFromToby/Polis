@@ -27,6 +27,24 @@ def make_mayor(**kw):
     return Mayor(**kw)
 
 
+# ── Per-cycle build counter ─────────────────────────────────────────────────
+
+class TestBuildActionsReset:
+    def test_counter_resets_after_ticking(self):
+        # cycle-runner_spec: after project ticking, every project's
+        # build_actions_this_cycle is 0.
+        project = make_project(status="active", health=80)
+        project.build_actions_this_cycle = 2
+        tick_projects({"p1": project}, {}, {}, make_treasury(gold=500))
+        assert project.build_actions_this_cycle == 0
+
+    def test_counter_resets_for_under_construction(self):
+        project = make_project(build_time=3)  # under_construction
+        project.build_actions_this_cycle = 1
+        tick_projects({"p1": project}, {}, {}, make_treasury(gold=500))
+        assert project.build_actions_this_cycle == 0
+
+
 # ── Construction ──────────────────────────────────────────────────────────────
 
 class TestConstruction:

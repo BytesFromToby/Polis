@@ -177,3 +177,10 @@ Date: 2026-06-03
 
 ---
 ⛔ Final slice complete. Run **inspector** for final sign-off.
+
+❌ Inspector: FAIL — 2026-06-05 11:02 — see output/inspect/Inspect_faction-actions-redesign_Final_2026-06-05.md
+(Redesign itself verified: actions_spec 15/15, suite 280-green, headless clean. Held by 2 cycle-runner_spec items — stale "weakened leader" wording, and pre-existing build_actions_this_cycle reset defect in the parked projects subsystem. Neither is a flaw in the faction/actions code built this pass.)
+
+✅ Both findings resolved — 2026-06-05 11:xx:
+  1. cycle-runner_spec line 114 + Break prose reconciled to `present` (full-strength) leader.
+  2. build_actions_this_cycle now reset at end of tick_projects; committed tests added (test_projects.py::TestBuildActionsReset). Suite now 282-green.

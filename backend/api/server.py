@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Polis API",
-    version="0.2.0",
+    version="0.3.0",
     description="FastAPI backend for the Polis engine.",
     lifespan=lifespan,
 )
