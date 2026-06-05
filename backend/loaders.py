@@ -88,12 +88,10 @@ def load_factions_from_json(path: str) -> Dict[str, Faction]:
             leader=leader,
             rating=fc.get("rating", 1.0),
             health=fc.get("health", 75),
-            entrench=fc.get("entrench", 75),
             traits=traits,
             relationships=relationships,
             blurb=fc.get("blurb", ""),
             description=fc.get("description", ""),
-            floor=int(fc.get("rating", 1.0)),
         )
         result[faction.id] = faction
     return result
@@ -105,7 +103,6 @@ def load_world_from_json(path: str) -> WorldState:
     return WorldState(
         cycle=data.get("cycle", 0),
         chaos=data.get("chaos", {}),
-        power_vacuums=data.get("power_vacuums", []),
     )
 
 
@@ -115,7 +112,7 @@ def _recalculate_utilization(
 ) -> None:
     for domain_id, domain in domains.items():
         domain.utilization = sum(
-            faction_weight(f.floor)
+            faction_weight(f.level)
             for f in factions.values()
             if f.domain_primary == domain_id
         )
@@ -204,9 +201,7 @@ def _generate_factions_from_domains(domains: Dict[str, Domain]) -> Dict[str, Fac
                 leader=Leader(name=f"Leader of {fname}"),
                 rating=2.0,
                 health=75,
-                entrench=75,
                 traits=traits_data,
                 relationships=[],
-                floor=2,
             )
     return result

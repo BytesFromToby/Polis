@@ -13,8 +13,10 @@ from engine.cycle.runner import run_cycle
 from engine.models import Mayor, Treasury
 
 
-def make_faction(fid="f1", domain="trade", health=75, floor=2, rating=2.0):
-    return Faction(id=fid, name=fid, domain_primary=domain, leader=Leader(name="Test"), health=health, floor=floor, rating=rating)
+def make_faction(fid="f1", domain="trade", health=75, floor=None, rating=2.0):
+    if floor is not None:
+        rating = float(floor)
+    return Faction(id=fid, name=fid, domain_primary=domain, leader=Leader(name="Test"), health=health, rating=rating)
 
 
 def make_domain(did="trade", cap=100):
@@ -226,7 +228,7 @@ class TestMayorTriggeredEvents:
         event = create_mayor_triggered_event("WithholdResources", "f1", factions, cycle=1)
         assert event is not None
         assert event.duration == 2
-        assert any(e.field == "entrench" for e in event.effects)
+        assert any(e.field == "health" for e in event.effects)
 
     def test_unknown_action_returns_none(self):
         event = create_mayor_triggered_event("PubliclyEndorse", "f1", {}, cycle=1)

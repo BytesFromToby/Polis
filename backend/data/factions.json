@@ -3,10 +3,8 @@
     "id": "eumelidai",
     "name": "The Eumelidai",
     "domain_primary": "aristocracy",
-    "rating": 3.0,
+    "rating": 4.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Lysandros the Elder",
       "traits": [
@@ -38,8 +36,6 @@
     "domain_primary": "aristocracy",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Kleon Pyrrhos",
       "traits": [
@@ -69,10 +65,8 @@
     "id": "skiadai",
     "name": "The Skiadai",
     "domain_primary": "aristocracy",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Demarete of the Skiadai",
       "traits": [
@@ -104,8 +98,6 @@
     "domain_primary": "temples",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Nereus Halios",
       "traits": [
@@ -137,8 +129,6 @@
     "domain_primary": "temples",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Hestaia the Unmoved",
       "traits": [
@@ -168,10 +158,8 @@
     "id": "greenmantle",
     "name": "The Greenmantle",
     "domain_primary": "temples",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Chloris of the Furrow",
       "traits": [
@@ -201,10 +189,8 @@
     "id": "raving-choir",
     "name": "The Raving Choir",
     "domain_primary": "temples",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Eurymache the Raving",
       "traits": [
@@ -234,10 +220,8 @@
     "id": "bright-order",
     "name": "The Bright Order",
     "domain_primary": "temples",
-    "rating": 3.0,
+    "rating": 4.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "High Seer Aletheian",
       "traits": [
@@ -267,10 +251,8 @@
     "id": "shieldsworn",
     "name": "The Shieldsworn",
     "domain_primary": "military",
-    "rating": 3.0,
+    "rating": 4.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Drakon the Steadfast",
       "traits": [
@@ -300,10 +282,8 @@
     "id": "free-spears",
     "name": "The Free Spears",
     "domain_primary": "military",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Kallias the Coinbought",
       "traits": [
@@ -335,8 +315,6 @@
     "domain_primary": "military",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Antimachos the Laurelled",
       "traits": [
@@ -368,8 +346,6 @@
     "domain_primary": "military",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Naukrates of the Long Oars",
       "traits": [
@@ -401,8 +377,6 @@
     "domain_primary": "harbor",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Brontes Bighand",
       "traits": [
@@ -432,10 +406,8 @@
     "id": "netmenders",
     "name": "The Netmenders",
     "domain_primary": "harbor",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Glaukos the Weathered",
       "traits": [
@@ -465,10 +437,8 @@
     "id": "harborwardens",
     "name": "The Harborwardens",
     "domain_primary": "harbor",
-    "rating": 3.0,
+    "rating": 4.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Warden Pheidon",
       "traits": [
@@ -500,8 +470,6 @@
     "domain_primary": "harbor",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Timaios the Farsailed",
       "traits": [
@@ -531,10 +499,8 @@
     "id": "amphora-houses",
     "name": "The Amphora Houses",
     "domain_primary": "trade",
-    "rating": 3.0,
+    "rating": 4.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Polemarchos the Stout",
       "traits": [
@@ -564,10 +530,8 @@
     "id": "silverbench",
     "name": "The Silverbench",
     "domain_primary": "trade",
-    "rating": 3.0,
+    "rating": 4.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Aristion of the Bench",
       "traits": [
@@ -597,10 +561,8 @@
     "id": "stallmongers",
     "name": "The Stallmongers",
     "domain_primary": "trade",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Myrto Quicktongue",
       "traits": [
@@ -632,8 +594,6 @@
     "domain_primary": "trade",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Hieron the Patient",
       "traits": [
@@ -663,10 +623,8 @@
     "id": "outland-houses",
     "name": "The Outland Houses",
     "domain_primary": "trade",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Xenon the Outlander",
       "traits": [
@@ -698,8 +656,6 @@
     "domain_primary": "guilds",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Akmon the Forgemaster",
       "traits": [
@@ -731,8 +687,6 @@
     "domain_primary": "guilds",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Lithos the Master-Builder",
       "traits": [
@@ -762,10 +716,8 @@
     "id": "keelwrights",
     "name": "The Keelwrights",
     "domain_primary": "guilds",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Argeios the Keelwright",
       "traits": [
@@ -795,10 +747,8 @@
     "id": "kerameis",
     "name": "The Kerameis",
     "domain_primary": "guilds",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Pamphilos of the Kiln",
       "traits": [
@@ -828,10 +778,8 @@
     "id": "ovenmen",
     "name": "The Ovenmen",
     "domain_primary": "guilds",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Mazon the Baker",
       "traits": [
@@ -861,10 +809,8 @@
     "id": "winepressers",
     "name": "The Winepressers",
     "domain_primary": "guilds",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Oinops the Vintner",
       "traits": [
@@ -894,10 +840,8 @@
     "id": "oil-pressers",
     "name": "The Oil-pressers",
     "domain_primary": "guilds",
-    "rating": 3.0,
+    "rating": 4.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Elaios of the Press",
       "traits": [
@@ -927,10 +871,8 @@
     "id": "tanners",
     "name": "The Tanners",
     "domain_primary": "guilds",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Bursas the Tanner",
       "traits": [
@@ -960,10 +902,8 @@
     "id": "weavers",
     "name": "The Weavers",
     "domain_primary": "guilds",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Theano of the Loom",
       "traits": [
@@ -993,10 +933,8 @@
     "id": "carpenters",
     "name": "The Carpenters",
     "domain_primary": "guilds",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Tekton the Joiner",
       "traits": [
@@ -1028,8 +966,6 @@
     "domain_primary": "professions",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Akesias the Physician",
       "traits": [
@@ -1059,10 +995,8 @@
     "id": "players",
     "name": "The Players",
     "domain_primary": "professions",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Komos of the Stage",
       "traits": [
@@ -1092,10 +1026,8 @@
     "id": "garland-chasers",
     "name": "The Garland-Chasers",
     "domain_primary": "professions",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Pankrates the Victor",
       "traits": [
@@ -1127,8 +1059,6 @@
     "domain_primary": "professions",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Grapheus the Reckoner",
       "traits": [
@@ -1158,10 +1088,8 @@
     "id": "perfumers",
     "name": "The Perfumers",
     "domain_primary": "professions",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Myrrha of the Flask",
       "traits": [
@@ -1191,10 +1119,8 @@
     "id": "adorners",
     "name": "The Adorners",
     "domain_primary": "professions",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Chrysanthe of the Gem",
       "traits": [
@@ -1226,8 +1152,6 @@
     "domain_primary": "academy",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Sophron the Elder",
       "traits": [
@@ -1257,10 +1181,8 @@
     "id": "sophists",
     "name": "The Sophists",
     "domain_primary": "academy",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Protarchos the Sophist",
       "traits": [
@@ -1292,8 +1214,6 @@
     "domain_primary": "academy",
     "rating": 3.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Phrasikles the Orator",
       "traits": [
@@ -1323,10 +1243,8 @@
     "id": "stargazers",
     "name": "The Stargazers",
     "domain_primary": "academy",
-    "rating": 3.0,
+    "rating": 2.0,
     "health": 80,
-    "entrench": 75,
-    "leadership_need": 0.0,
     "leader": {
       "name": "Astron the Measurer",
       "traits": [

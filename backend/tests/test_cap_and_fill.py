@@ -11,16 +11,17 @@ from engine.formulas import faction_weight
 
 
 class TestFactionWeight:
-    """Domain utilization is sum of faction_weight(floor) for factions in domain."""
+    """Domain utilization is Σ level: each faction contributes its level (= int(rating))."""
 
-    def test_floor_1_zero(self):
-        assert faction_weight(1) == 0
+    def test_level_1_contributes_1(self):
+        assert faction_weight(1) == 1
 
-    def test_floor_2(self):
+    def test_level_2(self):
         assert faction_weight(2) == 2
 
-    def test_floor_5(self):
-        assert faction_weight(5) == 16
+    def test_level_5(self):
+        assert faction_weight(5) == 5
 
-    def test_unknown_floor(self):
-        assert faction_weight(99) == 0
+    def test_never_negative(self):
+        assert faction_weight(0) == 0
+        assert faction_weight(-1) == 0

@@ -105,7 +105,7 @@ def new_city(
     if user_id != current_user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
-    blank_world = WorldState(cycle=0, chaos={}, power_vacuums=[])
+    blank_world = WorldState(cycle=0, chaos={})
     city = City(
         city_name=req.city_name,
         author=current_user.username,
@@ -196,8 +196,6 @@ def add_faction(
         domain_primary=req.domain_primary,
         leader=Leader(name=f"Leader of {req.name}"),
         rating=req.rating,
-        floor=int(req.rating),
-        entrench=75,
         health=75,
         traits=[FactionTrait(trait=t) for t in (req.traits or [])],
         relationships=[],
@@ -233,9 +231,6 @@ def patch_faction_setup(
         f["domain_primary"] = req.domain_primary
     if req.rating is not None:
         f["rating"] = req.rating
-        f["floor"] = int(req.rating)
-    if req.entrench is not None:
-        f["entrench"] = req.entrench
 
     city.factions_json = json.dumps(factions)
     db.commit()

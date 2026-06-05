@@ -1,7 +1,7 @@
 """
 engine/llm/prompt_builder.py — Translates engine model data into LLM system prompts.
 
-Handles: trait → sentence, health/entrench/rating → narrative,
+Handles: trait → sentence, health/rating → narrative,
          recent events from narrative_log, memory notes, valid terms.
 """
 from __future__ import annotations
@@ -45,13 +45,6 @@ HEALTH_NARRATIVE: list[tuple[int, int, str]] = [
     (50,  74, "Your organisation is in reasonable shape but showing strain."),
     (25,  49, "Your organisation is struggling — resources are stretched thin."),
     (1,   24, "Your organisation is in crisis. You are fighting to survive."),
-]
-
-ENTRENCH_NARRATIVE: list[tuple[int, int, str]] = [
-    (75, 100, "deeply rooted and institutionally secure"),
-    (50,  74, "reasonably entrenched but not unassailable"),
-    (25,  49, "your grip is weakening — others sense an opportunity"),
-    (1,   24, "your organisational hold is precarious"),
 ]
 
 RATING_NARRATIVE: list[tuple[float, float, str]] = [
@@ -100,7 +93,7 @@ Your character:
 Your relationship with the {title}: {rep_label} ({rep_score:+d})
 
 Your organisation right now:
-{health_line} Your influence is {rating_desc} (rating {rating:.2f}, floor {floor}). Organisationally you are {entrench_desc} ({entrench}/100).
+{health_line} Your influence is {rating_desc} (level {level}, rating {rating:.2f}).
 
 Recent events (last 5 cycles):
 {recent_events}
@@ -146,13 +139,6 @@ def _health_narrative(health: int) -> str:
         if lo <= health <= hi:
             return text
     return "Your organisation's condition is unknown."
-
-
-def _entrench_narrative(entrench: int) -> str:
-    for lo, hi, text in ENTRENCH_NARRATIVE:
-        if lo <= entrench <= hi:
-            return text
-    return "your entrenchment is unclear"
 
 
 def _rating_narrative(rating: float) -> str:
@@ -283,7 +269,6 @@ class PromptBuilder:
 
         health_line = _health_narrative(faction.health)
         rating_desc = _rating_narrative(faction.rating)
-        entrench_desc = _entrench_narrative(faction.entrench)
 
         recent_events = _recent_events(run_id, faction.id, db)
         memory_notes = _memory_notes(run_id, faction.id, db)
@@ -312,10 +297,8 @@ class PromptBuilder:
             rep_score=rep_score,
             health_line=health_line,
             rating=faction.rating,
-            floor=faction.floor,
+            level=faction.level,
             rating_desc=rating_desc,
-            entrench_desc=entrench_desc,
-            entrench=faction.entrench,
             recent_events=recent_events,
             memory_notes=memory_notes,
             valid_mayor_terms=valid_mayor,

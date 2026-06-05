@@ -210,10 +210,7 @@ def patch_faction_live(
     if req.name is not None:
         faction.name = req.name
     if req.rating is not None:
-        faction.rating = req.rating
-        faction.floor = int(req.rating)
-    if req.entrench is not None:
-        faction.entrench = req.entrench
+        faction.rating = max(1.0, min(10.0, req.rating))
 
     return serialize_faction(faction)
 
@@ -236,8 +233,6 @@ def add_faction_live(
         domain_primary=req.domain_primary,
         leader=Leader(name=f"Leader of {req.name}"),
         rating=req.rating,
-        floor=int(req.rating),
-        entrench=75,
         health=75,
         traits=[FactionTrait(trait=t) for t in (req.traits or [])],
         relationships=[],
@@ -279,9 +274,6 @@ def trigger_event(
             detail=f"Unknown event '{req.event_name}'. Known: {sorted(known_events)}",
         )
 
-    if req.event_name == "power_vacuum":
-        domain = req.domain or req.target_id
-        if domain:
-            session.world.power_vacuums.append({"domain_id": domain, "cycles_remaining": 3})
+    # power_vacuum events are retired (factions are permanent) — accepted as a no-op.
 
     return {"detail": f"Event '{req.event_name}' triggered."}

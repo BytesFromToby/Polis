@@ -28,16 +28,10 @@ def print_summary(world: WorldState, factions: dict) -> None:
 
     print("\n  FACTIONS:")
     for fid, f in factions.items():
-        entrench_state = ("healthy" if f.entrench >= 80
-                          else "strained" if f.entrench >= 50
-                          else "weakened" if f.entrench >= 25
-                          else "critical")
-        print(f"  [{f.name:<32}] rating={f.rating:.2f} "
+        print(f"  [{f.name:<32}] level={f.level} rating={f.rating:.2f} "
               f"hp={f.health:3d} "
-              f"leader={f.leader.name} ({f.leader.status}) "
-              f"entrench={f.entrench}({entrench_state})")
+              f"leader={f.leader.name} ({f.leader.status})")
 
-    print(f"\n  Active power vacuums: {len(world.power_vacuums)}")
     chaos_active = {k: v for k, v in world.chaos.items() if v > 0}
     if chaos_active:
         print(f"  Chaos: {chaos_active}")

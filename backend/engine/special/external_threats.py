@@ -69,8 +69,6 @@ def _apply_threat_effect(
         if faction:
             if eff.field == "health":
                 faction.health = max(0, min(100, faction.health + int(scaled_value)))
-            elif eff.field == "entrench":
-                faction.entrench = max(0, min(100, faction.entrench + int(scaled_value)))
 
     elif eff.target_type == "world":
         if eff.field == "chaos":

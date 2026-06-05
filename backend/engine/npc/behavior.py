@@ -20,7 +20,7 @@ MAX_TRAITS = 6
 BASE_WEIGHTS: Dict[str, float] = {
     "Grow":            40.0,
     "Harm":            20.0,
-    "Block":           15.0,
+    "Aid":             10.0,
     "Protect":         25.0,
     "Steal":           20.0,
     "BuildProject":    15.0,
@@ -28,10 +28,10 @@ BASE_WEIGHTS: Dict[str, float] = {
 }
 
 TRAIT_MODIFIERS: Dict[str, Dict[str, float]] = {
-    "aggressive":    {"Harm": 20, "Steal": 10, "Block": 5},
-    "defensive":     {"Protect": 25, "Block": 15, "Grow": 5},
+    "aggressive":    {"Harm": 20, "Steal": 10},
+    "defensive":     {"Protect": 25, "Aid": 10, "Grow": 5},
     "ambitious":     {"Grow": 25, "Steal": 15, "Harm": 5},
-    "paranoid":      {"Protect": 20, "Block": 20, "Grow": -5},
+    "paranoid":      {"Protect": 20, "Grow": -5},
     "opportunistic": {"Steal": 20, "Grow": 15, "Harm": 10},
     "expansionary":  {"Grow": 25, "Steal": 10, "Harm": 5},
     "conservative":  {"Protect": 15, "Grow": 10, "Harm": -10},
@@ -88,10 +88,6 @@ def select_faction_action(
     # ── Step 1: Base weights ──────────────────────────────────────────────────
     weights: Dict[str, float] = dict(BASE_WEIGHTS)
 
-    # Faction already has an active block — skip Block as an option
-    if faction.active_block_target:
-        weights.pop("Block", None)
-
     # ── Step 2: Personality modifiers ────────────────────────────────────────
     rivals = [f for f in factions.values() if f.id != faction.id]
     rival_ids = {f.id for f in rivals}
@@ -105,16 +101,17 @@ def select_faction_action(
         else:
             if ft.target_id in rival_ids:
                 if ft.trait == "distrusts":
-                    weights["Block"]   = weights.get("Block",   0.0) + 15 * mult
-                    weights["Protect"] = weights.get("Protect", 0.0) + 10 * mult
+                    weights["Protect"] = weights.get("Protect", 0.0) + 15 * mult
                 elif ft.trait == "angry at":
                     weights["Harm"]  = weights.get("Harm",  0.0) + 25 * mult
                     weights["Steal"] = weights.get("Steal", 0.0) + 15 * mult
                 elif ft.trait == "trusts":
+                    weights["Aid"] = weights.get("Aid", 0.0) + 10 * mult
                     if rivals and all(r.id == ft.target_id for r in rivals):
                         weights["Harm"] = weights.get("Harm", 0.0) - 15 * mult
                 elif ft.trait == "allied with":
                     weights["Harm"] = weights.get("Harm", 0.0) - 20 * mult
+                    weights["Aid"]  = weights.get("Aid",  0.0) + 20 * mult
 
     # ── Leader influence ──────────────────────────────────────────────────────
     leader = faction.leader
@@ -131,11 +128,16 @@ def select_faction_action(
         weights["Grow"]    = weights.get("Grow",    0.0) + 15
         weights["Harm"]    = weights.get("Harm",    0.0) - 10
 
-    if faction.entrench < 30:
-        weights["Protect"] = weights.get("Protect", 0.0) + 15
+    # Aid: pull toward shoring up a hurting ally (Friend / `allied with`, any domain)
+    low_ally = _lowest_health_ally(faction, factions)
+    if low_ally is None:
+        weights.pop("Aid", None)
+    elif low_ally.health < 50:
+        weights["Aid"] = weights.get("Aid", 0.0) + 25
 
     domain_obj = domains.get(faction.domain_primary)
     if domain_obj and domain_obj.cap > 0:
+        # utilization = Σ level; harder to grow as the domain fills
         if domain_obj.utilization >= domain_obj.cap * 0.9:
             weights["Grow"]  = weights.get("Grow",  0.0) - 20
             weights["Steal"] = weights.get("Steal", 0.0) + 15
@@ -171,9 +173,6 @@ def select_faction_action(
     if faction_level_project:
         weights["Protect"] = weights.get("Protect", 0.0) + 10
 
-    # TODO: revisit cooperative logic — factions with shared domain projects could
-    # coordinate builds, but this requires multi-faction awareness. Note: issue #6.
-
     # Remove project actions if no valid targets exist
     buildable = _get_buildable_projects(faction, projects)
     sabotageable = [p for p in projects.values() if p.status != "destroyed"]
@@ -192,7 +191,11 @@ def select_faction_action(
     target_id: Optional[str] = None
 
     if action in ("Harm", "Steal"):
-        same_domain_rivals = [f for f in rivals if f.domain_primary == faction.domain_primary]
+        # same-domain rivals, excluding level-1 factions (the safe floor)
+        same_domain_rivals = [
+            f for f in rivals
+            if f.domain_primary == faction.domain_primary and f.level > 1
+        ]
         # committed_abstain: exclude the protected target for this action
         if faction.committed_abstain_action == action and faction.committed_abstain_target:
             same_domain_rivals = [f for f in same_domain_rivals if f.id != faction.committed_abstain_target]
@@ -200,8 +203,8 @@ def select_faction_action(
         if target_id is None:
             action = "Grow"
 
-    elif action == "Block":
-        target_id = _pick_block_target(faction, rivals, domains)
+    elif action == "Aid":
+        target_id = low_ally.id if low_ally else None
         if target_id is None:
             action = "Protect"
 
@@ -242,7 +245,10 @@ def _committed_plan(
     if action in ("Harm", "Steal"):
         if target_id and target_id in factions:
             return FactionPlan(faction.id, action, target_id=target_id, domain=faction.domain_primary)
-        rivals = [f for f in factions.values() if f.id != faction.id and f.domain_primary == faction.domain_primary]
+        rivals = [
+            f for f in factions.values()
+            if f.id != faction.id and f.domain_primary == faction.domain_primary and f.level > 1
+        ]
         tid = _pick_faction_target(faction, rivals, domains)
         return FactionPlan(faction.id, action, target_id=tid, domain=faction.domain_primary)
 
@@ -280,33 +286,21 @@ def _pick_faction_target(
     return weighted_choice(pool)
 
 
-def _pick_block_target(
+def _lowest_health_ally(
     faction: Faction,
-    rivals: List[Faction],
-    domains: Dict[str, Domain],
-) -> Optional[str]:
-    if not rivals:
+    factions: Dict[str, Faction],
+) -> Optional[Faction]:
+    """The most endangered ally (Friend relationship or `allied with X`), any domain.
+    Returns None if the faction has no ally."""
+    allied_ids = {ft.target_id for ft in faction.traits if ft.trait == "allied with" and ft.target_id}
+    allies = [
+        f for f in factions.values()
+        if f.id != faction.id
+        and (faction.get_faction_relationship(f.id) == "Friend" or f.id in allied_ids)
+    ]
+    if not allies:
         return None
-
-    pool: Dict[str, float] = {r.id: 1.0 for r in rivals}
-
-    for ft in faction.traits:
-        if ft.target_id and ft.target_id in pool:
-            if ft.trait in ("angry at", "distrusts"):
-                pool[ft.target_id] *= 3.0
-
-    # Weight recently hostile factions higher
-    for ft in faction.traits:
-        if ft.target_id and ft.target_id in pool and ft.trait == "angry at":
-            pool[ft.target_id] = pool.get(ft.target_id, 1.0) * 2.0
-
-    # Highest-rated rival in same domain as baseline threat
-    same_domain = [r for r in rivals if r.domain_primary == faction.domain_primary]
-    if same_domain:
-        strongest = max(same_domain, key=lambda f: f.rating)
-        pool[strongest.id] = pool.get(strongest.id, 1.0) + 1.0
-
-    return weighted_choice(pool)
+    return min(allies, key=lambda a: a.health)
 
 
 def _get_buildable_projects(

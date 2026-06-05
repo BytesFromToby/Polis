@@ -1,6 +1,6 @@
 """
 cycle/end_of_cycle.py — Steps 4–6: end-of-cycle updates, leadership events,
-                         faction collapse check.
+                         Break sweep (factions at 0 health Break; they never die).
 """
 from __future__ import annotations
 import random
@@ -33,33 +33,7 @@ def run_end_of_cycle(
             logger.log_system(cycle_num, "HEALTH", fid,
                               f"HealthDecay: {old_h} → {faction.health} ({decay:+d})")
 
-    # 4.2 Entrench decay
-    for fid, faction in factions.items():
-        domain = domains.get(faction.domain_primary)
-        drift = domain.drift if domain else 0.0
-        if drift != 0.0:
-            old_e = faction.entrench
-            faction.entrench = max(1, min(100, int(faction.entrench + drift)))
-            if logger and faction.entrench != old_e:
-                logger.log_system(cycle_num, "ENTRENCH", fid,
-                                  f"EntrenchDrift({faction.domain_primary}): {old_e} → {faction.entrench}")
-
-    # 4.3 Faction floor advance
-    for fid, faction in factions.items():
-        if int(faction.rating) > faction.floor and faction.entrench >= 50:
-            old_floor = faction.floor
-            faction.floor = int(faction.rating)
-            faction.entrench = max(25, int(faction.entrench * 0.25))
-            narrative = (f"{faction.name} consolidates at level {faction.floor}. "
-                         f"Their influence is now firmly established.")
-            all_results.append(ActionResult(
-                "FloorAdvance", fid, None, "success",
-                dramatic=True, narrative=narrative,
-            ))
-            if logger:
-                logger.log_dramatic(cycle_num, narrative)
-
-    # 4.4 Trait evolution — basic streak tracking
+    # 4.2 Trait evolution — basic streak tracking
     for fid, faction in factions.items():
         grow_streak = getattr(faction, '_grow_streak', 0)
         protect_streak = getattr(faction, '_protect_streak', 0)
@@ -156,37 +130,24 @@ def _generate_leader_name() -> str:
     return f"{random.choice(first)} {random.choice(last)}"
 
 
-# ── Step 6: Faction Collapse Check ────────────────────────────────────────────
+# ── Step 6: Break Sweep ───────────────────────────────────────────────────────
 
-def run_collapse_check(
+def run_break_sweep(
     factions: Dict[str, Faction],
     all_results: List[ActionResult],
     cycle_num: int,
     logger=None,
 ) -> None:
-    """Step 6: Remove factions with health <= 0; probabilistic collapse near 0."""
-    to_collapse = []
+    """Any faction at 0 health Breaks (it is never removed). Covers non-aggression
+    sources of health-0 (decay, events); aggression-driven Breaks already fired
+    inline during the action loop."""
+    from .resolution import resolve_break
     for fid, faction in factions.items():
         if faction.health <= 0:
-            to_collapse.append(fid)
-        elif faction.health < 20:
-            chance = (20 - faction.health) * 0.02
-            if random.random() < chance:
-                to_collapse.append(fid)
-
-    for fid in to_collapse:
-        faction = factions.get(fid)
-        if faction is None:
-            continue
-        narrative = (f"{faction.name} collapses. "
-                     f"Their influence dissolves and the faction ceases to exist.")
-        all_results.append(ActionResult(
-            "FactionCollapse", fid, None, "decisive",
-            dramatic=True, narrative=narrative,
-        ))
-        if logger:
-            logger.log_dramatic(cycle_num, narrative)
-        del factions[fid]
+            brk = resolve_break(faction)
+            all_results.append(brk)
+            if logger and brk.narrative:
+                logger.log_dramatic(cycle_num, brk.narrative)
 
 
 # ── Deal Tick & Compliance ────────────────────────────────────────────────────
@@ -219,7 +180,6 @@ def tick_deals(
         for term in deal.faction_terms:
             if term.type == "committed_action":
                 actual_action = acted_this_cycle.get(deal.faction_id)
-                cancelled = faction.action_cancelled if faction else False
                 complied = actual_action == term.action
                 if not complied:
                     deal.suspension_streak += 1

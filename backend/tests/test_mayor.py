@@ -20,10 +20,13 @@ def make_treasury(**kw):
     return Treasury(**kw)
 
 
-def make_faction(fid="f1", domain="trade", rating=2.0, health=75, floor=2, **kw):
+def make_faction(fid="f1", domain="trade", rating=2.0, health=75, floor=None, **kw):
+    # `floor` is accepted for back-compat; level now derives from rating (level = int(rating)).
+    if floor is not None:
+        rating = float(floor)
     kw.setdefault("leader", Leader(name="Test"))
     return Faction(id=fid, name=fid, domain_primary=domain, rating=rating,
-                   health=health, floor=floor, **kw)
+                   health=health, **kw)
 
 
 def make_domain(did="trade", cap=100):

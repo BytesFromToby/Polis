@@ -1,6 +1,6 @@
 """
 event_system.py — Full event processing: random, scripted, and mayor-triggered events.
-Active events are processed at Step 8 each cycle (after end-of-cycle and collapse cascades).
+Active events are processed at Step 8 each cycle (after end-of-cycle).
 """
 import random
 from typing import Dict, List, Optional
@@ -247,10 +247,8 @@ def _apply_single_event_effect(
         faction = factions[tid]
         if eff.field == "health":
             faction.health = max(0, min(100, faction.health + int(eff.value)))
-        elif eff.field == "entrench":
-            faction.entrench = max(0, min(100, faction.entrench + int(eff.value)))
         elif eff.field == "rating":
-            faction.rating = max(0.0, min(5.0, faction.rating + eff.value))
+            faction.rating = max(1.0, min(10.0, faction.rating + eff.value))
 
     elif tid in domains:
         domain = domains[tid]
@@ -316,7 +314,7 @@ def create_mayor_triggered_event(
             cycles_remaining=2,
             effects=[
                 EventEffect(
-                    field="entrench", target_id=target_id,
+                    field="health", target_id=target_id,
                     value=-5.0, label="resource deprivation"
                 )
             ],

@@ -17,26 +17,27 @@ if TYPE_CHECKING:
 
 # ── Rating ceiling ────────────────────────────────────────────────────────────
 
-RATING_MAX: float = 5.0
+RATING_MAX: float = 10.0    # faction rank ceiling (1.0–10.0); level = int(rating)
 
 
 # ── Grow ──────────────────────────────────────────────────────────────────────
 
-def grow_increment(floor_level: int) -> float:
+def grow_increment(level: int) -> float:
     """
-    Grow increment per cycle.
-    cycles to next level = 2^n + 1
-    increment per cycle  = 1 / (2^n + 1)
+    Grow increment per cycle toward the next level: 1 / (level + 1).
+    Decelerating (low levels rise fast); retired 1/(2^n+1), unusable across
+    10 levels. Provisional — tuned by feel.
 
-    | Level | Cycles | Increment |
-    |-------|--------|-----------|
-    |   1   |    3   |  0.3333   |
-    |   2   |    5   |  0.2000   |
-    |   3   |    9   |  0.1111   |
-    |   4   |   17   |  0.0588   |
+    | Level | Grows to next | Increment |
+    |-------|---------------|-----------|
+    |   1   |       2       |   0.500   |
+    |   2   |       3       |   0.333   |
+    |   3   |       4       |   0.250   |
+    |   5   |       6       |   0.167   |
+    |   9   |      10       |   0.100   |
     """
-    n = max(1, floor_level)
-    return round(1.0 / ((2 ** n) + 1), 6)
+    n = max(1, level)
+    return round(1.0 / (n + 1), 6)
 
 
 # ── Contest Resolution ────────────────────────────────────────────────────────
@@ -77,10 +78,10 @@ def resolve_contest(
 
 # ── Domain ────────────────────────────────────────────────────────────────────
 
-def faction_weight(floor_level: int) -> int:
-    """Weight of a faction in its domain for utilization calculation."""
-    weights = {1: 0, 2: 2, 3: 4, 4: 8, 5: 16}
-    return weights.get(floor_level, 0)
+def faction_weight(level: int) -> int:
+    """A faction contributes its level to its domain's utilization (Σ level).
+    Replaces the retired exponential weight table."""
+    return max(0, level)
 
 
 def domain_cap_resistance(utilization: float, cap: int) -> str:

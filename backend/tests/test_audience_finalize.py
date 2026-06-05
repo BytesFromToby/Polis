@@ -44,7 +44,7 @@ _REJECT_TEXT = (
 def _faction(fid="f1"):
     return Faction(
         id=fid, name="The Guild", domain_primary="trade",
-        health=75, entrench=75, rating=2.0, leader=Leader(name="Elder Vane"),
+        health=75, rating=2.0, leader=Leader(name="Elder Vane"),
     )
 
 

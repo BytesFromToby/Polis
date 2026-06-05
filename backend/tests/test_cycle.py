@@ -20,7 +20,7 @@ def make_domain(did="political") -> Domain:
 def make_faction(fid, domain="political", rating=2.0) -> Faction:
     return Faction(
         id=fid, name=f"The {fid.title()}", domain_primary=domain,
-        rating=rating, health=75, entrench=75,
+        rating=rating, health=75,
         leader=Leader(name="Test Leader"),
         traits=[FactionTrait(trait="ambitious", intensity="moderate")],
     )

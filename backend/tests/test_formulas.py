@@ -19,42 +19,29 @@ def make_faction(rating=2.0, leader_status="present") -> Faction:
     return Faction(
         id="test", name="Test Faction", domain_primary="political",
         leader=Leader(name="Test", status=leader_status or "present"),
-        rating=rating, health=75, entrench=75,
+        rating=rating, health=75,
     )
 
 
 class TestGrowIncrement:
-    def test_level_1(self):
-        assert grow_increment(1) == pytest.approx(1 / 3, rel=1e-4)
+    def test_curve_is_one_over_level_plus_one(self):
+        # Grow increment = 1 / (level + 1) for every level 1–9.
+        for level in range(1, 10):
+            assert grow_increment(level) == pytest.approx(1 / (level + 1), rel=1e-4)
 
-    def test_level_2(self):
-        assert grow_increment(2) == pytest.approx(1 / 5, rel=1e-4)
-
-    def test_level_3(self):
-        assert grow_increment(3) == pytest.approx(1 / 9, rel=1e-4)
-
-    def test_level_4(self):
-        assert grow_increment(4) == pytest.approx(1 / 17, rel=1e-4)
+    def test_decelerates_with_level(self):
+        assert grow_increment(1) > grow_increment(5) > grow_increment(9)
 
 
 class TestFactionWeight:
-    def test_floor_1_is_zero(self):
-        assert faction_weight(1) == 0
+    def test_weight_equals_level(self):
+        # Domain utilization is Σ level: each faction contributes its own level.
+        for level in range(1, 11):
+            assert faction_weight(level) == level
 
-    def test_floor_2(self):
-        assert faction_weight(2) == 2
-
-    def test_floor_3(self):
-        assert faction_weight(3) == 4
-
-    def test_floor_4(self):
-        assert faction_weight(4) == 8
-
-    def test_floor_5(self):
-        assert faction_weight(5) == 16
-
-    def test_unknown_level(self):
-        assert faction_weight(6) == 0
+    def test_never_negative(self):
+        assert faction_weight(0) == 0
+        assert faction_weight(-3) == 0
 
 
 class TestResolveContest:

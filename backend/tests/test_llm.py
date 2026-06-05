@@ -26,7 +26,6 @@ def _faction(
     name="The Guild",
     domain="trade",
     health=75,
-    entrench=75,
     rating=2.0,
     traits=None,
 ):
@@ -35,7 +34,6 @@ def _faction(
         name=name,
         domain_primary=domain,
         health=health,
-        entrench=entrench,
         rating=rating,
         leader=Leader(name="Elder Vane"),
         traits=traits or [],

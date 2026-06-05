@@ -9,12 +9,10 @@ from engine.models import Faction, Domain, WorldState, ActionResult, Leader
 from engine.events import check_for_cascades, process_world_chaos
 
 
-def make_faction(fid="a", domain="political", rating=4.0, floor=4) -> Faction:
-    f = Faction(id=fid, name=f"The {fid}", domain_primary=domain,
-                rating=rating, health=50, entrench=50,
-                leader=Leader(name="Test"))
-    f.floor = floor
-    return f
+def make_faction(fid="a", domain="political", rating=4.0) -> Faction:
+    return Faction(id=fid, name=f"The {fid}", domain_primary=domain,
+                   rating=rating, health=50,
+                   leader=Leader(name="Test"))
 
 
 def make_domain(did="political") -> Domain:
@@ -22,37 +20,30 @@ def make_domain(did="political") -> Domain:
 
 
 class TestCheckForCascades:
-    def test_no_collapse_no_cascade(self):
+    """Collapse cascades are retired — factions are permanent (they Break, never die),
+    so check_for_cascades is a no-op kept only for back-compat."""
+
+    def test_no_results_no_cascade(self):
         factions = {"a": make_faction()}
         domains = {"political": make_domain()}
         world = WorldState()
         results = [ActionResult("Grow", "a", None, "success")]
-        cascades = check_for_cascades(results, factions, domains, world)
-        assert cascades == []
+        assert check_for_cascades(results, factions, domains, world) == []
 
-    def test_collapse_triggers_cascade(self):
+    def test_collapse_no_longer_cascades(self):
+        # A legacy "FactionCollapse" result must produce nothing now.
         factions = {"a": make_faction()}
         domains = {"political": make_domain()}
         world = WorldState()
         results = [ActionResult("FactionCollapse", "a", None, "decisive", domain="political")]
-        cascades = check_for_cascades(results, factions, domains, world)
-        assert len(cascades) > 0
+        assert check_for_cascades(results, factions, domains, world) == []
 
-    def test_collapse_opens_power_vacuum(self):
-        factions = {}
-        domains = {"political": make_domain()}
-        world = WorldState()
-        results = [ActionResult("FactionCollapse", "a", None, "decisive", domain="political")]
-        check_for_cascades(results, factions, domains, world)
-        assert any(pv.get("domain_id") == "political" for pv in world.power_vacuums)
-
-    def test_collapse_increases_chaos(self):
-        factions = {}
+    def test_no_chaos_side_effects(self):
         domains = {"political": make_domain()}
         world = WorldState(chaos={"political": 0})
         results = [ActionResult("FactionCollapse", "a", None, "decisive", domain="political")]
-        check_for_cascades(results, factions, domains, world)
-        assert world.chaos.get("political", 0) > 0
+        check_for_cascades(results, {}, domains, world)
+        assert world.chaos.get("political", 0) == 0
 
 
 class TestProcessWorldChaos:

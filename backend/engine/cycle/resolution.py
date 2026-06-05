@@ -1,26 +1,32 @@
 """
-cycle/resolution.py — Sequential initiative action loop (v4).
+cycle/resolution.py — Sequential initiative action loop (v5, demo redesign).
 
-Replaces the old batch declaration + block-first-then-all model.
-Each faction acts one at a time in initiative order. Block fires as a
-standing trap at the start of the target's turn.
+Block removed (no standing trap). Each faction acts once in initiative order.
+A faction reduced to 0 health Breaks immediately (it never dies).
 """
 from __future__ import annotations
 import random
 from typing import Dict, List, Optional
 
-from ..models import Faction, Domain, WorldState, Project, ActionResult, FactionPlan
+from ..models import Faction, Domain, WorldState, Project, ActionResult, FactionPlan, Leader
 from ..actions import (
     resolve_grow,
     resolve_harm,
-    set_block,
-    fire_block,
     resolve_protect,
+    resolve_aid,
     resolve_steal,
     resolve_build_project,
     resolve_sabotage_project,
 )
 from ..npc import select_faction_action
+
+
+# Minimal name pool for auto-regenerated leaders (theme-appropriate placeholder).
+_NEW_LEADER_NAMES = [
+    "Hagnon", "Kleisthenes", "Theramenes", "Nikias", "Demosthenes",
+    "Kallikrates", "Eudoxos", "Phaidra", "Aristomache", "Xanthippe",
+    "Melanthios", "Polydoros", "Euphranor", "Lykourgos", "Andromache",
+]
 
 
 def run_sequential_actions(
@@ -31,18 +37,14 @@ def run_sequential_actions(
     cycle_num: int,
     logger=None,
 ) -> List[ActionResult]:
-    """
-    Step 1+2: Roll initiative, then iterate factions in order.
-    Each turn: fire pending block → select action → resolve.
-    Returns all ActionResults for the cycle.
-    """
+    """Step 1+2: roll initiative, then resolve each faction's single action in order.
+    A target dropped to 0 health Breaks before the loop continues."""
     results: List[ActionResult] = []
 
-    # Reset cycle-only state on all factions
     for faction in factions.values():
         faction.reset_cycle_state()
 
-    # Step 1 — Initiative roll
+    # Step 1 — Initiative (all factions; none are ever removed)
     order = list(factions.keys())
     random.shuffle(order)
     world.initiative_order = order
@@ -53,47 +55,25 @@ def run_sequential_actions(
         if faction is None:
             continue
 
-        # 2a — Block check: scan for any armed block targeting this faction
-        block_result = _check_and_fire_block(faction, factions, cycle_num, logger)
-        if block_result:
-            results.append(block_result)
-            if faction.action_cancelled:
-                continue  # decisive block: skip this faction's turn entirely
-
-        # 2b — Behavior engine (live state)
         plan = select_faction_action(faction, factions, domains, world, projects)
-
-        # Apply downgrade from partial block
-        if faction.action_downgraded:
-            if plan.action in ("Harm", "Steal"):
-                plan.action = "Grow"
-                plan.target_id = None
-            faction.action_downgraded = False
-
-        # 2c — Resolve action
         result = _execute(plan, faction, factions, domains, projects)
-        if result:
-            results.append(result)
-            if logger and result.dramatic and result.narrative:
-                logger.log_dramatic(cycle_num, result.narrative)
+        if not result:
+            continue
+
+        results.append(result)
+        if logger and result.dramatic and result.narrative:
+            logger.log_dramatic(cycle_num, result.narrative)
+
+        # Break check — did this action drop a faction to 0 health?
+        if result.target_id:
+            victim = factions.get(result.target_id)
+            if victim and victim.health <= 0:
+                brk = resolve_break(victim)
+                results.append(brk)
+                if logger and brk.narrative:
+                    logger.log_dramatic(cycle_num, brk.narrative)
 
     return results
-
-
-def _check_and_fire_block(
-    faction: Faction,
-    factions: Dict[str, Faction],
-    cycle_num: int,
-    logger=None,
-) -> Optional[ActionResult]:
-    """Find the first armed blocker targeting this faction and fire it."""
-    for blocker in factions.values():
-        if blocker.active_block_target == faction.id:
-            result = fire_block(blocker, faction)
-            if logger and result.narrative:
-                logger.log_dramatic(cycle_num, result.narrative)
-            return result
-    return None
 
 
 def _execute(
@@ -107,31 +87,26 @@ def _execute(
 
     if action == "Skip":
         return None
-
     if action == "Grow":
         return resolve_grow(faction, domains)
-
     if action == "Protect":
         return resolve_protect(faction)
-
+    if action == "Aid" and plan.target_id:
+        target = factions.get(plan.target_id)
+        if target:
+            return resolve_aid(faction, target)
     if action == "Harm" and plan.target_id:
         target = factions.get(plan.target_id)
         if target:
             return resolve_harm(faction, target, factions)
-
     if action == "Steal" and plan.target_id:
         target = factions.get(plan.target_id)
         if target:
             return resolve_steal(faction, target)
-
-    if action == "Block" and plan.target_id:
-        return set_block(faction, plan.target_id)
-
     if action == "BuildProject" and plan.target_id:
         project = projects.get(plan.target_id)
         if project:
             return resolve_build_project(faction, project)
-
     if action == "SabotageProject" and plan.target_id:
         project = projects.get(plan.target_id)
         if project:
@@ -139,3 +114,31 @@ def _execute(
 
     # Fallback
     return resolve_grow(faction, domains)
+
+
+def resolve_break(faction: Faction, rng=random) -> ActionResult:
+    """Resolve a Break (health reached 0). The faction never dies:
+    - 75% → level −1 (rank drops to (level-1).0; reprieve, no change, at level 1)
+    - 25% → leader dies + auto-regenerates (new leader, `weakened` for a cycle)
+    Health resets to 75. `rng` is injectable so tests can force a branch."""
+    old_leader = faction.leader.name
+    if rng.random() < 0.25:
+        new_name = rng.choice(_NEW_LEADER_NAMES)
+        # status="present": a freshly installed leader is full strength. (The spec
+        # called for a 1-cycle `weakened` window, but the existing leadership flow
+        # escalates `weakened`→`absent`, which would turn recovery into a crisis.)
+        faction.leader = Leader(name=new_name, traits=[], status="present", personality_notes=[])
+        narrative = f"{old_leader} of {faction.name} falls; {new_name} takes command."
+    else:
+        level = faction.level
+        if level > 1:
+            faction.rating = float(level - 1)
+            narrative = f"{faction.name} is thrown into disarray and loses ground."
+        else:
+            narrative = f"{faction.name} is battered but holds at the bottom."
+
+    faction.health = 75
+    return ActionResult(
+        "Break", faction.id, faction.id, "decisive",
+        dramatic=True, narrative=narrative,
+    )

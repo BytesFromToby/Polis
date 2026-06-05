@@ -3,7 +3,8 @@ serializer.py — Symmetric serialize/deserialize for all core engine models (v5
 
 v3: Unit removed. Faction has embedded Leader, FactionTrait list, health.
 v4: Mayor, Treasury, Project added.
-v5: Project domain→domains list, faction_level. Faction active_block_target. WorldState initiative_order.
+v5: Project domain→domains list, faction_level. Faction is rank+health (entrench/floor/Block
+    removed; factions are permanent). WorldState initiative_order.
 
 Public API:
     serialize_state(world, factions, domains, mayor, treasury, projects) -> dict
@@ -86,14 +87,11 @@ def serialize_faction(faction: Faction) -> dict:
         "domain_primary": faction.domain_primary,
         "rating": faction.rating,
         "health": faction.health,
-        "floor": faction.floor,
-        "entrench": faction.entrench,
         "leader": _ser_leader(faction.leader),
         "blurb": faction.blurb,
         "description": faction.description,
         "traits": [_ser_faction_trait(t) for t in faction.traits],
         "relationships": [_ser_faction_relationship(r) for r in faction.relationships],
-        "active_block_target": faction.active_block_target,
         "unstable_stacks": faction.unstable_stacks,
         "committed_action": faction.committed_action,
         "committed_target": faction.committed_target,
@@ -113,13 +111,10 @@ def deserialize_faction(d: dict) -> Faction:
         leader=leader,
         rating=d.get("rating", 1.0),
         health=d.get("health", 75),
-        floor=d.get("floor", int(d.get("rating", 1.0))),
-        entrench=d.get("entrench", 75),
         traits=[_des_faction_trait(t) for t in d.get("traits", [])],
         relationships=[_des_faction_relationship(r) for r in d.get("relationships", [])],
         blurb=d.get("blurb", ""),
         description=d.get("description", ""),
-        active_block_target=d.get("active_block_target", ""),
         unstable_stacks=d.get("unstable_stacks", 0),
         committed_action=d.get("committed_action", ""),
         committed_target=d.get("committed_target", ""),
@@ -155,7 +150,6 @@ def serialize_world_state(world: WorldState) -> dict:
     return {
         "cycle": world.cycle,
         "chaos": dict(world.chaos),
-        "power_vacuums": list(world.power_vacuums),
         # initiative_order is cycle-only; not persisted
     }
 
@@ -164,7 +158,6 @@ def deserialize_world_state(d: dict) -> WorldState:
     return WorldState(
         cycle=d.get("cycle", 0),
         chaos=d.get("chaos", {}),
-        power_vacuums=d.get("power_vacuums", []),
     )
 
 

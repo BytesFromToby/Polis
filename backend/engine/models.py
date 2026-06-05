@@ -54,17 +54,13 @@ class Faction:
     name: str
     domain_primary: str
     leader: Leader
-    rating: float = 1.0
-    health: int = 75               # 1-100
-    entrench: int = 75             # 1-100; organizational entrenchment
+    rating: float = 1.0            # the faction's rank, 1.0–10.0; level = int(rating)
+    health: int = 75               # 1-100; breaking-point buffer
     traits: List[FactionTrait] = field(default_factory=list)
     relationships: List[FactionRelationship] = field(default_factory=list)
 
     blurb: str = ""                # short gloss (left-panel); from theming.md
     description: str = ""          # full identity line (audience + prompt); from theming.md
-
-    floor: int = -1                # last confirmed level; -1 = auto-init
-    active_block_target: str = ""  # faction_id of standing block trap; "" if none
 
     # Deal commitment fields (persistent — cleared when deal expires/breaks)
     committed_action: str = ""     # action name faction must take each turn; "" if none
@@ -74,16 +70,18 @@ class Faction:
     committed_abstain_target: str = ""   # target faction id for abstain commitment
 
     # Cycle-only state (reset each cycle, not persisted)
-    action_cancelled: bool = False
-    action_downgraded: bool = False
     unstable_stacks: int = 0       # -1 per stack to rolls, max 3
 
     def __post_init__(self):
-        if self.floor == -1:
-            self.floor = int(self.rating)
+        self.rating = max(1.0, min(10.0, self.rating))
 
     @property
     def floor_rating(self) -> int:
+        return int(self.rating)
+
+    @property
+    def level(self) -> int:
+        """Integer rank, 1–10. Alias of floor_rating."""
         return int(self.rating)
 
     def is_leaderless(self) -> bool:
@@ -108,8 +106,6 @@ class Faction:
         return None
 
     def reset_cycle_state(self):
-        self.action_cancelled = False
-        self.action_downgraded = False
         self.unstable_stacks = 0
 
 
@@ -136,7 +132,6 @@ class Domain:
 class WorldState:
     cycle: int = 0
     chaos: Dict[str, float] = field(default_factory=dict)          # domain_id -> 0.0-10.0
-    power_vacuums: List[dict] = field(default_factory=list)         # {domain_id, cycles_remaining}
     initiative_order: List[str] = field(default_factory=list)       # cycle-only; faction ids in turn order
 
 
@@ -254,7 +249,7 @@ class Project:
 
 @dataclass
 class EventEffect:
-    field: str        # "rating" | "health" | "entrench" | "action_weight" | "chaos"
+    field: str        # "rating" | "health" | "action_weight" | "chaos"
     target_id: str
     value: float
     label: str = ""

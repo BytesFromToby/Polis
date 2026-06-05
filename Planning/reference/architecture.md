@@ -74,12 +74,12 @@ polis/
 |--------|------|
 | `engine/models.py` | Dataclasses: Faction (embedded Leader), Domain, WorldState, plans, results |
 | `engine/formulas.py` | Faction-contest math: rating ceiling, grow increment, rolls, contest, faction weight, domain cap resistance |
-| `engine/actions/faction.py` | Faction action resolvers (grow, harm, protect, steal, block, build/sabotage project) |
+| `engine/actions/faction.py` | Faction action resolvers (grow, protect, aid, harm, steal, build/sabotage project) |
 | `engine/cycle/runner.py` | `run_cycle()` orchestrator — full cycle order (see cycle-runner_spec) |
-| `engine/cycle/resolution.py` | Sequential-initiative action loop |
-| `engine/cycle/end_of_cycle.py` | End-of-cycle state updates, leadership events, faction collapse |
-| `engine/events/cascades.py` | Collapse chain-reactions: power vacuum + chaos (mechanical) |
-| `engine/events/world.py` | Chaos-driven upheavals + power-vacuum ticking (mechanical) |
+| `engine/cycle/resolution.py` | Sequential-initiative action loop + Break resolution (0 health → Break, never death) |
+| `engine/cycle/end_of_cycle.py` | End-of-cycle state updates, leadership events, Break sweep |
+| `engine/events/cascades.py` | Retired no-op (collapse cascades removed — factions are permanent) |
+| `engine/events/world.py` | Chaos-driven upheavals (mechanical) |
 | `engine/events/event_system.py` | Scripted/random event deck (events_spec) |
 | `engine/npc/{weights,behavior,targeting}.py` | Action weights, selection, and target picking |
 | `engine/mayor/{actions,treasury}.py` | Mayor actions + treasury (mayor_spec, treasury_spec) |
@@ -107,10 +107,10 @@ see what earlier ones did. The conceptual phases:
 | 1 | Initiative — shuffle factions into random turn order |
 | 2 | Action loop — factions act sequentially |
 | 3 | Project ticks — construction, completion, defense reset |
-| 4 | End of cycle — traits, chaos, collapses, cooldowns, counters |
+| 4 | End of cycle — traits, chaos, Break sweep, cooldowns, counters |
 
 **`Planning/specs/cycle-runner_spec.md` is authoritative** for the full per-cycle
-orchestration (treasury → external threats → mayor → action loop → collapse cascades →
+orchestration (treasury → external threats → mayor → action loop → Break sweep →
 events → projects → world chaos → moneylender → the public).
 
 ---
@@ -132,13 +132,14 @@ frontend/  →  api/  →  engine/
 ## Key Invariants
 
 1. **Faction-only.** There are no units. Every faction always has an embedded `Leader`.
-2. **Rating is clamped 1.0–5.0.** `floor` advances step-wise (entrench-gated) and is distinct
-   from the `floor_rating` property (`int(rating)`).
+2. **Rank is clamped 1.0–10.0.** `rating` is the rank; `level` (= `int(rating)`, aliased by the
+   `floor_rating` property) is the integer tier. `entrench`/stored `floor` are gone — a faction is
+   rank + health. At 0 health a faction **Breaks** (level −1 or leader death); it never dies.
 3. **Sequential initiative.** Factions act one at a time in random order; state updates between
    turns. There is no batch declaration/resolution phase.
-4. **Domain utilization is recalculated each cycle** from faction weights — never carried raw.
-   The weight table in `formulas.py` is authoritative.
-5. **Cycle-only fields are never persisted** (e.g. `unstable_stacks`, block flags) — reset via
+4. **Domain utilization is recalculated each cycle** as Σ level (each faction contributes its
+   `level`) — never carried raw. The old exponential weight table is retired.
+5. **Cycle-only fields are never persisted** (e.g. `unstable_stacks`) — reset via
    `Faction.reset_cycle_state()`.
 6. **`engine/` never imports from `api/`, `db/`, or `frontend/`.**
 7. **The spec is truth.** Where this doc and a spec disagree, the spec wins.

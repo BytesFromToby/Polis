@@ -186,7 +186,7 @@ def _calc_tax_income(
         if rate == 0.0:
             continue
         weight = sum(
-            faction_weight(f.floor)
+            faction_weight(f.level)
             for f in domain_factions
             if not mayor.is_exempt(f.id)
         )

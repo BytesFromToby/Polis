@@ -8,8 +8,10 @@ from engine.projects.processing import (
 from engine.cycle.runner import run_cycle
 
 
-def make_faction(fid="f1", domain="trade", floor=2, rating=2.0, health=75):
-    return Faction(id=fid, name=fid, domain_primary=domain, leader=Leader(name="Test"), floor=floor, rating=rating, health=health)
+def make_faction(fid="f1", domain="trade", floor=None, rating=2.0, health=75):
+    if floor is not None:
+        rating = float(floor)
+    return Faction(id=fid, name=fid, domain_primary=domain, leader=Leader(name="Test"), rating=rating, health=health)
 
 
 def make_project(pid="p1", domain="trade", build_time=3, status="under_construction", health=0):

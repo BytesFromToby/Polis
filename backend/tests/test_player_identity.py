@@ -69,7 +69,7 @@ def _seed_setup(session, city_name="Polis") -> tuple[str, str]:
         is_official=False, published=False, owner_id="u1",
         domains_json="{}", factions_json="{}",
         world_state_json=json.dumps(
-            serialize_world_state(WorldState(cycle=0, chaos={}, power_vacuums=[]))
+            serialize_world_state(WorldState(cycle=0, chaos={}))
         ),
     )
     session.add(city)
@@ -157,7 +157,7 @@ def _engine_faction():
     from engine.models import Faction, Leader
     return Faction(
         id="f1", name="The Guild", domain_primary="trade",
-        health=75, entrench=75, rating=2.0, leader=Leader(name="Elder Vane"),
+        health=75, rating=2.0, leader=Leader(name="Elder Vane"),
     )
 
 

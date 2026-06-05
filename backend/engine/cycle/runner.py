@@ -5,7 +5,7 @@ Steps 0–4 per cycle-runner_spec v1:
   0: Treasury
   1+2: Sequential initiative action loop (in resolution.py)
   3: Project ticks
-  4: End of cycle, leadership, collapse, chaos, counters
+  4: End of cycle, leadership, Break sweep, chaos, counters
 """
 from __future__ import annotations
 from typing import Dict, List, Optional
@@ -15,9 +15,9 @@ from ..models import (
     Mayor, Treasury, MayorAction, Project, GameEvent, ThePublic, ExternalThreat,
 )
 from ..formulas import faction_weight
-from ..events import check_for_cascades, process_world_chaos, process_active_events, roll_for_random_events
+from ..events import process_world_chaos, process_active_events, roll_for_random_events
 from .resolution import run_sequential_actions
-from .end_of_cycle import run_end_of_cycle, run_leadership_events, run_collapse_check
+from .end_of_cycle import run_end_of_cycle, run_leadership_events, run_break_sweep
 
 
 # ── CycleEvent Conversion ─────────────────────────────────────────────────────
@@ -68,10 +68,10 @@ def run_cycle(
 
     # ── Step 0: Pre-cycle setup ───────────────────────────────────────────────
 
-    # Recalculate domain utilization
+    # Recalculate domain utilization (Σ level)
     for domain_id, domain in domains.items():
         domain.utilization = sum(
-            faction_weight(faction.floor)
+            faction_weight(faction.level)
             for faction in factions.values()
             if faction.domain_primary == domain_id
         )
@@ -108,17 +108,10 @@ def run_cycle(
     # Track per-faction cycle outcomes for trait evolution
     _track_cycle_outcomes(all_results, factions)
 
-    # ── Steps 4–6: End-of-cycle, leadership, collapse ─────────────────────────
+    # ── Steps 4–6: End-of-cycle, leadership, Break sweep ─────────────────────
     run_end_of_cycle(world, factions, domains, all_results, cycle_num, logger)
     run_leadership_events(factions, all_results, cycle_num, logger)
-    run_collapse_check(factions, all_results, cycle_num, logger)
-
-    # ── Step 7: Cascades ─────────────────────────────────────────────────────
-    cascade_results = check_for_cascades(all_results, factions, domains, world)
-    for r in cascade_results:
-        all_results.append(r)
-        if logger and r.dramatic and r.narrative:
-            logger.log_dramatic(cycle_num, r.narrative)
+    run_break_sweep(factions, all_results, cycle_num, logger)
 
     # ── Step 8: Active game events ────────────────────────────────────────────
     if active_events:
@@ -146,8 +139,6 @@ def run_cycle(
     if event_deck and active_events is not None:
         new_events = roll_for_random_events(world, factions, domains, event_deck)
         active_events.extend(new_events)
-
-    _tick_power_vacuums(world, logger, cycle_num)
 
     # ── Step 9: Increment cycle + Mayor end-of-cycle ─────────────────────────
     world.cycle += 1
@@ -202,7 +193,7 @@ def _track_cycle_outcomes(
     # Track action streaks from resolved results
     acted: Dict[str, str] = {}  # faction_id -> action taken this cycle
     for r in results:
-        if r.actor_id in factions and r.action not in ("Block",):
+        if r.actor_id in factions and r.action not in ("Break",):
             acted[r.actor_id] = r.action
 
     for fid, faction in factions.items():
@@ -217,20 +208,10 @@ def _track_cycle_outcomes(
             faction._grow_streak = 0
             faction._protect_streak = 0
 
-        hostile = action in ("Harm", "Block", "Steal", "SabotageProject")
+        hostile = action in ("Harm", "Steal", "SabotageProject")
         if not hostile:
             faction._hostile_drought = getattr(faction, '_hostile_drought', 0) + 1
         else:
             faction._hostile_drought = 0
 
 
-def _tick_power_vacuums(world: WorldState, logger, cycle_num: int) -> None:
-    """Decrement power vacuum timers. Remove expired ones."""
-    expired = [pv for pv in world.power_vacuums if pv.get("cycles_remaining", 0) <= 0]
-    for pv in expired:
-        world.power_vacuums.remove(pv)
-        if logger:
-            logger.log_system(cycle_num, "VACUUM", "world",
-                              f"Power vacuum in {pv.get('domain_id')} expired")
-    for pv in world.power_vacuums:
-        pv["cycles_remaining"] = pv.get("cycles_remaining", 1) - 1

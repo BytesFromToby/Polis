@@ -133,7 +133,6 @@ class FactionPatchRequest(BaseModel):
     name: Optional[str] = None
     domain_primary: Optional[str] = None
     rating: Optional[int] = None
-    entrench: Optional[int] = None
     traits: Optional[List[str]] = None
     description: Optional[str] = None
 
