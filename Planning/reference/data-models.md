@@ -6,7 +6,7 @@ no **Done when:** items. (Re-tiered from `specs/data-models_spec.md`, 2026-05-25
 **Version:** v6
 **Date:** 2026-05-19
 **Updated:** 2026-05-23 — Aligned with `engine/models.py` (data-models speccheck pass): added `Faction.floor`/`leadership_need`, `ActionResult.margin`; reconciled helper names, outcome values, and field defaults; delegated special-factions/events entities to their own specs.
-**Updated:** 2026-06-03 (demo-redesign) — rank → 1.0–10.0; **`floor` and `entrench` removed** (`level = int(rating)`); domain utilization = Σ level; `power_vacuums` dropped (factions are permanent). *Ahead of code until the redesign build — see `../proposals/demo-redesign.md`.*
+**Updated:** 2026-06-03 (demo-redesign) — rank → 1.0–10.0; **`floor` and `entrench` removed** (`level = int(rating)`); domain utilization = Σ level; `power_vacuums` dropped (factions are permanent). *Redesign build landed (2026-06-06) and inspector-verified against `engine/models.py`; this reference is now as-built. See `../proposals/demo-redesign.md` for the original proposal.*
 
 Units removed. Leader embedded in Faction. SM domain removed. Personality system added to Faction.
 

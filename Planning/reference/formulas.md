@@ -1,8 +1,8 @@
 # Core Formulas (Reference)
 
 The current faction-contest math. Reference doc — definitional, no **Done when:** items.
-**Verified against `scr/engine/formulas.py` (v3, units removed), 2026-05-25.**
-**Updated 2026-06-03 (demo-redesign):** rank widened to 1–10, linear-ish grow curve, faction-weight table dropped, entrench removed. *Ahead of code until the redesign build lands — verify with inspector after. See `../proposals/demo-redesign.md`.*
+**Verified against `backend/engine/formulas.py` (v3, units removed), 2026-05-25.**
+**Updated 2026-06-03 (demo-redesign):** rank widened to 1–10, linear-ish grow curve, faction-weight table dropped, entrench removed. *Redesign build landed (2026-06-06) and inspector-verified (suite green, 98/98 automated criteria proven); this reference is now as-built. See `../proposals/demo-redesign.md` for the original proposal.*
 Subsystem-specific math (treasury interest, entrench decay, health) lives with its own
 spec/module, not here.
 
