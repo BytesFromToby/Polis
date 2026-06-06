@@ -246,7 +246,7 @@ The mayor can break any active deal at any time. This is a deliberate player act
 - Mayor reputation with The Public: −8
 - All mayor-side terms revoked immediately (exemption removed from `mayor.exemptions`)
 - Faction's committed terms released — `faction.committed_action` cleared, faction resumes autonomous behavior
-- Faction gains `angry at mayor` relational trait at **moderate** intensity — persists until natural decay, biases their actions toward Harm/Block targeting mayor interests
+- Faction gains `angry at mayor` relational trait at **moderate** intensity — persists until natural decay, biases their actions toward Harm targeting mayor interests
 - Other factions in the same domain: −3 reputation with mayor (word travels)
 
 A mayor that repeatedly breaks deals accelerates toward hostile factions and the removal spiral.
@@ -259,7 +259,6 @@ Checked each cycle after the faction acts.
 
 ### Breach conditions (all must be true):
 - Faction took an action other than `committed_action` this cycle
-- Their action was not cancelled by a Block (external interference is not breach)
 - The committed action was executable this cycle (a valid target existed)
 
 ### Grace (suspended):

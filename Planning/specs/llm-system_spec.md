@@ -293,7 +293,7 @@ Parses the LLM's step 5 conclusion output.
 ```python
 VALID_MAYOR_TERM_TYPES = {"tax_exemption", "endorsement"}
 VALID_FACTION_TERM_TYPES = {"committed_action", "committed_abstain"}
-VALID_ACTIONS = {"BuildProject", "Protect", "Grow", "Harm", "Steal", "Block"}
+VALID_FACTION_ACTIONS = {"BuildProject", "Protect", "Grow"}
 DURATION_RANGE = range(1, 11)
 ```
 

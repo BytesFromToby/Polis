@@ -44,16 +44,21 @@ Intensity cannot exceed `very`. Traits at `slight` that decay are removed entire
 
 General traits apply to all decisions. Maximum 6 traits per faction — lowest intensity trait is dropped if exceeded.
 
-| Trait | Character | Weight Effect |
-|---|---|---|
-| `aggressive` | Seeks to harm, confront, and dominate | Harm +20, Steal +10, Block +5 |
-| `defensive` | Protects itself above all else | Protect +25, Block +15, Grow +5 |
-| `ambitious` | Grows relentlessly, pushes for more | Grow +25, Steal +15, Harm +5 |
-| `paranoid` | Sees threats everywhere, over-prepares | Protect +20, Block +20, Grow −5 |
-| `opportunistic` | Moves on weakness, takes what's available | Steal +20, Grow +15, Harm +10 |
-| `expansionary` | Territory and reach above all | Grow +25, Steal +10, Harm +5 |
-| `conservative` | Maintains what it has, avoids risk | Protect +15, Grow +10, Harm −10 |
-| `corrupt` | Enriches itself at others' expense | Steal +25, Harm +15, Grow +5 |
+| Trait | Character |
+|---|---|
+| `aggressive` | Seeks to harm, confront, and dominate |
+| `defensive` | Protects itself above all else |
+| `ambitious` | Grows relentlessly, pushes for more |
+| `paranoid` | Sees threats everywhere, over-prepares |
+| `opportunistic` | Moves on weakness, takes what's available |
+| `expansionary` | Territory and reach above all |
+| `conservative` | Maintains what it has, avoids risk |
+| `corrupt` | Enriches itself at others' expense |
+
+Each trait's numeric **weight effect** on action selection — plus the two build-focused
+traits `industrious` and `destructive` — lives in the canonical weight table in
+`faction-behavior_spec.md`. Per the note above, this spec defines the system design and does
+not duplicate those numbers.
 
 ---
 
@@ -61,12 +66,14 @@ General traits apply to all decisions. Maximum 6 traits per faction — lowest i
 
 Relational traits are directed at a specific faction. They modify behavior only when the targeted faction is a valid option.
 
-| Trait | Trigger | Effect |
-|---|---|---|
-| `distrusts X` | X is in rivals | Block +15, Protect +10 |
-| `angry at X` | X is in rivals | Harm +25, Steal +15 |
-| `trusts X` | X is the only available rival | Harm −15 |
-| `allied with X` | X is in rivals | Harm −20 |
+| Trait | Trigger |
+|---|---|
+| `distrusts X` | X is in rivals |
+| `angry at X` | X is in rivals |
+| `trusts X` | X is the only available rival |
+| `allied with X` | X is in rivals |
+
+Weight effects for each relational trait live in the canonical table in `faction-behavior_spec.md`.
 
 Relational traits also influence target selection: `angry at X` and `distrusts X` weight that faction ×3 in target selection.
 
