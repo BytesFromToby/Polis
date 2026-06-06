@@ -242,31 +242,6 @@ class TestMayorActions:
         )
         assert self.mayor.get_reputation("f1") == -15
 
-    def test_withhold_resources_sets_growth_blocked(self):
-        execute_mayor_actions(
-            [MayorAction(action="WithholdResources", target_id="f1")],
-            self.mayor, self.treasury, self.factions, self.domains,
-        )
-        assert getattr(self.factions["f1"], "_growth_blocked", False) is True
-        assert self.mayor.get_reputation("f1") == -10
-
-    def test_appoint_official_to_leaderless(self):
-        self.factions["f1"].leader.status = "absent"
-        execute_mayor_actions(
-            [MayorAction(action="AppointAnOfficial", target_id="f1", cost=2)],
-            self.mayor, self.treasury, self.factions, self.domains,
-        )
-        assert self.factions["f1"].leader.status == "present"
-        assert self.mayor.get_reputation("f1") == 15
-
-    def test_appoint_official_fails_if_already_has_leader(self):
-        self.factions["f1"].leader = Leader(name="Existing")
-        results = execute_mayor_actions(
-            [MayorAction(action="AppointAnOfficial", target_id="f1", cost=2)],
-            self.mayor, self.treasury, self.factions, self.domains,
-        )
-        assert any(r.outcome == "fail" for r in results)
-
     def test_insufficient_action_points_fails(self):
         self.mayor.action_points = 0
         results = execute_mayor_actions(
@@ -315,3 +290,17 @@ class TestMayorCycleIntegration:
         domains = {"trade": make_domain("trade")}
         result = run_cycle(world, factions, domains)
         assert result.cycle == 0
+
+    def test_treasury_runs_without_player_action(self):
+        # The treasury system advances on its own (passive tax income / payroll /
+        # maintenance) with no mayor action ever submitted — the economy breathes
+        # even though the demo surfaces no treasury controls.
+        world = WorldState()
+        factions = {"f1": make_faction("f1", "trade", floor=2)}
+        domains = {"trade": make_domain("trade")}
+        mayor = make_mayor(action_points=6)
+        treasury = make_treasury(gold=500)
+        start_gold = treasury.gold
+        for _ in range(3):
+            run_cycle(world, factions, domains, mayor=mayor, treasury=treasury)
+        assert treasury.gold != start_gold  # gold moved with no player treasury action

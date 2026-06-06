@@ -4,8 +4,10 @@ tests/test_mayor_act.py — Tests for the /mayor/act endpoint and underlying act
 from __future__ import annotations
 
 import pytest
-from engine.models import Mayor, Treasury, Faction, Domain, FactionTrait, Leader, MayorAction
-from engine.mayor.actions import execute_mayor_actions, ACTION_COSTS
+from engine.models import Mayor, Treasury, Faction, Domain, FactionTrait, Leader, MayorAction, Project
+from engine.mayor.actions import execute_mayor_actions, ACTION_COSTS, _ACTION_MAP
+from engine.projects import mayor_build_or_repair
+from api.schemas import VALID_MAYOR_ACTIONS
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -49,13 +51,6 @@ class TestAPSpending:
         result, m, *_ = _act("PubliclyEndorse", mayor=m)
         assert m.action_points == 3
 
-    def test_two_ap_action_spends_two(self):
-        m = _mayor(ap=4)
-        result, m, *_ = _act("BrokerADeal", target="f1,f2", mayor=m,
-                              factions={"f1": _faction("f1"), "f2": _faction("f2")})
-        # BrokerADeal may fail (rep check) but AP always spent
-        assert m.action_points == 2
-
     def test_insufficient_ap_returns_fail(self):
         m = _mayor(ap=0)
         result, *_ = _act("PubliclyEndorse", mayor=m)
@@ -93,101 +88,135 @@ class TestPoliticalActions:
         result, *_ = _act("MeetWithFaction", "f1", mayor=m)
         assert result.outcome == "fail"
 
-    def test_broker_fails_without_rep(self):
-        m = _mayor(ap=4)
-        m.set_reputation("f1", 5)
-        m.set_reputation("f2", 5)
-        f = {"f1": _faction("f1"), "f2": _faction("f2")}
-        result, *_ = _act("BrokerADeal", "f1,f2", mayor=m, factions=f)
-        assert result.outcome == "fail"
 
-    def test_broker_can_succeed_with_rep(self):
-        import random
-        random.seed(42)  # seed for deterministic roll
+# ── Roster integrity ───────────────────────────────────────────────────────────
+
+DEMO_ROSTER = {
+    "MeetWithFaction", "PubliclyEndorse", "PubliclyCondemn",
+    "GrantTaxExemption", "Sabotage", "BuildProject", "BreakADeal",
+}
+REMOVED_ACTIONS = {
+    "BrokerADeal", "AllocateBudget", "WithholdResources", "IssueADecree",
+    "AppointAnOfficial", "TurnABlindEye", "RequestAReport", "PlantARumor",
+}
+
+
+class TestRosterIntegrity:
+    def test_valid_actions_is_exact_demo_set(self):
+        assert VALID_MAYOR_ACTIONS == DEMO_ROSTER
+
+    def test_removed_actions_absent(self):
+        for name in REMOVED_ACTIONS:
+            assert name not in VALID_MAYOR_ACTIONS
+            assert name not in _ACTION_MAP
+
+
+# ── Sabotage ────────────────────────────────────────────────────────────────
+
+def _rated(fid="f1", rating=3.5, health=100, domain="trade"):
+    return Faction(id=fid, name=fid, domain_primary=domain, rating=rating,
+                   health=health, leader=Leader(name="Elder"))
+
+
+class TestSabotage:
+    def test_cost_deducts_ap_and_gold(self):
         m = _mayor(ap=4)
-        m.set_reputation("f1", 20)
-        m.set_reputation("f2", 20)
-        f = {"f1": _faction("f1"), "f2": _faction("f2")}
-        result, *_ = _act("BrokerADeal", "f1,f2", mayor=m, factions=f)
-        # With rep=20, avg=20, d20+20 always exceeds DC 15
+        t = _treasury(gold=500)
+        result, m, *_rest, t = _act("Sabotage", "f1", mayor=m,
+                                     factions={"f1": _rated()}, treasury=t)
         assert result.outcome == "decisive"
+        assert m.action_points == 3
+        assert t.gold == 450
 
-
-# ── Resource actions ──────────────────────────────────────────────────────────
-
-class TestResourceActions:
-    def test_allocate_budget_adds_drift(self):
-        m = _mayor()
-        d = {"trade": _domain("trade")}
-        d["trade"].drift = 0.5
-        _act("AllocateBudget", "trade", mayor=m, domains=d)
-        assert d["trade"].drift == pytest.approx(0.52)
-
-    def test_allocate_budget_requires_gold(self):
-        m = _mayor()
-        t = _treasury(gold=5)
-        result, *_ = _act("AllocateBudget", "trade", mayor=m, treasury=t)
+    def test_insufficient_gold_refunds_ap_no_deduction(self):
+        m = _mayor(ap=4)
+        t = _treasury(gold=10)
+        result, m, *_rest, t = _act("Sabotage", "f1", mayor=m,
+                                    factions={"f1": _rated()}, treasury=t)
         assert result.outcome == "fail"
+        assert m.action_points == 4   # AP refunded
+        assert t.gold == 10           # nothing deducted
 
-    def test_withhold_blocks_growth(self):
-        m = _mayor()
-        f = {"f1": _faction()}
-        _act("WithholdResources", "f1", mayor=m, factions=f)
-        assert f["f1"]._growth_blocked is True
+    def test_rank_erodes_fractional_margin(self):
+        _, _, f, *_ = _act("Sabotage", "f1", factions={"f1": _rated(rating=3.50)})
+        assert f["f1"].rating == pytest.approx(3.25)
+        # integer-rating faction loses no rank
+        _, _, f2, *_ = _act("Sabotage", "f1", factions={"f1": _rated(rating=3.00)})
+        assert f2["f1"].rating == pytest.approx(3.00)
 
-    def test_withhold_lowers_rep(self):
-        m = _mayor()
-        _act("WithholdResources", "f1", mayor=m)
+    def test_health_halved(self):
+        _, _, f, *_ = _act("Sabotage", "f1", factions={"f1": _rated(health=100)})
+        assert f["f1"].health == 50
+        _, _, f2, *_ = _act("Sabotage", "f1", factions={"f1": _rated(health=50)})
+        assert f2["f1"].health == 25
+
+    def test_single_sabotage_cannot_break_or_delevel(self):
+        _, _, f, *_ = _act("Sabotage", "f1", factions={"f1": _rated(rating=3.50, health=40)})
+        assert f["f1"].level == 3      # still level 3 (3.25)
+        assert f["f1"].health > 0      # 40 -> 20, never 0
+
+    def test_reputation_minus_ten(self):
+        m = _mayor(ap=4)
+        result, m, *_ = _act("Sabotage", "f1", mayor=m, factions={"f1": _rated()})
         assert m.get_reputation("f1") == -10
 
-
-# ── Authority actions ─────────────────────────────────────────────────────────
-
-class TestAuthorityActions:
-    def test_issue_decree_marks_domain(self):
-        m = _mayor(ap=4)
-        d = {"trade": _domain("trade")}
-        _act("IssueADecree", "trade", mayor=m, domains=d)
-        assert d["trade"]._decree_active is True
-
-    def test_appoint_fails_if_has_leader(self):
-        m = _mayor(ap=4)
-        result, *_ = _act("AppointAnOfficial", "f1", mayor=m)
-        assert result.outcome == "fail"
-
-    def test_appoint_succeeds_if_leaderless(self):
-        m = _mayor(ap=4)
-        f = {"f1": _faction(leader=False)}
-        result, _, factions, *_ = _act("AppointAnOfficial", "f1", mayor=m, factions=f)
-        assert result.outcome == "decisive"
-        assert factions["f1"].leader.status == "present"
-
-    def test_blind_eye_marks_uncontested(self):
-        m = _mayor()
-        f = {"f1": _faction()}
-        _act("TurnABlindEye", "f1", mayor=m, factions=f)
-        assert f["f1"]._uncontested is True
+    def test_level_one_target_allowed(self):
+        result, _, f, *_ = _act("Sabotage", "f1", factions={"f1": _rated(rating=1.40, health=80)})
+        assert result.outcome == "decisive"   # not refused on safe-floor grounds
+        assert f["f1"].health == 40            # 80 -> 40
 
 
-# ── Information actions ───────────────────────────────────────────────────────
+# ── Build Project (context-aware) ──────────────────────────────────────────────
 
-class TestInformationActions:
-    def test_report_returns_no_op(self):
-        result, *_ = _act("RequestAReport", "f1")
-        assert result.outcome == "no_op"
-        assert "traits" in result.narrative
+def _base_project(progress=1, status="under_construction", health=0, domain="trade"):
+    return Project(
+        id=f"{domain}_base_1", name="Agora", domains=[domain], build_cost=0,
+        build_time=4, category="base", status=status,
+        build_progress=progress, health=health, initiated_by="mayor",
+    )
 
-    def test_plant_rumor_adds_trait(self):
-        m = _mayor()
-        f = {"f1": _faction("f1"), "f2": _faction("f2")}
-        _act("PlantARumor", "f1,f2", mayor=m, factions=f)
-        trait_ids = [t.trait for t in f["f1"].traits]
-        assert "distrusts" in trait_ids
 
-    def test_plant_rumor_escalates_existing_distrust(self):
-        m = _mayor(ap=6)
-        f = {"f1": _faction("f1"), "f2": _faction("f2")}
-        f["f1"].traits.append(FactionTrait(trait="distrusts", intensity="slight", target_id="f2"))
-        _act("PlantARumor", "f1,f2", mayor=m, factions=f)
-        distrust = next(t for t in f["f1"].traits if t.trait == "distrusts" and t.target_id == "f2")
-        assert distrust.intensity == "moderate"
+class TestBuildProject:
+    def test_initiates_when_none_under_construction(self):
+        m = _mayor(ap=4); t = _treasury(gold=500); projects = {}
+        r = mayor_build_or_repair("trade", projects, t, m)
+        assert r.outcome != "fail"
+        base = [p for p in projects.values() if p.category == "base" and "trade" in p.domains]
+        assert len(base) == 1
+        assert base[0].status == "under_construction"
+        assert base[0].build_progress == 1
+        assert t.gold == 450 and m.action_points == 3
+
+    def test_adds_unit_when_under_construction(self):
+        m = _mayor(ap=4); t = _treasury(gold=500)
+        projects = {"trade_base_1": _base_project(progress=1)}
+        mayor_build_or_repair("trade", projects, t, m)
+        assert projects["trade_base_1"].build_progress == 2
+        assert t.gold == 450 and m.action_points == 3
+
+    def test_fourth_unit_completes(self):
+        m = _mayor(ap=4); t = _treasury(gold=500)
+        projects = {"trade_base_1": _base_project(progress=3)}
+        mayor_build_or_repair("trade", projects, t, m)
+        assert projects["trade_base_1"].status == "active"
+        assert projects["trade_base_1"].health == 100
+
+    def test_repairs_active_damaged(self):
+        m = _mayor(ap=4); t = _treasury(gold=500)
+        projects = {"trade_base_1": _base_project(progress=4, status="active", health=60)}
+        r = mayor_build_or_repair("trade", projects, t, m)
+        assert r.outcome != "fail"
+        assert projects["trade_base_1"].health == 85   # +25
+        assert t.gold == 470 and m.action_points == 3   # repair costs 30
+
+    def test_insufficient_funds_refunds(self):
+        # No AP -> refused, nothing changes
+        m = _mayor(ap=0); t = _treasury(gold=500); projects = {}
+        r = mayor_build_or_repair("trade", projects, t, m)
+        assert r.outcome == "fail"
+        assert t.gold == 500 and m.action_points == 0 and projects == {}
+        # Has AP but not enough gold -> refused, AP refunded, nothing deducted
+        m2 = _mayor(ap=2); t2 = _treasury(gold=10); projects2 = {}
+        r2 = mayor_build_or_repair("trade", projects2, t2, m2)
+        assert r2.outcome == "fail"
+        assert t2.gold == 10 and m2.action_points == 2

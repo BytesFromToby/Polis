@@ -1,0 +1,17 @@
+# Decisions: Mayor Actions Rework (mayor_spec v3)
+Spec: Planning/specs/mayor_spec.md
+Date: 2026-06-05
+
+Demo-focused cut of the Mayor roster and reconciliation with the post-redesign faction model (rank + health, no entrench/Block/collapse).
+
+- **Cut all deterministic faction-behavior / relationship levers (Broker a Deal, Plant a Rumor, Appoint an Official, Issue a Decree, Turn a Blind Eye)** — so the LLM **audience** is the *single* channel for influencing what factions do. These actions competed with the headline demo feature; concentrating influence into the audience spotlights it. Rejected keeping a deterministic "soften relations" path (Broker) as redundant with audience deals.
+- **Two of the cuts were already inert** (Turn a Blind Eye → `_uncontested`, Issue a Decree → `_decree_active`): the flags were set but never consumed after the prior redesign removed Block. Turn a Blind Eye's whole purpose ("skip the Block resolve") no longer existed. Removing them fixes hollow actions that tests reported green while doing nothing.
+- **Appoint an Official cut as redundant** — the Break system already auto-regenerates a leader on its leader-death branch, so manual appointment solved a problem the redesign already solved.
+- **Withhold Resources → Sabotage**, guaranteed (no contest), 1 AP + 50 gold. Withhold's `_growth_blocked` flag was also never consumed (a third inert action). Chose a guaranteed action over a contested one for player predictability and to avoid re-introducing contest complexity.
+  - **Level damage = 50% of the fractional margin above the current integer level** (`rank -= 0.50 × (rank − int(rank))`), not 50% of total rank or of margin-above-the-safe-floor. This was the user's explicit model (3.50 → 3.25). Consequence accepted deliberately: a single Sabotage can **never cross an integer level** and an integer-rank faction takes zero rank damage.
+  - **Health damage = 50% of current health**, so it asymptotes and **never reaches 0**. Net: Sabotage alone can neither de-level nor Break a faction — pure attritional setback. This "not overpowered by construction" property was the goal, signed off explicitly.
+  - **Level-1 factions CAN be targeted** (no safe-floor guard), unlike faction-vs-faction Harm/Steal. User reversed the proposed default; rationale is that Sabotage is bounded enough to be safe even against the weakest factions.
+  - Gold cost **50** chosen for symmetry with a project build unit (build a unit for 50, erode a rival for 50) and to fit the existing Mayor gold-sink scale (repair 30, guard surge 50).
+- **Commission Project + Repair Project → one context-aware Build Project action** (1 AP): empty domain → initiate + unit (50g); under-construction → +1 unit (50g); active & damaged → repair +25 health (30g). One legible button instead of three. Engine entries already exist (`mayor_build_base`, `mayor_buy_build_unit`, `repair_project`); the old `/projects/commission` API endpoint (old catalog + `build_cost` model, both retired by the projects rework) is to be removed by the builder.
+- **Treasury kept running, not surfaced** — tax income, maintenance, and the moneylender keep operating each cycle so the economy breathes and Sabotage/Build costs bite, but the demo exposes no treasury controls. Rejected freezing the treasury entirely (would stop gold flowing and make the economy inert).
+- **Kept Meet / Endorse / Condemn despite overlap** — flagged as the next candidates for consolidation if the demo UI feels crowded, but not cut now; they remain the reputation on-ramp to audiences.

@@ -236,10 +236,8 @@ class ExemptFactionRequest(BaseModel):
 
 
 VALID_MAYOR_ACTIONS = {
-    "MeetWithFaction", "PubliclyEndorse", "PubliclyCondemn", "BrokerADeal",
-    "AllocateBudget", "WithholdResources", "GrantTaxExemption",
-    "IssueADecree", "AppointAnOfficial", "TurnABlindEye",
-    "RequestAReport", "PlantARumor", "BreakADeal",
+    "MeetWithFaction", "PubliclyEndorse", "PubliclyCondemn",
+    "GrantTaxExemption", "Sabotage", "BuildProject", "BreakADeal",
 }
 
 
@@ -334,9 +332,5 @@ class ProjectResponse(BaseModel):
     maintenance_cost: int
     tax_level: int
     initiated_by: str
-
-
-class CommissionProjectRequest(BaseModel):
-    project_id: str
 
 

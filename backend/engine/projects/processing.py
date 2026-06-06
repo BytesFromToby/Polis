@@ -378,3 +378,43 @@ def mayor_build_base(
                 outcome="fail", narrative=f"Cannot break ground in {domain_id}.",
             )
     return mayor_buy_build_unit(project, treasury, mayor)
+
+
+def mayor_build_or_repair(
+    domain_id: str,
+    projects: Dict[str, Project],
+    treasury: Treasury,
+    mayor: "Mayor",
+) -> ActionResult:
+    """Context-aware Mayor project action (one player lever, three behaviours):
+      - the domain's base project is active and damaged (health < 100, not under
+        construction or destroyed) -> repair it (+25 health, 30 gold);
+      - otherwise -> build: fund a work unit on the domain's under-construction base
+        project, initiating one first if none exists (50 gold).
+    Each path costs 1 AP, handled by the underlying entry."""
+    damaged = next(
+        (p for p in projects.values()
+         if getattr(p, "category", "standard") == "base"
+         and domain_id in p.domains
+         and p.status not in ("under_construction", "destroyed")
+         and p.health < 100),
+        None,
+    )
+    if damaged is not None:
+        return repair_project(damaged, treasury, mayor)
+    # Build path. If no base project is under construction here, mayor_build_base
+    # would initiate one and *then* try to fund a unit — leaving an unpaid phantom
+    # site if the Mayor can't afford the unit. Guard the initiate so a refused build
+    # changes nothing at all (1 AP + 50 gold, matching mayor_buy_build_unit).
+    in_progress = any(
+        getattr(p, "category", "standard") == "base"
+        and domain_id in p.domains and p.status == "under_construction"
+        for p in projects.values()
+    )
+    if not in_progress and (mayor.action_points < 1 or treasury.gold < 50):
+        return ActionResult(
+            action="BuildBuy", actor_id="mayor", target_id=None,
+            outcome="fail",
+            narrative=f"Cannot break ground in {domain_id}: need 1 AP + 50 gold.",
+        )
+    return mayor_build_base(domain_id, projects, treasury, mayor)

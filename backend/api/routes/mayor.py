@@ -13,10 +13,8 @@ POST /users/{user_id}/mayor/exempt
 
 GET  /users/{user_id}/projects
 GET  /users/{user_id}/projects/catalog
-POST /users/{user_id}/projects/commission
 """
 from __future__ import annotations
-import copy
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -30,7 +28,7 @@ from api.schemas import (
     AudienceReplyRequest, AudienceReplyResponse,
     AudienceConcludeRequest, AudienceConcludeResponse,
     AudienceFinalizeRequest, AudienceFinalizeResponse,
-    ProjectResponse, CommissionProjectRequest,
+    ProjectResponse,
 )
 from api.sessions import SimSession, get_session
 from db.models import User
@@ -40,6 +38,7 @@ from engine.mayor.treasury import (
     spend_public_works, spend_emergency_guard_surge,
 )
 from engine.mayor.actions import execute_mayor_actions, ACTION_COSTS
+from engine.projects import mayor_build_or_repair
 from loaders import load_projects
 
 router = APIRouter(prefix="/users/{user_id}", tags=["mayor"])
@@ -307,18 +306,27 @@ def mayor_act(
             action_points=mayor.action_points,
         )
 
+    # ── BuildProject — context-aware (initiate/fund/repair); needs the projects dict ──
+    if req.action == "BuildProject":
+        projects = session.projects or {}
+        r = mayor_build_or_repair(req.target_id, projects, treasury, mayor)
+        session.projects = projects
+        if r.outcome == "fail":
+            raise HTTPException(status_code=400, detail=r.narrative)
+        return MayorActResponse(
+            action="BuildProject",
+            outcome=r.outcome,
+            narrative=r.narrative,
+            action_points=mayor.action_points,
+            dramatic=bool(r.dramatic),
+        )
+
     # ── All other actions via execute_mayor_actions ───────────────────────────
     from engine.models import MayorAction
 
-    # Build target_id: two-target actions join with comma
-    if req.action in ("BrokerADeal", "PlantARumor") and req.target_id_2:
-        composite_target = f"{req.target_id},{req.target_id_2}"
-    else:
-        composite_target = req.target_id
-
     ma = MayorAction(
         action=req.action,
-        target_id=composite_target,
+        target_id=req.target_id,
         cost=ACTION_COSTS.get(req.action, 1),
     )
     results = execute_mayor_actions([ma], mayor, treasury, factions, domains)
@@ -589,30 +597,6 @@ def projects_catalog(
     ]
 
 
-@router.post("/projects/commission")
-def commission_project(
-    user_id: str,
-    req: CommissionProjectRequest,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Add a project from the catalog to the active session (status: under_construction)."""
-    _auth(user_id, current_user)
-    session = _get_session(user_id, db)
-    projects = session.projects or {}
-    if req.project_id in projects:
-        raise HTTPException(status_code=400, detail="Project already in session")
-    catalog = _get_catalog()
-    template = catalog.get(req.project_id)
-    if template is None:
-        raise HTTPException(status_code=404, detail=f"Project {req.project_id} not in catalog")
-    if session.treasury.gold < template.build_cost:
-        raise HTTPException(status_code=400, detail="Insufficient gold to commission project")
-    session.treasury.gold -= template.build_cost
-    p = copy.deepcopy(template)
-    p.status = "under_construction"
-    p.health = 0
-    p.initiated_by = "mayor"
-    projects[p.id] = p
-    session.projects = projects
-    return {"detail": f"Project {p.name} commissioned", "gold": session.treasury.gold}
+# Project building is now driven by the BuildProject mayor action (see mayor_act,
+# context-aware initiate/fund/repair). The old catalog-deepcopy + build_cost
+# /projects/commission endpoint was retired with the projects rework.
