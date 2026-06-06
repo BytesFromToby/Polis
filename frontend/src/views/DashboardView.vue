@@ -135,8 +135,8 @@
         <table>
           <thead>
             <tr>
-              <th>Domain</th><th>Name</th><th>Rating</th>
-              <th>Entrench</th><th>Leader</th>
+              <th>Domain</th><th>Name</th><th>Level</th>
+              <th>Health</th><th>Leader</th>
             </tr>
           </thead>
           <tbody v-for="(group, domain) in factionsByDomain" :key="domain">
@@ -158,14 +158,14 @@
               <tr v-for="f in group" :key="f.id">
                 <td class="muted"></td>
                 <td>{{ f.name }}</td>
-                <td>{{ f.rating.toFixed(2) }}</td>
-                <td><span :class="entrenchClass(f.entrench)">{{ f.entrench }}</span></td>
+                <td>{{ Math.floor(f.rating) }}</td>
+                <td>{{ f.health }}</td>
                 <td>{{ f.leader?.name || '—' }}</td>
               </tr>
             </template>
           </tbody>
           <tbody v-if="!factionList.length">
-            <tr><td colspan="6" class="muted">No factions.</td></tr>
+            <tr><td colspan="5" class="muted">No factions.</td></tr>
           </tbody>
         </table>
       </div>
@@ -366,13 +366,6 @@ export default {
     // ── Domain collapse ──
     toggleDomain(domain) {
       this.collapsedDomains[domain] = !this.collapsedDomains[domain]
-    },
-
-    // ── Style helpers ──
-    entrenchClass(v) {
-      if (v >= 60) return 'green'
-      if (v >= 30) return ''
-      return 'danger'
     },
   },
 }

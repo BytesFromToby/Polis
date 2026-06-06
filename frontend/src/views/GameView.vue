@@ -46,7 +46,8 @@
                   <div class="rating-bar-wrap">
                     <div class="rating-bar" :style="{ width: ratingPct(f) + '%', background: ratingColor(f) }"></div>
                   </div>
-                  <span class="rating-val">{{ f.rating.toFixed(1) }}</span>
+                  <span class="rating-val">Lv {{ Math.floor(f.rating) }}</span>
+                  <span class="rating-sub muted">({{ f.rating.toFixed(1) }})</span>
                 </div>
                 <div class="trait-list" v-if="f.traits && f.traits.length">
                   <span v-for="t in f.traits.slice(0,4)" :key="t.trait || t" class="trait-tag">{{ t.trait || t }}</span>
@@ -72,7 +73,7 @@
           <div class="mayor-window-head">
             <span class="panel-title" style="margin:0">Mayor</span>
             <div class="mayor-actions-bar">
-              <button class="btn-primary btn-sm" :disabled="!mayorData" @click="openStandaloneAudience">Meet with Faction ▸</button>
+              <button class="btn-primary btn-sm" :disabled="!mayorData" @click="openStandaloneAudience">Request Audience ▸</button>
               <button class="btn-subtle btn-sm" :disabled="!mayorData" @click="showMayorModal = true">Actions ▸</button>
             </div>
           </div>
@@ -168,6 +169,7 @@
     :factions="snapshot?.factions || {}"
     :domains="snapshot?.domains || {}"
     :mayor-data="mayorData"
+    :gold="treas?.gold ?? 0"
     @close="showMayorModal = false"
     @acted="onActed"
   />
@@ -176,7 +178,7 @@
   <div v-if="showAudiencePicker" class="modal-overlay" @click.self="showAudiencePicker = false">
     <div class="card picker-box">
       <div class="panel-header">
-        <h3>Meet with…</h3>
+        <h3>Request audience with…</h3>
         <button class="btn-subtle btn-sm" @click="showAudiencePicker = false">Close</button>
       </div>
       <div class="picker-list">
@@ -329,9 +331,11 @@ export default {
       }
     },
     async onActed() {
-      // Refresh mayor data (AP + rep) after an action without full page reload
+      // Refresh mayor data (AP + rep) and treasury (gold) after an action
+      // without a full page reload — gold feeds the actions modal's affordability.
       try {
         this.mayorData = await mayorApi.get(store.userId)
+        this.treas = await treasuryApi.get(store.userId)
       } catch { /* non-fatal */ }
     },
     toggleDomain(id) {

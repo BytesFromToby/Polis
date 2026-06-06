@@ -157,7 +157,6 @@ export const mayor = {
 export const projects = {
   list:       (userId)            => get(`/users/${userId}/projects`),
   catalog:    (userId)            => get(`/users/${userId}/projects/catalog`),
-  commission: (userId, project_id)=> post(`/users/${userId}/projects/commission`, { project_id }),
 }
 
 

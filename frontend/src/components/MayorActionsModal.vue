@@ -9,6 +9,7 @@
           <span class="ap-badge" :class="{ 'ap-low': ap <= 1 }">
             {{ ap }} / {{ apCap }} AP
           </span>
+          <span class="gold-badge">{{ gold }} gold</span>
         </div>
         <button class="btn-subtle btn-sm" @click="$emit('close')">Close</button>
       </div>
@@ -56,65 +57,6 @@
               <div class="action-hint">−15 rep · domain peers +3</div>
               <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('PubliclyCondemn', targetFaction)">Act</button>
             </div>
-
-            <!-- Broker a Deal -->
-            <div class="action-row" :class="{ disabled: ap < 2 || busy }">
-              <div class="action-row-header">
-                <span class="action-name">Broker a Deal</span>
-                <span class="ap-cost">2 AP</span>
-              </div>
-              <div style="display:flex; gap:0.4rem; margin-bottom:0.25rem">
-                <select v-model="brokerA" style="flex:1; padding:0.3rem 0.4rem; font-size:0.8rem">
-                  <option value="">Faction A</option>
-                  <option v-for="f in factionList" :key="f.id" :value="f.id">{{ f.name }}</option>
-                </select>
-                <select v-model="brokerB" style="flex:1; padding:0.3rem 0.4rem; font-size:0.8rem">
-                  <option value="">Faction B</option>
-                  <option v-for="f in factionList" :key="f.id" :value="f.id">{{ f.name }}</option>
-                </select>
-              </div>
-              <div class="action-hint">Needs rep ≥10 with both · d20 roll vs DC 15</div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 2 || busy" @click="doAct('BrokerADeal', brokerA, brokerB)">Act</button>
-            </div>
-          </div>
-
-          <!-- Information -->
-          <div class="action-group">
-            <div class="group-label">Information</div>
-
-            <!-- Request Report -->
-            <div class="action-row" :class="{ disabled: ap < 1 || busy }">
-              <div class="action-row-header">
-                <span class="action-name">Request Report</span>
-                <span class="ap-cost">1 AP</span>
-              </div>
-              <select v-model="targetFaction" class="act-select">
-                <option value="">Select faction</option>
-                <option v-for="f in factionList" :key="f.id" :value="f.id">{{ f.name }}</option>
-              </select>
-              <div class="action-hint">Reveals traits, health, planned action</div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('RequestAReport', targetFaction)">Act</button>
-            </div>
-
-            <!-- Plant a Rumor -->
-            <div class="action-row" :class="{ disabled: ap < 1 || busy }">
-              <div class="action-row-header">
-                <span class="action-name">Plant a Rumor</span>
-                <span class="ap-cost">1 AP</span>
-              </div>
-              <div style="display:flex; gap:0.4rem; margin-bottom:0.25rem">
-                <select v-model="rumorTarget" style="flex:1; padding:0.3rem 0.4rem; font-size:0.8rem">
-                  <option value="">Target faction</option>
-                  <option v-for="f in factionList" :key="f.id" :value="f.id">{{ f.name }}</option>
-                </select>
-                <select v-model="rumorAbout" style="flex:1; padding:0.3rem 0.4rem; font-size:0.8rem">
-                  <option value="">Distrusts…</option>
-                  <option v-for="f in factionList" :key="f.id" :value="f.id">{{ f.name }}</option>
-                </select>
-              </div>
-              <div class="action-hint">Target gains "distrusts X" trait for 3 cycles</div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('PlantARumor', rumorTarget, rumorAbout)">Act</button>
-            </div>
           </div>
 
         </div>
@@ -122,37 +64,9 @@
         <!-- RIGHT COLUMN -->
         <div class="action-col">
 
-          <!-- Resource -->
+          <!-- Economic -->
           <div class="action-group">
-            <div class="group-label">Resource</div>
-
-            <!-- Allocate Budget -->
-            <div class="action-row" :class="{ disabled: ap < 1 || busy }">
-              <div class="action-row-header">
-                <span class="action-name">Allocate Budget</span>
-                <span class="ap-cost">1 AP</span>
-              </div>
-              <select v-model="targetDomain" class="act-select">
-                <option value="">Select domain</option>
-                <option v-for="(d, id) in domains" :key="id" :value="id">{{ d.name || id }}</option>
-              </select>
-              <div class="action-hint">10 gold · domain drift +0.02 · factions rep +5</div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('AllocateBudget', targetDomain)">Act</button>
-            </div>
-
-            <!-- Withhold Resources -->
-            <div class="action-row" :class="{ disabled: ap < 1 || busy }">
-              <div class="action-row-header">
-                <span class="action-name">Withhold Resources</span>
-                <span class="ap-cost">1 AP</span>
-              </div>
-              <select v-model="targetFaction" class="act-select">
-                <option value="">Select faction</option>
-                <option v-for="f in factionList" :key="f.id" :value="f.id">{{ f.name }}</option>
-              </select>
-              <div class="action-hint">Blocks Grow this cycle · rep −10</div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('WithholdResources', targetFaction)">Act</button>
-            </div>
+            <div class="group-label">Economic</div>
 
             <!-- Grant Tax Exemption -->
             <div class="action-row" :class="{ disabled: ap < 1 || busy }">
@@ -172,58 +86,39 @@
               </div>
               <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('GrantTaxExemption', exemptFaction, '', exemptCycles)">Act</button>
             </div>
-          </div>
 
-          <!-- Authority -->
-          <div class="action-group">
-            <div class="group-label">Authority</div>
-
-            <!-- Issue a Decree -->
-            <div class="action-row" :class="{ disabled: ap < 2 || busy }">
+            <!-- Sabotage -->
+            <div class="action-row" :class="{ disabled: ap < 1 || gold < 50 || busy }">
               <div class="action-row-header">
-                <span class="action-name">Issue a Decree</span>
-                <span class="ap-cost">2 AP</span>
-              </div>
-              <select v-model="targetDomain" class="act-select">
-                <option value="">Select domain</option>
-                <option v-for="(d, id) in domains" :key="id" :value="id">{{ d.name || id }}</option>
-              </select>
-              <div class="action-hint">Compliant factions forced-Protect · resistant get +10 to action</div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 2 || busy" @click="doAct('IssueADecree', targetDomain)">Act</button>
-            </div>
-
-            <!-- Appoint an Official -->
-            <div class="action-row" :class="{ disabled: ap < 2 || busy }">
-              <div class="action-row-header">
-                <span class="action-name">Appoint an Official</span>
-                <span class="ap-cost">2 AP</span>
-              </div>
-              <select v-model="targetFaction" class="act-select">
-                <option value="">Leaderless factions only</option>
-                <option v-for="f in leaderlessFactions" :key="f.id" :value="f.id">{{ f.name }}</option>
-              </select>
-              <div class="action-hint">Leaderless factions only · rep +15 · domain peers −5</div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 2 || busy" @click="doAct('AppointAnOfficial', targetFaction)">Act</button>
-            </div>
-
-            <!-- Turn a Blind Eye -->
-            <div class="action-row" :class="{ disabled: ap < 1 || busy }">
-              <div class="action-row-header">
-                <span class="action-name">Turn a Blind Eye</span>
-                <span class="ap-cost">1 AP</span>
+                <span class="action-name">Sabotage</span>
+                <span class="ap-cost">1 AP · 50g</span>
               </div>
               <select v-model="targetFaction" class="act-select">
                 <option value="">Select faction</option>
                 <option v-for="f in factionList" :key="f.id" :value="f.id">{{ f.name }}</option>
               </select>
-              <div class="action-hint">Faction action uncontested · rep +10 · Public −5</div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('TurnABlindEye', targetFaction)">Act</button>
+              <div class="action-hint">rank −50% of margin · health −50% · rep −10 · 1 AP + 50 gold</div>
+              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || gold < 50 || busy" @click="doAct('Sabotage', targetFaction)">Act</button>
+            </div>
+
+            <!-- Build Project -->
+            <div class="action-row" :class="{ disabled: ap < 1 || busy }">
+              <div class="action-row-header">
+                <span class="action-name">Build Project</span>
+                <span class="ap-cost">1 AP · gold</span>
+              </div>
+              <select v-model="targetDomain" class="act-select">
+                <option value="">Select domain</option>
+                <option v-for="(d, id) in domains" :key="id" :value="id">{{ d.name || id }}</option>
+              </select>
+              <div class="action-hint">Break ground / fund a unit (50g) or repair (+25 health, 30g) · 1 AP</div>
+              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('BuildProject', targetDomain)">Act</button>
             </div>
           </div>
 
-          <!-- Active Deals -->
+          <!-- Deals -->
           <div v-if="activeDeals.length" class="action-group">
-            <div class="group-label">Active Deals</div>
+            <div class="group-label">Deals</div>
             <div v-for="deal in activeDeals" :key="deal.deal_id" class="deal-row">
               <div class="deal-info">
                 <span class="deal-faction">{{ factionName(deal.faction_id) }}</span>
@@ -249,6 +144,7 @@ export default {
     factions: { type: Object, default: () => ({}) },
     domains:  { type: Object, default: () => ({}) },
     mayorData: { type: Object, default: null },
+    gold: { type: Number, default: 0 },
   },
   emits: ['close', 'acted'],
   data() {
@@ -260,10 +156,6 @@ export default {
       busy: false,
       targetFaction: '',
       targetDomain: '',
-      brokerA: '',
-      brokerB: '',
-      rumorTarget: '',
-      rumorAbout: '',
       exemptFaction: '',
       exemptCycles: 5,
     }
@@ -279,9 +171,6 @@ export default {
   computed: {
     factionList() {
       return Object.values(this.factions || {})
-    },
-    leaderlessFactions() {
-      return Object.values(this.factions || {}).filter(f => !f.leader || !f.leader.name)
     },
     activeDeals() {
       if (!this.mayorData?.deals) return []
@@ -349,6 +238,16 @@ export default {
   padding: 0.15rem 0.6rem;
 }
 .ap-low { color: var(--danger, #e05c5c); }
+.gold-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent2, #c99f5c);
+  background: var(--surface, #252540);
+  border: 1px solid var(--border, #333);
+  border-radius: 12px;
+  padding: 0.15rem 0.6rem;
+  margin-left: 0.4rem;
+}
 
 .result-banner {
   font-size: 0.82rem;
