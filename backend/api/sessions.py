@@ -13,7 +13,7 @@ from typing import Dict, Optional
 
 from fastapi import HTTPException, status
 
-from engine.models import WorldState, Faction, Domain, Mayor, Treasury, Project
+from engine.models import WorldState, Faction, Domain, Mayor, Treasury, Project, BaseProjectStack
 
 
 @dataclass
@@ -24,7 +24,8 @@ class SimSession:
     domains: Dict[str, Domain]
     mayor: Mayor = None
     treasury: Treasury = None
-    projects: Dict[str, Project] = None
+    projects: Dict[str, Project] = None                       # legacy: tax_collection / standard
+    base_stacks: Dict[str, BaseProjectStack] = None           # one per domain (projects_spec v6)
     is_running: bool = False   # True while sim/run/{n} is executing
     llm_profile_id: Optional[str] = None
     audience_state: Optional[dict] = None  # in-progress audience negotiation
@@ -32,6 +33,8 @@ class SimSession:
     def __post_init__(self):
         if self.projects is None:
             self.projects = {}
+        if self.base_stacks is None:
+            self.base_stacks = {}
 
 
 # user_id → SimSession

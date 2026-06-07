@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from engine.models import WorldState, Mayor, Treasury
 from engine.cycle import run_cycle
+from engine.projects import new_base_stacks
 from engine.logger import SimLogger
 from loaders import load_state_from_json
 
@@ -66,6 +67,7 @@ def main():
 
     mayor = Mayor()
     treasury = Treasury()
+    base_stacks = new_base_stacks(domains)
 
     print("Polis v3")
     print(f"  Cycles:   {args.cycles}")
@@ -87,7 +89,8 @@ def main():
         cycle_num = world.cycle
         logger.log_cycle_start(cycle_num, world)
 
-        result = run_cycle(world, factions, domains, mayor=mayor, treasury=treasury, logger=logger)
+        result = run_cycle(world, factions, domains, mayor=mayor, treasury=treasury,
+                           base_stacks=base_stacks, logger=logger)
 
         for event in result.events:
             logger.log_cycle_event(event)

@@ -47,6 +47,13 @@ def project_cap_contribution(project) -> int:
     return 0
 
 
+def stack_cap_contribution(stack) -> int:
+    """A domain's base-project stack contribution to its cap (projects_spec v6):
+    (count − 1)×2 for the pristine pool + the top's tier when completed (a building
+    top adds 0). Delegates to the stack's own derived helper so the math lives once."""
+    return stack.cap_contribution() if stack is not None else 0
+
+
 # ── Grow ──────────────────────────────────────────────────────────────────────
 
 def grow_increment(level: int) -> float:

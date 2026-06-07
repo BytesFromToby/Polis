@@ -1,14 +1,16 @@
 """Tests for the Projects system — construction, health, effects, destruction."""
 import pytest
-from engine.models import Project, ProjectEffect, Faction, Domain, Treasury, Mayor, WorldState, MayorAction, Leader
+from engine.models import (
+    Project, ProjectEffect, Faction, Domain, Treasury, Mayor, WorldState,
+    MayorAction, Leader, BaseProjectStack,
+)
 from engine.projects.processing import (
     tick_projects, apply_project_effects, harm_project,
-    repair_project, commission_project, mayor_buy_build_unit,
+    repair_project, commission_project, mayor_buy_build_unit, repair_stack,
 )
 from engine.actions.faction import resolve_build_project, resolve_sabotage_project
 from engine.cycle.runner import run_cycle
 from engine.mayor.treasury import process_treasury_step0
-from engine.formulas import project_cap_contribution
 import engine.actions.faction as faction_mod
 
 
@@ -49,13 +51,11 @@ class TestBuildActionsReset:
         assert project.build_actions_this_cycle == 0
 
 
-# ── Base-project build model (4 work units) ───────────────────────────────────
+# ── Base-project stack build model (projects_spec v6) ─────────────────────────
 
-def make_base_project(pid="harbor_base_1", domain="harbor", status="under_construction",
-                      build_progress=0, build_cost=0):
-    return Project(id=pid, name="Docks", domains=[domain], build_cost=build_cost,
-                   build_time=4, category="base", status=status,
-                   build_progress=build_progress, health=0)
+def make_stack(domain="harbor", count=1, completed=False, progress=0.0, build_step=25):
+    return BaseProjectStack(name="Docks", domains=[domain], count=count,
+                            completed=completed, progress=progress, build_step=build_step)
 
 
 def force_roll(monkeypatch, value):
@@ -64,85 +64,85 @@ def force_roll(monkeypatch, value):
 
 
 class TestBuildModel:
-    def test_faction_success_adds_one_unit(self, monkeypatch):
+    def test_faction_success_adds_step(self, monkeypatch):
         force_roll(monkeypatch, 20)
         f = make_faction("f1", "harbor", rating=2.0)
-        p = make_base_project()
-        r = resolve_build_project(f, p)
+        s = make_stack(count=1, completed=False, progress=0)
+        r = resolve_build_project(f, s)
         assert r.outcome == "success"
-        assert p.build_progress == 1
+        assert s.progress == 25
 
     def test_faction_fail_adds_nothing(self, monkeypatch):
         force_roll(monkeypatch, 1)  # 1 + level 2 = 3 < 12
         f = make_faction("f1", "harbor", rating=2.0)
-        p = make_base_project()
-        r = resolve_build_project(f, p)
+        s = make_stack(count=1, completed=False, progress=25)
+        r = resolve_build_project(f, s)
         assert r.outcome == "fail"
-        assert p.build_progress == 0
+        assert s.progress == 25
 
     def test_cross_domain_blocked(self):
         f = make_faction("f1", "military", rating=2.0)
-        p = make_base_project(domain="harbor")
-        r = resolve_build_project(f, p)
+        s = make_stack(domain="harbor", count=1, completed=False, progress=0)
+        r = resolve_build_project(f, s)
         assert r.outcome == "blocked"
-        assert p.build_progress == 0
+        assert s.progress == 0
 
-    def test_completion_at_four_units(self, monkeypatch):
+    def test_completion_at_100(self, monkeypatch):
         force_roll(monkeypatch, 20)
         f = make_faction("f1", "harbor", rating=2.0)
-        p = make_base_project(build_progress=3)
-        r = resolve_build_project(f, p)
-        assert p.build_progress == 4
-        assert p.status == "active"
-        assert p.health == 100
+        s = make_stack(count=1, completed=False, progress=75)
+        r = resolve_build_project(f, s)
+        assert s.progress == 100
+        assert s.completed is True
         assert r.dramatic is True
 
-    def test_mayor_buy_adds_unit_and_charges(self):
-        p = make_base_project()
+    def test_variable_build_step_takes_ten_actions(self, monkeypatch):
+        force_roll(monkeypatch, 20)
+        f = make_faction("f1", "harbor", rating=2.0)
+        s = make_stack(count=1, completed=False, progress=0, build_step=10)
+        for _ in range(9):
+            resolve_build_project(f, s)
+            assert s.completed is False
+        resolve_build_project(f, s)  # 10th
+        assert s.completed is True and s.progress == 100
+
+    def test_mayor_buy_adds_step_and_charges(self):
+        s = make_stack(count=1, completed=False, progress=0)
         treasury = make_treasury(gold=500)
         mayor = make_mayor(action_points=3)
-        r = mayor_buy_build_unit(p, treasury, mayor)
+        r = mayor_buy_build_unit(s, treasury, mayor)
         assert r.outcome == "decisive"
-        assert p.build_progress == 1
+        assert s.progress == 25
         assert treasury.gold == 450
         assert mayor.action_points == 2
 
     def test_mayor_buy_insufficient_gold_no_charge(self):
-        p = make_base_project()
+        s = make_stack(count=1, completed=False, progress=0)
         treasury = make_treasury(gold=40)
         mayor = make_mayor(action_points=3)
-        r = mayor_buy_build_unit(p, treasury, mayor)
+        r = mayor_buy_build_unit(s, treasury, mayor)
         assert r.outcome == "fail"
-        assert p.build_progress == 0
+        assert s.progress == 0
         assert treasury.gold == 40
         assert mayor.action_points == 3  # AP refunded
 
     def test_mayor_buy_no_ap_no_charge(self):
-        p = make_base_project()
+        s = make_stack(count=1, completed=False, progress=0)
         treasury = make_treasury(gold=500)
         mayor = make_mayor(action_points=0)
-        r = mayor_buy_build_unit(p, treasury, mayor)
+        r = mayor_buy_build_unit(s, treasury, mayor)
         assert r.outcome == "fail"
-        assert p.build_progress == 0
+        assert s.progress == 0
         assert treasury.gold == 500
 
-    def test_mayor_can_rush_three_units_one_turn(self):
-        p = make_base_project()
+    def test_mayor_can_rush_three_steps_one_turn(self):
+        s = make_stack(count=1, completed=False, progress=0)
         treasury = make_treasury(gold=500)
         mayor = make_mayor(action_points=3)
         while mayor.action_points > 0:
-            mayor_buy_build_unit(p, treasury, mayor)
-        assert p.build_progress == 3
+            mayor_buy_build_unit(s, treasury, mayor)
+        assert s.progress == 75
         assert treasury.gold == 350  # 3 × 50
-
-    def test_no_build_cost_deducted(self):
-        # build_cost is high but base build never charges it (faction labor is free;
-        # Mayor buy charges a flat 50, not build_cost).
-        p = make_base_project(build_cost=999)
-        treasury = make_treasury(gold=500)
-        mayor = make_mayor(action_points=1)
-        mayor_buy_build_unit(p, treasury, mayor)
-        assert treasury.gold == 450  # only the flat 50, not 999
 
 
 # ── Construction ──────────────────────────────────────────────────────────────
@@ -393,43 +393,100 @@ class TestSabotageBase:
     def test_decisive_minus_25(self, monkeypatch):
         _force_sabotage(monkeypatch, 20, 1)  # big positive margin → decisive
         f = make_faction("f1", "harbor", rating=2.0)
-        p = make_active_base(health=100)
-        r = resolve_sabotage_project(f, p)
+        s = make_stack(count=1, completed=True, progress=100)
+        r = resolve_sabotage_project(f, s)
         assert r.outcome == "decisive"
-        assert p.health == 75
+        assert s.progress == 75
 
     def test_partial_minus_10(self, monkeypatch):
-        # level 2, defense 5 (health 100): margin = (10+2)-(4+5) = 3 → partial
+        # level 2, defense 5 (progress 100): margin = (10+2)-(4+5) = 3 → partial
         _force_sabotage(monkeypatch, 10, 4)
         f = make_faction("f1", "harbor", rating=2.0)
-        p = make_active_base(health=100)
-        r = resolve_sabotage_project(f, p)
+        s = make_stack(count=1, completed=True, progress=100)
+        r = resolve_sabotage_project(f, s)
         assert r.outcome == "partial"
-        assert p.health == 90
+        assert s.progress == 90
 
     def test_fail_no_damage(self, monkeypatch):
         _force_sabotage(monkeypatch, 1, 20)  # big negative margin → fail
         f = make_faction("f1", "harbor", rating=2.0)
-        p = make_active_base(health=100)
-        r = resolve_sabotage_project(f, p)
+        s = make_stack(count=1, completed=True, progress=100)
+        r = resolve_sabotage_project(f, s)
         assert r.outcome == "fail"
-        assert p.health == 100
+        assert s.progress == 100
 
     def test_not_domain_gated(self, monkeypatch):
         _force_sabotage(monkeypatch, 20, 1)
-        f = make_faction("f1", "military", rating=2.0)  # different domain than the project
-        p = make_active_base(domain="harbor", health=100)
-        r = resolve_sabotage_project(f, p)
+        f = make_faction("f1", "military", rating=2.0)  # different domain than the stack
+        s = make_stack(domain="harbor", count=1, completed=True, progress=100)
+        r = resolve_sabotage_project(f, s)
         assert r.outcome != "blocked"
-        assert p.health == 75
+        assert s.progress == 75
 
-    def test_destroyed_at_zero_and_no_cap(self, monkeypatch):
+    def test_building_top_is_sabotageable(self, monkeypatch):
         _force_sabotage(monkeypatch, 20, 1)
         f = make_faction("f1", "harbor", rating=2.0)
-        p = make_active_base(health=20)   # defense_rating 1; decisive -25 → 0
-        resolve_sabotage_project(f, p)
-        assert p.status == "destroyed"
-        assert project_cap_contribution(p) == 0
+        s = make_stack(count=1, completed=False, progress=50)  # a build site
+        r = resolve_sabotage_project(f, s)
+        assert r.outcome == "decisive"
+        assert s.progress == 25 and s.completed is False  # build knocked back, not health
+
+    def test_clamps_at_zero_count_unchanged(self, monkeypatch):
+        _force_sabotage(monkeypatch, 20, 1)  # decisive -25
+        f = make_faction("f1", "harbor", rating=2.0)
+        s = make_stack(count=2, completed=True, progress=20)  # 20 - 25 → floor 0
+        resolve_sabotage_project(f, s)
+        assert s.progress == 0 and s.count == 2   # survives as a husk
+
+    def test_destroyed_only_on_hit_while_at_zero(self, monkeypatch):
+        _force_sabotage(monkeypatch, 20, 1)
+        f = make_faction("f1", "harbor", rating=2.0)
+        s = make_stack(count=2, completed=True, progress=0)  # already at 0
+        resolve_sabotage_project(f, s)
+        assert s.count == 1                       # destroyed; pristine instance revealed
+        assert s.completed is True and s.progress == 100
+
+    def test_destroy_last_empties_stack(self, monkeypatch):
+        _force_sabotage(monkeypatch, 20, 1)
+        f = make_faction("f1", "harbor", rating=2.0)
+        s = make_stack(count=1, completed=True, progress=0)
+        resolve_sabotage_project(f, s)
+        assert s.count == 0 and s.cap_contribution() == 0
+
+
+class TestRepairStack:
+    def test_repair_adds_build_step(self):
+        s = make_stack(count=1, completed=True, progress=60)
+        treasury = make_treasury(gold=500); mayor = make_mayor(action_points=5)
+        r = repair_stack(s, treasury, mayor)
+        assert r.outcome == "decisive"
+        assert s.progress == 85          # +build_step (25)
+        assert treasury.gold == 470      # repair costs 30
+
+    def test_repair_to_100_folds_into_pool(self):
+        s = make_stack(count=2, completed=True, progress=80)
+        treasury = make_treasury(gold=500); mayor = make_mayor(action_points=5)
+        repair_stack(s, treasury, mayor)
+        assert s.progress == 100 and s.top_is_pristine()
+        assert s.pool_count() == 2
+
+    def test_repair_refused_on_pristine(self):
+        s = make_stack(count=1, completed=True, progress=100)
+        treasury = make_treasury(gold=500); mayor = make_mayor(action_points=5)
+        r = repair_stack(s, treasury, mayor)
+        assert r.outcome == "fail" and treasury.gold == 500
+
+    def test_repair_refused_on_building(self):
+        s = make_stack(count=1, completed=False, progress=50)
+        treasury = make_treasury(gold=500); mayor = make_mayor(action_points=5)
+        r = repair_stack(s, treasury, mayor)
+        assert r.outcome == "fail"
+
+    def test_repair_fails_insufficient_gold(self):
+        s = make_stack(count=1, completed=True, progress=60)
+        treasury = make_treasury(gold=10); mayor = make_mayor(action_points=5)
+        r = repair_stack(s, treasury, mayor)
+        assert r.outcome == "fail" and s.progress == 60
 
 
 class TestMaintenanceBase:

@@ -47,16 +47,22 @@ A faction contributes its **level** (`int(rank)`) to its domain's `utilization`;
 
 - `base_cap = base_cap_from_fill(fill) = round(fill × CAP_HEADROOM_MULT)`, where `fill` is the
   domain's starting `Σ level`. Frozen once at game start; authored `cap` in `domains.json` is ignored.
-- Each cycle the runner re-derives `cap = base_cap + Σ project_cap_contribution(p)` over the domain's
-  base projects, where `project_cap_contribution` (a `category=="base"` project, by health tier):
+- Each cycle the runner re-derives `cap = base_cap + stack_cap_contribution(stack)` for the domain's
+  `BaseProjectStack` (projects_spec v6). For `count ≥ 1`:
 
-  | Project state | Cap contribution |
+  `stack_cap_contribution = (count − 1) × 2 + top_contribution`
+
+  where the pristine pool below the top contributes `+2` each, and the **top** contributes
+  `tier(progress)` when completed, else `0` (a building top adds nothing). `count == 0 → 0`.
+
+  | Top (completed) `progress` | `tier` |
   |---|---|
-  | active/damaged, health 51–100 (intact) | +2 |
-  | damaged, health 21–50 | +1 |
-  | critical / under_construction / destroyed | 0 |
+  | 51–100 (intact) | +2 |
+  | 21–50 (damaged) | +1 |
+  | 1–20 (critical) | 0 |
 
-Base projects (4 work units to build) are the only lever that grows a domain's ceiling. See `../specs/projects_spec.md`.
+Building a base project (raising the top's `progress` by `build_step`% per action; default 25 → 4 actions)
+is the only lever that grows a domain's ceiling. See `../specs/projects_spec.md`.
 
 ## Domain cap resistance
 From `utilization / cap`:

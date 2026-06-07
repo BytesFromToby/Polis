@@ -168,55 +168,50 @@ class TestSabotage:
 
 # ── Build Project (context-aware) ──────────────────────────────────────────────
 
-def _base_project(progress=1, status="under_construction", health=0, domain="trade"):
-    return Project(
-        id=f"{domain}_base_1", name="Agora", domains=[domain], build_cost=0,
-        build_time=4, category="base", status=status,
-        build_progress=progress, health=health, initiated_by="mayor",
-    )
+def _stacks(domain="trade", **kw):
+    from engine.models import BaseProjectStack
+    return {domain: BaseProjectStack(name="Agora", domains=[domain], **kw)}
 
 
 class TestBuildProject:
-    def test_initiates_when_none_under_construction(self):
-        m = _mayor(ap=4); t = _treasury(gold=500); projects = {}
-        r = mayor_build_or_repair("trade", projects, t, m)
+    def test_initiates_when_empty(self):
+        m = _mayor(ap=4); t = _treasury(gold=500); stacks = _stacks(count=0)
+        r = mayor_build_or_repair("trade", stacks, t, m)
         assert r.outcome != "fail"
-        base = [p for p in projects.values() if p.category == "base" and "trade" in p.domains]
-        assert len(base) == 1
-        assert base[0].status == "under_construction"
-        assert base[0].build_progress == 1
+        s = stacks["trade"]
+        assert s.count == 1 and s.top_is_building() and s.progress == 25
         assert t.gold == 450 and m.action_points == 3
 
-    def test_adds_unit_when_under_construction(self):
+    def test_adds_step_when_building(self):
         m = _mayor(ap=4); t = _treasury(gold=500)
-        projects = {"trade_base_1": _base_project(progress=1)}
-        mayor_build_or_repair("trade", projects, t, m)
-        assert projects["trade_base_1"].build_progress == 2
+        stacks = _stacks(count=1, completed=False, progress=25)
+        mayor_build_or_repair("trade", stacks, t, m)
+        assert stacks["trade"].progress == 50
         assert t.gold == 450 and m.action_points == 3
 
-    def test_fourth_unit_completes(self):
+    def test_completes_at_100(self):
         m = _mayor(ap=4); t = _treasury(gold=500)
-        projects = {"trade_base_1": _base_project(progress=3)}
-        mayor_build_or_repair("trade", projects, t, m)
-        assert projects["trade_base_1"].status == "active"
-        assert projects["trade_base_1"].health == 100
+        stacks = _stacks(count=1, completed=False, progress=75)
+        mayor_build_or_repair("trade", stacks, t, m)
+        s = stacks["trade"]
+        assert s.completed is True and s.progress == 100
 
-    def test_repairs_active_damaged(self):
+    def test_repairs_damaged_top(self):
         m = _mayor(ap=4); t = _treasury(gold=500)
-        projects = {"trade_base_1": _base_project(progress=4, status="active", health=60)}
-        r = mayor_build_or_repair("trade", projects, t, m)
+        stacks = _stacks(count=1, completed=True, progress=60)
+        r = mayor_build_or_repair("trade", stacks, t, m)
         assert r.outcome != "fail"
-        assert projects["trade_base_1"].health == 85   # +25
+        assert stacks["trade"].progress == 85   # +build_step (25)
         assert t.gold == 470 and m.action_points == 3   # repair costs 30
 
     def test_insufficient_funds_refunds(self):
         # No AP -> refused, nothing changes
-        m = _mayor(ap=0); t = _treasury(gold=500); projects = {}
-        r = mayor_build_or_repair("trade", projects, t, m)
+        m = _mayor(ap=0); t = _treasury(gold=500); stacks = _stacks(count=0)
+        r = mayor_build_or_repair("trade", stacks, t, m)
         assert r.outcome == "fail"
-        assert t.gold == 500 and m.action_points == 0 and projects == {}
+        assert t.gold == 500 and m.action_points == 0 and stacks["trade"].count == 0
         # Has AP but not enough gold -> refused, AP refunded, nothing deducted
-        m2 = _mayor(ap=2); t2 = _treasury(gold=10); projects2 = {}
-        r2 = mayor_build_or_repair("trade", projects2, t2, m2)
+        m2 = _mayor(ap=2); t2 = _treasury(gold=10); stacks2 = _stacks(count=0)
+        r2 = mayor_build_or_repair("trade", stacks2, t2, m2)
         assert r2.outcome == "fail"
-        assert t2.gold == 10 and m2.action_points == 2
+        assert t2.gold == 10 and m2.action_points == 2 and stacks2["trade"].count == 0

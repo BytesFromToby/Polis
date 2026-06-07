@@ -32,7 +32,7 @@
               <div class="domain-fill-wrap" v-if="d.cap">
                 <div class="domain-fill" :style="{ width: domainFillPct(d) + '%' }"></div>
               </div>
-              <span class="domain-cap muted">{{ d.cap ? Math.round(d.utilization) + ' / ' + d.cap : '' }}</span>
+              <span class="domain-cap muted">{{ d.cap ? Math.round(d.utilization) + '/' + d.cap : '' }}</span>
             </div>
 
             <div v-if="expandedDomains[d.id]" class="domain-factions">
@@ -151,18 +151,29 @@
             <div class="domain-header" @click="toggleProjectDomain(g.id)">
               <span class="domain-caret">{{ expandedProjectDomains[g.id] !== false ? '▾' : '▸' }}</span>
               <span class="domain-name">{{ g.name }}</span>
-              <span class="domain-count">{{ g.projects.length }}</span>
+              <span class="domain-count">{{ g.stack ? g.stack.count : 0 }}</span>
             </div>
 
             <div v-if="expandedProjectDomains[g.id] !== false" class="domain-projects">
-              <div v-for="p in g.projects" :key="p.id" class="project-row"
-                   :class="{ building: p.status === 'under_construction' }"
-                   @click="selectedProject = p" title="View details">
-                <span class="project-name">{{ p.name }}</span>
-                <span v-if="p.status === 'under_construction'" class="project-pct accent">{{ projectPct(p) }}%</span>
-                <span v-else class="project-domain muted">{{ projectStatusLabel(p.status) }}</span>
-              </div>
-              <div v-if="!g.projects.length" class="muted" style="font-size:0.78rem; padding:0.3rem 0.5rem">No projects</div>
+              <template v-if="g.stack && g.stack.count > 0">
+                <!-- Pooled pristine instances -->
+                <div v-if="poolCount(g.stack) >= 1" class="project-row"
+                     @click="selectedProject = g.stack" title="View details">
+                  <span class="project-name">{{ g.stack.name }} ×{{ poolCount(g.stack) }}</span>
+                </div>
+                <!-- In-flux front: building (build %) or damaged (health %) -->
+                <div v-if="frontKind(g.stack) === 'building'" class="project-row building"
+                     @click="selectedProject = g.stack" title="View details">
+                  <span class="project-name">{{ g.stack.name }}</span>
+                  <span class="project-pct accent">{{ Math.round(g.stack.progress) }}%</span>
+                </div>
+                <div v-else-if="frontKind(g.stack) === 'damaged'" class="project-row damaged"
+                     @click="selectedProject = g.stack" title="View details">
+                  <span class="project-name">{{ g.stack.name }}</span>
+                  <span class="project-pct danger">{{ Math.round(g.stack.progress) }}% hp</span>
+                </div>
+              </template>
+              <div v-else class="muted" style="font-size:0.78rem; padding:0.3rem 0.5rem">No projects</div>
             </div>
           </div>
         </div>
@@ -212,27 +223,26 @@
         <button class="btn-subtle btn-sm" @click="selectedProject = null">Close</button>
       </div>
 
-      <div v-if="selectedProject.status === 'under_construction'" class="proj-progress">
+      <div v-if="!selectedProject.completed" class="proj-progress">
         <div class="proj-progress-head">
           <span class="muted">Construction</span>
-          <span class="accent">{{ projectPct(selectedProject) }}% · {{ selectedProject.build_progress }}/4 units</span>
+          <span class="accent">{{ Math.round(selectedProject.progress) }}%</span>
         </div>
-        <div class="proj-bar"><div class="proj-bar-fill" :style="{ width: projectPct(selectedProject) + '%' }"></div></div>
+        <div class="proj-bar"><div class="proj-bar-fill" :style="{ width: Math.round(selectedProject.progress) + '%' }"></div></div>
       </div>
       <div v-else class="proj-progress">
         <div class="proj-progress-head">
-          <span class="muted">Health</span>
-          <span class="accent">{{ selectedProject.health }}%</span>
+          <span class="muted">Health (top)</span>
+          <span class="accent">{{ Math.round(selectedProject.progress) }}%</span>
         </div>
-        <div class="proj-bar"><div class="proj-bar-fill" :style="{ width: selectedProject.health + '%' }"></div></div>
+        <div class="proj-bar"><div class="proj-bar-fill" :style="{ width: Math.round(selectedProject.progress) + '%' }"></div></div>
       </div>
 
       <dl class="proj-detail-grid">
-        <dt>Status</dt><dd>{{ projectStatusLabel(selectedProject.status) }}</dd>
+        <dt>Built</dt><dd>{{ poolCount(selectedProject) }} standing</dd>
+        <dt>Top</dt><dd>{{ frontLabel(selectedProject) }}</dd>
         <dt>Domain</dt><dd>{{ domainName(selectedProject.domain) || '—' }}</dd>
-        <dt>Type</dt><dd>{{ selectedProject.category }}</dd>
-        <dt v-if="selectedProject.tax_level">Tax level</dt><dd v-if="selectedProject.tax_level">{{ selectedProject.tax_level }}</dd>
-        <dt>Upkeep</dt><dd>{{ selectedProject.maintenance_cost }} gold/cycle</dd>
+        <dt>Build step</dt><dd>{{ selectedProject.build_step }}% / action</dd>
         <dt>Initiated by</dt><dd>{{ initiatorName(selectedProject.initiated_by) }}</dd>
       </dl>
     </div>
@@ -325,13 +335,15 @@ export default {
     projectsByDomain() {
       const domains = this.snapshot?.domains
       if (!domains) return []
+      // projectList is now one base-project stack per domain (projects_spec v6).
+      const byDomain = {}
+      for (const s of this.projectList) byDomain[s.domain] = s
       // One group per known domain, so empty domains still show.
       const groups = {}
       for (const [id, d] of Object.entries(domains)) {
-        groups[id] = { id, name: d.name || id, projects: [] }
+        groups[id] = { id, name: d.name || id, stack: byDomain[id] || null }
       }
-      // Order to match the faction panel (factionsByDomain), then append any
-      // faction-less domains so every domain still appears.
+      // Order to match the faction panel, then append any faction-less domains.
       const order = []
       for (const g of this.factionsByDomain) {
         if (groups[g.id]) order.push(g.id)
@@ -339,17 +351,11 @@ export default {
       for (const id of Object.keys(groups)) {
         if (!order.includes(id)) order.push(id)
       }
-      let other = null
-      for (const p of this.projectList) {
-        if (groups[p.domain]) {
-          groups[p.domain].projects.push(p)
-        } else {
-          if (!other) other = { id: 'other', name: 'Other', projects: [] }
-          other.projects.push(p)
-        }
-      }
       const arr = order.map(id => groups[id])
-      if (other) arr.push(other)
+      // "Other": a stack whose domain has no matching domain entry
+      for (const s of this.projectList) {
+        if (!groups[s.domain]) arr.push({ id: 'other:' + s.domain, name: s.name, stack: s })
+      }
       return arr
     },
     audienceFactionObj() {
@@ -378,9 +384,9 @@ export default {
           mayorApi.get(store.userId).then(m => { this.mayorData = m }),
           projectsApi.list(store.userId).then(p => {
             this.projectList = p
-            // Keep an open details modal in sync with the refreshed data
+            // Keep an open details modal (a stack) in sync with the refreshed data — match by domain
             if (this.selectedProject) {
-              this.selectedProject = p.find(x => x.id === this.selectedProject.id) || null
+              this.selectedProject = p.find(x => x.domain === this.selectedProject.domain) || null
             }
           }),
         ])
@@ -388,18 +394,24 @@ export default {
         this.error = e.message
       }
     },
-    projectPct(p) {
-      // Under-construction progress is build_progress out of 4 work units.
-      return Math.round(((p.build_progress || 0) / 4) * 100)
+    poolCount(stack) {
+      // Pristine instances shown as "Name ×N": count if the top is pristine, else count − 1.
+      if (!stack) return 0
+      const pristine = stack.completed && stack.progress === 100
+      return pristine ? stack.count : Math.max(0, stack.count - 1)
     },
-    projectStatusLabel(status) {
-      return ({
-        under_construction: 'Under construction',
-        active: 'Active',
-        damaged: 'Damaged',
-        critical: 'Critical',
-        destroyed: 'Destroyed',
-      })[status] || status
+    frontKind(stack) {
+      // The in-flux top: 'building', 'damaged', or null (pristine / empty — no front row).
+      if (!stack || stack.count < 1) return null
+      if (!stack.completed) return 'building'
+      if (stack.progress < 100) return 'damaged'
+      return null
+    },
+    frontLabel(stack) {
+      const kind = this.frontKind(stack)
+      if (kind === 'building') return `building ${Math.round(stack.progress)}%`
+      if (kind === 'damaged') return `damaged ${Math.round(stack.progress)}% hp`
+      return 'all intact'
     },
     domainName(id) {
       return (this.snapshot?.domains || {})[id]?.name || id

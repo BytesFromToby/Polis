@@ -253,26 +253,52 @@ Street, Political, Religion, Bureaucracy, Finance, Police, Underworld, Legal, He
 
 ---
 
-### `Project`
+### `BaseProjectStack`  (projects_spec v6 — the live base-project model)
+
+Base projects are **not** stored as individual `Project` instances. Each domain has one
+`BaseProjectStack` (in `session.base_stacks`, keyed by domain id). Because builds, repairs, and
+sabotage only ever touch the newest (top) instance — and a new top can't be broken ground while
+the current top is in-flux — every instance below the top is always pristine, so only a count plus
+the top's state is stored.
+
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `name` | `str` | required | Base-project name for the domain (e.g. `Estate`) |
+| `domains` | `List[str]` | required | Domains this stack belongs to; single-element today (a list for future multi-domain projects) |
+| `count` | `int` | `0` | Stack height = highest number = how many instances exist |
+| `completed` | `bool` | `False` | Has the top (`#count`) ever reached 100%? |
+| `progress` | `float` | `0.0` | 0–100, the **top** only: build-fill while building, structural health once completed |
+| `build_step` | `int` | `25` | % one build action adds — per-project (variable build length) |
+| `initiated_by` | `str` | `"mayor"` | Who broke ground on the current top (informational) |
+| `build_actions_this_cycle` | `int` | `0` | Cycle-only (not persisted); successful builds grant the top +1 sabotage defense each (cap +2) |
+
+Derived (read off the record): `pool_count()` = `count` if the top is pristine else `count − 1`;
+`active_count()` = `count` if `completed` else `count − 1`; `defense_rating()` = `max(1, int(progress)//20)`;
+`cap_contribution()` = `(count − 1) × 2 + tier(progress if completed else 0)`.
+
+### `Project`  (legacy — `tax_collection` / `standard` only)
+
+Retained for `tax_collection` projects (and any legacy standard project). Base projects no longer
+use this dataclass.
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
 | `id` | `str` | required | Unique identifier |
 | `name` | `str` | required | Display name |
-| `domains` | `List[str]` | required | Domains this project belongs to; factions in any listed domain can build, attack, or receive effects |
-| `build_cost` | `int` | required | Legacy (tax_collection only); **base projects ignore it** — no upfront lump |
-| `build_time` | `int` | required | Legacy (tax_collection only); base projects use `build_progress` (4 work units) |
-| `faction_build_actions` | `int` | `4` | Legacy (tax_collection only) |
-| `cycles_built` | `int` | `0` | Fallback cycle counter (legacy) |
-| `category` | `str` | `"standard"` | `"standard"` \| `"base"` \| `"tax_collection"` |
+| `domains` | `List[str]` | required | Domains this project belongs to |
+| `build_cost` | `int` | required | Upfront gold (tax_collection) |
+| `build_time` | `int` | required | Cycles to build (tax_collection) |
+| `faction_build_actions` | `int` | `4` | Legacy |
+| `cycles_built` | `int` | `0` | Cycle counter (legacy) |
+| `category` | `str` | `"standard"` | `"standard"` \| `"base"` (legacy snapshots) \| `"tax_collection"` |
 | `tax_level` | `int` | `0` | 1–5 for tax_collection projects; unlocks that rate tier |
-| `faction_level` | `bool` | `False` | Retired by the projects rework (no bespoke/faction-level effects); kept for back-compat |
+| `faction_level` | `bool` | `False` | Retired; kept for back-compat |
 | `status` | `str` | `"under_construction"` | `"under_construction"` \| `"active"` \| `"damaged"` \| `"critical"` \| `"destroyed"` |
-| `health` | `int` | `0` | Structural health 0→100 when active (base projects build via `build_progress`, not health) |
-| `build_progress` | `int` | `0` | **Base projects:** work units 0→4 during construction; 4 = complete (→ active, health 100) |
+| `health` | `int` | `0` | Structural health 0→100 when active |
+| `build_progress` | `int` | `0` | Legacy work-unit counter |
 | `effects` | `List[ProjectEffect]` | `[]` | Applied each cycle while active |
-| `maintenance_cost` | `int` | `10` | Stored per-project; treasury deducts flat `2 × active_project_count` globally |
-| `initiated_by` | `str` | `"mayor"` | `"mayor"` or faction_id; doubles as effect owner when `faction_level=True` |
+| `maintenance_cost` | `int` | `10` | Treasury deducts flat `2 × active_project_count` globally |
+| `initiated_by` | `str` | `"mayor"` | `"mayor"` or faction_id |
 
 **Cycle-only fields (not persisted):**
 

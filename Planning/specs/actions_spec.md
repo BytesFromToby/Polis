@@ -111,15 +111,18 @@ Actor `rank` gains the amount (capped 10.0); target `rank` loses it (floored at 
 
 ---
 
-## Project Actions (pending rework)
+## Project Actions
 
-*Retained from v4 — the projects rework is a separate, later pass; mechanics here are unchanged for now. See `projects_spec.md`.*
+*Base projects use the stack model (`projects_spec.md` v6): one `BaseProjectStack` per domain
+with a unified `progress` (0–100) on the **top** instance. Both actions resolve against the
+**top** of the addressed domain's stack — the only attackable/buildable instance. See
+`projects_spec.md` for the authoritative mechanics.*
 
 ### BuildProject
-**Who:** Faction whose `domain_primary` is in the project's `domains` list · **Target:** a project `under_construction` or `active` · **Contested:** No — roll `d20 + floor(rating)` vs DC 12. On success `health += 100 / project.faction_build_actions`. Each successful build this cycle grants the project +1 defense (max +2).
+**Who:** Faction whose `domain_primary` is the stack's domain · **Target:** the domain's stack top (building) · **Contested:** No — roll `d20 + floor(rating)` vs DC 12. On success `progress += build_step%` (default 25); reaching 100 sets `completed`. Domain-gated. Each successful build this cycle grants +1 defense (max +2).
 
 ### SabotageProject
-**Who:** Any faction · **Target:** any `under_construction`/`active` project · **Contested:** Yes — attacker vs `d20 + project_defense_rating (+ build bonus)`, where `project_defense_rating = max(1, project.health // 20)`. Decisive −25 health, partial −10, fail none. Health 0 → `destroyed` (projects *can* be destroyed; factions cannot).
+**Who:** Any faction (no domain gate) · **Target:** the domain's stack **top** — including a **building** top (a build site is now attackable, reversing v5) · **Contested:** Yes — attacker vs `d20 + stack_defense_rating (+ build bonus)`, `stack_defense_rating = max(1, int(progress) // 20)`. Decisive −25, partial −10, fail none, applied to `progress`. `progress` floors at 0; `count` drops (destroying the top, revealing a pristine one below) **only** when a hit lands while `progress` is already 0.
 
 ---
 

@@ -105,8 +105,8 @@ see what earlier ones did. The conceptual phases:
 |------|------|
 | 0 | Treasury — income, expenditure, debt, tax effects |
 | 1 | Initiative — shuffle factions into random turn order |
-| 2 | Action loop — factions act sequentially |
-| 3 | Project ticks — construction, completion, defense reset |
+| 2 | Action loop — factions act sequentially (base-project build/sabotage resolve here, on the domain's `BaseProjectStack`) |
+| 3 | Project ticks — legacy `tax_collection` construction/effects (base stacks don't tick) |
 | 4 | End of cycle — traits, chaos, Break sweep, cooldowns, counters |
 
 **`Planning/specs/cycle-runner_spec.md` is authoritative** for the full per-cycle

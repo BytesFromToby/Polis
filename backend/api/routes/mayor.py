@@ -28,7 +28,7 @@ from api.schemas import (
     AudienceReplyRequest, AudienceReplyResponse,
     AudienceConcludeRequest, AudienceConcludeResponse,
     AudienceFinalizeRequest, AudienceFinalizeResponse,
-    ProjectResponse,
+    ProjectResponse, BaseStackResponse,
 )
 from api.sessions import SimSession, get_session
 from db.models import User
@@ -306,11 +306,11 @@ def mayor_act(
             action_points=mayor.action_points,
         )
 
-    # ── BuildProject — context-aware (initiate/fund/repair); needs the projects dict ──
+    # ── BuildProject — context-aware (initiate/fund/repair) on the domain's stack ──
     if req.action == "BuildProject":
-        projects = session.projects or {}
-        r = mayor_build_or_repair(req.target_id, projects, treasury, mayor)
-        session.projects = projects
+        base_stacks = session.base_stacks or {}
+        r = mayor_build_or_repair(req.target_id, base_stacks, treasury, mayor)
+        session.base_stacks = base_stacks
         if r.outcome == "fail":
             raise HTTPException(status_code=400, detail=r.narrative)
         return MayorActResponse(
@@ -556,7 +556,7 @@ def audience_finalize(
 
 # ── Projects ──────────────────────────────────────────────────────────────────
 
-@router.get("/projects", response_model=list[ProjectResponse])
+@router.get("/projects", response_model=list[BaseStackResponse])
 def list_projects(
     user_id: str,
     current_user: User = Depends(get_current_user),
@@ -564,17 +564,14 @@ def list_projects(
 ):
     _auth(user_id, current_user)
     session = _get_session(user_id, db)
-    projects = session.projects or {}
+    stacks = session.base_stacks or {}
     return [
-        ProjectResponse(
-            id=p.id, name=p.name, domain=p.domain, category=p.category,
-            status=p.status, health=p.health, build_progress=p.build_progress,
-            build_cost=p.build_cost,
-            build_time=p.build_time, faction_build_actions=p.faction_build_actions,
-            cycles_built=p.cycles_built, maintenance_cost=p.maintenance_cost,
-            tax_level=p.tax_level, initiated_by=p.initiated_by,
+        BaseStackResponse(
+            name=s.name, domain=s.domain, domains=list(s.domains),
+            count=s.count, completed=s.completed, progress=s.progress,
+            build_step=s.build_step, initiated_by=s.initiated_by,
         )
-        for p in projects.values()
+        for s in stacks.values()
     ]
 
 

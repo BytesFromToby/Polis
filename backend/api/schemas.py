@@ -335,3 +335,16 @@ class ProjectResponse(BaseModel):
     initiated_by: str
 
 
+class BaseStackResponse(BaseModel):
+    """A domain's base-project stack (projects_spec v6). The /projects list returns one
+    of these per domain; the frontend derives the pool/front view from count/completed/progress."""
+    name: str
+    domain: str
+    domains: List[str]
+    count: int
+    completed: bool
+    progress: float
+    build_step: int
+    initiated_by: str
+
+

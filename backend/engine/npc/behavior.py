@@ -77,9 +77,11 @@ def select_faction_action(
     domains: Dict[str, Domain],
     world: WorldState,
     projects: Optional[Dict[str, Project]] = None,
+    base_stacks: Optional[Dict[str, "BaseProjectStack"]] = None,
 ) -> FactionPlan:
     """Select one action and target for this faction this turn."""
     projects = projects or {}
+    base_stacks = base_stacks or {}
 
     # ── Deal commitment override ──────────────────────────────────────────────
     if faction.committed_action:
@@ -142,51 +144,31 @@ def select_faction_action(
             weights["Grow"]  = weights.get("Grow",  0.0) - 20
             weights["Steal"] = weights.get("Steal", 0.0) + 15
 
-    # Project state modifiers
-    faction_domains = {faction.domain_primary}
-    domain_projects = [
-        p for p in projects.values()
-        if any(d in faction_domains for d in p.domains)
-        and p.status != "destroyed"
-    ]
-    rival_projects = [p for p in domain_projects if p.initiated_by != faction.id and p.initiated_by != "mayor"]
-
-    if any(p.status == "under_construction" for p in domain_projects):
-        weights["BuildProject"] = weights.get("BuildProject", 0.0) + 20
-
-    if rival_projects:
-        weights["SabotageProject"] = weights.get("SabotageProject", 0.0) + 20
-
-    # Owned project is damaged — strong pull to repair it
-    owned_damaged = [
-        p for p in projects.values()
-        if p.initiated_by == faction.id and p.status == "active" and p.health < 75
-        and faction.domain_primary in p.domains
-    ]
-    if owned_damaged:
-        weights["BuildProject"] = weights.get("BuildProject", 0.0) + 30
-
-    faction_level_project = any(
-        p.faction_level and p.initiated_by == faction.id and p.status == "active"
-        for p in projects.values()
+    # Project state modifiers — base-project stacks (projects_spec v6).
+    own_stack = base_stacks.get(faction.domain_primary)
+    own_domain_obj = domains.get(faction.domain_primary)
+    # Continue an in-progress build on the faction's own domain.
+    can_build_own = own_stack is not None and own_stack.top_is_building()
+    # Break ground under near-cap pressure (utilization ≥ 0.85×cap) with a pristine/empty top.
+    can_initiate_own = (
+        own_stack is not None
+        and (own_stack.count == 0 or own_stack.top_is_pristine())
+        and own_domain_obj is not None and own_domain_obj.cap > 0
+        and own_domain_obj.utilization >= 0.85 * own_domain_obj.cap
     )
-    if faction_level_project:
-        weights["Protect"] = weights.get("Protect", 0.0) + 10
-
-    # Remove project actions if no valid targets exist
-    buildable = _get_buildable_projects(faction, projects)
-    sabotageable = [
-        p for p in projects.values()
-        if p.status != "destroyed"
-        and not (getattr(p, "category", "standard") == "base" and p.status == "under_construction")
-    ]
-    can_initiate = _can_initiate_base(faction, domains, projects)
-    if not buildable and not can_initiate:
-        weights.pop("BuildProject", None)
-    elif can_initiate:
-        # near-cap pressure: pull toward breaking ground on a cap-raising base project
+    if can_build_own or can_initiate_own:
         weights["BuildProject"] = weights.get("BuildProject", 0.0) + 20
-    if not sabotageable:
+    else:
+        weights.pop("BuildProject", None)
+
+    # Sabotage: any other domain with a standing stack (count ≥ 1) is attackable.
+    sabotage_domains = [
+        did for did, s in base_stacks.items()
+        if did != faction.domain_primary and s.count >= 1
+    ]
+    if sabotage_domains:
+        weights["SabotageProject"] = weights.get("SabotageProject", 0.0) + 20
+    else:
         weights.pop("SabotageProject", None)
 
     # ── Step 4: Select action ─────────────────────────────────────────────────
@@ -217,25 +199,19 @@ def select_faction_action(
             action = "Protect"
 
     elif action == "BuildProject":
-        project_target = _pick_build_target(faction, buildable)
-        if project_target is None:
-            if can_initiate:
-                # break ground on a new base project in the faction's own domain
-                return FactionPlan(
-                    faction.id, action,
-                    target_id=f"new_base:{faction.domain_primary}",
-                    domain=faction.domain_primary,
-                )
-            action = "Grow"
-        else:
-            return FactionPlan(faction.id, action, target_id=project_target, domain=faction.domain_primary)
+        # Target is the faction's own domain stack (the dispatcher breaks ground if needed).
+        if can_build_own or can_initiate_own:
+            return FactionPlan(faction.id, action, target_id=faction.domain_primary,
+                               domain=faction.domain_primary)
+        action = "Grow"
 
     elif action == "SabotageProject":
-        project_target = _pick_sabotage_target(faction, sabotageable, factions, domains)
-        if project_target is None:
+        target_domain = _pick_sabotage_stack(faction, sabotage_domains, domains)
+        if target_domain is None:
             action = "Grow"
         else:
-            return FactionPlan(faction.id, action, target_id=project_target, domain=faction.domain_primary)
+            return FactionPlan(faction.id, action, target_id=target_domain,
+                               domain=faction.domain_primary)
 
     return FactionPlan(faction.id, action, target_id=target_id, domain=faction.domain_primary)
 
@@ -253,9 +229,9 @@ def _committed_plan(
     target_id: Optional[str] = faction.committed_target or None
 
     if action == "BuildProject":
-        buildable = _get_buildable_projects(faction, projects)
-        tid = target_id if target_id and target_id in {p.id for p in buildable} else _pick_build_target(faction, buildable)
-        return FactionPlan(faction.id, action, target_id=tid, domain=faction.domain_primary)
+        # Build the faction's own domain stack (dispatcher breaks ground if needed).
+        return FactionPlan(faction.id, action, target_id=faction.domain_primary,
+                           domain=faction.domain_primary)
 
     if action in ("Harm", "Steal"):
         if target_id and target_id in factions:
@@ -318,89 +294,23 @@ def _lowest_health_ally(
     return min(allies, key=lambda a: a.health)
 
 
-def _get_buildable_projects(
+def _pick_sabotage_stack(
     faction: Faction,
-    projects: Dict[str, Project],
-) -> List[Project]:
-    out: List[Project] = []
-    for p in projects.values():
-        if faction.domain_primary not in p.domains:
-            continue
-        if getattr(p, "category", "standard") == "base":
-            # a base project is buildable only while under construction (active = done)
-            if p.status == "under_construction":
-                out.append(p)
-        elif p.status in ("under_construction", "active"):
-            out.append(p)
-    return out
-
-
-def _can_initiate_base(
-    faction: Faction,
-    domains: Dict[str, Domain],
-    projects: Dict[str, Project],
-) -> bool:
-    """A faction may break ground on a new base project in its own domain when that
-    domain is near cap (utilization ≥ 85% of cap) and none is already under construction."""
-    domain = domains.get(faction.domain_primary)
-    if domain is None or domain.cap <= 0:
-        return False
-    if domain.utilization < 0.85 * domain.cap:
-        return False
-    for p in projects.values():
-        if (getattr(p, "category", "standard") == "base"
-                and faction.domain_primary in p.domains
-                and p.status == "under_construction"):
-            return False
-    return True
-
-
-def _pick_build_target(faction: Faction, buildable: List[Project]) -> Optional[str]:
-    if not buildable:
-        return None
-    # Prefer under_construction, then by progress (closest to completion first)
-    under_construction = [p for p in buildable if p.status == "under_construction"]
-    if under_construction:
-        return max(under_construction, key=lambda p: p.health).id
-    # Fallback: damaged active project
-    damaged = [p for p in buildable if p.status == "active" and p.health < 100]
-    if damaged:
-        return min(damaged, key=lambda p: p.health).id
-    return buildable[0].id
-
-
-def _pick_sabotage_target(
-    faction: Faction,
-    sabotageable: List[Project],
-    factions: Dict[str, Faction],
+    sabotage_domains: List[str],
     domains: Optional[Dict[str, Domain]] = None,
 ) -> Optional[str]:
-    if not sabotageable:
+    """Choose which domain's base-project stack to sabotage. Foe-domain stacks are
+    weighted ×3 (projects_spec v6 — sabotage targets the domain stack's top)."""
+    if not sabotage_domains:
         return None
-
-    pool: Dict[str, float] = {p.id: 1.0 for p in sabotageable}
-
-    # Hostile faction-owned projects weighted ×3
-    hostile_faction_ids = set()
-    for ft in faction.traits:
-        if ft.target_id and ft.trait in ("angry at", "distrusts"):
-            hostile_faction_ids.add(ft.target_id)
-
-    # Foe domain relationships transfer to project targeting
-    foe_domains: set = set()
+    pool: Dict[str, float] = {did: 1.0 for did in sabotage_domains}
     if domains:
         domain_obj = domains.get(faction.domain_primary)
         if domain_obj:
             foe_domains = {r.domain_id for r in domain_obj.relationships if r.trait == "Foe"}
-
-    for p in sabotageable:
-        if p.initiated_by in hostile_faction_ids:
-            pool[p.id] = pool.get(p.id, 1.0) * 3.0
-        if any(d in foe_domains for d in p.domains):
-            pool[p.id] = pool.get(p.id, 1.0) * 2.0
-        if p.status == "active":
-            pool[p.id] = pool.get(p.id, 1.0) + p.health / 100.0
-
+            for did in pool:
+                if did in foe_domains:
+                    pool[did] *= 3.0
     return weighted_choice(pool)
 
 

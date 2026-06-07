@@ -285,71 +285,96 @@ def base_project_name(domain_id: str) -> str:
     return BASE_PROJECT_NAMES.get(domain_id, f"{domain_id.replace('_', ' ').title()} Works")
 
 
-def initiate_base_project(
-    domain_id: str,
-    projects: Dict[str, Project],
-    initiated_by: str = "mayor",
-) -> Optional[Project]:
-    """Break ground on a new base project in a domain. Refuses (returns None) if a
-    base project is already under construction there — at most one per domain at a
-    time. Otherwise creates and registers a fresh under-construction instance."""
-    for p in projects.values():
-        if (getattr(p, "category", "standard") == "base"
-                and domain_id in p.domains
-                and p.status == "under_construction"):
-            return None
-
-    existing = sum(
-        1 for p in projects.values()
-        if getattr(p, "category", "standard") == "base" and domain_id in p.domains
-    )
-    project = Project(
-        id=f"{domain_id}_base_{existing + 1}",
-        name=base_project_name(domain_id),
-        domains=[domain_id],
-        build_cost=0,
-        build_time=4,
-        category="base",
-        status="under_construction",
-        build_progress=0,
-        health=0,
-        initiated_by=initiated_by,
-    )
-    projects[project.id] = project
-    return project
+def new_base_stacks(domains) -> Dict[str, "BaseProjectStack"]:
+    """One empty BaseProjectStack per domain id (count 0). Built at game start —
+    base projects are erected during play, not seeded (projects_spec v6)."""
+    from engine.models import BaseProjectStack
+    return {
+        domain_id: BaseProjectStack(name=base_project_name(domain_id), domains=[domain_id])
+        for domain_id in domains
+    }
 
 
-# ── Mayor build buy (base projects) ────────────────────────────────────────────
+def initiate_base_stack(stack, initiated_by: str = "mayor") -> bool:
+    """Break ground on a new top of the stack (projects_spec v6). Refuses (returns
+    False) unless the top is pristine or the stack is empty — at most one in-flux top
+    per domain ("resolve the front first"). Otherwise count += 1, a fresh build site."""
+    if stack.count > 0 and not stack.top_is_pristine():
+        return False
+    stack.count += 1
+    stack.completed = False
+    stack.progress = 0.0
+    stack.initiated_by = initiated_by
+    return True
 
-def mayor_buy_build_unit(project: Project, treasury: Treasury, mayor: "Mayor") -> ActionResult:
-    """Mayor spends 50 gold + 1 action point to add one guaranteed work unit to an
-    under-construction base project. Repeatable per action point. On the 4th unit
-    the project becomes active. Nothing is charged if AP or gold is insufficient."""
+
+def apply_build_step(stack) -> bool:
+    """Add one build_step% to a building top; on first reaching 100 set completed.
+    Returns True if this step completed the top."""
+    stack.progress = min(100, stack.progress + stack.build_step)
+    if stack.progress >= 100:
+        stack.progress = 100
+        if not stack.completed:
+            stack.completed = True
+            return True
+    return False
+
+
+def apply_sabotage_damage(stack, amount: float) -> bool:
+    """Apply `amount`% sabotage damage to the top per the destruction rule
+    (projects_spec v6). progress clamps at 0; the instance is destroyed (count −= 1,
+    revealing a pristine instance below — or emptying the stack) ONLY when a hit lands
+    while progress is already 0. Returns True if an instance was destroyed."""
+    if stack.count == 0:
+        return False
+    if stack.progress <= 0:
+        stack.count -= 1
+        if stack.count <= 0:
+            stack.count = 0
+            stack.completed = False
+            stack.progress = 0.0
+        else:
+            stack.completed = True
+            stack.progress = 100.0
+        return True
+    stack.progress = max(0, stack.progress - amount)
+    return False
+
+
+# ── Mayor build buy (base-project stacks) ──────────────────────────────────────
+
+def mayor_buy_build_unit(stack, treasury: Treasury, mayor: "Mayor") -> ActionResult:
+    """Mayor spends 50 gold + 1 action point to add one guaranteed build step to a
+    building top. Repeatable per action point. On reaching 100% the top completes.
+    Nothing is charged if AP or gold is insufficient, or if the top is not building."""
+    domain_id = stack.domain
+    if not stack.top_is_building():
+        return ActionResult(
+            action="BuildBuy", actor_id="mayor", target_id=domain_id,
+            outcome="fail", narrative=f"{stack.name} has no build site to fund.",
+        )
     cost_gold = 50
     cost_ap = 1
     if not mayor.spend(cost_ap):
         return ActionResult(
-            action="BuildBuy", actor_id="mayor", target_id=project.id,
+            action="BuildBuy", actor_id="mayor", target_id=domain_id,
             outcome="fail", narrative="Build buy failed: insufficient action points",
         )
     if treasury.gold < cost_gold:
         mayor.action_points += cost_ap  # refund
         return ActionResult(
-            action="BuildBuy", actor_id="mayor", target_id=project.id,
+            action="BuildBuy", actor_id="mayor", target_id=domain_id,
             outcome="fail", narrative=f"Build buy failed: need {cost_gold} gold, have {treasury.gold}",
         )
     treasury.gold -= cost_gold
     treasury.expenditure_this_cycle += cost_gold
-    project.build_progress += 1
-    completed = project.build_progress >= 4
-    if completed:
-        project.status = "active"
-        project.health = 100
+    completed = apply_build_step(stack)
+    stack.build_actions_this_cycle += 1
     return ActionResult(
-        action="BuildBuy", actor_id="mayor", target_id=project.id,
+        action="BuildBuy", actor_id="mayor", target_id=domain_id,
         outcome="decisive", delta=-float(cost_gold), dramatic=completed,
         narrative=(
-            f"The treasury funds work on {project.name} ({project.build_progress}/4)."
+            f"The treasury funds work on {stack.name} ({int(stack.progress)}%)."
             + (" It is complete and now stands active." if completed else "")
         ),
     )
@@ -357,64 +382,84 @@ def mayor_buy_build_unit(project: Project, treasury: Treasury, mayor: "Mayor") -
 
 def mayor_build_base(
     domain_id: str,
-    projects: Dict[str, Project],
+    base_stacks: Dict[str, "BaseProjectStack"],
     treasury: Treasury,
     mayor: "Mayor",
 ) -> ActionResult:
-    """Mayor-facing entry: build a base project in any domain. Uses the domain's
-    in-progress base project if one exists, otherwise initiates one, then funds a
-    work unit (50 gold + 1 AP). The Mayor is not gated by cap or faction presence."""
-    project = next(
-        (p for p in projects.values()
-         if getattr(p, "category", "standard") == "base"
-         and domain_id in p.domains and p.status == "under_construction"),
-        None,
+    """Mayor-facing entry: build a base project in any domain. Breaks ground if the
+    top is pristine/empty, otherwise funds the building top (50 gold + 1 AP). The Mayor
+    is not gated by cap or faction presence."""
+    stack = base_stacks.get(domain_id)
+    if stack is None:
+        return ActionResult(
+            action="BuildBuy", actor_id="mayor", target_id=domain_id,
+            outcome="fail", narrative=f"No project stack for {domain_id}.",
+        )
+    if stack.top_is_building():
+        return mayor_buy_build_unit(stack, treasury, mayor)
+    # Pristine/empty → break ground, then fund the first step (guarded so a refused
+    # build changes nothing at all: 1 AP + 50 gold).
+    if mayor.action_points < 1 or treasury.gold < 50:
+        return ActionResult(
+            action="BuildBuy", actor_id="mayor", target_id=domain_id,
+            outcome="fail",
+            narrative=f"Cannot break ground in {domain_id}: need 1 AP + 50 gold.",
+        )
+    if not initiate_base_stack(stack, "mayor"):
+        return ActionResult(
+            action="BuildBuy", actor_id="mayor", target_id=domain_id,
+            outcome="fail", narrative=f"Cannot break ground in {domain_id} — resolve the front first.",
+        )
+    return mayor_buy_build_unit(stack, treasury, mayor)
+
+
+def repair_stack(stack, treasury: Treasury, mayor: "Mayor") -> ActionResult:
+    """Mayor spends 30 gold + 1 action point to repair a damaged top by build_step%.
+    Only a damaged completed top is repairable; pristine/building is refused."""
+    domain_id = stack.domain
+    if not stack.top_is_damaged():
+        return ActionResult(
+            action="RepairProject", actor_id="mayor", target_id=domain_id,
+            outcome="fail", narrative=f"{stack.name} has nothing to repair.",
+        )
+    cost_gold = 30
+    cost_ap = 1
+    if not mayor.spend(cost_ap):
+        return ActionResult(
+            action="RepairProject", actor_id="mayor", target_id=domain_id,
+            outcome="fail", narrative="Repair failed: insufficient action points",
+        )
+    if treasury.gold < cost_gold:
+        mayor.action_points += cost_ap  # refund
+        return ActionResult(
+            action="RepairProject", actor_id="mayor", target_id=domain_id,
+            outcome="fail", narrative="Repair failed: insufficient gold",
+        )
+    treasury.gold -= cost_gold
+    treasury.expenditure_this_cycle += cost_gold
+    stack.progress = min(100, stack.progress + stack.build_step)
+    return ActionResult(
+        action="RepairProject", actor_id="mayor", target_id=domain_id,
+        outcome="decisive", delta=-float(cost_gold),
+        narrative=f"{stack.name} repaired: now {int(stack.progress)}% health",
     )
-    if project is None:
-        project = initiate_base_project(domain_id, projects, "mayor")
-        if project is None:
-            return ActionResult(
-                action="BuildBuy", actor_id="mayor", target_id=None,
-                outcome="fail", narrative=f"Cannot break ground in {domain_id}.",
-            )
-    return mayor_buy_build_unit(project, treasury, mayor)
 
 
 def mayor_build_or_repair(
     domain_id: str,
-    projects: Dict[str, Project],
+    base_stacks: Dict[str, "BaseProjectStack"],
     treasury: Treasury,
     mayor: "Mayor",
 ) -> ActionResult:
-    """Context-aware Mayor project action (one player lever, three behaviours):
-      - the domain's base project is active and damaged (health < 100, not under
-        construction or destroyed) -> repair it (+25 health, 30 gold);
-      - otherwise -> build: fund a work unit on the domain's under-construction base
-        project, initiating one first if none exists (50 gold).
-    Each path costs 1 AP, handled by the underlying entry."""
-    damaged = next(
-        (p for p in projects.values()
-         if getattr(p, "category", "standard") == "base"
-         and domain_id in p.domains
-         and p.status not in ("under_construction", "destroyed")
-         and p.health < 100),
-        None,
-    )
-    if damaged is not None:
-        return repair_project(damaged, treasury, mayor)
-    # Build path. If no base project is under construction here, mayor_build_base
-    # would initiate one and *then* try to fund a unit — leaving an unpaid phantom
-    # site if the Mayor can't afford the unit. Guard the initiate so a refused build
-    # changes nothing at all (1 AP + 50 gold, matching mayor_buy_build_unit).
-    in_progress = any(
-        getattr(p, "category", "standard") == "base"
-        and domain_id in p.domains and p.status == "under_construction"
-        for p in projects.values()
-    )
-    if not in_progress and (mayor.action_points < 1 or treasury.gold < 50):
+    """Context-aware Mayor project lever on a domain's stack: a damaged top → repair
+    (+build_step%, 30 gold); otherwise → build (fund the building top, breaking ground
+    first if the top is pristine/empty, 50 gold). Each path costs 1 AP."""
+    stack = base_stacks.get(domain_id)
+    if stack is None:
         return ActionResult(
-            action="BuildBuy", actor_id="mayor", target_id=None,
-            outcome="fail",
-            narrative=f"Cannot break ground in {domain_id}: need 1 AP + 50 gold.",
+            action="BuildBuy", actor_id="mayor", target_id=domain_id,
+            outcome="fail", narrative=f"No project stack for {domain_id}.",
         )
-    return mayor_build_base(domain_id, projects, treasury, mayor)
+    if stack.top_is_damaged():
+        return repair_stack(stack, treasury, mayor)
+    return mayor_build_base(domain_id, base_stacks, treasury, mayor)

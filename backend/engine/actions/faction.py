@@ -11,6 +11,7 @@ from typing import Dict
 
 from ..models import Faction, Domain, Project, ActionResult
 from ..formulas import grow_increment, resolve_contest, RATING_MAX
+from ..projects import apply_build_step, apply_sabotage_damage
 
 
 # ── GROW ──────────────────────────────────────────────────────────────────────
@@ -149,73 +150,37 @@ def resolve_steal(faction: Faction, target: Faction) -> ActionResult:
 
 # ── BUILD PROJECT ─────────────────────────────────────────────────────────────
 
-def resolve_build_project(faction: Faction, project: Project) -> ActionResult:
-    """Faction contributes construction work. DC 12, d20 + level.
-    Base projects build in work units (4 = complete) and are domain-gated; legacy
-    (standard/tax_collection) projects keep the v4 health-as-progress path."""
-    if project.category == "base":
-        return _build_base_project(faction, project)
-
-    if project.status not in ("under_construction", "active"):
+def resolve_build_project(faction: Faction, stack) -> ActionResult:
+    """A faction contributes construction work to its own domain's base-project stack
+    (projects_spec v6). Domain-gated; d20 + level vs DC 12. A success adds build_step%
+    to the building top; reaching 100% completes it. Initiation (breaking ground) is
+    handled by the dispatcher before this is called."""
+    domain_id = stack.domain
+    if faction.domain_primary not in stack.domains:
         return ActionResult(
-            "BuildProject", faction.id, project.id, "blocked",
-            narrative=f"{faction.name} cannot build — {project.name} is not in a buildable state.",
+            "BuildProject", faction.id, domain_id, "blocked",
+            narrative=f"{faction.name} cannot build {stack.name} — not its domain.",
         )
-
-    roll = random.randint(1, 20) + faction.level
-    if roll >= 12:
-        increment = int(100 / max(1, project.faction_build_actions))
-        project.health = min(100, project.health + increment)
-        project.build_actions_this_cycle += 1
-        completion = project.health >= 100 and project.status == "under_construction"
+    if not stack.top_is_building():
         return ActionResult(
-            "BuildProject", faction.id, project.id, "success",
-            delta=float(increment),
-            dramatic=completion,
-            narrative=(
-                f"{faction.name} advances construction on {project.name} (+{increment} progress)."
-                + (" Construction complete!" if completion else "")
-            ),
-        )
-    else:
-        return ActionResult(
-            "BuildProject", faction.id, project.id, "fail",
-            narrative=f"{faction.name} works on {project.name} but makes little headway.",
-        )
-
-
-def _build_base_project(faction: Faction, project: Project) -> ActionResult:
-    """Base project: 4 work units to complete. Domain-gated (own domain only).
-    Each successful d20+level vs DC 12 adds one work unit; 4 units → active."""
-    if faction.domain_primary not in project.domains:
-        return ActionResult(
-            "BuildProject", faction.id, project.id, "blocked",
-            narrative=f"{faction.name} cannot build {project.name} — not its domain.",
-        )
-    if project.status != "under_construction":
-        return ActionResult(
-            "BuildProject", faction.id, project.id, "blocked",
-            narrative=f"{faction.name} cannot build {project.name} — already complete.",
+            "BuildProject", faction.id, domain_id, "blocked",
+            narrative=f"{faction.name} cannot build {stack.name} — no build site.",
         )
 
     roll = random.randint(1, 20) + faction.level
     if roll < 12:
         return ActionResult(
-            "BuildProject", faction.id, project.id, "fail",
-            narrative=f"{faction.name} labors on {project.name} but makes little headway.",
+            "BuildProject", faction.id, domain_id, "fail",
+            narrative=f"{faction.name} labors on {stack.name} but makes little headway.",
         )
 
-    project.build_progress += 1
-    project.build_actions_this_cycle += 1
-    completed = project.build_progress >= 4
-    if completed:
-        project.status = "active"
-        project.health = 100
+    completed = apply_build_step(stack)
+    stack.build_actions_this_cycle += 1
     return ActionResult(
-        "BuildProject", faction.id, project.id, "success",
-        delta=1.0, dramatic=completed,
+        "BuildProject", faction.id, domain_id, "success",
+        delta=float(stack.build_step), dramatic=completed,
         narrative=(
-            f"{faction.name} advances {project.name} ({project.build_progress}/4)."
+            f"{faction.name} advances {stack.name} ({int(stack.progress)}%)."
             + (" It is complete and now stands active." if completed else "")
         ),
     )
@@ -223,55 +188,51 @@ def _build_base_project(faction: Faction, project: Project) -> ActionResult:
 
 # ── SABOTAGE PROJECT ──────────────────────────────────────────────────────────
 
-def resolve_sabotage_project(faction: Faction, project: Project) -> ActionResult:
-    """Any faction can sabotage any built project. Contested vs project defense rating.
-    A base project under construction has no structural health yet — nothing to burn."""
-    if project.category == "base" and project.status == "under_construction":
+def resolve_sabotage_project(faction: Faction, stack) -> ActionResult:
+    """Any faction can sabotage a domain's base-project stack — always the top, build
+    site included (projects_spec v6). Contested vs the top's defense rating. Decisive
+    −25%, partial −10%, fail 0 applied to `progress`; the destruction rule (count drops
+    only on a hit while already at 0) is handled by apply_sabotage_damage."""
+    domain_id = stack.domain
+    if stack.count == 0:
         return ActionResult(
-            "SabotageProject", faction.id, project.id, "blocked",
-            narrative=f"{project.name} is still a building site — nothing to sabotage yet.",
-        )
-    if project.status == "destroyed":
-        return ActionResult(
-            "SabotageProject", faction.id, project.id, "blocked",
-            narrative=f"{project.name} is already destroyed.",
+            "SabotageProject", faction.id, domain_id, "blocked",
+            narrative=f"There is no {stack.name} to sabotage.",
         )
 
-    defense = project.defense_rating() + project.defense_bonus()
+    defense = stack.defense_rating() + stack.defense_bonus()
     atk_roll = random.randint(1, 20) + faction.level
     dfn_roll = random.randint(1, 20) + defense
     margin = atk_roll - dfn_roll
 
     if margin >= 5:
-        project.health = max(0, project.health - 25)
-        destroyed = project.health == 0
-        if destroyed:
-            project.status = "destroyed"
+        amount = 25.0
+        destroyed = apply_sabotage_damage(stack, amount)
         return ActionResult(
-            "SabotageProject", faction.id, project.id, "decisive",
-            margin=margin, delta=-25.0,
-            roll_attacker=atk_roll, roll_defender=dfn_roll,
-            dramatic=True,
+            "SabotageProject", faction.id, domain_id, "decisive",
+            margin=margin, delta=-amount,
+            roll_attacker=atk_roll, roll_defender=dfn_roll, dramatic=True,
             narrative=(
-                f"{faction.name} deals a decisive blow to {project.name} (−25 health)."
-                + (" The structure is destroyed!" if destroyed else "")
+                f"{faction.name} deals a decisive blow to {stack.name} (−25%)."
+                + (" An instance is destroyed!" if destroyed else "")
             ),
         )
     elif margin >= 1:
-        project.health = max(0, project.health - 10)
-        destroyed = project.health == 0
-        if destroyed:
-            project.status = "destroyed"
+        amount = 10.0
+        destroyed = apply_sabotage_damage(stack, amount)
         return ActionResult(
-            "SabotageProject", faction.id, project.id, "partial",
-            margin=margin, delta=-10.0,
+            "SabotageProject", faction.id, domain_id, "partial",
+            margin=margin, delta=-amount,
             roll_attacker=atk_roll, roll_defender=dfn_roll,
-            narrative=f"{faction.name} damages {project.name} (−10 health).",
+            narrative=(
+                f"{faction.name} damages {stack.name} (−10%)."
+                + (" An instance is destroyed!" if destroyed else "")
+            ),
         )
     else:
         return ActionResult(
-            "SabotageProject", faction.id, project.id, "fail",
+            "SabotageProject", faction.id, domain_id, "fail",
             margin=margin, delta=0.0,
             roll_attacker=atk_roll, roll_defender=dfn_roll,
-            narrative=f"{faction.name} attempts to sabotage {project.name} but fails.",
+            narrative=f"{faction.name} attempts to sabotage {stack.name} but fails.",
         )

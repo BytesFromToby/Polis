@@ -1,23 +1,17 @@
 """
-test_projects_cap.py — Slice 1 of the projects rework: domain cap derivation.
-
-cap = base_cap + Σ contribution(active base projects). base_cap is frozen at game
-start from starting fill (Σ level × CAP_HEADROOM_MULT); the live cap is re-derived
-each cycle by the runner.
+test_projects_cap.py — domain cap derivation + maintenance on the base-project stack
+model (projects_spec v6). cap = base_cap + stack_cap_contribution; base_cap frozen at
+game start. Maintenance = 2 × active completed instances (building tops excluded).
 """
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import pytest
-from engine.models import Faction, Domain, Leader, Project, WorldState
+from engine.models import Faction, Domain, Leader, BaseProjectStack, WorldState, Mayor, Treasury
 from engine.cycle import run_cycle
 from engine import formulas
 from engine.formulas import base_cap_from_fill
+from engine.mayor.treasury import process_treasury_step0
 from loaders import _freeze_base_caps
-from serializer import (
-    serialize_project, deserialize_project,
-    serialize_domain, deserialize_domain,
-)
 
 
 def mk_faction(fid, dom, rating):
@@ -29,9 +23,9 @@ def mk_domain(did="harbor", cap=999, base_cap=0):
     return Domain(id=did, name=did, cap=cap, base_cap=base_cap)
 
 
-def mk_base_project(pid="harbor_base_1", dom="harbor", status="active", health=80):
-    return Project(id=pid, name="Docks", domains=[dom], build_cost=0, build_time=4,
-                   category="base", status=status, health=health)
+def mk_stack(dom="harbor", count=0, completed=False, progress=0.0, build_step=25):
+    return BaseProjectStack(name="Docks", domains=[dom], count=count,
+                            completed=completed, progress=progress, build_step=build_step)
 
 
 # ── (a) base_cap formula + authored cap ignored ───────────────────────────────
@@ -49,48 +43,51 @@ class TestBaseCap:
         assert domains["harbor"].cap == 8                       # authored 999 ignored
 
 
-# ── (b) no base projects → cap == base_cap ────────────────────────────────────
+# ── (b) empty stack → cap == base_cap ─────────────────────────────────────────
 
-def test_no_base_projects_cap_equals_base_cap():
+def test_empty_stack_cap_equals_base_cap():
     world = WorldState(cycle=0)
     domains = {"harbor": mk_domain("harbor", base_cap=10)}
     factions = {"a": mk_faction("a", "harbor", 2.0)}
-    run_cycle(world, factions, domains, projects={})
+    run_cycle(world, factions, domains, base_stacks={"harbor": mk_stack(count=0)})
     assert domains["harbor"].cap == 10
 
 
-# ── (c) contribution by health tier ───────────────────────────────────────────
+# ── (c) all-pristine → +count × 2 ─────────────────────────────────────────────
 
-@pytest.mark.parametrize("status,health,contrib", [
-    ("active", 80, 2),          # intact
-    ("damaged", 40, 1),         # damaged
-    ("critical", 10, 0),        # critical
-    ("under_construction", 0, 0),
-    ("destroyed", 0, 0),
-])
-def test_cap_contribution_by_tier(status, health, contrib):
+def test_pristine_stack_adds_count_times_two():
     world = WorldState(cycle=0)
     domains = {"harbor": mk_domain("harbor", base_cap=10)}
     factions = {"a": mk_faction("a", "harbor", 2.0)}
-    projects = {"p": mk_base_project(status=status, health=health)}
-    # No treasury → projects don't tick; cap still derives at cycle start.
-    run_cycle(world, factions, domains, projects=projects)
-    assert domains["harbor"].cap == 10 + contrib
+    run_cycle(world, factions, domains,
+              base_stacks={"harbor": mk_stack(count=3, completed=True, progress=100)})
+    assert domains["harbor"].cap == 10 + 6
 
 
-# ── (d) re-derived each cycle ─────────────────────────────────────────────────
+# ── (d) damaged top drops cap; building top adds 0 ────────────────────────────
 
-def test_cap_rederived_each_cycle():
+def test_damaged_top_drops_cap():
     world = WorldState(cycle=0)
     domains = {"harbor": mk_domain("harbor", base_cap=10)}
     factions = {"a": mk_faction("a", "harbor", 2.0)}
-    projects = {"p": mk_base_project(status="active", health=80)}
-    run_cycle(world, factions, domains, projects=projects)
-    assert domains["harbor"].cap == 12          # intact → +2
-    projects["p"].status = "damaged"
-    projects["p"].health = 40
-    run_cycle(world, factions, domains, projects=projects)
-    assert domains["harbor"].cap == 11          # damaged → +1, re-derived
+    # count=2 pristine baseline would be +4. Damaged top into 21–50 → +3 (drop 1).
+    run_cycle(world, factions, domains,
+              base_stacks={"harbor": mk_stack(count=2, completed=True, progress=40)})
+    assert domains["harbor"].cap == 10 + 3
+    # Into 1–20 → +2 (drop 2 from the +4 pristine baseline).
+    run_cycle(world, factions, domains,
+              base_stacks={"harbor": mk_stack(count=2, completed=True, progress=10)})
+    assert domains["harbor"].cap == 10 + 2
+
+
+def test_building_top_adds_zero():
+    world = WorldState(cycle=0)
+    domains = {"harbor": mk_domain("harbor", base_cap=10)}
+    factions = {"a": mk_faction("a", "harbor", 2.0)}
+    for prog in (10, 50, 90):
+        run_cycle(world, factions, domains,
+                  base_stacks={"harbor": mk_stack(count=1, completed=False, progress=prog)})
+        assert domains["harbor"].cap == 10   # lone building top contributes 0
 
 
 # ── (e) CAP_HEADROOM_MULT is the single lever ─────────────────────────────────
@@ -100,12 +97,34 @@ def test_cap_headroom_constant(monkeypatch):
     assert formulas.base_cap_from_fill(10) == 20
 
 
-# ── serializer round-trip ─────────────────────────────────────────────────────
+# ── (f) maintenance = 2 × active completed count ──────────────────────────────
 
-def test_serializer_roundtrip_build_progress_and_base_cap():
-    p = mk_base_project()
-    p.build_progress = 3
-    assert deserialize_project(serialize_project(p)).build_progress == 3
+def test_maintenance_formula_per_active_count():
+    t = Treasury(gold=500)
+    results = process_treasury_step0(t, Mayor(), {}, {}, active_project_count=3)
+    maint = next(r for r in results if r.action == "ProjectMaintenance")
+    assert maint.delta == -6.0          # 2 × 3
+    assert maint.outcome == "no_op"
 
-    d = mk_domain("harbor", base_cap=12)
-    assert deserialize_domain(serialize_domain(d)).base_cap == 12
+
+def test_runner_counts_active_from_stacks_excluding_building():
+    world = WorldState(cycle=0)
+    domains = {"harbor": mk_domain("harbor", base_cap=10),
+               "trade": mk_domain("trade", base_cap=10)}
+    factions = {"a": mk_faction("a", "harbor", 2.0)}
+    mayor, treasury = Mayor(), Treasury(gold=500)
+    stacks = {
+        "harbor": mk_stack("harbor", count=3, completed=True, progress=100),  # 3 active
+        "trade": mk_stack("trade", count=2, completed=False, progress=50),    # 1 active (top building)
+    }
+    result = run_cycle(world, factions, domains, mayor=mayor, treasury=treasury, base_stacks=stacks)
+    maint = next(e for e in result.events if e.action == "ProjectMaintenance")
+    assert "4 projects" in maint.narrative      # 3 + 1, building top excluded
+
+
+def test_maintenance_skipped_when_broke():
+    t = Treasury(gold=25)   # 20 guard leaves 5; maintenance 6 unaffordable
+    results = process_treasury_step0(t, Mayor(), {}, {}, active_project_count=3)
+    maint = next(r for r in results if r.action == "ProjectMaintenance")
+    assert maint.outcome == "fail"
+    assert t.gold == 5      # nothing deducted for maintenance

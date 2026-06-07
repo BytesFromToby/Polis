@@ -36,13 +36,19 @@ def run_sequential_actions(
     projects: Dict[str, Project],
     cycle_num: int,
     logger=None,
+    base_stacks: Dict[str, "BaseProjectStack"] = None,
 ) -> List[ActionResult]:
     """Step 1+2: roll initiative, then resolve each faction's single action in order.
     A target dropped to 0 health Breaks before the loop continues."""
     results: List[ActionResult] = []
+    if base_stacks is None:
+        base_stacks = {}
 
     for faction in factions.values():
         faction.reset_cycle_state()
+    # Build-this-cycle counters grant sabotage defense only within their own cycle.
+    for stack in base_stacks.values():
+        stack.build_actions_this_cycle = 0
 
     # Step 1 — Initiative (all factions; none are ever removed)
     order = list(factions.keys())
@@ -55,8 +61,8 @@ def run_sequential_actions(
         if faction is None:
             continue
 
-        plan = select_faction_action(faction, factions, domains, world, projects)
-        result = _execute(plan, faction, factions, domains, projects)
+        plan = select_faction_action(faction, factions, domains, world, projects, base_stacks)
+        result = _execute(plan, faction, factions, domains, projects, base_stacks)
         if not result:
             continue
 
@@ -82,7 +88,9 @@ def _execute(
     factions: Dict[str, Faction],
     domains: Dict[str, Domain],
     projects: Dict[str, Project],
+    base_stacks: Dict[str, "BaseProjectStack"] = None,
 ) -> Optional[ActionResult]:
+    base_stacks = base_stacks or {}
     action = plan.action
 
     if action == "Skip":
@@ -104,20 +112,18 @@ def _execute(
         if target:
             return resolve_steal(faction, target)
     if action == "BuildProject" and plan.target_id:
-        if plan.target_id.startswith("new_base:"):
-            from ..projects import initiate_base_project
-            domain_id = plan.target_id.split(":", 1)[1]
-            new_project = initiate_base_project(domain_id, projects, faction.id)
-            if new_project:
-                return resolve_build_project(faction, new_project)
-            return None
-        project = projects.get(plan.target_id)
-        if project:
-            return resolve_build_project(faction, project)
+        # target_id is a domain id (the stack). Break ground first if the faction's own
+        # domain stack has a pristine/empty top, then add a build step.
+        from ..projects import initiate_base_stack
+        stack = base_stacks.get(plan.target_id)
+        if stack:
+            if faction.domain_primary in stack.domains and not stack.top_is_building():
+                initiate_base_stack(stack, faction.id)
+            return resolve_build_project(faction, stack)
     if action == "SabotageProject" and plan.target_id:
-        project = projects.get(plan.target_id)
-        if project:
-            return resolve_sabotage_project(faction, project)
+        stack = base_stacks.get(plan.target_id)
+        if stack:
+            return resolve_sabotage_project(faction, stack)
 
     # Fallback
     return resolve_grow(faction, domains)

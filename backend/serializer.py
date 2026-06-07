@@ -365,6 +365,33 @@ def deserialize_mayor(d: dict) -> Mayor:
     )
 
 
+# ── Base-project stack serializers ────────────────────────────────────────────
+
+def serialize_base_stack(s) -> dict:
+    return {
+        "name": s.name,
+        "domains": list(s.domains),
+        "count": s.count,
+        "completed": s.completed,
+        "progress": s.progress,
+        "build_step": s.build_step,
+        "initiated_by": s.initiated_by,
+    }
+
+
+def deserialize_base_stack(d: dict):
+    from engine.models import BaseProjectStack
+    return BaseProjectStack(
+        name=d["name"],
+        domains=list(d.get("domains", [])),
+        count=d.get("count", 0),
+        completed=d.get("completed", False),
+        progress=d.get("progress", 0.0),
+        build_step=d.get("build_step", 25),
+        initiated_by=d.get("initiated_by", "mayor"),
+    )
+
+
 # ── Full state snapshot ───────────────────────────────────────────────────────
 
 def serialize_state(
@@ -374,6 +401,7 @@ def serialize_state(
     mayor: Optional[Mayor] = None,
     treasury: Optional[Treasury] = None,
     projects: Optional[Dict[str, Project]] = None,
+    base_stacks: Optional[dict] = None,
 ) -> dict:
     data = {
         "world": serialize_world_state(world),
@@ -386,16 +414,19 @@ def serialize_state(
         data["treasury"] = serialize_treasury(treasury)
     if projects is not None:
         data["projects"] = {pid: serialize_project(p) for pid, p in projects.items()}
+    if base_stacks is not None:
+        data["base_stacks"] = {did: serialize_base_stack(s) for did, s in base_stacks.items()}
     return data
 
 
 def deserialize_state(
     data: dict,
-) -> Tuple[WorldState, Dict[str, Faction], Dict[str, Domain], Optional[Mayor], Optional[Treasury], Dict[str, Project]]:
+) -> Tuple[WorldState, Dict[str, Faction], Dict[str, Domain], Optional[Mayor], Optional[Treasury], Dict[str, Project], dict]:
     world = deserialize_world_state(data["world"])
     factions = {fid: deserialize_faction(f) for fid, f in data.get("factions", {}).items()}
     domains = {did: deserialize_domain(d) for did, d in data.get("domains", {}).items()}
     mayor = deserialize_mayor(data["mayor"]) if "mayor" in data else None
     treasury = deserialize_treasury(data["treasury"]) if "treasury" in data else None
     projects = {pid: deserialize_project(p) for pid, p in data.get("projects", {}).items()}
-    return world, factions, domains, mayor, treasury, projects
+    base_stacks = {did: deserialize_base_stack(s) for did, s in data.get("base_stacks", {}).items()}
+    return world, factions, domains, mayor, treasury, projects, base_stacks

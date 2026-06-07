@@ -163,49 +163,47 @@ dramatic highlighting) but sits in the centre column beneath the Mayor window.
 
 ---
 
-## Feature: Projects Panel (Right Column) — Domain-Grouped
+## Feature: Projects Panel (Right Column) — Domain-Grouped, Stacked
 
 Projects sit in a dedicated right column, **grouped by their domain** — mirroring the
-faction panel's domain grouping on the left column. Every domain has a group header
-(shown even when it holds no projects); within a group, projects are a **flat list**
-(no build-status split). Who initiated a project does not affect grouping — `initiated_by`
-appears only in the details modal.
+faction panel's domain grouping on the left. Every domain has a group header (shown even when
+it holds no projects). Within a group, the domain's **base-project stack** (see
+`projects_spec.md`) is shown as a **pooled count plus an optional front row**: the pristine
+instances collapse into one `Name ×N` row, and the single in-flux **top** (building or damaged)
+breaks out as its own row. There is one stack per domain — no flat list of individual instances.
 
-- Input: `projects.list` (each with `status`, `health`, `build_progress`, `name`, `domain`)
-  and `snapshot.domains` (for the domain headers and their order).
-- Output: a right-column panel of domain groups, each expandable, listing that domain's
-  projects.
+- Input: `projects.list` — now **one stack per domain** (each with `name`, `domains`, `count`,
+  `completed`, `progress`, `build_step`) — and `snapshot.domains` (for the headers and order).
+- Output: a right-column panel of domain groups, each expandable, showing that domain's
+  stack as a pool row + optional front row.
 
 Rules:
-- A group header appears for **every** domain in `snapshot.domains`, in the **same order
-  the faction panel uses**; a project whose `domain` has no matching domain entry falls
-  under an **"Other"** group rather than being dropped.
-- Groups are **collapsible and expanded by default**; clicking a domain header toggles
-  just that group.
-- A domain with no projects shows a **"No projects"** placeholder under its header.
-- Within a group, projects are listed as a **flat list** — no under-construction-first
-  ordering.
-- Each project row shows its **name** and, for an **under-construction** project, a
-  percent-complete derived from build progress — `round(build_progress / 4 × 100)` (4 work
-  units = complete), **not** `health` (which stays 0 during construction). Other projects
-  show a **status label** instead. The per-row domain text is dropped — it is redundant
-  beneath the domain header.
-- Clicking any project row opens the existing read-only details modal: a progress bar
-  (build progress while under construction, structural health once active) plus status,
-  domain, type, tax level (if any), upkeep, and initiator. The modal is a full-screen
-  overlay, so a cycle is advanced by closing it first (the "Run Cycle" button is not
-  reachable while it is open). `refresh()` retains a defensive re-sync — if the modal's
-  project data is reloaded, the open modal re-points to the refreshed instance — but there
-  is no in-UI path that advances a cycle with the modal still open.
+- A group header appears for **every** domain in `snapshot.domains`, in the **same order the
+  faction panel uses** (an `"Other"` group catches any stack whose domain has no matching entry).
+- Groups are **collapsible and expanded by default**; clicking a domain header toggles just
+  that group.
+- A domain whose stack is empty (`count == 0`) shows a **"No projects"** placeholder.
+- **Pool row** — when the pool (`count` if the top is pristine, else `count − 1`) is ≥ 1,
+  show one row `Name ×N` (e.g. `Estate ×3`). The per-row domain text is dropped (redundant
+  beneath the header).
+- **Front row** — when the top is in-flux, show it as its own row below the pool:
+  - top **building** (`completed == False`) → `Name` with its build **`progress`%**;
+  - top **damaged** (`completed == True and progress < 100`) → `Name` with its health
+    **`progress`%**, visually distinguished from a build-in-progress row.
+  - when the top is pristine, there is no front row (it's part of the pool).
+- Clicking the stack (pool or front row) opens the **read-only details modal**: a progress bar
+  (`progress` — build fill while building, health once completed), plus `count`, `completed`,
+  domain(s), `build_step`, and initiator. The modal is a full-screen overlay, so a cycle is
+  advanced by closing it first; `refresh()` retains a defensive re-sync of the open modal.
 
 **Done when:**
-- The right column shows a group header for every domain in `snapshot.domains`, in the faction-panel order, with an "Other" group for any project whose `domain` has no matching entry  `[human-required]`
+- The right column shows a group header for every domain in `snapshot.domains`, in the faction-panel order, with an "Other" group for any stack whose domain has no matching entry  `[human-required]`
 - Each domain group is collapsible and expanded on load; clicking a domain header collapses/expands just that group  `[human-required]`
-- A domain with no projects shows a "No projects" placeholder under its header  `[human-required]`
-- Projects appear under their domain group as a flat list, with no build-status split inside the group  `[human-required]`
-- An under-construction project row shows a percent-complete derived from build progress; other rows show a status label and no redundant per-row domain text  `[human-required]`
-- Clicking a project row opens the read-only details modal showing its progress/health bar and core fields  `[human-required]`
-- The projects API response includes `build_progress` for each project — `tests/test_projects_api.py`  `[automated]`
+- A domain with an empty stack (`count == 0`) shows a "No projects" placeholder  `[human-required]`
+- A domain with pristine instances shows a single pooled `Name ×N` row reflecting the pool count  `[human-required]`
+- A building top shows a separate front row with its build `progress`%; a damaged top shows a separate front row with its health `progress`%, visually distinct from a build row; a pristine top shows no separate front row  `[human-required]`
+- Clicking the stack opens the read-only details modal showing the progress/health bar, count, completed, domain, and core fields  `[human-required]`
+- The projects API returns one stack per domain carrying `count`, `completed`, and `progress` — `tests/test_projects_api.py`  `[automated]`
 
 ---
 

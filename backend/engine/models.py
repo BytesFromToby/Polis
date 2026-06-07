@@ -247,6 +247,72 @@ class Project:
         return 0.0
 
 
+def project_tier(progress: float) -> int:
+    """Cap-contribution tier of a completed instance from its progress (= health 0–100).
+    51–100 → +2, 21–50 → +1, else 0. Mirrors the v5 health tiers."""
+    if progress >= 51: return 2
+    if progress >= 21: return 1
+    return 0
+
+
+@dataclass
+class BaseProjectStack:
+    """A domain's base projects as a counted stack (projects_spec v6). Replaces N per-domain
+    base `Project` instances: because builds/repairs/attacks only ever touch the newest (top)
+    instance, every instance below the top is always pristine — so only a count plus the top's
+    state need storing. `progress` (0–100) is the top's build-fill while building and its health
+    once completed; `completed` disambiguates the two."""
+    name: str                       # base-project name (e.g. "Estate")
+    domains: List[str]              # domains this stack belongs to; single-element today
+    count: int = 0                  # stack height = highest number = how many instances exist
+    completed: bool = False         # has the top (#count) ever reached 100%?
+    progress: float = 0.0           # 0–100, the top only: build-fill (building) / health (completed)
+    build_step: int = 25            # % one build action adds — stored per project (variable length)
+    initiated_by: str = "mayor"     # who broke ground on the current top (informational)
+
+    # Cycle-only (not persisted): successful builds this cycle grant the top sabotage defense.
+    build_actions_this_cycle: int = 0
+
+    @property
+    def domain(self) -> str:
+        """First domain in the list (single-domain stacks today)."""
+        return self.domains[0] if self.domains else ""
+
+    def defense_bonus(self) -> int:
+        """Build actions this cycle grant +1 each to the top's defense, capped at +2."""
+        return min(2, self.build_actions_this_cycle)
+
+    # ── Derived view (projects_spec v6 — read off this one record) ──
+    def top_is_pristine(self) -> bool:
+        return self.count >= 1 and self.completed and self.progress == 100
+
+    def top_is_building(self) -> bool:
+        return self.count >= 1 and not self.completed
+
+    def top_is_damaged(self) -> bool:
+        return self.count >= 1 and self.completed and self.progress < 100
+
+    def pool_count(self) -> int:
+        """Intact instances shown as 'Name ×N': count if the top is pristine, else count − 1."""
+        return self.count if self.top_is_pristine() else max(0, self.count - 1)
+
+    def active_count(self) -> int:
+        """Completed instances (for maintenance): count if completed, else count − 1."""
+        return self.count if self.completed else max(0, self.count - 1)
+
+    def defense_rating(self) -> int:
+        """d20 defense modifier vs Sabotage — scales with progress (works for a build site too)."""
+        return max(1, int(self.progress) // 20)
+
+    def cap_contribution(self) -> int:
+        """Domain-cap contribution: (count − 1)×2 for the pristine pool + the top's tier when
+        completed (a building top adds 0). 0 for an empty stack."""
+        if self.count == 0:
+            return 0
+        top = project_tier(self.progress) if self.completed else 0
+        return (self.count - 1) * 2 + top
+
+
 # ── Events ────────────────────────────────────────────────────────────────────
 
 @dataclass
