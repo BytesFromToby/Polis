@@ -109,7 +109,9 @@
               </div>
               <select v-model="targetDomain" class="act-select">
                 <option value="">Select domain</option>
-                <option v-for="(d, id) in domains" :key="id" :value="id">{{ d.name || id }}</option>
+                <option v-for="(d, id) in domains" :key="id" :value="id">
+                  {{ d.name || id }}{{ d.base_project_name ? ' — ' + d.base_project_name : '' }}
+                </option>
               </select>
               <div class="action-hint">Break ground / fund a unit (50g) or repair (+25 health, 30g) · 1 AP</div>
               <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('BuildProject', targetDomain)">Act</button>

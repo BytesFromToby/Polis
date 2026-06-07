@@ -124,9 +124,11 @@ Costs & affordability:
 - The modal header shows **gold** alongside AP.
 - **Sabotage** — target faction; hint "rank −50% of margin, health −50%, rep −10 · 1 AP + 50
   gold"; the Act button is disabled when `ap < 1` **or** `gold < 50`.
-- **Build Project** — target domain; hint "Break ground / fund a unit (50g) or repair (+25
-  health, 30g) · 1 AP"; the Act button is disabled when `ap < 1`. Gold shortfalls are
-  rejected by the backend and shown in the existing result/error banner.
+- **Build Project** — target domain; each option lists the domain **and** its base-project
+  name (e.g. "Harbor — Docks"), from `domain.base_project_name` in the snapshot. Hint "Break
+  ground / fund a unit (50g) or repair (+25 health, 30g) · 1 AP"; the Act button is disabled
+  when `ap < 1`. Gold shortfalls are rejected by the backend and shown in the existing
+  result/error banner.
 
 - Input: a faction id (Sabotage, Endorse, Condemn, Exemption) or a domain id (Build Project).
 - Output: the action result (outcome + narrative) shown in the existing result banner; AP
@@ -135,7 +137,8 @@ Costs & affordability:
 **Done when:**
 - The modal renders rows for exactly: Publicly Endorse, Publicly Condemn, Grant Tax Exemption, Sabotage, Build Project, and a Break control in the Active Deals section — and none of the eight removed/old actions (Broker a Deal, Request a Report, Plant a Rumor, Allocate Budget, Withhold Resources, Issue a Decree, Appoint an Official, Turn a Blind Eye)  `[automated]`
 - The Sabotage row posts `act('Sabotage', <factionId>)` and its Act button is disabled when gold < 50 or AP < 1  `[human-required]`
-- The Build Project row posts `act('BuildProject', <domainId>)`  `[human-required]`
+- The Build Project row posts `act('BuildProject', <domainId>)`, and each option label shows both the domain name and its base-project name  `[human-required]`
+- The snapshot's serialized domains include `base_project_name` (the domain's base-project label) — `tests/test_domain_base_project_name.py`  `[automated]`
 - The modal header displays the current gold balance alongside AP  `[automated]`
 - Gold-short Build/Sabotage surfaces the backend rejection in the result/error banner without a client crash  `[human-required]`
 

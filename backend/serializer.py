@@ -125,6 +125,10 @@ def deserialize_faction(d: dict) -> Faction:
 
 
 def serialize_domain(domain: Domain) -> dict:
+    # base_project_name is a deterministic label for the domain's one repeatable
+    # base project (e.g. harbor → "Docks"); surfaced so the UI can name the
+    # Build Project action's target alongside the domain.
+    from engine.projects import base_project_name
     return {
         "id": domain.id,
         "name": domain.name,
@@ -132,6 +136,7 @@ def serialize_domain(domain: Domain) -> dict:
         "base_cap": domain.base_cap,
         "utilization": domain.utilization,
         "drift": domain.drift,
+        "base_project_name": base_project_name(domain.id),
         "relationships": [_ser_domain_relationship(r) for r in domain.relationships],
     }
 
