@@ -828,6 +828,7 @@ export default {
   padding: 0.5rem 0.6rem;
   font-size: 0.85rem;
   text-align: left;
+  color: var(--text);
 }
 .picker-row:hover { border-color: var(--accent); background: rgba(116, 182, 164, 0.10); }
 .project-name {
