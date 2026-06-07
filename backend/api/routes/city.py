@@ -25,9 +25,25 @@ from api.schemas import (
 from db.models import City, SimRun, User
 from db.session import get_db
 from engine.models import Faction, FactionTrait, Leader, WorldState
-from serializer import serialize_faction, serialize_world_state
+from loaders import _recalculate_utilization, _freeze_base_caps
+from serializer import (
+    serialize_faction, serialize_world_state,
+    serialize_domain, deserialize_domain, deserialize_faction,
+)
 
 router = APIRouter(prefix="/users/{user_id}", tags=["city"])
+
+
+def _refrozen_domains_json(domains_json: str, factions_json: str) -> str:
+    """Re-derive domain base caps from the template's starting factions at game
+    start, mirroring load_state_from_json's freeze step. This makes /city/load
+    self-correcting: a stale template (e.g. placeholder cap=300, missing base_cap)
+    still yields the design's derived caps (round(starting Σlevel × 1.20))."""
+    domains = {did: deserialize_domain(d) for did, d in json.loads(domains_json).items()}
+    factions = {fid: deserialize_faction(f) for fid, f in json.loads(factions_json).items()}
+    _recalculate_utilization(factions, domains)
+    _freeze_base_caps(domains)
+    return json.dumps({did: serialize_domain(d) for did, d in domains.items()})
 
 
 def _get_setup_run(user_id: str, db: Session) -> SimRun:
@@ -74,7 +90,7 @@ def load_city(
         is_official=False,
         published=False,
         owner_id=current_user.user_id,
-        domains_json=template.domains_json,
+        domains_json=_refrozen_domains_json(template.domains_json, template.factions_json),
         factions_json=template.factions_json,
         world_state_json=template.world_state_json,
     )
