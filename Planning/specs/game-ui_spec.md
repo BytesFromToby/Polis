@@ -17,6 +17,12 @@ it is spent, faction readouts lead with the **integer level** (`int(rating)`, e.
 faction-engagement path), and the dead `entrench` column and `commission()` call are removed.
 A full thematic/visual play-UI redesign remains a separate, later pass.
 
+**Projects domain-grouping pass (2026-06-07):** the Projects panel (right column) is
+regrouped **by domain** — every domain gets a collapsible header (expanded by default,
+shown even when empty), with a flat per-domain project list (no build-status split). This
+mirrors the faction panel's domain grouping; the initiator no longer affects placement.
+See the Projects Panel feature below.
+
 ## Scope
 - Does: restructure `GameView` into a three-column demo layout (Factions left,
   Mayor window centre-top, Event Log centre-bottom, Projects right); group factions by
@@ -157,28 +163,48 @@ dramatic highlighting) but sits in the centre column beneath the Mayor window.
 
 ---
 
-## Feature: Projects Panel (Right Column)
+## Feature: Projects Panel (Right Column) — Domain-Grouped
 
-Projects sit in a dedicated right column. In-progress (under-construction) projects are
-listed first, each with a percent-complete; remaining projects follow.
+Projects sit in a dedicated right column, **grouped by their domain** — mirroring the
+faction panel's domain grouping on the left column. Every domain has a group header
+(shown even when it holds no projects); within a group, projects are a **flat list**
+(no build-status split). Who initiated a project does not affect grouping — `initiated_by`
+appears only in the details modal.
 
-- Input: `projects.list` (each with `status`, `health`, `build_progress`, `name`, `domain`).
-- Output: a right-column panel, under-construction projects on top with `%`, then the rest.
+- Input: `projects.list` (each with `status`, `health`, `build_progress`, `name`, `domain`)
+  and `snapshot.domains` (for the domain headers and their order).
+- Output: a right-column panel of domain groups, each expandable, listing that domain's
+  projects.
 
-For an under-construction project, percent-complete is its **build progress** —
-`round(build_progress / 4 × 100)` (4 work units = complete), **not** `health` (which stays 0
-during construction). Active and other projects follow, showing name and domain/status.
-
-Clicking any project row opens a details modal: a progress bar (build progress while
-under construction, structural health once active) plus status, domain, type, tax level
-(if any), upkeep, and initiator. While the modal is open, advancing a cycle keeps it in
-sync with the refreshed project data.
+Rules:
+- A group header appears for **every** domain in `snapshot.domains`, in the **same order
+  the faction panel uses**; a project whose `domain` has no matching domain entry falls
+  under an **"Other"** group rather than being dropped.
+- Groups are **collapsible and expanded by default**; clicking a domain header toggles
+  just that group.
+- A domain with no projects shows a **"No projects"** placeholder under its header.
+- Within a group, projects are listed as a **flat list** — no under-construction-first
+  ordering.
+- Each project row shows its **name** and, for an **under-construction** project, a
+  percent-complete derived from build progress — `round(build_progress / 4 × 100)` (4 work
+  units = complete), **not** `health` (which stays 0 during construction). Other projects
+  show a **status label** instead. The per-row domain text is dropped — it is redundant
+  beneath the domain header.
+- Clicking any project row opens the existing read-only details modal: a progress bar
+  (build progress while under construction, structural health once active) plus status,
+  domain, type, tax level (if any), upkeep, and initiator. The modal is a full-screen
+  overlay, so a cycle is advanced by closing it first (the "Run Cycle" button is not
+  reachable while it is open). `refresh()` retains a defensive re-sync — if the modal's
+  project data is reloaded, the open modal re-points to the refreshed instance — but there
+  is no in-UI path that advances a cycle with the modal still open.
 
 **Done when:**
-- The right column lists under-construction projects first, each showing a percent-complete derived from build progress (advances as work units are added)  `[human-required]`
-- Active/other projects are listed after the in-progress ones, with name and domain/status  `[human-required]`
-- An empty project list shows a "No projects" placeholder  `[human-required]`
-- Clicking a project row opens a details modal showing its progress/health bar and core fields  `[human-required]`
+- The right column shows a group header for every domain in `snapshot.domains`, in the faction-panel order, with an "Other" group for any project whose `domain` has no matching entry  `[human-required]`
+- Each domain group is collapsible and expanded on load; clicking a domain header collapses/expands just that group  `[human-required]`
+- A domain with no projects shows a "No projects" placeholder under its header  `[human-required]`
+- Projects appear under their domain group as a flat list, with no build-status split inside the group  `[human-required]`
+- An under-construction project row shows a percent-complete derived from build progress; other rows show a status label and no redundant per-row domain text  `[human-required]`
+- Clicking a project row opens the read-only details modal showing its progress/health bar and core fields  `[human-required]`
 - The projects API response includes `build_progress` for each project — `tests/test_projects_api.py`  `[automated]`
 
 ---

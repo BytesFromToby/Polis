@@ -143,24 +143,29 @@
 
       </div>
 
-      <!-- RIGHT: Projects -->
+      <!-- RIGHT: Projects, grouped by domain -->
       <div class="panel panel-right">
         <div class="panel-title">Projects</div>
-        <div v-if="projectList.length" class="project-list">
-          <!-- In-progress first, with % complete -->
-          <div v-for="p in buildingProjects" :key="p.id" class="project-row building"
-               @click="selectedProject = p" title="View details">
-            <span class="project-name">{{ p.name }}</span>
-            <span class="project-pct accent">{{ projectPct(p) }}%</span>
-          </div>
-          <!-- Then active / other -->
-          <div v-for="p in otherProjects" :key="p.id" class="project-row"
-               @click="selectedProject = p" title="View details">
-            <span class="project-name">{{ p.name }}</span>
-            <span class="project-domain muted">{{ p.domain || p.status }}</span>
+        <div class="project-list">
+          <div v-for="g in projectsByDomain" :key="g.id" class="domain-group">
+            <div class="domain-header" @click="toggleProjectDomain(g.id)">
+              <span class="domain-caret">{{ expandedProjectDomains[g.id] !== false ? '▾' : '▸' }}</span>
+              <span class="domain-name">{{ g.name }}</span>
+              <span class="domain-count">{{ g.projects.length }}</span>
+            </div>
+
+            <div v-if="expandedProjectDomains[g.id] !== false" class="domain-projects">
+              <div v-for="p in g.projects" :key="p.id" class="project-row"
+                   :class="{ building: p.status === 'under_construction' }"
+                   @click="selectedProject = p" title="View details">
+                <span class="project-name">{{ p.name }}</span>
+                <span v-if="p.status === 'under_construction'" class="project-pct accent">{{ projectPct(p) }}%</span>
+                <span v-else class="project-domain muted">{{ projectStatusLabel(p.status) }}</span>
+              </div>
+              <div v-if="!g.projects.length" class="muted" style="font-size:0.78rem; padding:0.3rem 0.5rem">No projects</div>
+            </div>
           </div>
         </div>
-        <div v-else class="muted mayor-stub" style="font-size:0.8rem; padding:0.4rem">No projects.</div>
       </div>
 
     </div>
@@ -261,6 +266,7 @@ export default {
       showSettings: false,
       selectedProject: null,
       expandedDomains: {},
+      expandedProjectDomains: {},
       audienceFactionId: null,
       showAudiencePicker: false,
     }
@@ -316,14 +322,35 @@ export default {
           .slice(0, 5)
       )
     },
-    activeProjects() {
-      return this.projectList.filter(p => p.status === 'active')
-    },
-    buildingProjects() {
-      return this.projectList.filter(p => p.status === 'under_construction')
-    },
-    otherProjects() {
-      return this.projectList.filter(p => p.status !== 'under_construction')
+    projectsByDomain() {
+      const domains = this.snapshot?.domains
+      if (!domains) return []
+      // One group per known domain, so empty domains still show.
+      const groups = {}
+      for (const [id, d] of Object.entries(domains)) {
+        groups[id] = { id, name: d.name || id, projects: [] }
+      }
+      // Order to match the faction panel (factionsByDomain), then append any
+      // faction-less domains so every domain still appears.
+      const order = []
+      for (const g of this.factionsByDomain) {
+        if (groups[g.id]) order.push(g.id)
+      }
+      for (const id of Object.keys(groups)) {
+        if (!order.includes(id)) order.push(id)
+      }
+      let other = null
+      for (const p of this.projectList) {
+        if (groups[p.domain]) {
+          groups[p.domain].projects.push(p)
+        } else {
+          if (!other) other = { id: 'other', name: 'Other', projects: [] }
+          other.projects.push(p)
+        }
+      }
+      const arr = order.map(id => groups[id])
+      if (other) arr.push(other)
+      return arr
     },
     audienceFactionObj() {
       if (!this.audienceFactionId) return null
@@ -403,6 +430,10 @@ export default {
     },
     toggleDomain(id) {
       this.expandedDomains[id] = !this.expandedDomains[id]
+    },
+    toggleProjectDomain(id) {
+      // Undefined = expanded, so project groups start open without pre-population.
+      this.expandedProjectDomains[id] = this.expandedProjectDomains[id] === false ? true : false
     },
     domainFillPct(d) {
       if (!d.cap) return 0
