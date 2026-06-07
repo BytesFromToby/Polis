@@ -394,6 +394,15 @@ def audience_begin(
     mayor = session.mayor
     factions = session.factions or {}
 
+    # Active-AI requirement (audience_spec v5): an audience needs a valid active AI.
+    # _get_llm_config returns None when llm_profile_id is unset or does not resolve to
+    # an existing profile. Reject before any AP is spent.
+    if _get_llm_config(session, db) is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No active AI is set for this game. Set an AI to hold audiences.",
+        )
+
     faction = factions.get(req.faction_id)
     if faction is None:
         raise HTTPException(status_code=404, detail=f"Faction {req.faction_id} not found")

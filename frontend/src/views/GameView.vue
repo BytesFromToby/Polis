@@ -208,6 +208,21 @@
     </div>
   </div>
 
+  <!-- Active-AI required warning (audience_spec v5) -->
+  <div v-if="showAiWarning" class="modal-overlay" @click.self="showAiWarning = false">
+    <div class="card ai-warning-box">
+      <div class="panel-header">
+        <h3>Audience unavailable</h3>
+        <button class="btn-subtle btn-sm" @click="showAiWarning = false">Close</button>
+      </div>
+      <p class="ai-warning-text">No active AI is set for this game. Set an AI to hold audiences.</p>
+      <div class="ai-warning-actions">
+        <button class="btn-primary btn-sm" @click="showAiWarning = false; showSettings = true">Open Settings</button>
+        <button class="btn-subtle btn-sm" @click="showAiWarning = false">Close</button>
+      </div>
+    </div>
+  </div>
+
   <AudienceModal
     v-if="audienceFactionId && audienceFactionObj"
     :faction="audienceFactionObj"
@@ -279,9 +294,15 @@ export default {
       expandedProjectDomains: {},
       audienceFactionId: null,
       showAudiencePicker: false,
+      llmProfileId: null,
+      showAiWarning: false,
     }
   },
   computed: {
+    aiSet() {
+      // An audience requires a valid active AI on the run (audience_spec v5).
+      return !!this.llmProfileId
+    },
     factionList() {
       if (!this.snapshot?.factions) return []
       return Object.values(this.snapshot.factions)
@@ -377,6 +398,7 @@ export default {
         this.snapshot = snap
         this.cycle = status.current_cycle
         this.cityName = status.city_name || 'Polis'
+        this.llmProfileId = status.llm_profile_id || null
         this.logs = rawLogs
         // Mayor/treasury/projects — don't block if missing
         await Promise.allSettled([
@@ -461,10 +483,12 @@ export default {
       return null
     },
     openAudience(factionId) {
-      // Wired in Slice 4 — opens the audience pre-targeted to this faction.
+      // Opens the audience pre-targeted to this faction. Requires an active AI.
+      if (!this.aiSet) { this.showAiWarning = true; return }
       this.audienceFactionId = factionId
     },
     openStandaloneAudience() {
+      if (!this.aiSet) { this.showAiWarning = true; return }
       this.showAudiencePicker = true
     },
     pickAudience(factionId) {
@@ -838,4 +862,9 @@ export default {
   white-space: nowrap;
 }
 .project-domain { font-size: 0.72rem; }
+
+/* Active-AI required warning */
+.ai-warning-box { width: 340px; max-width: 95vw; }
+.ai-warning-text { color: var(--text); font-size: 0.88rem; line-height: 1.4; margin: 0.5rem 0 1rem; }
+.ai-warning-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
 </style>

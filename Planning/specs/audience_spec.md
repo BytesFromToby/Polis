@@ -1,9 +1,15 @@
 # Audience Specification
 
-**Version:** v4
-**Date:** 2026-05-29
+**Version:** v5
+**Date:** 2026-06-07
 
 The Mayor can request a formal audience with a faction leader. Audiences are the only way to create binding deals. The faction leader is driven by an LLM that opens the scene, negotiates through two player exchanges, and delivers a final decision.
+
+> **v5 changes:** an audience now **requires an active AI**. Previously a run with no LLM
+> profile silently fell back to stub mode for live play; now both the UI and the API refuse
+> to start an audience unless the run has a valid active AI (see **Active-AI Requirement**).
+> Stub mode (`LLMConfig(provider="stub")`) remains for automated tests and the non-audience
+> sim — only the player-facing audience entry points are gated.
 
 > **v4 changes:** the deal-term set is clarified so the LLM negotiates coherently — each term
 > now carries a plain "what it does" line and explicit per-action targeting (see **Valid Deal
@@ -40,6 +46,37 @@ A completed audience either produces a `Deal` or produces nothing. There is no p
 **Restriction:** Cannot request an audience with a faction that has an active deal — renegotiation is not available until the current deal expires, is fulfilled, or is broken.
 
 The player selects a faction to meet. No terms are pre-selected. The negotiation emerges from the conversation.
+
+---
+
+## Active-AI Requirement
+
+An audience requires an **active AI** on the current run. "Active AI is set" means the run's
+`llm_profile_id` is set **and** resolves to an existing `LLMProfile`. A live connection test is
+**not** required — selection of a valid saved profile is sufficient. The active AI is chosen in
+the in-game **Settings** panel (`LLMSettings`, "Active city AI" → `sim.setLlmProfile`); the run's
+`llm_profile_id` is exposed to the client by `sim status` (`SimStatusResponse.llm_profile_id`).
+
+**UI gate.** The two audience entry points — the centre **Request Audience** button and a faction
+card's **Audience ▸** button — check whether an active AI is set before starting. If none is set,
+they open a small blocking **warning dialog** ("No active AI is set for this game. Set an AI to
+hold audiences.") with an **Open Settings** control (opens the `LLMSettings` panel) and a **Close**
+control. No audience begins, no AP is spent, and the faction picker / `AudienceModal` does not open.
+
+**API gate.** `POST /mayor/audience/begin` independently enforces the same rule: if the run's
+`llm_profile_id` is unset, or is set but does not resolve to an existing profile, the request is
+rejected with **HTTP 400** and a message naming the missing active AI, **before** any action point
+is spent. The previous silent stub fallback for live audiences is removed. The engine layer
+(`begin_audience_step` with an explicit `llm_config`, including `LLMConfig(provider="stub")`)
+is unchanged — automated tests drive it directly and are unaffected.
+
+**Done when:**
+- `POST /mayor/audience/begin` on a run whose `llm_profile_id` is unset returns HTTP 400 and leaves `mayor.action_points` unchanged (no AP spent)  `[automated]`
+- `POST /mayor/audience/begin` on a run whose `llm_profile_id` is set but does not resolve to an existing `LLMProfile` returns HTTP 400 and spends no AP  `[automated]`
+- `POST /mayor/audience/begin` on a run with a valid active `llm_profile_id` proceeds normally — spends 1 AP and returns the Step-1 opening  `[automated]`
+- With no active AI set, clicking **Request Audience** or a faction's **Audience ▸** opens the warning dialog and does not open the faction picker or `AudienceModal`  `[human-required]`
+- The warning dialog shows an **Open Settings** control that opens the `LLMSettings` panel, and a **Close** control that dismisses it  `[human-required]`
+- With a valid active AI set, both audience entry points start the audience as before, with no warning  `[human-required]`
 
 ---
 
