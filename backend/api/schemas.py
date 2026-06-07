@@ -325,6 +325,7 @@ class ProjectResponse(BaseModel):
     category: str
     status: str
     health: int
+    build_progress: int
     build_cost: int
     build_time: int
     faction_build_actions: int

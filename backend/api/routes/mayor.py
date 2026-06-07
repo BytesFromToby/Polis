@@ -568,7 +568,8 @@ def list_projects(
     return [
         ProjectResponse(
             id=p.id, name=p.name, domain=p.domain, category=p.category,
-            status=p.status, health=p.health, build_cost=p.build_cost,
+            status=p.status, health=p.health, build_progress=p.build_progress,
+            build_cost=p.build_cost,
             build_time=p.build_time, faction_build_actions=p.faction_build_actions,
             cycles_built=p.cycles_built, maintenance_cost=p.maintenance_cost,
             tax_level=p.tax_level, initiated_by=p.initiated_by,
@@ -588,7 +589,8 @@ def projects_catalog(
     return [
         ProjectResponse(
             id=p.id, name=p.name, domain=p.domain, category=p.category,
-            status=p.status, health=p.health, build_cost=p.build_cost,
+            status=p.status, health=p.health, build_progress=p.build_progress,
+            build_cost=p.build_cost,
             build_time=p.build_time, faction_build_actions=p.faction_build_actions,
             cycles_built=p.cycles_built, maintenance_cost=p.maintenance_cost,
             tax_level=p.tax_level, initiated_by=p.initiated_by,

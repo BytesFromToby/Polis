@@ -159,16 +159,24 @@ dramatic highlighting) but sits in the centre column beneath the Mayor window.
 Projects sit in a dedicated right column. In-progress (under-construction) projects are
 listed first, each with a percent-complete; remaining projects follow.
 
-- Input: `projects.list` (each with `status`, `health`, `name`, `domain`).
+- Input: `projects.list` (each with `status`, `health`, `build_progress`, `name`, `domain`).
 - Output: a right-column panel, under-construction projects on top with `%`, then the rest.
 
-For an under-construction project, percent-complete is its build progress. Active and other
-projects follow, showing name and domain/status as today.
+For an under-construction project, percent-complete is its **build progress** —
+`round(build_progress / 4 × 100)` (4 work units = complete), **not** `health` (which stays 0
+during construction). Active and other projects follow, showing name and domain/status.
+
+Clicking any project row opens a details modal: a progress bar (build progress while
+under construction, structural health once active) plus status, domain, type, tax level
+(if any), upkeep, and initiator. While the modal is open, advancing a cycle keeps it in
+sync with the refreshed project data.
 
 **Done when:**
-- The right column lists under-construction projects first, each showing a percent-complete  `[human-required]`
+- The right column lists under-construction projects first, each showing a percent-complete derived from build progress (advances as work units are added)  `[human-required]`
 - Active/other projects are listed after the in-progress ones, with name and domain/status  `[human-required]`
 - An empty project list shows a "No projects" placeholder  `[human-required]`
+- Clicking a project row opens a details modal showing its progress/health bar and core fields  `[human-required]`
+- The projects API response includes `build_progress` for each project — `tests/test_projects_api.py`  `[automated]`
 
 ---
 

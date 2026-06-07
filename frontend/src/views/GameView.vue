@@ -148,12 +148,14 @@
         <div class="panel-title">Projects</div>
         <div v-if="projectList.length" class="project-list">
           <!-- In-progress first, with % complete -->
-          <div v-for="p in buildingProjects" :key="p.id" class="project-row building">
+          <div v-for="p in buildingProjects" :key="p.id" class="project-row building"
+               @click="selectedProject = p" title="View details">
             <span class="project-name">{{ p.name }}</span>
-            <span class="project-pct accent">{{ p.health }}%</span>
+            <span class="project-pct accent">{{ projectPct(p) }}%</span>
           </div>
           <!-- Then active / other -->
-          <div v-for="p in otherProjects" :key="p.id" class="project-row">
+          <div v-for="p in otherProjects" :key="p.id" class="project-row"
+               @click="selectedProject = p" title="View details">
             <span class="project-name">{{ p.name }}</span>
             <span class="project-domain muted">{{ p.domain || p.status }}</span>
           </div>
@@ -196,6 +198,40 @@
     @close="audienceFactionId = null"
     @acted="onActed"
   />
+
+  <!-- Project details -->
+  <div v-if="selectedProject" class="modal-overlay" @click.self="selectedProject = null">
+    <div class="card modal-box" style="width:420px; max-width:95vw">
+      <div class="panel-header" style="margin-bottom:1rem">
+        <h3 style="margin:0">{{ selectedProject.name }}</h3>
+        <button class="btn-subtle btn-sm" @click="selectedProject = null">Close</button>
+      </div>
+
+      <div v-if="selectedProject.status === 'under_construction'" class="proj-progress">
+        <div class="proj-progress-head">
+          <span class="muted">Construction</span>
+          <span class="accent">{{ projectPct(selectedProject) }}% · {{ selectedProject.build_progress }}/4 units</span>
+        </div>
+        <div class="proj-bar"><div class="proj-bar-fill" :style="{ width: projectPct(selectedProject) + '%' }"></div></div>
+      </div>
+      <div v-else class="proj-progress">
+        <div class="proj-progress-head">
+          <span class="muted">Health</span>
+          <span class="accent">{{ selectedProject.health }}%</span>
+        </div>
+        <div class="proj-bar"><div class="proj-bar-fill" :style="{ width: selectedProject.health + '%' }"></div></div>
+      </div>
+
+      <dl class="proj-detail-grid">
+        <dt>Status</dt><dd>{{ projectStatusLabel(selectedProject.status) }}</dd>
+        <dt>Domain</dt><dd>{{ domainName(selectedProject.domain) || '—' }}</dd>
+        <dt>Type</dt><dd>{{ selectedProject.category }}</dd>
+        <dt v-if="selectedProject.tax_level">Tax level</dt><dd v-if="selectedProject.tax_level">{{ selectedProject.tax_level }}</dd>
+        <dt>Upkeep</dt><dd>{{ selectedProject.maintenance_cost }} gold/cycle</dd>
+        <dt>Initiated by</dt><dd>{{ initiatorName(selectedProject.initiated_by) }}</dd>
+      </dl>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -223,6 +259,7 @@ export default {
       projectList: [],
       showMayorModal: false,
       showSettings: false,
+      selectedProject: null,
       expandedDomains: {},
       audienceFactionId: null,
       showAudiencePicker: false,
@@ -312,11 +349,37 @@ export default {
         await Promise.allSettled([
           treasuryApi.get(store.userId).then(t => { this.treas = t }),
           mayorApi.get(store.userId).then(m => { this.mayorData = m }),
-          projectsApi.list(store.userId).then(p => { this.projectList = p }),
+          projectsApi.list(store.userId).then(p => {
+            this.projectList = p
+            // Keep an open details modal in sync with the refreshed data
+            if (this.selectedProject) {
+              this.selectedProject = p.find(x => x.id === this.selectedProject.id) || null
+            }
+          }),
         ])
       } catch (e) {
         this.error = e.message
       }
+    },
+    projectPct(p) {
+      // Under-construction progress is build_progress out of 4 work units.
+      return Math.round(((p.build_progress || 0) / 4) * 100)
+    },
+    projectStatusLabel(status) {
+      return ({
+        under_construction: 'Under construction',
+        active: 'Active',
+        damaged: 'Damaged',
+        critical: 'Critical',
+        destroyed: 'Destroyed',
+      })[status] || status
+    },
+    domainName(id) {
+      return (this.snapshot?.domains || {})[id]?.name || id
+    },
+    initiatorName(id) {
+      if (!id || id === 'mayor') return 'Mayor'
+      return (this.snapshot?.factions || {})[id]?.name || id
     },
     async runCycle() {
       this.error = ''
@@ -669,11 +732,45 @@ export default {
 .project-row {
   display: flex;
   justify-content: space-between;
-  padding: 0.15rem 0;
+  padding: 0.15rem 0.3rem;
   font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: background 0.12s;
 }
+.project-row:hover { background: rgba(116, 182, 164, 0.12); }
 .project-row.building .project-name { font-weight: 600; }
 .project-pct { font-size: 0.8rem; flex-shrink: 0; }
+
+/* Project details modal */
+.proj-progress { margin-bottom: 1rem; }
+.proj-progress-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 0.3rem;
+}
+.proj-bar {
+  height: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.proj-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s;
+}
+.proj-detail-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0;
+  font-size: 0.85rem;
+}
+.proj-detail-grid dt { color: var(--muted); }
+.proj-detail-grid dd { margin: 0; text-align: right; }
 
 /* Audience faction picker */
 .picker-box { width: 360px; max-width: 95vw; max-height: 80vh; display: flex; flex-direction: column; }
