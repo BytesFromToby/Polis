@@ -8,6 +8,10 @@ export const store = reactive({
   userId: localStorage.getItem('userId') || null,
   username: localStorage.getItem('username') || null,
 
+  // Preferred AI profile applied to new games (empty string = None / stub mode).
+  // Per-browser preference; the run itself stores its own llm_profile_id once started.
+  defaultLlmProfileId: localStorage.getItem('defaultLlmProfileId') || '',
+
   simStatus: null,   // { run_id, current_cycle, status }
   snapshot: null,    // { world, factions, units, domains }
   logs: [],
@@ -17,6 +21,15 @@ export const store = reactive({
     this.username = username
     localStorage.setItem('userId', userId)
     localStorage.setItem('username', username)
+  },
+
+  setDefaultLlmProfile(profileId) {
+    this.defaultLlmProfileId = profileId || ''
+    if (profileId) {
+      localStorage.setItem('defaultLlmProfileId', profileId)
+    } else {
+      localStorage.removeItem('defaultLlmProfileId')
+    }
   },
 
   clearUser() {

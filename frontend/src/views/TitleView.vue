@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { auth, cities, city, sim } from '../api.js'
+import { auth, cities, city, sim, llmProfiles } from '../api.js'
 import { store } from '../store.js'
 
 export default {
@@ -95,13 +95,26 @@ export default {
 
         await city.load(store.userId, official.city_id)
         await city.patch(store.userId, { city_name: cityName })
-        await sim.start(store.userId, null, { player_name: playerName, player_title: 'Prytanis' })
+        await sim.start(store.userId, await this.resolveDefaultProfile(),
+                        { player_name: playerName, player_title: 'Prytanis' })
         store.simStatus = null
         this.$router.push('/game')
       } catch (e) {
         this.error = e.message
       } finally {
         this.busy = null
+      }
+    },
+    async resolveDefaultProfile() {
+      // Use the saved new-game default, but only if it still exists server-side
+      // (it may have been deleted from another browser). Returns null otherwise.
+      const wanted = store.defaultLlmProfileId
+      if (!wanted) return null
+      try {
+        const list = await llmProfiles.list()
+        return list.some(p => p.profile_id === wanted) ? wanted : null
+      } catch {
+        return null
       }
     },
     async openLoad() {

@@ -28,6 +28,20 @@
         </div>
       </div>
 
+      <!-- Default for new games -->
+      <div v-if="!showForm" class="card" style="padding:0.6rem 0.75rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap">
+        <div style="flex:1; min-width:180px">
+          <div style="font-size:0.72rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.15rem">Default for new games</div>
+          <div class="muted" style="font-size:0.78rem">Pre-selected when you start a new game.</div>
+        </div>
+        <select :value="store.defaultLlmProfileId"
+                @change="store.setDefaultLlmProfile($event.target.value)"
+                style="padding:0.3rem 0.4rem; font-size:0.8rem">
+          <option value="">None (stub mode)</option>
+          <option v-for="p in profiles" :key="p.profile_id" :value="p.profile_id">{{ p.name }}</option>
+        </select>
+      </div>
+
       <!-- Profile list -->
       <div v-if="!showForm" style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1rem">
         <div v-if="!profiles.length" class="muted" style="font-size:0.85rem; padding:0.5rem 0">
@@ -161,6 +175,9 @@ export default {
     }
   },
   computed: {
+    store() {
+      return store
+    },
     activeProfileName() {
       if (!this.simStatus?.llm_profile_id) return null
       const p = this.profiles.find(x => x.profile_id === this.simStatus.llm_profile_id)
@@ -248,6 +265,10 @@ export default {
         await llmProfiles.remove(p.profile_id)
         this.profiles = this.profiles.filter(x => x.profile_id !== p.profile_id)
         delete this.testResults[p.profile_id]
+        // Drop the new-game default if it pointed at the deleted profile
+        if (store.defaultLlmProfileId === p.profile_id) {
+          store.setDefaultLlmProfile('')
+        }
       } catch (e) {
         this.error = e.message
       } finally {

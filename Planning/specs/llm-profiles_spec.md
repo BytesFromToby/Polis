@@ -169,13 +169,33 @@ When `llm_profile_id` is provided, it is stored on the `SimRun` row and used by 
 - Each row has Edit and Delete actions
 - Edit opens an inline form pre-populated (api_key field blank, placeholder "leave blank to keep existing")
 - "Test" button on each row: calls `/llm-profiles/{id}/test`, shows ✓ or error message
+- "Default for new games" selector: `None (stub mode)` + one entry per profile. Persists
+  to `localStorage` (`defaultLlmProfileId`) via `store.setDefaultLlmProfile`. Cleared
+  automatically when the chosen profile is deleted. This is a per-browser preference; it does
+  not change any existing run.
 
 ### New Game screen
 
 - Existing "Start Game" / new run form gains an "AI" dropdown
 - Options: `None (stub mode)` + one entry per saved profile
-- Default: `None`
+- Default: the saved `defaultLlmProfileId` preference if it still exists server-side, else `None`
 - Selection stored as `llm_profile_id` in the start request
+- The title-screen quick-start (no dropdown shown) applies the saved default directly,
+  validated against the live profile list so a stale id falls back to `None` instead of erroring
+
+### Loading a run
+
+- A run's `llm_profile_id` is persisted on the `SimRun` row and restored on resume
+  (`/sim/switch` → session). Loading a saved game keeps its own AI setting, independent of
+  the new-game default.
+
+**Done when:**
+- The AI Settings panel shows a "Default for new games" selector listing `None` plus every saved profile; choosing one persists to `localStorage` under `defaultLlmProfileId`  `[human-required]`
+- Deleting the profile currently set as the new-game default clears the stored default (selector returns to `None`)  `[human-required]`
+- With a default set, starting a new game from the title screen creates a run whose `llm_profile_id` equals that default; with no default it is `null` (stub mode)  `[human-required]`
+- When the stored default names a profile that no longer exists server-side, starting a new game falls back to `None` rather than erroring  `[human-required]`
+- A profile passed to `/sim/start` is stored on the `SimRun`; omitting it yields stub mode (`llm_profile_id` is null) — `tests/test_sim_llm_profile.py`  `[automated]`
+- Resuming a saved run via `/sim/switch` restores that run's own `llm_profile_id` even after the in-memory session is dropped — `tests/test_sim_llm_profile.py`  `[automated]`
 
 ---
 

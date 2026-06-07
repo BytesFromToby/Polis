@@ -148,6 +148,11 @@ export default {
     await this.load()
     try {
       this.llmProfileList = await llmProfiles.list()
+      // Pre-select the saved new-game default if it still exists
+      const dflt = store.defaultLlmProfileId
+      if (dflt && this.llmProfileList.some(p => p.profile_id === dflt)) {
+        this.selectedProfileId = dflt
+      }
     } catch {
       // non-fatal — profiles just won't appear in dropdown
     }
