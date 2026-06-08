@@ -306,7 +306,7 @@ export default {
     factionList() {
       if (!this.snapshot?.factions) return []
       return Object.values(this.snapshot.factions)
-        .sort((a, b) => b.rating - a.rating)
+        .sort((a, b) => a.name.localeCompare(b.name))
     },
     factionsByDomain() {
       const factions = this.snapshot?.factions
@@ -328,7 +328,9 @@ export default {
         groups[key].factions.push(f)
       }
       const arr = Object.values(groups)
-      arr.forEach(g => g.factions.sort((a, b) => b.rating - a.rating))
+      // Domains alphabetical; factions within each domain alphabetical by name.
+      arr.sort((a, b) => a.name.localeCompare(b.name))
+      arr.forEach(g => g.factions.sort((a, b) => a.name.localeCompare(b.name)))
       return arr
     },
     world() {
@@ -364,19 +366,17 @@ export default {
       for (const [id, d] of Object.entries(domains)) {
         groups[id] = { id, name: d.name || id, stack: byDomain[id] || null }
       }
-      // Order to match the faction panel, then append any faction-less domains.
-      const order = []
-      for (const g of this.factionsByDomain) {
-        if (groups[g.id]) order.push(g.id)
-      }
-      for (const id of Object.keys(groups)) {
-        if (!order.includes(id)) order.push(id)
-      }
-      const arr = order.map(id => groups[id])
+      const arr = Object.values(groups)
       // "Other": a stack whose domain has no matching domain entry
       for (const s of this.projectList) {
         if (!groups[s.domain]) arr.push({ id: 'other:' + s.domain, name: s.name, stack: s })
       }
+      // Alphabetical by name, with Public Treasury (civic) pinned to the top.
+      arr.sort((a, b) => {
+        if (a.id === 'civic') return -1
+        if (b.id === 'civic') return 1
+        return a.name.localeCompare(b.name)
+      })
       return arr
     },
     audienceFactionObj() {
