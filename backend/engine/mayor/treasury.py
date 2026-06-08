@@ -2,9 +2,10 @@
 Treasury processing — income, expenditure, tax effects, debt.
 Called at Step 0 of each cycle.
 """
-from typing import Dict, List
-from engine.models import Treasury, Mayor, Faction, Domain, ActionResult
-from engine.formulas import faction_weight
+import random
+from typing import Dict, List, Optional
+from engine.models import Treasury, Mayor, Faction, Domain, ActionResult, BaseProjectStack
+from engine.formulas import BASE_INCOME, TAX_OFFICE_INCOME
 
 
 def process_treasury_step0(
@@ -15,13 +16,15 @@ def process_treasury_step0(
     active_project_count: int = 0,
     guard_paid: bool = True,
     logger=None,
+    base_stacks: Optional[Dict[str, BaseProjectStack]] = None,
+    rng: Optional[random.Random] = None,
 ) -> List[ActionResult]:
     """Apply income and fixed expenditure. Returns list of ActionResults for logging."""
     results = []
     treasury.reset_cycle_totals()
 
     # ── Income ──────────────────────────────────────────────────────────────
-    income = _calc_tax_income(factions, treasury, mayor)
+    income = _calc_income(base_stacks)
 
     # Investment maturity
     if treasury.invest_cycles_remaining > 0:
@@ -70,57 +73,76 @@ def process_treasury_step0(
             narrative=f"Debt interest: -{interest} gold (debt {treasury.debt})",
         ))
 
-    # ── Fixed expenditure ────────────────────────────────────────────────────
+    # ── Fixed expenditure (guard payroll + maintenance) ──────────────────────
+    # treasury_spec v3: charge in full, pay what gold allows, clamp at 0. Any
+    # shortfall is settled as infrastructure damage (Insolvency, below).
     guard_cost = 20
-    if treasury.gold >= guard_cost:
-        treasury.gold -= guard_cost
-        treasury.expenditure_this_cycle += guard_cost
+    maintenance = 2 * active_project_count
+    required = guard_cost + maintenance
+
+    paid = min(treasury.gold, required)
+    treasury.gold -= paid
+    treasury.expenditure_this_cycle += paid
+
+    results.append(ActionResult(
+        action="GuardPayroll", actor_id="treasury", target_id=None,
+        outcome="no_op", delta=-float(guard_cost),
+        narrative=f"Guard payroll: -{guard_cost} gold",
+    ))
+    if maintenance > 0:
         results.append(ActionResult(
-            action="GuardPayroll",
-            actor_id="treasury",
-            target_id=None,
-            outcome="no_op",
-            delta=-float(guard_cost),
-            narrative=f"Guard payroll: -{guard_cost} gold",
-        ))
-    else:
-        results.append(ActionResult(
-            action="GuardPayroll",
-            actor_id="treasury",
-            target_id=None,
-            outcome="fail",
-            delta=0.0,
-            narrative="Guard payroll skipped — insufficient funds",
+            action="ProjectMaintenance", actor_id="treasury", target_id=None,
+            outcome="no_op", delta=-float(maintenance),
+            narrative=f"Project maintenance: -{maintenance} gold ({active_project_count} projects)",
         ))
 
-    maintenance = 2 * active_project_count
-    if maintenance > 0:
-        if treasury.gold >= maintenance:
-            treasury.gold -= maintenance
-            treasury.expenditure_this_cycle += maintenance
-            results.append(ActionResult(
-                action="ProjectMaintenance",
-                actor_id="treasury",
-                target_id=None,
-                outcome="no_op",
-                delta=-float(maintenance),
-                narrative=f"Project maintenance: -{maintenance} gold ({active_project_count} projects)",
-            ))
-        else:
-            results.append(ActionResult(
-                action="ProjectMaintenance",
-                actor_id="treasury",
-                target_id=None,
-                outcome="fail",
-                delta=0.0,
-                narrative="Project maintenance skipped — insufficient funds",
-            ))
+    # ── Insolvency: clamp at 0, pay the shortfall in infrastructure damage ────
+    shortfall = required - paid
+    if shortfall > 0:
+        treasury.gold = 0
+        destroyed = _apply_insolvency_damage(base_stacks, shortfall, rng)
+        results.append(ActionResult(
+            action="Insolvency", actor_id="treasury", target_id=None,
+            outcome="no_op", delta=-float(shortfall),
+            narrative=(f"Treasury insolvent: {shortfall} gold shortfall paid in "
+                       f"infrastructure damage ({destroyed} destroyed)"),
+        ))
 
     if logger:
         logger.log_system(0, "TREASURY", "treasury",
-                          f"income +{income}, expenditure -{guard_cost + maintenance}")
+                          f"income +{income}, expenditure -{paid}")
 
     return results
+
+
+def _apply_insolvency_damage(base_stacks, shortfall, rng=None) -> int:
+    """Spend an insolvency shortfall as ~1:1 health damage on random NON-civic base
+    stacks (treasury_spec v3). Tax Offices (civic) are never damaged. Reducing/destroying
+    maintenance-costing projects lowers next cycle's upkeep — self-balancing. Returns the
+    number of instances destroyed."""
+    from engine.projects.processing import apply_sabotage_damage
+    r = rng or random
+    stacks = base_stacks or {}
+    remaining = float(shortfall)
+    destroyed = 0
+    guard = 0
+    while remaining > 0 and guard < 10000:
+        guard += 1
+        damageable = [s for did, s in stacks.items() if did != "civic" and s.count > 0]
+        if not damageable:
+            break
+        s = r.choice(damageable)
+        before = s.count
+        if s.progress <= 0:
+            apply_sabotage_damage(s, 0)   # a hit at 0 health destroys the top
+            remaining -= 1
+        else:
+            hit = min(remaining, s.progress)
+            apply_sabotage_damage(s, hit)
+            remaining -= hit
+        if s.count < before:
+            destroyed += 1
+    return destroyed
 
 
 _PUBLIC_REP_BY_RATE = {
@@ -170,28 +192,12 @@ def apply_tax_effects(
     return results
 
 
-def _calc_tax_income(
-    factions: Dict[str, Faction],
-    treasury: Treasury,
-    mayor: Mayor,
-) -> int:
-    """Sum per-domain income, excluding exempt factions."""
-    total = 0
-    by_domain: Dict[str, list] = {}
-    for f in factions.values():
-        by_domain.setdefault(f.domain_primary, []).append(f)
-
-    for domain_id, domain_factions in by_domain.items():
-        rate = treasury.get_rate(domain_id)
-        if rate == 0.0:
-            continue
-        weight = sum(
-            faction_weight(f.level)
-            for f in domain_factions
-            if not mayor.is_exempt(f.id)
-        )
-        total += int(weight * rate * 10)
-    return total
+def _calc_income(base_stacks: Optional[Dict[str, BaseProjectStack]]) -> int:
+    """Income (treasury_spec v3): flat base + per completed civic Tax Office.
+    The per-domain auto-tax is removed — income depends only on base + Tax Offices."""
+    civic = (base_stacks or {}).get("civic")
+    office_count = civic.active_count() if civic is not None else 0
+    return BASE_INCOME + TAX_OFFICE_INCOME * office_count
 
 
 # ── Optional expenditure actions ─────────────────────────────────────────────

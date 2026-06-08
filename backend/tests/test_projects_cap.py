@@ -122,9 +122,10 @@ def test_runner_counts_active_from_stacks_excluding_building():
     assert "4 projects" in maint.narrative      # 3 + 1, building top excluded
 
 
-def test_maintenance_skipped_when_broke():
-    t = Treasury(gold=25)   # 20 guard leaves 5; maintenance 6 unaffordable
-    results = process_treasury_step0(t, Mayor(), {}, {}, active_project_count=3)
-    maint = next(r for r in results if r.action == "ProjectMaintenance")
-    assert maint.outcome == "fail"
-    assert t.gold == 5      # nothing deducted for maintenance
+def test_insolvency_clamps_gold():
+    # v3: gold 0 + base income 20 = 20; guard 20 + maintenance 6 = 26 required;
+    # shortfall 6 clamps gold at 0 and logs Insolvency (no stacks → no damage).
+    t = Treasury(gold=0)
+    results = process_treasury_step0(t, Mayor(), {}, {}, active_project_count=3, base_stacks={})
+    assert t.gold == 0
+    assert any(r.action == "Insolvency" for r in results)

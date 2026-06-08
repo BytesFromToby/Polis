@@ -499,13 +499,13 @@ class TestMaintenanceBase:
         assert maint[0].outcome == "no_op"
         assert maint[0].delta == -6.0  # 2 × 3
 
-    def test_maintenance_skipped_when_broke_no_damage(self):
+    def test_insolvency_clamps_gold_no_stacks(self):
+        # treasury_spec v3: when costs exceed gold, gold clamps at 0 and the shortfall
+        # becomes infrastructure damage. With no base_stacks passed, nothing is damaged.
         treasury = make_treasury(gold=0)
         mayor = make_mayor()
-        project = make_active_base(health=100)  # standalone — must be untouched
+        project = make_active_base(health=100)  # standalone — not in base_stacks, untouched
         results = process_treasury_step0(treasury, mayor, {}, {}, active_project_count=3)
-        maint = [r for r in results if r.action == "ProjectMaintenance"]
-        assert len(maint) == 1
-        assert maint[0].outcome == "fail"
-        assert treasury.gold == 0          # not driven negative by maintenance
-        assert project.health == 100       # maintenance never damages projects
+        assert treasury.gold == 0                       # never driven negative
+        assert project.health == 100                    # standalone project untouched
+        assert any(r.action == "Insolvency" for r in results)

@@ -278,6 +278,7 @@ BASE_PROJECT_NAMES: Dict[str, str] = {
     "academy":     "Lyceum",
     "aristocracy": "Estate",
     "professions": "Gymnasion",
+    "civic":       "Tax Office",
 }
 
 

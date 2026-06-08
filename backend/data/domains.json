@@ -126,5 +126,12 @@
       {"domain_id": "academy",     "trait": "Neutral"},
       {"domain_id": "harbor",      "trait": "Foe"}
     ]
+  },
+  {
+    "id": "civic",
+    "name": "Public Treasury",
+    "cap": 12,
+    "drift": 0.0,
+    "relationships": []
   }
 ]

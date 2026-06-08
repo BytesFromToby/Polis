@@ -20,6 +20,12 @@ if TYPE_CHECKING:
 RATING_MAX: float = 10.0    # faction rank ceiling (1.0–10.0); level = int(rating)
 
 
+# ── Treasury income (treasury_spec v3) ─────────────────────────────────────────
+
+BASE_INCOME: int = 20         # flat gold/cycle before any Tax Offices
+TAX_OFFICE_INCOME: int = 20   # gold/cycle per completed civic Tax Office
+
+
 # ── Domain cap (projects rework) ───────────────────────────────────────────────
 
 CAP_HEADROOM_MULT: float = 1.20   # starting cap = round(initial Σ level × this)

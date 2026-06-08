@@ -34,19 +34,27 @@ def _load(name):
 
 def test_eight_domains_with_default_values():
     domains = _load("domains.json")
-    assert len(domains) == 8
-    assert {d["id"] for d in domains} == EXPECTED_DOMAIN_IDS
-    for d in domains:
+    # treasury_spec v3 adds the faction-less `civic` ("Public Treasury") lane alongside
+    # the 8 Greek faction domains; it has its own properties and is checked separately.
+    greek = [d for d in domains if d["id"] in EXPECTED_DOMAIN_IDS]
+    assert {d["id"] for d in greek} == EXPECTED_DOMAIN_IDS
+    for d in greek:
         assert d["cap"] == 300
         assert d["drift"] == 0.0
         rels = {r["domain_id"]: r["trait"] for r in d["relationships"]}
-        # full row: one entry per domain
+        # full row: one entry per Greek domain
         assert set(rels) == EXPECTED_DOMAIN_IDS
         # self-entry is Foe, every other domain is Neutral
         assert rels[d["id"]] == "Foe"
         for other_id, trait in rels.items():
             if other_id != d["id"]:
                 assert trait == "Neutral"
+
+    # The civic lane: faction-less, authored cap 12, no relationships.
+    civic = next(d for d in domains if d["id"] == "civic")
+    assert civic["name"] == "Public Treasury"
+    assert civic["cap"] == 12
+    assert civic["relationships"] == []
 
 
 def test_forty_one_factions_assigned_to_real_domains():
@@ -70,7 +78,9 @@ def test_every_faction_trait_is_functional():
 
 def test_loader_accepts_greek_data():
     world, factions, domains = loaders.load_state_from_json(DATA_DIR)
-    assert len(domains) == 8
+    # 8 Greek faction domains + the faction-less civic lane (treasury_spec v3).
+    assert EXPECTED_DOMAIN_IDS <= set(domains)
+    assert "civic" in domains
     assert len(factions) == 41
 
 
@@ -79,7 +89,8 @@ def test_every_project_uses_a_greek_domain():
     empty); the catalog must cover exactly the 8 Greek domains and name no legacy one.
     Any pre-loaded projects (e.g. future tax_collection) must also be Greek-domained."""
     from engine.projects import BASE_PROJECT_NAMES
-    assert set(BASE_PROJECT_NAMES) == EXPECTED_DOMAIN_IDS
+    # 8 Greek domains + civic ("Tax Office") lane (treasury_spec v3).
+    assert set(BASE_PROJECT_NAMES) == EXPECTED_DOMAIN_IDS | {"civic"}
 
     for p in _load("projects.json"):
         for dom in p["domains"]:

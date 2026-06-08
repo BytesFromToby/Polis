@@ -82,7 +82,11 @@ def run_cycle(
             for faction in factions.values()
             if faction.domain_primary == domain_id
         )
-        domain.cap = domain.base_cap + stack_cap_contribution(base_stacks.get(domain_id))
+        if domain.utilization == 0:
+            # Faction-less lane (civic): authored cap, no stack contribution (treasury_spec v3).
+            domain.cap = domain.base_cap
+        else:
+            domain.cap = domain.base_cap + stack_cap_contribution(base_stacks.get(domain_id))
 
     # Treasury: income + fixed expenditure
     if treasury is not None and mayor is not None:
@@ -92,6 +96,7 @@ def run_cycle(
         treasury_results = process_treasury_step0(
             treasury, mayor, factions, domains,
             active_project_count=n_active, logger=logger,
+            base_stacks=base_stacks,
         )
         all_results.extend(treasury_results)
         all_results.extend(apply_tax_effects(treasury, mayor, factions))

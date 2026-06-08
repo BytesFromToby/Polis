@@ -63,7 +63,8 @@ def test_seeded_polis_has_greek_roster(db):
     city = db.query(City).filter_by(is_official=True).one()
     domains = json.loads(city.domains_json)
     factions = json.loads(city.factions_json)
-    assert set(domains.keys()) == EXPECTED_DOMAIN_IDS
+    # 8 Greek faction domains + the faction-less civic lane (treasury_spec v3).
+    assert set(domains.keys()) == EXPECTED_DOMAIN_IDS | {"civic"}
     assert len(factions) == 41
 
 

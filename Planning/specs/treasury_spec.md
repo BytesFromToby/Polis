@@ -1,179 +1,157 @@
 # Treasury Specification
 
-**Version:** v2
-**Date:** 2026-05-18
+**Version:** v3
+**Date:** 2026-06-07
 
-The Mayor controls a city treasury. Money is a lever — taxes generate income but create friction, expenditure on city needs keeps the city stable, and the moneylender offers a dangerous emergency option.
+The Mayor controls a city treasury. Gold is a lever: a small flat income keeps the lights on,
+**Tax Offices** are the buildable way to grow income, and running short cannibalises the city's
+own infrastructure. v3 is the demo-scoped treasury — simple, self-balancing, and meaningful
+within a short game.
+
+> **v3 changes (demo redesign):** income is now a flat base **+20/cycle** plus **+20 per
+> completed Tax Office**; the old per-domain auto-tax (which silently taxed every domain at the
+> default 0.20 and ballooned the treasury) is **removed**. Tax Offices are a base-project stack
+> in a new faction-less city-wide domain `civic` ("Public Treasury"). Insolvency no longer runs
+> a bankruptcy ladder — instead gold is clamped at 0 and the shortfall damages random non-civic
+> projects (self-balancing, since fewer projects means lower upkeep). The **Moneylender**
+> (invest/borrow/leverage), **emergency guard surge**, **public works allocation**, the
+> **per-domain tax-rate tier table**, and **tax_collection-unlocks-tiers** are all **deferred to
+> future** (see Deferred section). Their prior full design lives in git history (v2).
 
 ---
 
 ## Overview
 
-Treasury is a single integer value: gold (or whatever the city's currency is called). It has no cap — but running out ends the game.
+Treasury is a single integer `gold` (default 500, from city data). It has no cap. Each cycle at
+Step 0 (`process_treasury_step0` in `engine/mayor/treasury.py`) income is added and fixed
+expenditure deducted; if expenditure cannot be covered, gold is clamped at 0 and the shortfall
+is paid in infrastructure damage.
 
 ```python
 @dataclass
 class Treasury:
     gold: int = 500
-    domain_tax_rates: Dict[str, float] = field(default_factory=dict)  # domain_id → rate; missing = 0.20
-    debt: int = 0
-    debt_rate: float = 0.05
-    invested: int = 0
-    invest_cycles_remaining: int = 0
-    invest_return_rate: float = 0.0
     income_this_cycle: int = 0
     expenditure_this_cycle: int = 0
+    # domain_tax_rates / debt / invested fields remain on the model but are DORMANT in the
+    # demo (no action sets them); see Deferred.
 ```
 
 ---
 
-## Income
+## Feature: Income — base + Tax Offices
 
-Income is generated each cycle at the start of Step 0.
+Income is computed each cycle in `process_treasury_step0`, replacing the per-domain auto-tax in
+`_calc_tax_income`. The treasury step is given the `base_stacks` so it can count completed Tax
+Offices.
 
-**Per-domain tax income:**
-```
-domain_income = sum(faction_weight(f.floor) for f in domain_factions if f not exempt) × domain_rate × 10
-total_income = sum(domain_income for all domains)
-```
+- Input: `base_stacks` (the per-domain `BaseProjectStack` map), `Treasury`.
+- Output: `income = BASE_INCOME + TAX_OFFICE_INCOME × (completed Tax Office instances)`, added to
+  `gold` and `income_this_cycle`, logged as a `TaxIncome` result.
 
-Each domain is taxed independently. Higher domain activity = larger tax base.
+Constants (in `engine/formulas.py`): `BASE_INCOME = 20`, `TAX_OFFICE_INCOME = 20`.
 
-**Tax rate levels (per domain):**
+"Completed Tax Office instances" = `active_count()` of the `civic` domain's base stack (a
+building, not-yet-completed top contributes 0, matching `BaseProjectStack.active_count`).
 
-| Rate | Label | Public Rep/cycle | Domain Faction Effects |
-|---|---|---|---|
-| 0.00 | Exempt | +1 | Grow +10 |
-| 0.10 | Low | +1 | Grow +5 |
-| 0.20 | Standard | 0 | none |
-| 0.30 | Elevated | −1 | Grow −5 |
-| 0.40 | High | −3 | Grow −10; Harm likelihood up |
-| 0.50 | Punishing | −5 | Grow −20; Steal/Harm +15; chaos +1 in domain |
-
-Default rate for any domain not explicitly set: **0.20 (Standard)**.
-
-Public reputation effect is the sum across all domains each cycle.
-
-Mayor adjusts a domain's tax rate as a free action (no AP cost). One domain per cycle. Rate cannot exceed the current tax collection level (see below).
+**Done when:**
+- With no Tax Offices built, one `process_treasury_step0` adds exactly `+20` income for the cycle, regardless of how many factions/domains exist  `[automated]`
+- With N completed Tax Offices in the `civic` stack, income for the cycle equals `20 + 20 × N`  `[automated]`
+- A `civic` stack whose top is still building (not completed) contributes 0 to income — income is `20 + 20 × (active_count)`, not counting the building top  `[automated]`
+- A domain full of factions at the default tax rate contributes 0 income — total income depends only on base + Tax Offices (the per-domain auto-tax is gone)  `[automated]`
 
 ---
 
-## Tax Collection Infrastructure
+## Feature: Tax Office lever — the `civic` domain
 
-Tax rates are limited by the city's tax collection infrastructure. Each active tax collection project unlocks one additional rate tier.
+A new faction-less city-wide domain `civic` (display name "Public Treasury") holds a repeatable
+**"Tax Office"** base-project stack (the projects_spec v6 stack model). It is built with the
+existing Build Project mayor action (`mayor_build_base`), at the same cost as any other base
+project (50 gold + 1 AP per build step; ~4 steps to complete). There is **no hard cap** on Tax
+Office count — they are paced by the gold/AP economy.
 
-| Active Projects | Max Rate | Label |
-|---|---|---|
-| 0 | 0.00 | Exempt only — cannot collect |
-| 1 (starting) | 0.10 | Low |
-| 2 (starting) | 0.20 | Standard |
-| 3 | 0.30 | Elevated |
-| 4 | 0.40 | High |
-| 5 | 0.50 | Punishing |
+- Input: `data/domains.json` gains a `civic` domain (no faction references it); `BASE_PROJECT_NAMES`
+  gains `"civic": "Tax Office"`.
+- Output: a buildable Tax Office stack in `civic`; each completed instance feeds Income above.
 
-Tax collection projects belong to the `professions` domain (the Quillsworn — clerks and tax-farmers) and have `category: "tax_collection"`. They have no domain cap effect — their value is purely the rate tier they unlock.
+Rules:
+- **Faction-less domains keep their authored cap.** `_freeze_base_caps` must skip a domain with
+  no factions (leave its authored `cap`/`base_cap` intact) instead of deriving cap 0 from zero
+  fill. `civic` is authored with a nominal cap (e.g. 12) purely so its readout is sane.
+- **Tax Offices do not contribute to domain cap.** The `civic` domain's live cap stays at its
+  authored value as Tax Offices are built (Tax Offices are infrastructure, not influence — they
+  add no `stack_cap_contribution`). No influence domain's cap is affected by Tax Offices.
 
-If a tax collection project is destroyed, any domain currently taxed above the new maximum has its rate automatically capped down to the new maximum next cycle.
-
-**Polis starts with 2** — Tax Collector's Post and District Tax Office — giving a starting maximum rate of 0.20.
-
----
-
-## Faction Tax Exemption
-
-Mayor can exempt a specific faction from taxation for a set number of cycles.
-
-- **Cost:** 1 action point
-- **Duration:** Mayor sets 1–10 cycles at time of granting
-- **Effect:** Exempt faction's weight is excluded from that domain's tax income calculation
-- **Reputation:** Exempted faction gains +5 Mayor reputation per cycle of exemption
-- **Limit:** No more than one exemption per domain at a time
-
-Exemptions are tracked on Mayor:
-```python
-# Mayor.exemptions: Dict[str, int]  →  faction_id: cycles_remaining
-```
-
-Granting an exemption to a powerful faction in a high-rate domain is a significant income sacrifice — a deliberate political tool, not a cheap favor.
+**Done when:**
+- `base_project_name("civic")` returns `"Tax Office"`  `[automated]`
+- After loading `data`, the `civic` domain exists with its authored cap (not overwritten to 0 by the freeze) and utilization 0  `[automated]`
+- Building a Tax Office via `mayor_build_base("civic", ...)` succeeds at the standard base-project cost (50 gold + 1 AP to break ground) and grows the `civic` stack  `[automated]`
+- The `civic` domain's cap is unchanged by building Tax Offices, and no influence domain's cap changes when a Tax Office is built  `[automated]`
+- Tax Offices appear under a "Public Treasury" group in the projects panel, and `civic` does not appear as a faction group in the faction panel  `[human-required]`
 
 ---
 
-## Expenditure
+## Feature: Expenditure (unchanged)
 
-Fixed costs are deducted each cycle automatically.
+Fixed costs deducted each cycle:
 
-| Cost | Amount/cycle | Notes |
-|---|---|---|
-| City guard payroll | 20 gold | Reduced guard = chaos +1 in harbor/trade each cycle; 0 = Public reputation −5/cycle |
-| Infrastructure maintenance | 2 gold × (active projects) | Each project costs ongoing upkeep |
-
-Optional costs (Mayor decides each cycle):
-
-| Cost | Amount | Effect |
-|---|---|---|
-| Emergency guard surge | 50 gold | City-wide chaos −1 this cycle |
-| Public works allocation | 30 gold | The Public: +5 reputation this cycle |
-
----
-
-## The Moneylender
-
-The Moneylender is a special faction (see Special Factions spec) with financial leverage over the city.
-
-### Investing
-
-Mayor can lock gold with the Moneylender for a fixed term.
-
-| Term | Return | Notes |
-|---|---|---|
-| 3 cycles | 110% of invested | Low risk |
-| 6 cycles | 125% of invested | Gold unavailable for emergencies |
-| 12 cycles | 150% of invested | Major commitment |
-
-Only one investment at a time. Investment cannot be recalled early.
-
-### Borrowing
-
-Mayor can borrow gold from the Moneylender at any time.
-
-| Parameter | Value |
+| Cost | Amount/cycle |
 |---|---|
-| Max borrow per cycle | 200 gold |
-| Max total debt | 1000 gold |
-| Base interest rate | 5% per cycle on outstanding debt |
-| High-debt rate (debt > 500) | 10% per cycle |
+| City guard payroll | 20 gold |
+| Infrastructure maintenance | 2 gold × (active base-project instances) |
 
-Interest is deducted from treasury each cycle. If treasury cannot cover interest, debt increases instead.
+`active project count` = `sum(s.active_count() for s in base_stacks.values())` (as today; civic
+Tax Offices are included — each nets +18/cycle). Guard payroll and maintenance behave as in v2.
 
-**Leverage mechanic:**
-
-When debt > 500 gold, the Moneylender gains leverage:
-- Moneylender faction gets +10 to Steal actions against all other factions (they're calling in favors)
-- Mayor's `Withhold Resources` action cannot target the Moneylender faction
-- Moneylender may demand a political concession: reduce tax rate for 3 cycles or debt rate increases by 2%
-
-When debt > 800 gold:
-- Moneylender adds `angry at Mayor` relational trait (moderate)
-- If debt is not reduced in 5 cycles: Moneylender backs a removal coalition attempt
+**Done when:**
+- Guard payroll deducts 20/cycle and maintenance deducts `2 × active_count` when gold covers them  `[automated]`
 
 ---
 
-## Bankruptcy
+## Feature: Insolvency — clamp + infrastructure damage
 
-Treasury < 0 triggers bankruptcy consequences:
+Replaces the v2 bankruptcy ladder. When the cycle's expenditure cannot be fully covered by gold:
 
-| Cycle in deficit | Effect |
-|---|---|
-| Cycle 1 | Guard payroll skipped; chaos +1 in all domains |
-| Cycle 2 | Infrastructure maintenance skipped; all projects pause |
-| Cycle 3 | Public reputation −20; Mayor removal risk triggered |
+- `gold` is **clamped at 0** (never goes negative).
+- The uncovered **shortfall** is converted to damage applied to **random non-civic base-project
+  instances** (Tax Offices are never targeted). Conversion is ~1:1 gold→health points, where one
+  full instance = 100 health: damage reduces a stack top's `progress` (health), and enough damage
+  destroys the top (`count` drops, `active_count` falls). This lowers next cycle's maintenance —
+  self-balancing.
 
-Recovery: if treasury returns to ≥ 0 before cycle 3, consequences stop. Mayor must explain the gap somehow (player narrative — no mechanical mitigation).
+- Input: the deficit (expenditure − available gold), `base_stacks`.
+- Output: gold clamped to 0; one or more non-civic stacks damaged/reduced; a logged result.
+
+**Done when:**
+- When expenditure exceeds available gold, `gold` ends the cycle at exactly 0 (never negative)  `[automated]`
+- An insolvency shortfall reduces total health/`active_count` across non-civic base stacks, and a `civic` Tax Office stack is never damaged by insolvency  `[automated]`
+- A shortfall large enough to exceed an instance's remaining health destroys an instance, so the next cycle's `active_count` (and thus maintenance) is lower  `[automated]`
+- No v2 bankruptcy-ladder effect (guard skip / projects-pause / −20 public rep removal trigger) fires on a deficit  `[automated]`
+
+---
+
+## Deferred to future (not in the demo)
+
+The following v2 mechanics are intentionally out of scope. Engine fields/blocks for some remain
+but are **dormant** (no action sets them); no demo UI exposes them. Full v2 design is in git
+history.
+
+- **Moneylender** — investing (3/6/12-cycle terms) and borrowing (debt, interest, >500/>800
+  leverage). `Treasury.debt`/`invested` stay 0; the invest/debt code paths never trigger.
+- **Per-domain tax-rate tiers** — the 6-tier rate table with per-cycle public-rep / Grow / chaos
+  effects, and **tax_collection projects unlocking rate tiers**. `apply_tax_effects` is a no-op
+  for the demo (all domains effectively rate 0; income is base + Tax Offices only).
+- **Emergency guard surge** (50 gold → chaos −1) and **public works allocation** (30 gold →
+  Public +5).
+- **Bankruptcy ladder** (the 3-cycle deficit consequence table) — replaced by Insolvency above.
+
+**Done when:**
+- The demo exposes no invest, borrow, guard-surge, or public-works action, and adjusting a domain tax rate has no income or reputation effect  `[human-required]`
 
 ---
 
 ## Starting Balance
 
-Starting gold is set in city data. Default: 500 gold.
-
-Starting projects determine first-cycle infrastructure maintenance cost. A city with 5 harbor wharves and a city wall has a different baseline than a bare city.
+Starting gold from city data (default 500). With base income 20/cycle and guard payroll 20/cycle,
+a city with no Tax Offices roughly breaks even before maintenance — so building the first Tax
+Office is the first real economic decision.

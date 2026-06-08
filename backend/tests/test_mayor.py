@@ -1,6 +1,6 @@
 """Tests for Mayor and Treasury — actions, reputation, income, expenditure."""
 import pytest
-from engine.models import Mayor, Treasury, Faction, Domain, FactionTrait, Leader, MayorAction, WorldState
+from engine.models import Mayor, Treasury, Faction, Domain, FactionTrait, Leader, MayorAction, WorldState, BaseProjectStack
 from engine.mayor.treasury import (
     process_treasury_step0, apply_tax_effects,
     borrow_from_moneylender, invest_with_moneylender,
@@ -42,10 +42,10 @@ class TestTreasuryIncome:
         factions = {"f1": make_faction(floor=2)}
         domains = {"trade": make_domain()}
         results = process_treasury_step0(treasury, mayor, factions, domains)
-        # floor=2 → faction_weight=2; default rate 0.20; income = 2 * 0.20 * 10 = 4
+        # treasury_spec v3: income = flat base 20 (no Tax Offices); factions no longer tax.
         income_results = [r for r in results if r.action == "TaxIncome"]
         assert len(income_results) == 1
-        assert treasury.income_this_cycle == 4
+        assert treasury.income_this_cycle == 20
 
     def test_guard_payroll_deducted(self):
         treasury = make_treasury(gold=500)
@@ -56,14 +56,15 @@ class TestTreasuryIncome:
         # Should have deducted 20 gold for guard payroll
         assert treasury.expenditure_this_cycle >= 20
 
-    def test_guard_payroll_skipped_if_broke(self):
+    def test_guard_payroll_paid_from_base_income(self):
+        # treasury_spec v3: base income (20) covers guard payroll (20), so a city
+        # starting at 0 gold still pays the guard — it is not skipped.
         treasury = make_treasury(gold=0)
         mayor = make_mayor()
-        factions = {}
-        domains = {}
-        results = process_treasury_step0(treasury, mayor, factions, domains)
+        results = process_treasury_step0(treasury, mayor, {}, {}, base_stacks={})
         skipped = [r for r in results if r.action == "GuardPayroll" and r.outcome == "fail"]
-        assert len(skipped) == 1
+        assert len(skipped) == 0
+        assert treasury.expenditure_this_cycle >= 20   # guard paid
 
     def test_debt_interest_applied(self):
         treasury = make_treasury(gold=500, debt=200, debt_rate=0.05)
@@ -79,7 +80,8 @@ class TestTreasuryIncome:
         mature = [r for r in results if r.action == "InvestmentMature"]
         assert len(mature) == 1
         assert treasury.invested == 0
-        assert treasury.gold == 300  # 100 base + 200*1.10=220 payout - 20 guard = 300
+        # v3: 100 start + 20 base income + 200*1.10=220 payout - 20 guard = 320
+        assert treasury.gold == 320
 
     def test_cycle_totals_reset(self):
         treasury = make_treasury(gold=500)
@@ -271,8 +273,10 @@ class TestMayorCycleIntegration:
         domains = {"trade": make_domain("trade")}
         mayor = make_mayor()
         treasury = make_treasury(gold=500)
-        run_cycle(world, factions, domains, mayor=mayor, treasury=treasury)
-        # gold should change (income - guard payroll - any maintenance)
+        # v3: a Tax Office makes income (40) exceed guard payroll, so gold moves.
+        base_stacks = {"civic": BaseProjectStack(name="Tax Office", domains=["civic"],
+                                                 count=1, completed=True, progress=100.0)}
+        run_cycle(world, factions, domains, mayor=mayor, treasury=treasury, base_stacks=base_stacks)
         assert treasury.gold != 500
 
     def test_mayor_refills_each_cycle(self):
@@ -301,6 +305,9 @@ class TestMayorCycleIntegration:
         mayor = make_mayor(action_points=6)
         treasury = make_treasury(gold=500)
         start_gold = treasury.gold
+        # v3: a Tax Office gives net positive income so the economy visibly moves.
+        base_stacks = {"civic": BaseProjectStack(name="Tax Office", domains=["civic"],
+                                                 count=1, completed=True, progress=100.0)}
         for _ in range(3):
-            run_cycle(world, factions, domains, mayor=mayor, treasury=treasury)
+            run_cycle(world, factions, domains, mayor=mayor, treasury=treasury, base_stacks=base_stacks)
         assert treasury.gold != start_gold  # gold moved with no player treasury action

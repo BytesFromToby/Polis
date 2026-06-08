@@ -151,6 +151,11 @@ def _freeze_base_caps(domains: Dict[str, Domain]) -> None:
     the live cap to match. Called once at load; authored `cap` in domains.json is
     ignored for the budget. Projects move the live cap from here (see runner)."""
     for domain in domains.values():
+        if domain.utilization == 0:
+            # Faction-less infrastructure lane (e.g. civic / Public Treasury): the
+            # fill-based formula doesn't apply — keep its authored cap (treasury_spec v3).
+            domain.base_cap = domain.cap
+            continue
         domain.base_cap = base_cap_from_fill(domain.utilization)
         domain.cap = domain.base_cap
 
