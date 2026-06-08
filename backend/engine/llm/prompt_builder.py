@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Optional
 
+from engine.projects import base_project_name, base_project_description
+
 if TYPE_CHECKING:
     from engine.models import Faction, Mayor
     from sqlalchemy.orm import Session
@@ -77,7 +79,7 @@ VALID_MAYOR_TERMS_TEMPLATE = """What the {title} can offer you:
 VALID_FACTION_TERMS_TEMPLATE = """What you can commit to (one commitment, every turn for 1–10 cycles):
 - Grow — invest in your own strength; no target
 - Protect — raise your defenses; you take less Harm from ALL rivals; no target
-- BuildProject — work to build a specific city project; name the project
+- BuildProject — work to build {project_name} ({project_desc}); target it by your domain id below
 - Refrain from Harm or Steal against one named faction"""
 
 SYSTEM_TEMPLATE = """{tone_line}
@@ -123,7 +125,7 @@ Each entry in "mayor_terms" and "faction_terms" MUST be a JSON object — never 
 - Your terms ("faction_terms") — commit to exactly ONE:
   - {{"type": "committed_action", "action": "Grow", "duration": <1-10>}}
   - {{"type": "committed_action", "action": "Protect", "duration": <1-10>}}
-  - {{"type": "committed_action", "action": "BuildProject", "target_id": "<a project id>", "duration": <1-10>}}
+  - {{"type": "committed_action", "action": "BuildProject", "target_id": "{domain}", "duration": <1-10>}}
   - {{"type": "committed_abstain", "action": "Harm" | "Steal", "target_id": "<a faction id>", "duration": <1-10>}}
 
 If you accept, "faction_terms" must contain at least one object stating what you commit to in return — an accepted deal where you give nothing will be rejected.
@@ -262,7 +264,10 @@ class PromptBuilder:
         valid_mayor = VALID_MAYOR_TERMS_TEMPLATE.format(title=player_title)
 
         valid_actions = "BuildProject, Protect, Grow"
-        valid_faction = VALID_FACTION_TERMS_TEMPLATE.format(valid_actions=valid_actions)
+        valid_faction = VALID_FACTION_TERMS_TEMPLATE.format(
+            project_name=base_project_name(faction.domain_primary),
+            project_desc=base_project_description(faction.domain_primary),
+        )
 
         return SYSTEM_TEMPLATE.format(
             tone_line=tone_line,

@@ -286,6 +286,21 @@ def base_project_name(domain_id: str) -> str:
     return BASE_PROJECT_NAMES.get(domain_id, f"{domain_id.replace('_', ' ').title()} Works")
 
 
+# One-line effect per base project, single source of truth for prompt/UI/docs. All v6 base
+# projects mechanically do the same thing — building raises the domain's cap (its influence
+# ceiling), so its factions get more room to grow. Authored per domain for future distinct
+# effects; falls back to a generic sentence for any unlisted domain.
+BASE_PROJECT_DESCRIPTIONS: Dict[str, str] = {}
+
+
+def base_project_description(domain_id: str) -> str:
+    label = domain_id.replace("_", " ")
+    return BASE_PROJECT_DESCRIPTIONS.get(
+        domain_id,
+        f"Raises the {label} domain's capacity, giving its factions room to grow.",
+    )
+
+
 def new_base_stacks(domains) -> Dict[str, "BaseProjectStack"]:
     """One empty BaseProjectStack per domain id (count 0). Built at game start —
     base projects are erected during play, not seeded (projects_spec v6)."""

@@ -53,9 +53,25 @@ def test_prompt_explains_each_term():
     p = _build_prompt()
     assert "Grow" in p
     assert "Protect" in p and "ALL" in p          # "less Harm from ALL rivals"
-    assert "BuildProject" in p and "project" in p
+    assert "BuildProject" in p and "Agora" in p    # the trade faction's own buildable, named
     assert "endorsement" in p.lower()
     assert "Refrain" in p                          # committed_abstain, plain language
+
+
+# (b3) the prompt names the faction's OWN buildable + targets it by domain id
+# (audience-build-target-info_spec)
+def test_prompt_names_own_buildable_and_domain_target():
+    from engine.projects import base_project_description
+    p = _build_prompt()                            # faction: domain_primary="trade" → "Agora"
+    assert "Agora" in p
+    assert base_project_description("trade") in p
+    # BuildProject <deal> target is the faction's domain id, not a free-text project id
+    build_line = next(l for l in p.split("\n") if '"BuildProject"' in l)
+    assert '"target_id": "trade"' in build_line
+    assert "<a project id>" not in p
+    assert "dock_expansion" not in p
+    # only the faction's own buildable appears — not other domains' base projects
+    assert "Docks" not in p and "Barracks" not in p
 
 
 # (b2) tax exemption is shelved — the prompt offers only endorsement (tax-exemption-shelve_spec)

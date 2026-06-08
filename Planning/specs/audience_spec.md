@@ -106,10 +106,10 @@ Exactly one of the following, repeated every turn for N cycles (N = 1–10):
 |---|---|---|
 | `committed_action` · `Grow` | The faction invests in its own strength (raises rating/health) | none |
 | `committed_action` · `Protect` | The faction defends itself — higher entrenchment and reduced incoming Harm from **all** rivals | none |
-| `committed_action` · `BuildProject` | The faction works to build a specific city project | a project |
+| `committed_action` · `BuildProject` | The faction works to build **its own domain's** base project (named in the prompt) | its domain id |
 | `committed_abstain` | The faction refrains from Harm or Steal against one named faction | a faction |
 
-**Targeting is per-action.** Only `BuildProject` (target = a project) and `committed_abstain`
+**Targeting is per-action.** Only `BuildProject` (target = the faction's own domain id) and `committed_abstain`
 (target = a faction) take a target. `Grow` and `Protect` are untargeted; any `target_id`
 supplied for them is dropped by the parser.
 
@@ -160,7 +160,7 @@ The player's second and final input. They accept what's on the table, modify the
     { "type": "endorsement" }
   ],
   "faction_terms": [
-    { "type": "committed_action", "action": "BuildProject", "target_id": "dock_expansion", "duration": 4 }
+    { "type": "committed_action", "action": "BuildProject", "target_id": "harbor", "duration": 4 }
   ],
   "rep_cost_if_broken_by_mayor": 25,
   "memory_note": "agreed tax break for dock construction support",
