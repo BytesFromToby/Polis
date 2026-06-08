@@ -84,10 +84,8 @@ Click **Actions** for the menu. Your tools:
 
 | Lever | Cost | What it does |
 |---|---|---|
-| **Meet with Faction** | 1 AP | A friendly visit — a small, immediate goodwill bump with that faction. |
 | **Publicly Endorse** | 1 AP | Boosts one faction's regard for you — but annoys its rivals in the same domain. |
 | **Publicly Condemn** | 1 AP | Damages a faction's regard for you, while its rivals quietly approve. |
-| **Grant Tax Exemption** | 1 AP | Frees a faction from taxes for a few cycles. They love you; their domain rivals resent the favoritism. |
 | **Sabotage** | 1 AP + gold | Covertly sets a faction back — bounded, and they'll know it was you. |
 | **Build Project** | 1 AP + gold | Start, advance, or repair a city project in any domain. Raises that domain's ceiling. |
 | **Request an Audience** | 1 AP | Sit down and negotiate. The headline feature — see below. |
@@ -95,7 +93,7 @@ Click **Actions** for the menu. Your tools:
 
 Everything you do moves **reputation** — with each faction, and with **The Public**. Reputation drifts back toward neutral when you leave it alone, so relationships need tending. Let too many factions turn hostile, or the Public sour on you, and the removal spiral begins (see [Staying in the Chair](#staying-in-the-chair)).
 
-> **A note on favoritism.** Almost every favor has a cost somewhere else. Endorse a house and its rivals bristle; exempt a guild and the rest of its domain grumbles. There is no move that pleases everyone — that tension *is* the game.
+> **A note on favoritism.** Almost every favor has a cost somewhere else. Endorse a house and its rivals bristle; favor one faction and the rest of its domain grumbles. There is no move that pleases everyone — that tension *is* the game.
 
 ---
 
@@ -115,7 +113,7 @@ Open one from **Request Audience** (center) or a faction card's **Audience** but
 
 **What can be in a deal:**
 
-- **You can offer:** a tax exemption (a few cycles tax-free) or an endorsement (an immediate boost to your standing with them).
+- **You can offer:** an endorsement (an immediate boost to your standing with them).
 - **They can commit to:** growing their strength, protecting themselves, building a specific city project, or refraining from attacking a named rival — held to it, every cycle, for the agreed term.
 
 Once sealed, a deal **runs and is enforced**. The faction does what it promised; you provide what you offered. If the faction can't carry out its promise some cycle (no valid target, say), the deal politely pauses rather than breaking.
@@ -148,7 +146,7 @@ A gentle on-ramp:
 
 1. **Look before you leap.** Read the Event Log and skim the Factions list. Who's strong? Who's fighting whom? Which domains are crowded?
 2. **Make a friend.** Pick a faction you'd like on side and **Meet** with them, or **Endorse** them — but glance at their domain rivals first, since they'll feel the snub.
-3. **Hold an audience.** (Configure an AI in Settings first.) Sit down with a leader, hear them out, and try for a modest deal — a short tax exemption in exchange for them building a project, say. Confirm only if the terms suit you.
+3. **Hold an audience.** (Configure an AI in Settings first.) Sit down with a leader, hear them out, and try for a modest deal — your endorsement in exchange for them building a project, say. Confirm only if the terms suit you.
 4. **Run a few cycles.** Press **Run Cycle** and watch the city move. Read what your deal partner actually does. Notice how reputation drifts when you're hands-off.
 5. **Adjust.** Reinforce what's working, mend what's fraying. You're not steering the city — you're nudging it, one relationship at a time.
 

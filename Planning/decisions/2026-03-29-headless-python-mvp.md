@@ -55,6 +55,11 @@ All dramatic events appear in both logs. Non-dramatic events appear only in `sys
 
 The engine uses no third-party packages. All code runs on a standard Python 3.10+ installation with no `pip install` required. This reduces setup friction and keeps the dependency surface at zero.
 
+> **Superseded in part (2026-06-08):** still true for `engine/` — it imports only the standard
+> library. But the project has since grown an API/DB/UI layer (FastAPI, SQLAlchemy, Uvicorn,
+> pydantic, etc.) and a test suite, so running the *full app* now needs `pip install -r
+> requirements.txt`. The "zero dependencies" property is the **engine's**, not the whole project's.
+
 ### Deferred Features
 
 The following features are explicitly out of scope for v1:

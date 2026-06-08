@@ -20,6 +20,7 @@
     - Population, food, and disaster systems
     - City-wide Project implementation (mechanics ready, thematic content pending)
     - Mayor advancement (dynamic respect scaling based on city growth)
+    - Self-improving AI groundwork: every live audience is captured to a structured JSONL corpus (`backend/logs/audiences.jsonl`) — the dataset for a future fine-tuned, packaged small model that runs the factions without per-call API cost
 
 This is a **foundation-ready** codebase. The hard problems of state safety, emergence, and AI integration are solved; next comes content scaling and game feel tuning.
 
@@ -34,7 +35,7 @@ Want to run the simulation, play as the Mayor, or dive into the code?
 Polis moves beyond standard "chat-with-NPC" tropes by treating AI as a **negotiation layer** rather than a narrative generator. Six choices give it stability, emergence, and player agency.
 
 ### 1. An LLM Whose Words Become Rules — and the Engine Trusts None of Them
-Audiences aren't flavor text. When a faction leader agrees to a deal, their spoken terms are parsed into a structured `<deal>` block and validated against what is mechanically possible (known action types, valid IDs, legal tax rates, clamped durations). Invalid terms are silently dropped; one-sided deals are rejected. A malformed model response degrades to "no deal" — never a crash, never an illegal state mutation. **The model proposes; the rules engine disposes.**
+Audiences aren't flavor text. When a faction leader agrees to a deal, their spoken terms are parsed into a structured `<deal>` block and validated against what is mechanically possible (known action types, valid IDs, clamped durations). Invalid terms are silently dropped; one-sided deals are rejected. A malformed model response degrades to "no deal" — never a crash, never an illegal state mutation. **The model proposes; the rules engine disposes.**
 
 And even a *valid* acceptance doesn't bind on its own — the human Mayor must **confirm** it. This keeps the probabilistic LLM from unilaterally writing durable state and makes the player the commit point for every consequence.
 *   **Why It Matters:** Players aren't roleplaying; they are making binding contracts that alter the math of the world. If a faction later breaks a deal, the engine records it — reputation drops and consequences cascade into future cycles. That is genuine accountability.
@@ -52,7 +53,7 @@ Factions remember their history with the Mayor, but memory is finite. As interac
 The `engine/` directory is a pure Python library that imports **only the standard library**. No web frameworks, no database calls, no I/O.
 *   **The Architecture:** The API, database, and UI wrap this engine; they do not reach into it. This separation ensures the simulation logic is:
     *   **Fast:** The full suite runs in ~1 second.
-    *   **Testable:** 268 unit tests verify every formula and state transition.
+    *   **Testable:** 372 unit tests verify every formula and state transition.
     *   **Portable:** It can run headless, in the browser, or inside a backend service with zero dependencies.
 *   **Why It Matters:** This proves the codebase is engineered for longevity and reliability, not just prototyping.
 
@@ -62,7 +63,7 @@ The system uses a decoupled three-layer architecture (Engine ↔ Prompt Adapter 
 2.  **Offline Stub:** A deterministic fallback for zero-dependency testing.
 3.  **Future Path:** Integration with a purpose-built, fine-tuned small language model (SLM) optimized for negotiation logic.
 
-*   **The Benefit:** The full game and test suite run with **zero external dependencies** by default (using the stub). This architecture ensures immediate portability today, while paving the way for fully self-hosted, low-latency AI operations tomorrow.
+*   **The Benefit:** The game runs fully **offline by default** — the stub needs no AI provider, API key, or network, so the whole loop and test suite work without any model configured. This ensures immediate portability today, while paving the way for fully self-hosted, low-latency AI operations tomorrow.
 
 ### 6. Snapshot-Based Persistence
 Saves are engine snapshots (self-contained JSON per cycle), not ORM rows. Loading rehydrates the pure engine objects directly. Forward-only column migrations keep older saves loadable as the schema grows.
@@ -77,7 +78,7 @@ A modern, type-safe stack chosen for performance and testability:
 | **API** | FastAPI + Uvicorn | High-performance async with automatic, self-documenting OpenAPI. |
 | **Database** | SQLite + SQLAlchemy | Lightweight persistence, forward-compatible schema migrations. |
 | **Frontend** | Vue 3 + Vite | Reactive UI, fast build times, clean component separation. |
-| **Testing** | pytest | Strict test coverage (268+ tests) tied to spec criteria. |
+| **Testing** | pytest | Strict test coverage (372+ tests) tied to spec criteria. |
 
 > *Note: The frontend layer is intentionally decoupled from `engine/`. Future builds may replace Vue 3 with alternative UI frameworks without affecting simulation logic.*
 
