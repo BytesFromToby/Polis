@@ -59,6 +59,27 @@
             </div>
           </div>
 
+          <!-- Construction -->
+          <div class="action-group">
+            <div class="group-label">Construction</div>
+
+            <!-- Build Project -->
+            <div class="action-row" :class="{ disabled: ap < 1 || busy }">
+              <div class="action-row-header">
+                <span class="action-name">Build Project</span>
+                <span class="ap-cost">1 AP · gold</span>
+              </div>
+              <select v-model="targetDomain" class="act-select">
+                <option value="">Select domain</option>
+                <option v-for="(d, id) in domains" :key="id" :value="id">
+                  {{ d.name || id }}{{ d.base_project_name ? ' — ' + d.base_project_name : '' }}
+                </option>
+              </select>
+              <div class="action-hint">Break ground / fund a project (50g) or repair (+25 health, 30g) · 1 AP</div>
+              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('BuildProject', targetDomain)">Act</button>
+            </div>
+          </div>
+
         </div>
 
         <!-- RIGHT COLUMN -->
@@ -99,22 +120,6 @@
               </select>
               <div class="action-hint">rank −50% of margin · health −50% · rep −10 · 1 AP + 50 gold</div>
               <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || gold < 50 || busy" @click="doAct('Sabotage', targetFaction)">Act</button>
-            </div>
-
-            <!-- Build Project -->
-            <div class="action-row" :class="{ disabled: ap < 1 || busy }">
-              <div class="action-row-header">
-                <span class="action-name">Build Project</span>
-                <span class="ap-cost">1 AP · gold</span>
-              </div>
-              <select v-model="targetDomain" class="act-select">
-                <option value="">Select domain</option>
-                <option v-for="(d, id) in domains" :key="id" :value="id">
-                  {{ d.name || id }}{{ d.base_project_name ? ' — ' + d.base_project_name : '' }}
-                </option>
-              </select>
-              <div class="action-hint">Break ground / fund a unit (50g) or repair (+25 health, 30g) · 1 AP</div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('BuildProject', targetDomain)">Act</button>
             </div>
           </div>
 

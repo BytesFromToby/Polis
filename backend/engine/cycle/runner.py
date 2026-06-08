@@ -17,7 +17,7 @@ from ..models import (
 from ..formulas import faction_weight, stack_cap_contribution
 from ..events import process_world_chaos, process_active_events, roll_for_random_events
 from .resolution import run_sequential_actions
-from .end_of_cycle import run_end_of_cycle, run_leadership_events, run_break_sweep
+from .end_of_cycle import run_end_of_cycle, run_leadership_events, run_break_sweep, tick_deals
 
 
 # ── CycleEvent Conversion ─────────────────────────────────────────────────────
@@ -127,6 +127,9 @@ def run_cycle(
     run_end_of_cycle(world, factions, domains, all_results, cycle_num, logger)
     run_leadership_events(factions, all_results, cycle_num, logger)
     run_break_sweep(factions, all_results, cycle_num, logger)
+    # Tick active deals: decrement cycles_remaining, check compliance, expire (audience_spec).
+    if mayor is not None:
+        tick_deals(mayor, factions, all_results, cycle_num, logger=logger)
 
     # ── Step 8: Active game events ────────────────────────────────────────────
     if active_events:
