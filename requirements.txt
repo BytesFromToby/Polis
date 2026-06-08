@@ -19,6 +19,7 @@ cryptography>=46.0
 
 # Testing
 pytest>=8.0
+httpx>=0.27,<1.0   # required by FastAPI's TestClient in the API tests
 
 # Optional LLM providers — needed only for live faction audiences.
 # The engine runs with a built-in stub client if these are absent.
