@@ -21,7 +21,29 @@
         <div v-if="step >= 1">
           <div class="turn faction-turn">
             <div class="turn-label">{{ factionName }}</div>
-            <div class="turn-text">{{ step1 }}</div>
+            <div class="turn-text">{{ step1Parsed.prose }}</div>
+          </div>
+          <div v-if="step1Parsed.deal" class="confirm-box deal-card">
+            <div class="confirm-label">Proposed deal</div>
+            <div class="terms-grid">
+              <div class="terms-col">
+                <div class="terms-head">You give</div>
+                <div v-if="step1Parsed.deal.mayor_terms && step1Parsed.deal.mayor_terms.length">
+                  <div v-for="(t, i) in step1Parsed.deal.mayor_terms" :key="'d1m'+i" class="term-row">{{ termLabel(t) }}</div>
+                </div>
+                <div v-else class="term-row muted">—</div>
+              </div>
+              <div class="terms-col">
+                <div class="terms-head">They give</div>
+                <div v-if="step1Parsed.deal.faction_terms && step1Parsed.deal.faction_terms.length">
+                  <div v-for="(t, i) in step1Parsed.deal.faction_terms" :key="'d1f'+i" class="term-row">{{ termLabel(t) }}</div>
+                </div>
+                <div v-else class="term-row muted">—</div>
+              </div>
+            </div>
+            <div v-if="step1Parsed.deal.rep_cost_if_broken_by_mayor != null" class="deal-line">Breaking this costs you {{ step1Parsed.deal.rep_cost_if_broken_by_mayor }} reputation.</div>
+            <div v-if="step1Parsed.deal.memory_note" class="deal-line muted">Note: {{ step1Parsed.deal.memory_note }}</div>
+            <div v-if="step1Parsed.deal.reasoning" class="deal-why muted">Why: {{ step1Parsed.deal.reasoning }}</div>
           </div>
           <div class="deal-status">{{ statusAfter1 }}</div>
         </div>
@@ -42,7 +64,29 @@
         <div v-if="step >= 3">
           <div class="turn faction-turn">
             <div class="turn-label">{{ factionName }}</div>
-            <div class="turn-text">{{ step3 }}</div>
+            <div class="turn-text">{{ step3Parsed.prose }}</div>
+          </div>
+          <div v-if="step3Parsed.deal" class="confirm-box deal-card">
+            <div class="confirm-label">Proposed deal</div>
+            <div class="terms-grid">
+              <div class="terms-col">
+                <div class="terms-head">You give</div>
+                <div v-if="step3Parsed.deal.mayor_terms && step3Parsed.deal.mayor_terms.length">
+                  <div v-for="(t, i) in step3Parsed.deal.mayor_terms" :key="'d3m'+i" class="term-row">{{ termLabel(t) }}</div>
+                </div>
+                <div v-else class="term-row muted">—</div>
+              </div>
+              <div class="terms-col">
+                <div class="terms-head">They give</div>
+                <div v-if="step3Parsed.deal.faction_terms && step3Parsed.deal.faction_terms.length">
+                  <div v-for="(t, i) in step3Parsed.deal.faction_terms" :key="'d3f'+i" class="term-row">{{ termLabel(t) }}</div>
+                </div>
+                <div v-else class="term-row muted">—</div>
+              </div>
+            </div>
+            <div v-if="step3Parsed.deal.rep_cost_if_broken_by_mayor != null" class="deal-line">Breaking this costs you {{ step3Parsed.deal.rep_cost_if_broken_by_mayor }} reputation.</div>
+            <div v-if="step3Parsed.deal.memory_note" class="deal-line muted">Note: {{ step3Parsed.deal.memory_note }}</div>
+            <div v-if="step3Parsed.deal.reasoning" class="deal-why muted">Why: {{ step3Parsed.deal.reasoning }}</div>
           </div>
           <div class="deal-status">{{ statusAfter3 }}</div>
         </div>
@@ -63,7 +107,29 @@
         <div v-if="step >= 5">
           <div class="turn faction-turn" :class="step5TurnClass">
             <div class="turn-label">{{ factionName }}</div>
-            <div class="turn-text">{{ step5 }}</div>
+            <div class="turn-text">{{ step5Parsed.prose }}</div>
+          </div>
+          <div v-if="step5Parsed.deal" class="confirm-box deal-card">
+            <div class="confirm-label">Proposed deal</div>
+            <div class="terms-grid">
+              <div class="terms-col">
+                <div class="terms-head">You give</div>
+                <div v-if="step5Parsed.deal.mayor_terms && step5Parsed.deal.mayor_terms.length">
+                  <div v-for="(t, i) in step5Parsed.deal.mayor_terms" :key="'d5m'+i" class="term-row">{{ termLabel(t) }}</div>
+                </div>
+                <div v-else class="term-row muted">—</div>
+              </div>
+              <div class="terms-col">
+                <div class="terms-head">They give</div>
+                <div v-if="step5Parsed.deal.faction_terms && step5Parsed.deal.faction_terms.length">
+                  <div v-for="(t, i) in step5Parsed.deal.faction_terms" :key="'d5f'+i" class="term-row">{{ termLabel(t) }}</div>
+                </div>
+                <div v-else class="term-row muted">—</div>
+              </div>
+            </div>
+            <div v-if="step5Parsed.deal.rep_cost_if_broken_by_mayor != null" class="deal-line">Breaking this costs you {{ step5Parsed.deal.rep_cost_if_broken_by_mayor }} reputation.</div>
+            <div v-if="step5Parsed.deal.memory_note" class="deal-line muted">Note: {{ step5Parsed.deal.memory_note }}</div>
+            <div v-if="step5Parsed.deal.reasoning" class="deal-why muted">Why: {{ step5Parsed.deal.reasoning }}</div>
           </div>
           <div class="deal-status" :class="statusToneClass">{{ statusAfter5 }}</div>
         </div>
@@ -240,8 +306,23 @@ export default {
       if (this.finalState === 'mayor_declined') return 'You Declined'
       return 'No Deal'
     },
+    step1Parsed() { return this.parseTurn(this.step1 || '') },
+    step3Parsed() { return this.parseTurn(this.step3 || '') },
+    step5Parsed() { return this.parseTurn(this.step5 || '') },
   },
   methods: {
+    parseTurn(text) {
+      // Split a faction turn into clean prose + an optional parsed <deal> object.
+      // A malformed deal block is stripped but yields no card (deal: null).
+      const open = text.indexOf('<deal>')
+      if (open === -1) return { prose: text, deal: null }
+      const prose = text.slice(0, open).trim()
+      const close = text.indexOf('</deal>', open)
+      const json = text.slice(open + '<deal>'.length, close === -1 ? undefined : close)
+      let deal = null
+      try { deal = JSON.parse(json) } catch { deal = null }
+      return { prose, deal }
+    },
     maybeClose() {
       if (this.phase === 'idle' || this.phase === 'done') this.$emit('close')
     },
@@ -457,6 +538,11 @@ export default {
 }
 .term-row { font-size: 0.8rem; padding: 0.1rem 0; }
 .confirm-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+
+/* Proposed-deal card (in-transcript; mirrors confirm-box, visually quieter) */
+.deal-card { border-color: var(--border); background: rgba(255, 255, 255, 0.03); margin-top: 0.4rem; }
+.deal-line { font-size: 0.78rem; padding: 0.1rem 0; }
+.deal-why { font-size: 0.74rem; font-style: italic; padding: 0.2rem 0 0; }
 
 /* Deal outcome */
 .deal-banner {
