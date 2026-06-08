@@ -144,6 +144,10 @@ history.
 - **Emergency guard surge** (50 gold → chaos −1) and **public works allocation** (30 gold →
   Public +5).
 - **Bankruptcy ladder** (the 3-cycle deficit consequence table) — replaced by Insolvency above.
+- **Faction tax exemption** — had no income effect under v3 (income = base + Tax Offices, not
+  faction-weighted), so it is shelved: no UI action, not offered in audiences. The engine
+  exemption machinery (`mayor.exemptions`, domain jealousy) remains dormant. See
+  `tax-exemption-shelve_spec.md`.
 
 **Done when:**
 - The demo exposes no invest, borrow, guard-surge, or public-works action, and adjusting a domain tax rate has no income or reputation effect  `[human-required]`

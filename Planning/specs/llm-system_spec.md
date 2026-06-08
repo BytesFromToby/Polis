@@ -291,7 +291,8 @@ Parses the LLM's step 5 conclusion output.
 #### Validation
 
 ```python
-VALID_MAYOR_TERM_TYPES = {"tax_exemption", "endorsement"}
+VALID_MAYOR_TERM_TYPES = {"tax_exemption", "endorsement"}  # tax_exemption dormant: still
+# parsed if present, but no longer offered in the prompt (tax-exemption-shelve_spec.md)
 VALID_FACTION_TERM_TYPES = {"committed_action", "committed_abstain"}
 VALID_FACTION_ACTIONS = {"BuildProject", "Protect", "Grow"}
 DURATION_RANGE = range(1, 11)

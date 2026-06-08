@@ -89,25 +89,6 @@
           <div class="action-group">
             <div class="group-label">Economic</div>
 
-            <!-- Grant Tax Exemption -->
-            <div class="action-row" :class="{ disabled: ap < 1 || busy }">
-              <div class="action-row-header">
-                <span class="action-name">Grant Tax Exemption</span>
-                <span class="ap-cost">1 AP</span>
-              </div>
-              <select v-model="exemptFaction" class="act-select">
-                <option value="">Select faction</option>
-                <option v-for="f in factionList" :key="f.id" :value="f.id">{{ f.name }}</option>
-              </select>
-              <div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.25rem">
-                <span class="action-hint" style="margin:0">Cycles:</span>
-                <input v-model.number="exemptCycles" type="number" min="1" max="10"
-                       style="width:48px; padding:0.2rem 0.3rem; font-size:0.8rem" />
-                <span class="action-hint" style="margin:0">(1–10) · 1 per domain limit</span>
-              </div>
-              <button class="btn-primary btn-sm act-btn" :disabled="ap < 1 || busy" @click="doAct('GrantTaxExemption', exemptFaction, '', exemptCycles)">Act</button>
-            </div>
-
             <!-- Sabotage -->
             <div class="action-row" :class="{ disabled: ap < 1 || gold < 50 || busy }">
               <div class="action-row-header">
@@ -163,8 +144,6 @@ export default {
       busy: false,
       targetFaction: '',
       targetDomain: '',
-      exemptFaction: '',
-      exemptCycles: 5,
     }
   },
   watch: {
@@ -188,7 +167,7 @@ export default {
     factionName(id) {
       return this.factions[id]?.name || id
     },
-    async doAct(action, targetId = '', targetId2 = '', cycles = this.exemptCycles) {
+    async doAct(action, targetId = '', targetId2 = '', cycles = 0) {
       this.actError = null
       this.lastResult = null
       this.busy = true

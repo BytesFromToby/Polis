@@ -54,9 +54,20 @@ def test_prompt_explains_each_term():
     assert "Grow" in p
     assert "Protect" in p and "ALL" in p          # "less Harm from ALL rivals"
     assert "BuildProject" in p and "project" in p
-    assert "tax" in p.lower()
     assert "endorsement" in p.lower()
     assert "Refrain" in p                          # committed_abstain, plain language
+
+
+# (b2) tax exemption is shelved — the prompt offers only endorsement (tax-exemption-shelve_spec)
+def test_prompt_offers_only_endorsement():
+    p = _build_prompt()
+    assert "endorsement" in p.lower()
+    assert "tax exemption" not in p.lower()
+    assert "tax_exemption" not in p.lower()
+    # the <deal> schema's mayor_terms explanation line offers endorsement, not tax_exemption
+    mayor_terms_line = next(l for l in p.split("\n") if '("mayor_terms")' in l)
+    assert "endorsement" in mayor_terms_line
+    assert "tax_exemption" not in mayor_terms_line
 
 
 # (c) target_id is shown only for BuildProject and committed_abstain

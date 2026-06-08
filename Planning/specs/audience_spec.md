@@ -91,8 +91,12 @@ you from House X," because Protect has no target.
 
 | Term | What it does | Target | Constraint |
 |---|---|---|---|
-| `tax_exemption` | Exempts the faction from taxation for N cycles | — | N = 1–10; max one exemption per domain at a time |
 | `endorsement` | Immediate +10 reputation with the Mayor | — | No constraint |
+
+> **`tax_exemption` is deferred (shelved 2026-06-08).** It had no income effect under
+> treasury_spec v3 (income = base + Tax Offices), so it is no longer offered to factions —
+> `endorsement` is the only Mayor term in the demo. The parser still accepts a stray
+> `tax_exemption` term (dormant); see `tax-exemption-shelve_spec.md`.
 
 ### Faction can commit to (one per deal):
 
@@ -116,7 +120,7 @@ supplied for them is dropped by the parser.
 
 **Done when:**
 - `budget_allocation` appears in no spec, reference doc, or backend source file  `[automated]`
-- The built audience system prompt lists only `tax_exemption` and `endorsement` as Mayor terms, and gives a plain "what it does" line for each faction action (`Grow`, `Protect`, `BuildProject`) and for `committed_abstain`  `[automated]`
+- The built audience system prompt lists only `endorsement` as a Mayor term (`tax_exemption` deferred — see note above), and gives a plain "what it does" line for each faction action (`Grow`, `Protect`, `BuildProject`) and for `committed_abstain`  `[automated]`
 - In the prompt's `<deal>` schema, a `target_id` is shown only for `BuildProject` and `committed_abstain` — not for `Grow` or `Protect`  `[automated]`
 - The response parser clears `target_id` on a `committed_action` of `Grow` or `Protect`, and preserves it for `BuildProject`  `[automated]`
 - A `<deal>` that offers `budget_allocation` **alongside** a valid Mayor term drops only `budget_allocation` and still seals on the valid term  `[automated]`
@@ -153,7 +157,7 @@ The player's second and final input. They accept what's on the table, modify the
 {
   "accepted": true | false,
   "mayor_terms": [
-    { "type": "tax_exemption", "duration": 4 }
+    { "type": "endorsement" }
   ],
   "faction_terms": [
     { "type": "committed_action", "action": "BuildProject", "target_id": "dock_expansion", "duration": 4 }

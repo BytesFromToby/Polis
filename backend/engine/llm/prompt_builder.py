@@ -72,7 +72,6 @@ GREEK_BRIEFING = (
 )
 
 VALID_MAYOR_TERMS_TEMPLATE = """What the {title} can offer you:
-{tax_line}
 - Public endorsement (immediate +10 reputation with the {title})"""
 
 VALID_FACTION_TERMS_TEMPLATE = """What you can commit to (one commitment, every turn for 1–10 cycles):
@@ -120,7 +119,7 @@ On your third and final response only, after your closing words, output a <deal>
 </deal>
 
 Each entry in "mayor_terms" and "faction_terms" MUST be a JSON object — never a bare string:
-- {title} terms ("mayor_terms"): {{"type": "tax_exemption", "duration": <1-10>}} or {{"type": "endorsement"}}
+- {title} terms ("mayor_terms"): {{"type": "endorsement"}}
 - Your terms ("faction_terms") — commit to exactly ONE:
   - {{"type": "committed_action", "action": "Grow", "duration": <1-10>}}
   - {{"type": "committed_action", "action": "Protect", "duration": <1-10>}}
@@ -217,19 +216,6 @@ def _memory_notes(run_id: str, faction_id: str, db: "Session") -> str:
         return "- Memory unavailable."
 
 
-def _tax_line(faction: "Faction", mayor: "Mayor", domains: dict) -> str:
-    domain_id = faction.domain_primary
-    # Check if any faction in this domain already has an exemption
-    domain_has_exemption = any(
-        fid != faction.id and mayor.is_exempt(fid) and
-        domains.get(fid) is not None  # crude check — full check in audience flow
-        for fid in mayor.exemptions
-    )
-    if domain_has_exemption:
-        return "- Tax exemption: not currently available — another faction in your domain is already exempt"
-    return "- Tax exemption for 1–10 cycles"
-
-
 # ── Public API ────────────────────────────────────────────────────────────────
 
 class PromptBuilder:
@@ -273,12 +259,7 @@ class PromptBuilder:
         recent_events = _recent_events(run_id, faction.id, db)
         memory_notes = _memory_notes(run_id, faction.id, db)
 
-        tax_line = _tax_line(faction, mayor, factions)
-        valid_mayor = VALID_MAYOR_TERMS_TEMPLATE.format(
-            tax_line=tax_line,
-            domain=faction.domain_primary,
-            title=player_title,
-        )
+        valid_mayor = VALID_MAYOR_TERMS_TEMPLATE.format(title=player_title)
 
         valid_actions = "BuildProject, Protect, Grow"
         valid_faction = VALID_FACTION_TERMS_TEMPLATE.format(valid_actions=valid_actions)
