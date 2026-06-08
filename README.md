@@ -12,7 +12,7 @@
 
 **The core loop is complete and tested.** The simulation engine, treasury logic, mayor actions, live LLM negotiation audiences, and structured deal enforcement all run end-to-end.
 
-- ✅ **Proven Mechanics:** 268 committed tests cover contest math, cycle order, events, and the LLM deal-parser.
+- ✅ **Proven Mechanics:** 372 committed tests cover contest math, cycle order, events, and the LLM deal-parser.
 - ✅ **Stable Engine:** Runs deterministically with zero external dependencies (stub mode) or with live AI providers.
 - ⏳ **Thematic Implementation:** No final art, audio, or UI assets. Visuals rely on raw engine output; placeholder content remains throughout.
 - ⏳ **Content & Systems In Progress:**
