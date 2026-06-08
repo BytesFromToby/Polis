@@ -33,6 +33,7 @@ from api.schemas import (
 from api.sessions import SimSession, get_session
 from db.models import User
 from db.session import get_db
+from engine.llm.audience_log import log_audience
 from engine.mayor.treasury import (
     borrow_from_moneylender, invest_with_moneylender,
     spend_public_works, spend_emergency_guard_surge,
@@ -502,6 +503,8 @@ def audience_conclude(
     # Faction declined → already finalised (memory + cooldown set in the engine); clear state.
     # Faction accepted → keep state for the Mayor's confirmation via /finalize.
     if result.finalized:
+        log_audience(state, faction, session.run_id, session.world.cycle,
+                     outcome="faction_declined")
         session.audience_state = None
 
     return AudienceConcludeResponse(
@@ -553,6 +556,8 @@ def audience_finalize(
     except AudienceError as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
+    log_audience(state, faction, session.run_id, session.world.cycle,
+                 outcome=("accepted_confirmed" if req.mayor_accepts else "accepted_mayor_declined"))
     session.audience_state = None
 
     return AudienceFinalizeResponse(
