@@ -2,7 +2,7 @@
   <div class="title-wrap">
     <div class="title-box">
       <div class="title-city">Polis</div>
-      <div class="title-sub">An emergent political simulation</div>
+      <div class="title-sub">Govern the ungovernable — bargain with AI faction leaders, and live with the deals you strike.</div>
 
       <p v-if="error" class="error-msg" style="margin-bottom:1rem">{{ error }}</p>
 
@@ -10,7 +10,7 @@
         <button class="btn-primary btn-large" @click="showNew = true" :disabled="busy">
           New Game
         </button>
-        <button class="btn-subtle btn-large" @click="openLoad" :disabled="busy">
+        <button class="btn-load btn-large" @click="openLoad" :disabled="busy">
           Load Game
         </button>
       </div>
@@ -174,6 +174,7 @@ export default {
 .title-sub {
   font-size: 0.85rem;
   color: var(--muted);
+  line-height: 1.45;
   margin-bottom: 2rem;
 }
 .btn-group {
@@ -186,6 +187,22 @@ export default {
   padding: 0.7rem 1rem;
   font-size: 1rem;
 }
+/* Secondary title button — clean outline that complements the filled accent New Game,
+   instead of the global filled subtle style. */
+.btn-load {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.btn-load:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(116, 182, 164, 0.10);
+}
+.btn-load:disabled { opacity: 0.5; cursor: default; }
 .field {
   display: flex;
   flex-direction: column;

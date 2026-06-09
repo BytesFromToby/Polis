@@ -2,7 +2,7 @@
 
 > A pure rules engine wrapped in a living conversation. Watch a Greek city rise or fall on the deals you strike.
 
-![Polis — the game view](docs/InPlayScreenshots/Maininterface.png)
+![Polis — the game view](docs/InPlayScreenshots/Polis_Demo.gif)
 
 **Polis** simulates power struggles inside an ancient Greek city-state. Eight spheres of influence are contested by **41 factions** (noble houses, priesthoods, merchant guilds, generals, orators), each with embedded leadership and AI-driven personalities. You play the **Mayor** — historically the *Prytanis*, the city's presiding official, who cannot command, only negotiate.
 
