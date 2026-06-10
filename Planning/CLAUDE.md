@@ -44,6 +44,9 @@ Read top-down within a group; `cycle-runner` is the entry point.
 
 **Not built** (see `proposals/`)
 - [city-generation](proposals/city-generation.md) — procedural city/domain/faction generation
+- [resource-chains](proposals/resource-chains.md) — faction output → city supply gauges → population; gives faction strength material consequences
+- [crisis-and-stance](proposals/crisis-and-stance.md) — disasters as crisis generators + bounded LLM stance layer (rejects LLM-decides-everything; records why)
+- [elections-and-titles](proposals/elections-and-titles.md) — recurring election endgame + dynamic title ladder threaded into the audience prompt
 
 ## Quick pointers
 
