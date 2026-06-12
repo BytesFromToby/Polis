@@ -106,14 +106,15 @@ Return `ActionResult` entries for the cycle log (actor `"the_public"`; narrative
 **Test:** Write `tests/test_needs_drift.py`: drift 30-below rises exactly 10; ≤10 away lands on target; each band's health/support delta; pop +2%/−2%/floor; the demand-scales case (pop 20k→40k with same factions halves `fed_target` via `compute_chain`).
 **Done When:** Every spec Done-when under "Drift, shortage, and plenty" except the drunk-city fixture has a passing test.
 **Stuck If:** Support coupling in `public.py` contradicts the spec's single-value claim.
-- [ ] Complete
+- [x] Complete
+**Deviation:** Support deltas route through `mayor.adjust_reputation("the_public", …)` when a mayor exists (that value is source of truth; `public.support` syncs from it in `process_the_public`); direct `public.support` adjustment only mayorless — matches the existing coupling.
 
 ### Step 2: Drunk-city fixture
 **Build:** In `tests/test_needs_drift.py`, add the drunk-city scenario per spec: balanced baseline city (real `data/factions.json` ratings via loaders) vs. swapped city (winepressers rating 4.0, ovenmen 1.0); iterate `compute_chain` + `apply_needs` 10 cycles each; assert swapped run ends with `happy` above and `fed` below baseline run.
 **Test:** Run the file.
 **Done When:** Fixture passes deterministically (no RNG in chain/drift — there should be none).
 **Stuck If:** Chain/drift turn out to need RNG (they must not — report).
-- [ ] Complete
+- [x] Complete
 
 ---
 End of Slice 3. Builder checkpoint: tests green → continue to Slice 4.
