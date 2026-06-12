@@ -41,11 +41,13 @@ class TestNeedsStepRuns:
 class TestToilingReset:
     def test_flags_false_after_run_cycle_and_boost_consumed(self):
         # Forced Toil via committed_action; same seed with/without the commitment.
+        # fed=50 starts inside drift range of both targets so the boost is visible
+        # (fed=0 would cap both runs at DRIFT_STEP and prove nothing).
         results = {}
         for label, commit in (("toil", True), ("control", False)):
             random.seed(42)
             world, factions, domains = fresh_city()
-            public = ThePublic(fed=0)
+            public = ThePublic(fed=50)
             if commit:
                 for fid in ("eumelidai", "pyrrhidai", "skiadai"):
                     factions[fid].committed_action = "Toil"
@@ -53,8 +55,8 @@ class TestToilingReset:
                       public=public, chains=CHAINS)
             assert all(f.toiling is False for f in factions.values())
             results[label] = public.fed
-        # Toiling producers raised the fed target this cycle → fed drifted at least as far.
-        assert results["toil"] >= results["control"]
+        # Toiling producers raised the fed target this cycle → fed drifted strictly higher.
+        assert results["toil"] > results["control"]
 
 
 class TestSnapshotRoundTrip:

@@ -181,6 +181,7 @@ End of Slice 4. Builder checkpoint: tests green → continue to Slice 5.
 
 ---
 ⛔ End of Slice 5 [inspect]. Run **inspector** on this slice before continuing.
+✅ Inspector: slice 5 PASS (2026-06-12) — report: output/inspect/Inspect_public-needs_slice5_2026-06-12.md; note: TestToilingReset's boost assertion is vacuous at fed=0 (10 ≥ 10) — boost verified by direct drive (fed=50 → 60 vs 50); recommend strict `>` with fed=50 fixture.
 
 ---
 
