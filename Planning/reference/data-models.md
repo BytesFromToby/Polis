@@ -8,7 +8,8 @@ no **Done when:** items. (Re-tiered from `specs/data-models_spec.md`, 2026-05-25
 **Updated:** 2026-05-23 — Aligned with `engine/models.py` (data-models speccheck pass): added `Faction.floor`/`leadership_need`, `ActionResult.margin`; reconciled helper names, outcome values, and field defaults; delegated special-factions/events entities to their own specs.
 **Updated:** 2026-06-03 (demo-redesign) — rank → 1.0–10.0; **`floor` and `entrench` removed** (`level = int(rating)`); domain utilization = Σ level; `power_vacuums` dropped (factions are permanent). *Redesign build landed (2026-06-06) and inspector-verified against `engine/models.py`; this reference is now as-built. See `../proposals/demo-redesign.md` for the original proposal.*
 
-Units removed. Leader embedded in Faction. SM domain removed. Personality system added to Faction.
+Units removed. Leader embedded in Faction. Personality system added to Faction.
+**Updated 2026-06-12:** domain list corrected to the 9 as-built Greek domains (the old 14-domain modern-city list predated the theme).
 
 > **Entities defined elsewhere:** special-factions entities (`ThePublic`, `ThreatEffect`, `ExternalThreat`) live in `../specs/special-factions_spec.md`; events entities (`GameEvent`, `EventEffect`, `CascadeSpec`) live in `../specs/events_spec.md`. They exist in `models.py` but are owned by those specs, not duplicated here.
 
@@ -98,9 +99,10 @@ Examples:
 | `drift` | `float` | `0.0` | Yes | Natural utilization change per cycle |
 | `relationships` | `List[DomainRelationship]` | `[]` | Yes | Domain-to-domain dispositions |
 
-**The 14 domains (Social Media removed):**
+**The 9 domains (as-built — `backend/data/domains.json`):**
 
-Street, Political, Religion, Bureaucracy, Finance, Police, Underworld, Legal, Health, High Society, Industry, Traditional Media, Transportation, University
+aristocracy, temples, military, harbor, trade, guilds, professions, academy, civic
+(civic displays as "Public Treasury" — a faction-less domain whose base project is the Tax Office; see treasury_spec v3)
 
 ---
 
