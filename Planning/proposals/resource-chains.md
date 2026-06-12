@@ -4,6 +4,10 @@
 **Status:** PROPOSAL — not built, not scheduled. Captured from a roadmap discussion before a
 development pause. Promote via a Spec Impact section when scheduled (see `proposals/README.md`).
 
+> **2026-06-12:** The v1 slice of this proposal was promoted to `barley-run.md` (population +
+> Public needs + the barley/wine chain + Toil). The "supply gauges" framing was replaced there
+> by Public need traits; the Brainstorm section below remains raw material for later slices.
+
 ## Problem
 
 Faction health and rank currently matter only *politically* — a weakened faction is a weaker
@@ -83,3 +87,48 @@ resources → population → disasters → titles:
   would need a new committed-action type; defer until base loop works.)
 - Mayor relief levers: does the treasury get a "buy grain" emergency action, or is relief
   entirely deal/project-driven?
+
+
+## Brainstorm
+
+- Population
+  - 10-50k ? a lot in the surrounding area.  
+  - Each faction has a pop requirement per level (Workers)
+  - Pop consumes resources, food, clothing, ?Housing? 
+  - Pop has an attitude about the mayor. -> mayor advancment
+
+- Food chain
+  - Raw - Fish, grain, meat
+  - fishing -> proccesor -> storage -> consuming
+    - Fish -> ?salted? fish
+  - Barley -> bread 
+    - Beer(Meed?)
+  - ?Sheep -> butcher 
+
+- Goods
+  - Olives -> Olive Oil
+  - Iron ore -> Iron
+    - Weapons
+    - Tools (Increases efficencey of all factions, slowly consumed)
+  - Wood
+  - Spices (Mostly imported, Adds happiness)
+  - Stone
+
+- What do Acedemics and 
+
+
+- Clothing
+  - Wool -> clothing
+  - ?High end?
+
+- Traders
+  - wildcard producers and users.  Takes access and producess what is lacking.  
+  - not always producing what is needed
+  - need a trade value per resource (example 1 olive oil = 20 fish)
+
+- 
+
+- Warehouses
+  - Caps the amount of every resources  (seperate or together?)
+
+

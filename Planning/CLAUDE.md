@@ -45,6 +45,7 @@ Read top-down within a group; `cycle-runner` is the entry point.
 **Not built** (see `proposals/`)
 - [city-generation](proposals/city-generation.md) — procedural city/domain/faction generation
 - [resource-chains](proposals/resource-chains.md) — faction output → city supply gauges → population; gives faction strength material consequences
+- [barley-run](proposals/barley-run.md) — **scheduled v1 slice of resource-chains**: population + Public need traits (fed/happy/health) + the harvest→bread/wine chain + Toil action
 - [crisis-and-stance](proposals/crisis-and-stance.md) — disasters as crisis generators + bounded LLM stance layer (rejects LLM-decides-everything; records why)
 - [elections-and-titles](proposals/elections-and-titles.md) — recurring election endgame + dynamic title ladder threaded into the audience prompt
 - [ui-pottery-art-direction](proposals/ui-pottery-art-direction.md) — Geometric-pottery visual direction for the UI redo (band grammar, two-glaze themes); competes with the Wine-Dark system in `docs/Polis Design/`
