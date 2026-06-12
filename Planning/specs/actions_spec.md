@@ -1,7 +1,8 @@
 # Actions Specification
 
-**Version:** v5
+**Version:** v5.1
 **Date:** 2026-06-03
+**Updated:** 2026-06-12 — **Toil added** (public-needs / barley-run); see `public-needs_spec.md`.
 **Supersedes:** v4 (2026-05-19)
 
 Demo redesign. Rank is now a float **1.0–10.0** (`level = int(rank)`); `entrench` removed. Health is a **breaking-point buffer**, not a death meter — factions are permanent. **Block removed. Aid added** (cooperation). Harm damages health; Protect is an immediate heal. See `../proposals/demo-redesign.md` and `../reference/formulas.md`.
@@ -37,7 +38,7 @@ Leaderless faction penalty: −2 to all rolls. (Open "roll dial": whether to fee
 
 ## Action Set
 
-Five faction actions: **Grow · Protect · Aid · Harm · Steal**. Project actions (BuildProject / SabotageProject) are retained pending the projects rework — see the bottom of this spec.
+Six faction actions: **Grow · Protect · Aid · Harm · Steal · Toil**. Project actions (BuildProject / SabotageProject) are retained pending the projects rework — see the bottom of this spec.
 
 ### Grow
 
@@ -108,6 +109,26 @@ Actor `rank` gains the amount (capped 10.0); target `rank` loses it (floored at 
 - Target `rank` never drops below 1.0 and actor `rank` never exceeds 10.0  `[automated]`
 - Steal cannot select a level-1 faction as its target  `[automated]`
 - Steal targets only factions in the attacker's own domain  `[automated]`
+
+### Toil
+
+**Who:** Faction with a role in a supply chain (`data/chains.json` — v1: the three aristocracy
+estates, the Ovenmen, the Winepressers) · **Contested:** No
+
+The faction works its trade instead of maneuvering. Sets the cycle-only flag
+`faction.toiling = True`; the Public-needs step multiplies that faction's chain contribution
+(harvest for producers, capacity for processors) by `TOIL_MULT = 1.5` this cycle (see
+`public-needs_spec.md`). No rank, health, or project effect — the opportunity cost *is* the
+effect: a toiling faction stands still politically.
+
+Toil is a valid `committed_action` deal term (see `audience_spec.md`) — the only way deals
+touch supply.
+
+**Done when:**
+- A resolved Toil sets `toiling` on the actor and produces no rank or health change  `[automated]`
+- Factions with no chain role never select or resolve Toil  `[automated]`
+- `committed_action == "Toil"` forces Toil selection for the committed cycles, same as the
+  existing committed-action machinery  `[automated]`
 
 ---
 

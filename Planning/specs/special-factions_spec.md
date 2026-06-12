@@ -1,7 +1,8 @@
 # Special Factions Specification
 
-**Version:** v1
+**Version:** v1.1
 **Date:** 2026-05-17
+**Updated:** 2026-06-12 — `ThePublic` gains `population`/`fed`/`happy` (owned by `public-needs_spec.md`); fed/happy support rows added; Public-acts-through-events note.
 
 Special factions exist outside the normal domain power structure. They don't hold territory or grow through the standard action cycle — they exert pressure on everything else and respond to what the city does to them.
 
@@ -33,8 +34,15 @@ class ThePublic:
     support: int = 0          # Mayor's legitimacy in public eyes: -50 to +50
     disposition: str = "neutral"  # "content" | "neutral" | "restless" | "angry"
     traits: List[FactionTrait] = field(default_factory=list)
-    health: int = 100         # General city wellbeing proxy
+    health: int = 100         # General city wellbeing proxy — driven by the fed band (public-needs)
+    population: int = 20000   # Real city population; grows/shrinks with needs (public-needs)
+    fed: int = 60             # 0–100 — how well the people eat (public-needs)
+    happy: int = 50           # 0–100 — the people's mood (public-needs)
 ```
+
+`population`, `fed`, and `happy` (added 2026-06-12) are owned by `public-needs_spec.md` —
+band tables, drift, the harvest chain that feeds them, and population growth/decline all live
+there. This spec owns the entity and the support table below.
 
 ### Disposition
 
@@ -66,6 +74,11 @@ Public support is modified by events in the cycle, not by a formula:
 | Active event: disaster or plague | −5/cycle while active |
 | Mayor: Turn a Blind Eye | −5 (one-time) |
 | Turn a Blind Eye discovered | −10 (one-time) |
+| Fed band: Starving (public-needs) | −5/cycle |
+| Fed band: Hungry (public-needs) | −2/cycle |
+| Fed band: Well fed (public-needs) | +2/cycle |
+| Happy band: Miserable (public-needs) | −2/cycle |
+| Happy band: Festive (public-needs) | +2/cycle |
 
 Public support also equals Mayor reputation with The Public — tracked as a single value, not separately.
 
@@ -104,6 +117,10 @@ When The Public is `angry`:
 ### The Public Does Not Act
 
 The Public does not declare actions, block, or resolve. Its influence is passive — through support values, disposition state, and traits that feed into the Mayor removal conditions.
+
+It does, however, **act through events** (public-needs, 2026-06-12): its need bands gate
+event-deck entries (`events_spec.md` — Public-need gates), so a Starving city can produce a
+bread riot and a sickly one a plague. The Public's agency is the event deck, not the action loop.
 
 ---
 
@@ -241,6 +258,9 @@ Special factions are defined in city data alongside normal factions:
     "the_public": {
       "support": 0,
       "health": 100,
+      "population": 20000,
+      "fed": 60,
+      "happy": 50,
       "traits": []
     },
     "moneylender": {

@@ -1,7 +1,8 @@
 # Events Specification
 
-**Version:** v1
+**Version:** v1.1
 **Date:** 2026-05-17
+**Updated:** 2026-06-12 — **Public-need gates** added to `trigger_conditions` (public-needs / barley-run).
 
 Events are timed pressure sequences injected into the faction system. They are not resource management — they are triggers that cause faction-system effects. A mine disaster doesn't add a mining mechanic; it pressures specific factions for a defined duration.
 
@@ -182,6 +183,29 @@ Each city has a JSON event deck: a list of event templates with their trigger co
 ```
 
 The starting city includes a curated deck of 8–12 events appropriate to its domain mix.
+
+### Public-need gates (public-needs / barley-run, 2026-06-12)
+
+`trigger_conditions` additionally supports gates on the Public's need bands (band tables in
+`public-needs_spec.md`). A template is eligible only while every gate it declares holds:
+
+| Key | Meaning |
+|---|---|
+| `max_fed_band` | Public fed band ≤ this band (e.g. `"Hungry"` → eligible when Hungry or Starving) |
+| `min_fed_band` | Public fed band ≥ this band (e.g. `"Well fed"` for boon events) |
+| `max_happy_band` / `min_happy_band` | Same, on the happy band |
+| `sickly` | `true` → eligible only while Public `health < 40` (the plague gate) |
+
+The needs step runs before new-event rolling each cycle (cycle-runner item 5b), so gates see
+the current cycle's bands. Deck additions for v1: a band-gated **Bread Riot**
+(`max_fed_band: "Starving"`) and a **Plague Outbreak** gate switching from the old scripted
+condition to `sickly: true`.
+
+**Done when:**
+- A template with `max_fed_band: "Starving"` is never rolled while the Public's fed band is
+  above Starving, and becomes eligible the same cycle the band reaches it  `[automated]`
+- Each gate key (`min_/max_fed_band`, `min_/max_happy_band`, `sickly`) is honored
+  independently, proven with no-effect sentinel templates injected by the test  `[automated]`
 
 ---
 

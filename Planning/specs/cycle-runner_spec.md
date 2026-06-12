@@ -5,6 +5,7 @@
 **Updated:** 2026-05-23 — Documented full orchestration as implemented in `runner.py`; subsystem detail delegated to their own specs.
 **Updated:** 2026-06-02 — Retrofitted `Done when:` acceptance criteria at the orchestration level. No behavior change.
 **Updated:** 2026-06-03 (demo-redesign) — **Block removed** (no delayed-fire trap); **faction collapse + power vacuums removed** (factions are permanent); **Break resolution added**. Domain utilization now = Σ level.
+**Updated:** 2026-06-12 (public-needs / barley-run) — **Public-needs step added** as orchestration item 5b; `toiling` added to cycle-only state.
 
 Sequential initiative model. Factions act one at a time in random order. State updates between turns — later factions see what earlier factions did.
 
@@ -34,6 +35,10 @@ Operations run in this order each cycle. Items marked → are detailed in anothe
 
 **End-of-cycle:**
 5. State updates + leadership events (`cycle/end_of_cycle.py`)
+5b. **Public needs** → `public-needs_spec.md` — derive the harvest chain from live faction
+    state (honoring `toiling` flags), compute targets vs population, drift `fed`/`happy`,
+    apply health/support/population effects. Runs before events so this cycle's event rolls
+    see this cycle's bands.
 6. Active game events → `events_spec.md` (`events/event_system.py`)
 7. Project ticks + effects → `projects_spec.md`
 8. World chaos upheavals (`events/world.py`); roll new random events → `events_spec.md`
@@ -180,6 +185,7 @@ Set during the cycle and reset at end of Step 3 or Step 4. Not persisted.
 |---|---|---|---|
 | `build_actions_this_cycle` | `Project` | Each successful BuildProject | Step 3 |
 | `unstable_stacks` | `Faction` | Cascade events | Step 4 |
+| `toiling` | `Faction` | Toil resolution (Step 2) | Step 4 (after the Public-needs step consumes it) |
 
 ---
 

@@ -1,7 +1,8 @@
 # Audience Specification
 
-**Version:** v5
+**Version:** v5.1
 **Date:** 2026-06-07
+**Updated:** 2026-06-12 — **Toil committable** (chain-role factions only) + **Public needs line** in the system prompt (public-needs / barley-run).
 
 The Mayor can request a formal audience with a faction leader. Audiences are the only way to create binding deals. The faction leader is driven by an LLM that opens the scene, negotiates through two player exchanges, and delivers a final decision.
 
@@ -107,11 +108,17 @@ Exactly one of the following, repeated every turn for N cycles (N = 1–10):
 | `committed_action` · `Grow` | The faction invests in its own strength (raises rating/health) | none |
 | `committed_action` · `Protect` | The faction defends itself — higher entrenchment and reduced incoming Harm from **all** rivals | none |
 | `committed_action` · `BuildProject` | The faction works to build **its own domain's** base project (named in the prompt) | its domain id |
+| `committed_action` · `Toil` | The faction works its trade, boosting its supply-chain output each committed cycle (offered **only** to factions with a chain role — see `actions_spec.md`) | none |
 | `committed_abstain` | The faction refrains from Harm or Steal against one named faction | a faction |
 
 **Targeting is per-action.** Only `BuildProject` (target = the faction's own domain id) and `committed_abstain`
-(target = a faction) take a target. `Grow` and `Protect` are untargeted; any `target_id`
+(target = a faction) take a target. `Grow`, `Protect`, and `Toil` are untargeted; any `target_id`
 supplied for them is dropped by the parser.
+
+**The Public needs line (public-needs, 2026-06-12).** The audience system prompt's city-state
+section includes one line built from the Public's band words and flags
+(`public-needs_spec.md`): *"The people are {fed band}{, drunk}{, sickly}, and {happy band}."*
+The leader sees the same city the engine does.
 
 > `budget_allocation` was a Mayor term in v3 but was never wired to any effect; it is removed
 > as of v4. It is no longer offered, accepted, or documented. A removed or otherwise unknown
@@ -120,9 +127,11 @@ supplied for them is dropped by the parser.
 
 **Done when:**
 - `budget_allocation` appears in no spec, reference doc, or backend source file  `[automated]`
-- The built audience system prompt lists only `endorsement` as a Mayor term (`tax_exemption` deferred — see note above), and gives a plain "what it does" line for each faction action (`Grow`, `Protect`, `BuildProject`) and for `committed_abstain`  `[automated]`
-- In the prompt's `<deal>` schema, a `target_id` is shown only for `BuildProject` and `committed_abstain` — not for `Grow` or `Protect`  `[automated]`
-- The response parser clears `target_id` on a `committed_action` of `Grow` or `Protect`, and preserves it for `BuildProject`  `[automated]`
+- The built audience system prompt lists only `endorsement` as a Mayor term (`tax_exemption` deferred — see note above), and gives a plain "what it does" line for each faction action (`Grow`, `Protect`, `BuildProject`, and — for chain-role factions only — `Toil`) and for `committed_abstain`  `[automated]`
+- For a faction with no chain role, `Toil` does not appear in the prompt's term list at all  `[automated]`
+- The built audience system prompt contains the Public needs line with the current band words (and `drunk`/`sickly` flags only when set)  `[automated]`
+- In the prompt's `<deal>` schema, a `target_id` is shown only for `BuildProject` and `committed_abstain` — not for `Grow`, `Protect`, or `Toil`  `[automated]`
+- The response parser clears `target_id` on a `committed_action` of `Grow`, `Protect`, or `Toil`, and preserves it for `BuildProject`  `[automated]`
 - A `<deal>` that offers `budget_allocation` **alongside** a valid Mayor term drops only `budget_allocation` and still seals on the valid term  `[automated]`
 - A `<deal>` whose **only** Mayor term is `budget_allocation` yields no deal — it is dropped, leaving the Mayor side empty (one-sided), and `mayor.deals` is unchanged  `[automated]`
 

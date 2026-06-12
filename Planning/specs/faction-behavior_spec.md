@@ -1,7 +1,8 @@
 # Faction Behavior Specification
 
-**Version:** v4
+**Version:** v4.1
 **Date:** 2026-06-03
+**Updated:** 2026-06-12 — **Toil weights added** (public-needs / barley-run); chain-role gating per `actions_spec.md`.
 **Supersedes:** v3 (2026-05-19)
 
 Demo redesign: **Block removed, Aid added**; entrench-based modifiers gone; aggression targeting now excludes level-1 factions; near-cap logic uses `utilization = Σ level`. Rank is a float 1–10 (`level = int(rank)`). Faction is the sole autonomous agent; behavior driven by personality traits; sequential per-turn with live state.
@@ -35,10 +36,14 @@ BASE_WEIGHTS = {
     "Aid":             10,
     "Protect":         25,
     "Steal":           20,
+    "Toil":            10,
     "BuildProject":    15,
     "SabotageProject": 10,
 }
 ```
+
+`Toil` is only available to factions with a chain role (`data/chains.json`); for all others
+its weight is 0 (see `actions_spec.md`).
 
 ### Step 2 — Apply Personality Modifiers
 
@@ -65,7 +70,7 @@ For each trait in `faction.traits`, apply modifiers scaled by intensity:
 | `expansionary` | Grow +25, Steal +10, Harm +5 |
 | `conservative` | Protect +15, Grow +10, Harm −10 |
 | `corrupt` | Steal +25, Harm +15, Grow +5 |
-| `industrious` | BuildProject +25, Grow +10, Protect +5 |
+| `industrious` | BuildProject +25, Grow +10, Protect +5, Toil +10 |
 | `destructive` | SabotageProject +25, Harm +15, Steal +5 |
 
 Relational traits (targeted at a specific faction) apply only when that faction is a valid target:
@@ -82,6 +87,7 @@ Relational traits (targeted at a specific faction) apply only when that faction 
 | Condition | Effect |
 |---|---|
 | `faction.health < 30` | Protect +20, Grow +15, Harm −10 |
+| Public `fed` band ≤ Hungry AND faction has a chain role | Toil +25 (the prosocial branch — a desperate city's producers work, or steal, per personality) |
 | `domain.utilization >= domain.cap * 0.9` (utilization = Σ level) | Grow −20, Steal +15 |
 | An allied faction is at `health < 50` (Friend / `allied with`) | Aid +25 |
 | Project under construction in faction's domain | BuildProject +20 |
