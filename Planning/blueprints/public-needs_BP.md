@@ -74,7 +74,7 @@ Add `load_chains(data_dir="data") -> list[dict]` to `loaders.py` (pattern-match 
 **Test:** Quick load assertion appended to `tests/test_needs_chain.py` (created next step) — fine to write file now, test next step.
 **Done When:** File parses; loader returns one chain.
 **Stuck If:** —
-- [ ] Complete
+- [x] Complete
 
 ### Step 2: Chain computation
 **Build:** Create `engine/needs/chain.py`. Constants at module top (tests must import these, never copy values): `TOIL_MULT = 1.5`, `PARITY_TARGET = 75`, `BASE_HAPPY = 30`, `DRUNK_THRESHOLD = 0.25`, `POP_PER_SUPPLY_UNIT = 1000`. Dataclass `ChainOutput`: `fed_target: float`, `happy_target: float`, `drunk: bool`, `raw: float`, `units: dict[str, float]` (label → units processed, including `"porridge"`). Function `compute_chain(factions: Dict[str, Faction], population: int, chains: list[dict]) -> ChainOutput`, **pure — no mutation**:
@@ -85,7 +85,8 @@ Add `load_chains(data_dir="data") -> list[dict]` to `loaders.py` (pattern-match 
 **Test:** Write `tests/test_needs_chain.py`: purity (same input twice → identical, no faction mutated); raw = Σ3×level over aristocracy; dead-estates fixture (aristocracy ratings → produce 0 raw → all units 0); over/under capacity splits; conservation `Σ units == raw` exactly; porridge-floor fixture (drop both processors from the chain def → fed_supply == 0.4 × raw ≠ 0); toiling producer ×1.5 and toiling processor ×1.5.
 **Done When:** Every spec Done-when under "The harvest chain" has a passing named test.
 **Stuck If:** `floor_rating` isn't the level property name in `models.py` (verify, use the real one).
-- [ ] Complete
+- [x] Complete
+**Deviation:** Used `Faction.level` (alias of `floor_rating`) for readability — same property.
 
 ---
 End of Slice 2. Builder checkpoint: tests green → continue to Slice 3.

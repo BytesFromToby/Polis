@@ -1,0 +1,11 @@
+[
+  {
+    "id": "harvest",
+    "producers": {"domain": "aristocracy", "per_level": 3},
+    "processors": [
+      {"faction_id": "ovenmen",      "per_level_capacity": 6, "fed_per_unit": 1.0,  "happy_per_unit": 0.0, "label": "bread"},
+      {"faction_id": "winepressers", "per_level_capacity": 6, "fed_per_unit": 0.15, "happy_per_unit": 0.6, "label": "wine"}
+    ],
+    "unprocessed": {"fed_per_unit": 0.4, "label": "porridge"}
+  }
+]

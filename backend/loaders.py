@@ -199,6 +199,18 @@ def load_projects(path: Optional[str] = None) -> Dict[str, Project]:
     return result
 
 
+_DEFAULT_CHAINS_PATH = os.path.join(os.path.dirname(__file__), "data", "chains.json")
+
+
+def load_chains(path: Optional[str] = None) -> list:
+    """Load supply-chain definitions (public-needs_spec). Missing file → []."""
+    path = path or _DEFAULT_CHAINS_PATH
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
 def _generate_factions_from_domains(domains: Dict[str, Domain]) -> Dict[str, Faction]:
     """Generate 2 baseline factions per domain when factions.json is missing."""
     result = {}
