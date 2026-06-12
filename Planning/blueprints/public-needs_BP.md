@@ -30,21 +30,22 @@ tests. Slice 5 fixes both plumbing gaps.
 **Test:** `py -m pytest tests/ -q` (no regressions; fields default correctly via a quick `python -c` check).
 **Done When:** `ThePublic().population == 20000`, `.fed == 60`, `.happy == 50`; `Faction` accepts the flag defaulting False; suite green.
 **Stuck If:** ThePublic is constructed positionally somewhere and new fields break it.
-- [ ] Complete
+- [x] Complete
 
 ### Step 2: Band tables module
 **Build:** New package `engine/needs/` (`__init__.py` re-exporting the public names). Create `engine/needs/bands.py`: `FED_BANDS` and `HAPPY_BANDS` as ordered `(upper_bound, word)` tables exactly per spec (0–20 Starving/Miserable, 21–45 Hungry/Sullen, 46–75 Fed/Content, 76–100 Well fed/Festive); functions `fed_band(value: int) -> str`, `happy_band(value: int) -> str`, `band_index(word, table) -> int` (for ≤/≥ gate comparisons — slice 6 uses this, keep it table-generic); `SICKLY_THRESHOLD = 40`; `is_sickly(health) -> bool`; `needs_line(public, drunk: bool) -> str` producing `"The people are {fed band}{, drunk}{, sickly}, and {happy band}."`
 **Test:** Write `tests/test_needs_bands.py`: boundary cases 20/21/45/46/75/76 for both tables (spec Done-when); sickly at 39/40; needs_line with and without flags. Run it.
 **Done When:** All boundary assertions pass exactly as the spec table states.
 **Stuck If:** —
-- [ ] Complete
+- [x] Complete
 
 ### Step 3: Serialization round-trip
 **Build:** In `serializer.py`, add `serialize_the_public(public) -> dict` and `deserialize_the_public(data: dict) -> ThePublic` (pattern-match the existing entity serializers). Include `support`, `disposition`, `traits`, `health`, `population`, `fed`, `happy`. Absent keys on deserialize → field defaults (existing saves load). Do **not** serialize `Faction.toiling`. Extend `serialize_state(...)` with optional `public=None` kwarg → key `"the_public"` when provided; extend its deserialize counterpart symmetrically. Forward constraint: slice 5 passes `public` through `_save_cycle` and session restore — keep the kwarg optional so existing callers stay valid.
 **Test:** Add round-trip + missing-fields-default cases to `tests/test_needs_bands.py` (or `tests/test_serializer.py` if one exists). Run full suite.
 **Done When:** Round-trip preserves all seven fields; `deserialize_the_public({})` equals defaults; suite green (spec round-trip Done-when).
 **Stuck If:** No deserialize counterpart of `serialize_state` exists — report how restore actually rebuilds state instead of improvising.
-- [ ] Complete
+- [x] Complete
+**Deviation:** `deserialize_state` returns an 8-tuple now (public appended); its four unpack sites (sim.py ×2, test_base_stack_serde.py ×2) updated mechanically. Serialization tests live in `test_needs_bands.py` alongside the band tests rather than a separate file.
 
 ---
 End of Slice 1. Builder checkpoint: tests green → continue to Slice 2.

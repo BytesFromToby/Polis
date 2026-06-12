@@ -1,8 +1,8 @@
-"""
+﻿"""
 BaseProjectStack serialization round-trip (projects_spec v6, Storage).
 
-A stack survives serialize→deserialize unchanged; a snapshot with no `base_stacks`
-key deserializes to an empty mapping (older snapshots — caller re-inits per domain).
+A stack survives serializeâ†’deserialize unchanged; a snapshot with no `base_stacks`
+key deserializes to an empty mapping (older snapshots â€” caller re-inits per domain).
 """
 from engine.models import WorldState
 from serializer import (
@@ -30,7 +30,7 @@ def test_state_includes_base_stacks():
     stacks["aristocracy"].progress = 100
     data = serialize_state(world, {}, {}, base_stacks=stacks)
     assert "base_stacks" in data
-    _, _, _, _, _, _, restored = deserialize_state(data)
+    _, _, _, _, _, _, restored, _ = deserialize_state(data)
     assert restored["aristocracy"].count == 2
     assert restored["harbor"].count == 0
 
@@ -38,5 +38,5 @@ def test_state_includes_base_stacks():
 def test_missing_base_stacks_key_deserializes_empty():
     world = WorldState(cycle=0)
     data = serialize_state(world, {}, {})  # no base_stacks passed
-    _, _, _, _, _, _, restored = deserialize_state(data)
+    _, _, _, _, _, _, restored, _ = deserialize_state(data)
     assert restored == {}

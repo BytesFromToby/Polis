@@ -54,7 +54,7 @@ def _restore_session(user_id: str, db: Session, run_id: str | None = None) -> Si
     if snapshot is None:
         raise ValueError("No snapshots found to restore from")
 
-    world, factions, domains, mayor, treasury, projects, base_stacks = deserialize_state(json.loads(snapshot.state_json))
+    world, factions, domains, mayor, treasury, projects, base_stacks, public = deserialize_state(json.loads(snapshot.state_json))
     # Snapshots pre-dating mayor/treasury support will deserialize as None — provide fresh defaults
     if mayor is None:
         mayor = Mayor()
@@ -185,7 +185,7 @@ def start_sim(
         "factions": json.loads(city.factions_json),
         "domains": json.loads(city.domains_json),
     }
-    world, factions, domains, _, _, _, _ = deserialize_state(state_data)
+    world, factions, domains, _, _, _, _, _ = deserialize_state(state_data)
 
     mayor = Mayor()
     treasury = Treasury()

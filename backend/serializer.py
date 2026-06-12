@@ -23,7 +23,7 @@ from engine.models import (
     Domain, DomainRelationship,
     WorldState, CycleEvent,
     Mayor, Treasury, Project, ProjectEffect,
-    Deal, DealTerm,
+    Deal, DealTerm, ThePublic,
 )
 
 
@@ -189,6 +189,32 @@ def deserialize_cycle_event(d: dict) -> CycleEvent:
         domain=d.get("domain"),
         narrative=d.get("narrative", ""),
         dramatic=d.get("dramatic", 0),
+    )
+
+
+# ── The Public serializers (public-needs_spec) ────────────────────────────────
+
+def serialize_the_public(p: ThePublic) -> dict:
+    return {
+        "support": p.support,
+        "disposition": p.disposition,
+        "traits": [_ser_faction_trait(t) for t in p.traits],
+        "health": p.health,
+        "population": p.population,
+        "fed": p.fed,
+        "happy": p.happy,
+    }
+
+
+def deserialize_the_public(d: dict) -> ThePublic:
+    return ThePublic(
+        support=d.get("support", 0),
+        disposition=d.get("disposition", "neutral"),
+        traits=[_des_faction_trait(t) for t in d.get("traits", [])],
+        health=d.get("health", 100),
+        population=d.get("population", 20000),
+        fed=d.get("fed", 60),
+        happy=d.get("happy", 50),
     )
 
 
@@ -402,12 +428,15 @@ def serialize_state(
     treasury: Optional[Treasury] = None,
     projects: Optional[Dict[str, Project]] = None,
     base_stacks: Optional[dict] = None,
+    public: Optional[ThePublic] = None,
 ) -> dict:
     data = {
         "world": serialize_world_state(world),
         "factions": {fid: serialize_faction(f) for fid, f in factions.items()},
         "domains": {did: serialize_domain(d) for did, d in domains.items()},
     }
+    if public is not None:
+        data["the_public"] = serialize_the_public(public)
     if mayor is not None:
         data["mayor"] = serialize_mayor(mayor)
     if treasury is not None:
@@ -421,7 +450,7 @@ def serialize_state(
 
 def deserialize_state(
     data: dict,
-) -> Tuple[WorldState, Dict[str, Faction], Dict[str, Domain], Optional[Mayor], Optional[Treasury], Dict[str, Project], dict]:
+) -> Tuple[WorldState, Dict[str, Faction], Dict[str, Domain], Optional[Mayor], Optional[Treasury], Dict[str, Project], dict, Optional[ThePublic]]:
     world = deserialize_world_state(data["world"])
     factions = {fid: deserialize_faction(f) for fid, f in data.get("factions", {}).items()}
     domains = {did: deserialize_domain(d) for did, d in data.get("domains", {}).items()}
@@ -429,4 +458,5 @@ def deserialize_state(
     treasury = deserialize_treasury(data["treasury"]) if "treasury" in data else None
     projects = {pid: deserialize_project(p) for pid, p in data.get("projects", {}).items()}
     base_stacks = {did: deserialize_base_stack(s) for did, s in data.get("base_stacks", {}).items()}
-    return world, factions, domains, mayor, treasury, projects, base_stacks
+    public = deserialize_the_public(data["the_public"]) if "the_public" in data else None
+    return world, factions, domains, mayor, treasury, projects, base_stacks, public

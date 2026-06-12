@@ -71,6 +71,7 @@ class Faction:
 
     # Cycle-only state (reset each cycle, not persisted)
     unstable_stacks: int = 0       # -1 per stack to rolls, max 3
+    toiling: bool = False          # cycle-only: set by Toil resolution, consumed by needs step, reset in end_of_cycle — never persisted
 
     def __post_init__(self):
         self.rating = max(1.0, min(10.0, self.rating))
@@ -354,7 +355,10 @@ class ThePublic:
     support: int = 0           # -50 to +50; mirrors Mayor.reputation["the_public"]
     disposition: str = "neutral"  # "content"|"neutral"|"restless"|"angry"
     traits: List[FactionTrait] = field(default_factory=list)
-    health: int = 100
+    health: int = 100          # 0-100; driven by the fed band (public-needs_spec)
+    population: int = 20000    # real city population; grows/shrinks with needs (public-needs_spec)
+    fed: int = 60              # 0-100; how well the people eat (public-needs_spec)
+    happy: int = 50            # 0-100; the people's mood (public-needs_spec)
 
     def derive_disposition(self) -> str:
         if self.support >= 20:   return "content"

@@ -1,0 +1,65 @@
+"""
+engine/needs/bands.py — word bands for the Public's needs (public-needs_spec).
+
+Bands are defined once here and used by the audience prompt, the UI payload,
+and event gating. Tables are ordered (upper_bound, word); a value belongs to
+the first band whose upper bound it does not exceed.
+"""
+from __future__ import annotations
+from typing import List, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.models import ThePublic
+
+FED_BANDS: List[Tuple[int, str]] = [
+    (20, "Starving"),
+    (45, "Hungry"),
+    (75, "Fed"),
+    (100, "Well fed"),
+]
+
+HAPPY_BANDS: List[Tuple[int, str]] = [
+    (20, "Miserable"),
+    (45, "Sullen"),
+    (75, "Content"),
+    (100, "Festive"),
+]
+
+SICKLY_THRESHOLD = 40   # health below this → the people are sickly
+
+
+def _band(value: int, table: List[Tuple[int, str]]) -> str:
+    for upper, word in table:
+        if value <= upper:
+            return word
+    return table[-1][1]
+
+
+def fed_band(value: int) -> str:
+    return _band(value, FED_BANDS)
+
+
+def happy_band(value: int) -> str:
+    return _band(value, HAPPY_BANDS)
+
+
+def band_index(word: str, table: List[Tuple[int, str]]) -> int:
+    """Position of a band word in its table (0 = lowest). For ≤/≥ gate comparisons."""
+    for i, (_, w) in enumerate(table):
+        if w == word:
+            return i
+    raise ValueError(f"unknown band word: {word!r}")
+
+
+def is_sickly(health: int) -> bool:
+    return health < SICKLY_THRESHOLD
+
+
+def needs_line(public: "ThePublic", drunk: bool) -> str:
+    """One prompt/UI line: 'The people are {fed}{, drunk}{, sickly}, and {happy}.'"""
+    parts = [fed_band(public.fed)]
+    if drunk:
+        parts.append("drunk")
+    if is_sickly(public.health):
+        parts.append("sickly")
+    return f"The people are {', '.join(parts)}, and {happy_band(public.happy)}."
