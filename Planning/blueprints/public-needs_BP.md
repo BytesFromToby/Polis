@@ -129,21 +129,23 @@ End of Slice 3. Builder checkpoint: tests green → continue to Slice 4.
 **Test:** Write `tests/test_toil.py`: resolve sets flag, rank and health unchanged.
 **Done When:** Toil resolves; suite green.
 **Stuck If:** Resolution dispatch is structured so an untargeted action can't be added without touching >2 functions — report the shape first.
-- [ ] Complete
+- [x] Complete
 
 ### Step 2: NPC weights + gating
 **Build:** In `engine/npc/behavior.py`: add `"Toil": 10` to `BASE_WEIGHTS`; after weights are built, **zero** the Toil weight for factions not in `chain_role_faction_ids` (load chains once at module import or accept via param — match how the module gets other data; keep it overridable for tests). Add state modifier: Public fed band ≤ Hungry AND faction has chain role → Toil +25 — `select_faction_action` must therefore receive the public (or its fed band) — extend its signature with optional `public=None`, defaulting to no modifier when absent (forward constraint: runner passes it in Slice 5; existing call sites stay valid). Add `Toil +10` to the `industrious` trait row wherever trait modifiers live (check `engine/npc/weights.py` vs `behavior.py`).
 **Test:** In `tests/test_toil.py`: non-chain faction never selects Toil over many draws (weight is exactly 0 in the built weight dict — assert on the dict, not sampling); chain faction's Toil weight is 10 base and 35 when a Hungry public is passed; industrious adds +10.
 **Done When:** Weight assertions pass; suite green.
 **Stuck If:** Trait table and state modifiers live in conflicting modules.
-- [ ] Complete
+- [x] Complete
+**Deviation:** `select_faction_action` gains `public=None, chain_roles=None` (precomputed id set) rather than loading chains itself — engine stays IO-free; runner passes both in slice 5. Weight-dict assertions capture the dict by monkeypatching `weighted_choice` instead of refactoring a seam into the selector.
 
 ### Step 3: Committable Toil
 **Build:** `faction.committed_action == "Toil"` must force a Toil plan — verify the existing committed-action path in `behavior.py` (line ~87) handles an arbitrary action name; add `"Toil"` to whatever validation/whitelist exists there and in the deal machinery (`grep committed_action` across `engine/llm/` and `engine/mayor/`).
 **Test:** In `tests/test_toil.py`: a faction with `committed_action="Toil"` returns a Toil plan from `select_faction_action`.
 **Done When:** Forced-Toil test passes (spec actions Done-when 3).
 **Stuck If:** Committed actions are whitelisted in >3 places — list them, update all, note as deviation.
-- [ ] Complete
+- [x] Complete
+**Deviation:** Engine-side committed path has no whitelist (generic fall-through — works for Toil as-is). The only whitelist is `VALID_FACTION_ACTIONS` in `response_parser.py` (LLM-side), updated in Slice 6 Step 3 where the blueprint already addresses it.
 
 ---
 End of Slice 4. Builder checkpoint: tests green → continue to Slice 5.

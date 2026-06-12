@@ -23,6 +23,7 @@ BASE_WEIGHTS: Dict[str, float] = {
     "Aid":             10.0,
     "Protect":         25.0,
     "Steal":           20.0,
+    "Toil":            10.0,   # only factions with a chain role keep this (public-needs_spec)
     "BuildProject":    15.0,
     "SabotageProject": 10.0,
 }
@@ -36,7 +37,7 @@ TRAIT_MODIFIERS: Dict[str, Dict[str, float]] = {
     "expansionary":  {"Grow": 25, "Steal": 10, "Harm": 5},
     "conservative":  {"Protect": 15, "Grow": 10, "Harm": -10},
     "corrupt":       {"Steal": 25, "Harm": 15, "Grow": 5},
-    "industrious":   {"BuildProject": 25, "Grow": 10, "Protect": 5},
+    "industrious":   {"BuildProject": 25, "Grow": 10, "Protect": 5, "Toil": 10},
     "destructive":   {"SabotageProject": 25, "Harm": 15, "Steal": 5},
 }
 
@@ -78,8 +79,13 @@ def select_faction_action(
     world: WorldState,
     projects: Optional[Dict[str, Project]] = None,
     base_stacks: Optional[Dict[str, "BaseProjectStack"]] = None,
+    public: Optional["ThePublic"] = None,
+    chain_roles: Optional[set] = None,
 ) -> FactionPlan:
-    """Select one action and target for this faction this turn."""
+    """Select one action and target for this faction this turn.
+
+    `public` and `chain_roles` (faction ids with a supply-chain role) enable the
+    Toil action and its shortage modifier (public-needs_spec); absent → no Toil."""
     projects = projects or {}
     base_stacks = base_stacks or {}
 
@@ -125,6 +131,16 @@ def select_faction_action(
                 weights[action] = weights.get(action, 0.0) + delta * 0.25 * leader_mult
 
     # ── Step 3: State modifiers ───────────────────────────────────────────────
+    # Toil — only chain-role factions may toil; shortage pulls them toward it
+    # (the prosocial branch beside hungry→Steal; public-needs_spec).
+    if chain_roles and faction.id in chain_roles:
+        if public is not None:
+            from ..needs.bands import FED_BANDS, band_index, fed_band
+            if band_index(fed_band(public.fed), FED_BANDS) <= band_index("Hungry", FED_BANDS):
+                weights["Toil"] = weights.get("Toil", 0.0) + 25
+    else:
+        weights.pop("Toil", None)
+
     if faction.health < 30:
         weights["Protect"] = weights.get("Protect", 0.0) + 20
         weights["Grow"]    = weights.get("Grow",    0.0) + 15

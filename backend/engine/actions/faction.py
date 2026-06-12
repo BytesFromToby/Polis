@@ -57,6 +57,19 @@ def resolve_protect(faction: Faction) -> ActionResult:
     )
 
 
+# ── TOIL ──────────────────────────────────────────────────────────────────────
+
+def resolve_toil(faction: Faction) -> ActionResult:
+    """The faction works its trade instead of maneuvering (public-needs_spec).
+    Sets the cycle-only `toiling` flag; the needs step multiplies this faction's
+    chain contribution by TOIL_MULT. No rank, health, or project effect."""
+    faction.toiling = True
+    return ActionResult(
+        "Toil", faction.id, None, "success",
+        narrative=f"{faction.name} bend to their trade.",
+    )
+
+
 # ── AID ───────────────────────────────────────────────────────────────────────
 
 def resolve_aid(faction: Faction, target: Faction) -> ActionResult:

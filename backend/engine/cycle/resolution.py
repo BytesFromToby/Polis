@@ -13,6 +13,7 @@ from ..actions import (
     resolve_grow,
     resolve_harm,
     resolve_protect,
+    resolve_toil,
     resolve_aid,
     resolve_steal,
     resolve_build_project,
@@ -99,6 +100,8 @@ def _execute(
         return resolve_grow(faction, domains)
     if action == "Protect":
         return resolve_protect(faction)
+    if action == "Toil":
+        return resolve_toil(faction)
     if action == "Aid" and plan.target_id:
         target = factions.get(plan.target_id)
         if target:
