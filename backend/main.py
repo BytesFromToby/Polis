@@ -15,17 +15,24 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from engine.models import WorldState, Mayor, Treasury
 from engine.cycle import run_cycle
+from engine.needs import fed_band, happy_band
 from engine.projects import new_base_stacks
 from engine.logger import SimLogger
-from loaders import load_state_from_json
+from loaders import load_state_from_json, load_chains, load_the_public
 
 
 # ── End-of-Run Summary ────────────────────────────────────────────────────────
 
-def print_summary(world: WorldState, factions: dict) -> None:
+def print_summary(world: WorldState, factions: dict, public=None) -> None:
     print("\n" + "=" * 60)
     print(f"  SIMULATION COMPLETE — {world.cycle} cycles run")
     print("=" * 60)
+
+    if public is not None:
+        print(f"\n  THE PUBLIC: pop={public.population:,} "
+              f"fed={public.fed} ({fed_band(public.fed)}) "
+              f"happy={public.happy} ({happy_band(public.happy)}) "
+              f"health={public.health}")
 
     print("\n  FACTIONS:")
     for fid, f in factions.items():
@@ -68,6 +75,8 @@ def main():
     mayor = Mayor()
     treasury = Treasury()
     base_stacks = new_base_stacks(domains)
+    public = load_the_public(os.path.join(args.data_dir, "world_state.json"))
+    chains = load_chains(os.path.join(args.data_dir, "chains.json"))
 
     print("Polis v3")
     print(f"  Cycles:   {args.cycles}")
@@ -90,7 +99,8 @@ def main():
         logger.log_cycle_start(cycle_num, world)
 
         result = run_cycle(world, factions, domains, mayor=mayor, treasury=treasury,
-                           base_stacks=base_stacks, logger=logger)
+                           base_stacks=base_stacks, public=public, chains=chains,
+                           logger=logger)
 
         for event in result.events:
             logger.log_cycle_event(event)
@@ -101,7 +111,7 @@ def main():
 
     print()
     logger.close()
-    print_summary(world, factions)
+    print_summary(world, factions, public)
     print(f"  Narrative log: {os.path.join(args.log_dir, 'narrative.log')}")
     print(f"  System log:    {os.path.join(args.log_dir, 'system.log')}")
     print()

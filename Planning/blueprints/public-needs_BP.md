@@ -160,21 +160,24 @@ End of Slice 4. Builder checkpoint: tests green → continue to Slice 5.
 **Test:** Write `tests/test_needs_cycle.py`: `run_cycle(world, factions, domains, mayor=mayor, treasury=treasury, public=public, chains=chains)` mutates `public.fed` toward the chain target; without `public=` nothing breaks.
 **Done When:** Needs step runs inside `run_cycle`; suite green.
 **Stuck If:** Import cycle between `cycle/runner.py` and `engine/needs/` (restructure imports, note deviation).
-- [ ] Complete
+- [x] Complete
+**Deviation:** `chains` defaults to `[]` inside `run_cycle` (no implicit loader call — engine stays IO-free); `chain_roles` computed once per cycle and passed to the action loop alongside `public`.
 
 ### Step 2: Reset toiling in end-of-cycle
 **Build:** In `engine/cycle/end_of_cycle.py` (`run_end_of_cycle` — wait: needs step runs AFTER `run_end_of_cycle`, so reset must happen later). Correct placement: reset `faction.toiling = False` for all factions at the very end of `run_cycle` (just before building `CycleResult`), matching cycle-runner_spec's "Step 4 (after the Public-needs step consumes it)". Add a comment naming the spec.
 **Test:** In `tests/test_needs_cycle.py`: force a Toil via `committed_action`, run a cycle, assert every faction's `toiling` is False after `run_cycle` returns, and that the chain saw the boost (fed target higher than a no-Toil control run with same seed).
 **Done When:** Reset test passes (spec cycle Done-when 3).
 **Stuck If:** —
-- [ ] Complete
+- [x] Complete
+**Deviation:** Reset placed at the very end of `run_cycle` (before `CycleResult` build) as the step itself corrected — not in `end_of_cycle.py`, which runs before the needs step.
 
 ### Step 3: Load + plumb The Public everywhere
 **Build:** (a) `loaders.py`: `load_the_public(data_dir="data") -> ThePublic` reading `world_state.json` key `special_factions.the_public` (missing → defaults). Add that block to `data/world_state.json` with `support 0, health 100, population 20000, fed 60, happy 50`. (b) `main.py`: construct via loader, pass `public=public, chains=load_chains()` to `run_cycle`; add public summary line to `print_summary`. (c) `api/sessions.py`: `SimSession` gains `public: ThePublic = None` (post_init → `ThePublic()` if None... use loader defaults instead: leave None handling to restore). (d) `api/routes/sim.py`: `_restore_session` builds `public` (from snapshot `the_public` key if present, else `load_the_public()`); both `run_cycle` call sites pass `public=session.public, chains=...` (load chains once at module level); `_save_cycle` passes `public` into `serialize_state`.
 **Test:** Extend `tests/test_needs_cycle.py` with a serialize→restore round-trip through `serialize_state`; run full suite; run `py main.py --cycles 5` and confirm it completes with a public summary line.
 **Done When:** Headless run shows the Public; suite green.
 **Stuck If:** Session restore path has no hook for extra state (report the actual restore shape).
-- [ ] Complete
+- [x] Complete
+**Deviation:** `start_sim` builds the public via `load_the_public()` engine defaults rather than the city template (city rows don't carry a `the_public` block yet — city-generation's problem later). Chains loaded once at module level in `sim.py` (`_CHAINS`).
 
 ---
 ⛔ End of Slice 5 [inspect]. Run **inspector** on this slice before continuing.

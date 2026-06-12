@@ -1,4 +1,13 @@
 {
   "cycle": 0,
-  "chaos": {}
+  "chaos": {},
+  "special_factions": {
+    "the_public": {
+      "support": 0,
+      "health": 100,
+      "population": 20000,
+      "fed": 60,
+      "happy": 50
+    }
+  }
 }

@@ -38,9 +38,12 @@ def run_sequential_actions(
     cycle_num: int,
     logger=None,
     base_stacks: Dict[str, "BaseProjectStack"] = None,
+    public=None,
+    chain_roles: Optional[set] = None,
 ) -> List[ActionResult]:
     """Step 1+2: roll initiative, then resolve each faction's single action in order.
-    A target dropped to 0 health Breaks before the loop continues."""
+    A target dropped to 0 health Breaks before the loop continues.
+    `public`/`chain_roles` flow to the behavior engine for Toil (public-needs_spec)."""
     results: List[ActionResult] = []
     if base_stacks is None:
         base_stacks = {}
@@ -62,7 +65,8 @@ def run_sequential_actions(
         if faction is None:
             continue
 
-        plan = select_faction_action(faction, factions, domains, world, projects, base_stacks)
+        plan = select_faction_action(faction, factions, domains, world, projects, base_stacks,
+                                     public=public, chain_roles=chain_roles)
         result = _execute(plan, faction, factions, domains, projects, base_stacks)
         if not result:
             continue

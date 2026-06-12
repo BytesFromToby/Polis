@@ -57,12 +57,17 @@ def run_cycle(
     event_deck: Optional[List[dict]] = None,
     public: Optional[ThePublic] = None,
     external_threats: Optional[List[ExternalThreat]] = None,
+    chains: Optional[List[dict]] = None,
     logger=None,
 ) -> CycleResult:
     """Run one full simulation cycle. Returns CycleResult."""
     from ..mayor import process_treasury_step0, apply_tax_effects, execute_mayor_actions, apply_reputation_decay
     from ..projects import tick_projects, apply_project_effects
     from ..special import process_the_public, process_moneylender, process_external_threats
+    from ..needs import compute_chain, apply_needs, chain_role_faction_ids
+
+    chains = chains or []
+    chain_roles = chain_role_faction_ids(chains, factions) if chains else set()
 
     cycle_num = world.cycle
     all_results: List[ActionResult] = []
@@ -116,7 +121,8 @@ def run_cycle(
 
     # ── Steps 1–2: Sequential initiative action loop ─────────────────────────
     resolution_results = run_sequential_actions(
-        world, factions, domains, projects, cycle_num, logger, base_stacks=base_stacks
+        world, factions, domains, projects, cycle_num, logger, base_stacks=base_stacks,
+        public=public, chain_roles=chain_roles,
     )
     all_results.extend(resolution_results)
 
@@ -130,6 +136,12 @@ def run_cycle(
     # Tick active deals: decrement cycles_remaining, check compliance, expire (audience_spec).
     if mayor is not None:
         tick_deals(mayor, factions, all_results, cycle_num, logger=logger)
+
+    # ── Item 5b: Public needs (public-needs_spec) ─────────────────────────────
+    # Runs before event processing so this cycle's event rolls see this cycle's bands.
+    if public is not None:
+        needs_out = compute_chain(factions, public.population, chains)
+        all_results.extend(apply_needs(public, needs_out, mayor=mayor))
 
     # ── Step 8: Active game events ────────────────────────────────────────────
     if active_events:
@@ -176,6 +188,11 @@ def run_cycle(
     if public is not None and mayor is not None:
         pub_results = process_the_public(public, mayor, factions, all_results)
         all_results.extend(pub_results)
+
+    # Reset cycle-only Toil flags after the needs step consumed them
+    # (cycle-runner_spec — Cycle-Only State).
+    for f in factions.values():
+        f.toiling = False
 
     # ── Build CycleResult ─────────────────────────────────────────────────────
     cycle_events = [_to_cycle_event(r, cycle_num) for r in all_results]

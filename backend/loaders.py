@@ -200,6 +200,7 @@ def load_projects(path: Optional[str] = None) -> Dict[str, Project]:
 
 
 _DEFAULT_CHAINS_PATH = os.path.join(os.path.dirname(__file__), "data", "chains.json")
+_DEFAULT_WORLD_PATH = os.path.join(os.path.dirname(__file__), "data", "world_state.json")
 
 
 def load_chains(path: Optional[str] = None) -> list:
@@ -209,6 +210,18 @@ def load_chains(path: Optional[str] = None) -> list:
         return []
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+def load_the_public(path: Optional[str] = None):
+    """Build ThePublic from world_state.json's special_factions.the_public block
+    (public-needs_spec / special-factions_spec). Missing file or block → defaults."""
+    from serializer import deserialize_the_public
+    path = path or _DEFAULT_WORLD_PATH
+    block = {}
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            block = json.load(f).get("special_factions", {}).get("the_public", {})
+    return deserialize_the_public(block)
 
 
 def _generate_factions_from_domains(domains: Dict[str, Domain]) -> Dict[str, Faction]:

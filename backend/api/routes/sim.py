@@ -21,7 +21,10 @@ from db.models import City, SimRun, CycleSnapshot, NarrativeLog, User
 from db.session import get_db
 from engine.cycle.runner import run_cycle
 from engine.models import Mayor, Treasury
-from loaders import load_projects
+from loaders import load_projects, load_chains, load_the_public
+
+# Chain definitions are static data — load once per process (public-needs_spec).
+_CHAINS = load_chains()
 from engine.projects import new_base_stacks
 from serializer import serialize_state, serialize_cycle_event, deserialize_state
 
@@ -64,10 +67,12 @@ def _restore_session(user_id: str, db: Session, run_id: str | None = None) -> Si
         projects = load_projects()
     if not base_stacks:
         base_stacks = new_base_stacks(domains)
+    if public is None:
+        public = load_the_public()
     session = SimSession(
         run_id=run.run_id, world=world, factions=factions, domains=domains,
         mayor=mayor, treasury=treasury, projects=projects, base_stacks=base_stacks,
-        llm_profile_id=run.llm_profile_id,
+        public=public, llm_profile_id=run.llm_profile_id,
     )
     set_session(user_id, session)
     return session
@@ -108,11 +113,11 @@ def _get_active_run(user_id: str, db: Session) -> SimRun:
 
 def _save_cycle(db: Session, run_id: str, world, factions, domains, events,
                 mayor=None, treasury=None, projects=None, base_stacks=None,
-                published: bool = True) -> None:
+                public=None, published: bool = True) -> None:
     snapshot = CycleSnapshot(
         run_id=run_id,
         cycle_number=world.cycle,
-        state_json=json.dumps(serialize_state(world, factions, domains, mayor, treasury, projects, base_stacks)),
+        state_json=json.dumps(serialize_state(world, factions, domains, mayor, treasury, projects, base_stacks, public=public)),
     )
     db.add(snapshot)
 
@@ -191,6 +196,7 @@ def start_sim(
     treasury = Treasury()
     projects = load_projects()
     base_stacks = new_base_stacks(domains)
+    public = load_the_public()
 
     setup_run.status = "running"
     setup_run.current_cycle = 0
@@ -222,13 +228,15 @@ def start_sim(
         treasury=treasury,
         projects=projects,
         base_stacks=base_stacks,
+        public=public,
         llm_profile_id=setup_run.llm_profile_id,
     )
     set_session(user_id, session)
 
     # Save cycle-0 snapshot
     _save_cycle(db, setup_run.run_id, world, factions, domains, [],
-                mayor=mayor, treasury=treasury, projects=projects, base_stacks=base_stacks)
+                mayor=mayor, treasury=treasury, projects=projects, base_stacks=base_stacks,
+                public=public)
 
     return SimStatusResponse(
         run_id=setup_run.run_id,
@@ -283,13 +291,15 @@ def step_sim(
 
     result = run_cycle(session.world, session.factions, session.domains,
                        mayor=session.mayor, treasury=session.treasury,
-                       projects=session.projects, base_stacks=session.base_stacks)
+                       projects=session.projects, base_stacks=session.base_stacks,
+                       public=session.public, chains=_CHAINS)
 
     run.current_cycle = session.world.cycle
 
     _save_cycle(db, run.run_id, session.world, session.factions, session.domains,
                 result.events, mayor=session.mayor, treasury=session.treasury,
-                projects=session.projects, base_stacks=session.base_stacks)
+                projects=session.projects, base_stacks=session.base_stacks,
+                public=session.public)
 
     return SimStepResponse(
         cycle=result.cycle,
@@ -340,13 +350,15 @@ def run_n(
 
             result = run_cycle(session.world, session.factions, session.domains,
                                mayor=session.mayor, treasury=session.treasury,
-                               projects=session.projects, base_stacks=session.base_stacks)
+                               projects=session.projects, base_stacks=session.base_stacks,
+                               public=session.public, chains=_CHAINS)
             cycles_run += 1
 
             run.current_cycle = session.world.cycle
             _save_cycle(db, run.run_id, session.world, session.factions, session.domains,
                         result.events, mayor=session.mayor, treasury=session.treasury,
-                        projects=session.projects, base_stacks=session.base_stacks)
+                        projects=session.projects, base_stacks=session.base_stacks,
+                        public=session.public)
 
     finally:
         session.is_running = False
