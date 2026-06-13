@@ -87,6 +87,14 @@ with `surveyor` (spec-vs-code drift) and `walkthrough` (maintenance pass) run wh
 - Tests: `test_*.py` (pytest)
 - Decision records: `YYYY-MM-DD-decision-title.md`
 
+## Content rules
+- **Slavery is out of scope — never mention it.** Do not name, depict, model, or reference
+  slavery, enslaved people, or slave labour anywhere: not in specs, proposals, reference docs,
+  decision logs, code, comments, data, UI text, or commit messages — not even to note it as
+  deliberately excluded. The ancient-Greece setting is a backdrop, not a mandate for
+  historical completeness. If the real-world economy depended on it, simply leave it
+  unrepresented and say nothing; the abstract labour/strength numbers stand on their own.
+
 ## Rules
 - Write in plain, clear language
 - Ask clarifying questions before making assumptions

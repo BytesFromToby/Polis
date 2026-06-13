@@ -127,9 +127,6 @@ something). Resist any fifth.
   efficiency), not part of it.
 - **Warehouses / inventories / trade values** — still rejected; Withhold delivers the
   hoarding fantasy without stock.
-- **Slavery** — load-bearing in the real economy (Laurion especially); abstracted into the
-  existing labor/strength numbers. Recorded here so the omission is a decision, not an
-  accident; revisit deliberately if ever.
 
 ## Tuning doctrine: easy mode first
 
