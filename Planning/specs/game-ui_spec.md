@@ -23,6 +23,10 @@ shown even when empty), with a flat per-domain project list (no build-status spl
 mirrors the faction panel's domain grouping; the initiator no longer affects placement.
 See the Projects Panel feature below.
 
+**The People pass (2026-06-13):** the Mayor window gains a **"The People"** block surfacing
+Public-needs state (population + Fed/Mood/Health bands; drunk/sickly markers) — see the Mayor
+Window feature. Documents the panel built by `public-needs_spec.md`.
+
 ## Scope
 - Does: restructure `GameView` into a three-column demo layout (Factions left,
   Mayor window centre-top, Event Log centre-bottom, Projects right); group factions by
@@ -81,15 +85,18 @@ Each **faction block** (shown when its domain is expanded) contains:
 The Mayor's standing sits in a prominent window across the top of the centre column.
 It carries everything the current right panel shows **except Projects**.
 
-- Input: `mayor` (action_points, action_cap, reputation), `treasury`, and
-  `world` (chaos) from the existing endpoints.
-- Output: a centre-top window with Treasury, Actions/AP, Reputation, and World, plus the
-  audience and actions entry points.
+- Input: `mayor` (action_points, action_cap, reputation), `treasury`,
+  `world` (chaos), and `the_public` (population + need bands) from the existing endpoints.
+- Output: a centre-top window with Treasury, Actions/AP, Reputation, World, and The People,
+  plus the audience and actions entry points.
 
 Contents:
 - **Treasury** — gold, income, spent, debt/invested (when present), max tax (as today)
 - **Actions / AP** — action points `x / cap`; top reputation entries; exemptions summary
 - **World** — chaos display (as today)
+- **The People** (public-needs_spec) — `population` (formatted), the **Fed** band, the **Mood**
+  band (with a `drunk` marker when set), and **Health** (with a `sickly` marker when set), read
+  from `the_public` in `state.full`. Band words/colours mirror `engine/needs/bands.py`.
 - A standalone **Request Audience** button (see Audience Entry Points). *This is the button
   formerly labelled "Meet with Faction ▸"; it opens the audience and is relabelled so it no
   longer implies the deterministic Meet action.*
@@ -99,6 +106,7 @@ Projects do **not** appear in this window (they move to the right column).
 
 **Done when:**
 - The centre-top window shows Treasury (gold, income, spent, max tax), AP `x / cap`, a reputation summary, and World chaos  `[human-required]`
+- The Mayor window shows a **The People** block with population, the Fed band, the Mood band (drunk marker when applicable), and Health (sickly marker when applicable), reading from `state.full`'s `the_public`  `[human-required]`
 - No Projects section appears anywhere in the Mayor window  `[human-required]`
 - The Mayor window contains a standalone audience button **labelled "Request Audience"** (not "Meet with Faction") and an Actions button, both opening their respective flows  `[human-required]`
 - No UI control invokes the deterministic `MeetWithFaction` action (the audience is the sole faction-engagement entry point)  `[automated]`

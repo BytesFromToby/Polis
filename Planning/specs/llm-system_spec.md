@@ -2,6 +2,14 @@
 
 **Version:** v1
 **Date:** 2026-05-20
+**Updated:** 2026-06-13 — reconciled `VALID_FACTION_ACTIONS` to include `Toil`; removed the stale
+`ENTRENCH_NARRATIVE` / `floor` references (both dropped in the demo-redesign).
+
+> **Status — layered design doc, not a Done-when feature spec.** This describes the LLM
+> system's *architecture* (client / translation / memory layers) and carries no `**Done when:**`
+> items. The *testable* prompt and parser behaviour is owned by the specs this one already points
+> at: `audience_spec.md`, `player-identity_spec.md`, `faction-descriptions_spec.md`, and
+> `tax-exemption-shelve_spec.md`. Treat those as authority where they overlap.
 
 The LLM system has three layers that sit between the game engine and any AI model provider. The rest of the codebase interacts only with the translation layer — it never calls an LLM client directly. The game runs fully without an LLM configured (stub mode).
 
@@ -14,7 +22,7 @@ Engine models / DB
       │
       ▼
 Translation Layer          ← prompt builder + response parser
-  (llm/translation.py)
+  (llm/prompt_builder.py + llm/response_parser.py)
       │
       ▼
 LLM Client                 ← provider abstraction
@@ -151,13 +159,6 @@ HEALTH_NARRATIVE = {
     (1,  24):  "Your organisation is in crisis. You are fighting to survive.",
 }
 
-ENTRENCH_NARRATIVE = {
-    (75, 100): "deeply rooted and institutionally secure",
-    (50, 74):  "reasonably entrenched but not unassailable",
-    (25, 49):  "your grip is weakening — others sense an opportunity",
-    (1,  24):  "your organisational hold is precarious",
-}
-
 RATING_NARRATIVE = {
     (4, 5): "dominant",
     (3, 4): "significant",
@@ -165,6 +166,10 @@ RATING_NARRATIVE = {
     (1, 2): "modest",
 }
 ```
+
+> **`ENTRENCH_NARRATIVE` removed (2026-06-13).** `entrench` was dropped from the faction model
+> in the demo-redesign; no entrench narrative exists in `prompt_builder.py`. The state narrative
+> is HEALTH_NARRATIVE + RATING_NARRATIVE only.
 
 #### Recent Events (last 5 cycles)
 
@@ -187,8 +192,8 @@ Mayor can offer:
 - Public endorsement (immediate, one-time)
 
 You can commit to:
-- Taking a specific action (BuildProject, Protect, Grow) every turn for 
-  1–10 cycles [target optional]
+- Taking a specific action (BuildProject, Protect, Grow, or — for supply-chain
+  factions — Toil) every turn for 1–10 cycles [target optional]
 - Refraining from Harm or Steal against a named faction for 1–10 cycles
 ```
 
@@ -241,8 +246,7 @@ Your character:
 Your relationship with the Prytanis: [reputation label] ([score])
 
 Your organisation right now:
-[Health narrative]. Your influence is [rating narrative] (rating [X.X], floor [N]).
-Organisationally you are [entrench narrative] ([X]/100).
+[Health narrative]. Your influence is [rating narrative] (level [N], rating [X.X]).
 
 Recent events (last 5 cycles):
 [Bullet list from narrative_log]
@@ -294,7 +298,7 @@ Parses the LLM's step 5 conclusion output.
 VALID_MAYOR_TERM_TYPES = {"tax_exemption", "endorsement"}  # tax_exemption dormant: still
 # parsed if present, but no longer offered in the prompt (tax-exemption-shelve_spec.md)
 VALID_FACTION_TERM_TYPES = {"committed_action", "committed_abstain"}
-VALID_FACTION_ACTIONS = {"BuildProject", "Protect", "Grow"}
+VALID_FACTION_ACTIONS = {"BuildProject", "Protect", "Grow", "Toil"}  # Toil added by public-needs_spec
 DURATION_RANGE = range(1, 11)
 ```
 
