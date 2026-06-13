@@ -257,3 +257,4 @@ End of Slice 6. Builder checkpoint: tests green → continue to Final Slice.
 
 ---
 ⛔ Final slice complete. Run **inspector** for final sign-off.
+✅ Inspector: final sign-off PASS (2026-06-12) — report: output/inspect/Inspect_public-needs_final_2026-06-12.md; UI evidence: docs/InPlayScreenshots/public-needs_2026-06-12_*.png. Follow-ups (non-blocking): commit a drunk-threshold test (only criterion proven by drive, not suite); amend spec's "Drunk is not stored" line (it is serialized as a display cache).

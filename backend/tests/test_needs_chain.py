@@ -107,6 +107,17 @@ class TestPorridgeFloor:
         assert out.fed_target > 0
 
 
+class TestDrunkThreshold:
+    def test_flips_across_the_boundary(self):
+        # Standard city: wine units 12 → wine_happy 7.2. DRUNK_THRESHOLD 0.25
+        # crosses between demand 28 (0.257 → drunk) and demand 30 (0.24 → sober).
+        from engine.needs.chain import DRUNK_THRESHOLD
+        factions = mk_city()
+        assert compute_chain(factions, 28000, CHAINS).drunk
+        assert not compute_chain(factions, 30000, CHAINS).drunk
+        assert DRUNK_THRESHOLD == 0.25  # test geometry depends on it; fail loudly if tuned
+
+
 class TestToil:
     def test_toiling_producer(self):
         factions = mk_city(aristo_ratings=(3.0,))

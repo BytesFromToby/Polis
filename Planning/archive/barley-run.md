@@ -1,9 +1,11 @@
 # Proposal: The Barley Run — Population, Public Needs, and the First Chain
 
 **Date:** 2026-06-12
-**Status:** PROPOSAL — scheduled for build. This is the v1 slice of `resource-chains.md`:
-one production chain, a real population number, and Public needs in place of abstract supply
-gauges. The **Spec Impact** section below is what `architect` works from.
+**Status:** SHIPPED 2026-06-12 — built and inspector-signed (suite 437 green; final report
+`../../output/inspect/Inspect_public-needs_final_2026-06-12.md`). Spec:
+`../specs/public-needs_spec.md`. This archived proposal is the decision record. Originally
+the v1 slice of `../proposals/resource-chains.md`: one production chain, a real population
+number, and Public needs in place of abstract supply gauges.
 
 ## Problem
 

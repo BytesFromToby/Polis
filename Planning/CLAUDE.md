@@ -31,6 +31,7 @@ Read top-down within a group; `cycle-runner` is the entry point.
 
 **World & content**
 - [special-factions](specs/special-factions_spec.md) — The Public, moneylender, external threats
+- [public-needs](specs/public-needs_spec.md) — the barley run: population + fed/happy/health needs, the harvest chain, Toil, band-gated events
 - [events](specs/events_spec.md) — timed pressure sequences injected into the faction system
 
 **LLM layer**
@@ -44,8 +45,7 @@ Read top-down within a group; `cycle-runner` is the entry point.
 
 **Not built** (see `proposals/`)
 - [city-generation](proposals/city-generation.md) — procedural city/domain/faction generation
-- [resource-chains](proposals/resource-chains.md) — faction output → city supply gauges → population; gives faction strength material consequences
-- [barley-run](proposals/barley-run.md) — **scheduled v1 slice of resource-chains**: population + Public need traits (fed/happy/health) + the harvest→bread/wine chain + Toil action
+- [resource-chains](proposals/resource-chains.md) — faction output → city supply → population; v1 slice **shipped 2026-06-12** as [public-needs](specs/public-needs_spec.md) (proposal archived: [barley-run](archive/barley-run.md)); later slices (fish, wool, iron…) remain here
 - [crisis-and-stance](proposals/crisis-and-stance.md) — disasters as crisis generators + bounded LLM stance layer (rejects LLM-decides-everything; records why)
 - [elections-and-titles](proposals/elections-and-titles.md) — recurring election endgame + dynamic title ladder threaded into the audience prompt
 - [ui-pottery-art-direction](proposals/ui-pottery-art-direction.md) — Geometric-pottery visual direction for the UI redo (band grammar, two-glaze themes); competes with the Wine-Dark system in `docs/Polis Design/`

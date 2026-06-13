@@ -45,6 +45,7 @@ polis/
 │   │   ├── actions/            ← faction.py, _helpers.py
 │   │   ├── cycle/              ← runner.py, resolution.py, end_of_cycle.py
 │   │   ├── events/             ← cascades.py, world.py (mechanical), event_system.py (event deck)
+│   │   ├── needs/              ← bands.py, chain.py, drift.py (public-needs_spec — the barley run)
 │   │   ├── npc/                ← weights.py, behavior.py, targeting.py
 │   │   ├── mayor/              ← actions.py, treasury.py (mayor_spec, treasury_spec)
 │   │   ├── llm/                ← audiences, prompt_builder, response_parser, memory, client, crypto
@@ -80,7 +81,8 @@ polis/
 | `engine/cycle/end_of_cycle.py` | End-of-cycle state updates, leadership events, Break sweep |
 | `engine/events/cascades.py` | Retired no-op (collapse cascades removed — factions are permanent) |
 | `engine/events/world.py` | Chaos-driven upheavals (mechanical) |
-| `engine/events/event_system.py` | Scripted/random event deck (events_spec) |
+| `engine/events/event_system.py` | Scripted/random event deck + Public-need gates (events_spec) |
+| `engine/needs/` | Public needs: word bands, the harvest chain (pure), drift/shortage/population (public-needs_spec) |
 | `engine/npc/{weights,behavior,targeting}.py` | Action weights, selection, and target picking |
 | `engine/mayor/{actions,treasury}.py` | Mayor actions + treasury (mayor_spec, treasury_spec) |
 | `engine/llm/` | LLM audiences, prompt building, response parsing, memory (llm-system_spec) |
@@ -111,7 +113,9 @@ see what earlier ones did. The conceptual phases:
 
 **`Planning/specs/cycle-runner_spec.md` is authoritative** for the full per-cycle
 orchestration (treasury → external threats → mayor → action loop → Break sweep →
-events → projects → world chaos → moneylender → the public).
+**public needs (item 5b)** → events → projects → world chaos → moneylender → the public).
+`Faction.toiling` is cycle-only: set in the action loop, consumed by the needs step,
+reset before `run_cycle` returns.
 
 ---
 

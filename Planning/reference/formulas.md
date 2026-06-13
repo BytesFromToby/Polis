@@ -75,3 +75,24 @@ From `utilization / cap`:
 | ≥ 95% | blocked |
 
 (`cap == 0` → blocked.)
+
+## Public needs (public-needs_spec, as-built 2026-06-12)
+Owned by `engine/needs/` — constants live in `chain.py`/`drift.py`/`bands.py`; tests import
+them. All provisional — tune by feel against `tests/test_needs_dynamics.py`.
+
+**Word bands** (`bands.py`): fed/happy 0–20 Starving/Miserable · 21–45 Hungry/Sullen ·
+46–75 Fed/Content · 76–100 Well fed/Festive. `SICKLY_THRESHOLD = 40` (health below → sickly).
+
+**Chain** (`chain.py`, defined in `data/chains.json`): raw = `3 × level` per aristocracy
+faction; processor capacity = `6 × level` (Ovenmen → bread 1.0 fed/unit; Winepressers → wine
+0.15 fed + 0.6 happy/unit; leftover → porridge 0.4 fed/unit). Capacity ≥ raw → proportional
+split; else full capacities + porridge. `TOIL_MULT = 1.5` on a toiling faction's contribution.
+`demand = population / 1000`; `fed_target = min(100, 75 × fed_supply/demand)`;
+`happy_target = clamp(30 + 75 × happy_supply/demand, 0, 100)`;
+`drunk = wine_happy/demand ≥ 0.25`.
+
+**Drift & effects** (`drift.py`): traits move ≤ `DRIFT_STEP = 10`/cycle toward target.
+Health: Starving −4 · Hungry −2 · Well fed +2. Support: Starving −5 · Hungry −2 ·
+Well fed +2 · Miserable −2 · Festive +2 (via `mayor.reputation["the_public"]`).
+Population: ±2%/cycle (grow: Well fed ∧ health ≥ 70; shrink: Starving ∨ health < 30;
+floor 1000).

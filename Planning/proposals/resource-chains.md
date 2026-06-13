@@ -4,9 +4,11 @@
 **Status:** PROPOSAL — not built, not scheduled. Captured from a roadmap discussion before a
 development pause. Promote via a Spec Impact section when scheduled (see `proposals/README.md`).
 
-> **2026-06-12:** The v1 slice of this proposal was promoted to `barley-run.md` (population +
-> Public needs + the barley/wine chain + Toil). The "supply gauges" framing was replaced there
-> by Public need traits; the Brainstorm section below remains raw material for later slices.
+> **2026-06-12:** The v1 slice of this proposal was promoted to `barley-run.md`, **built, and
+> shipped the same day** (now `../archive/barley-run.md`; spec: `../specs/public-needs_spec.md`).
+> The "supply gauges" framing was replaced there by Public need traits on `ThePublic`; the
+> Brainstorm section below remains raw material for later slices (fish/Netmenders is the
+> designated next producer).
 
 ## Problem
 

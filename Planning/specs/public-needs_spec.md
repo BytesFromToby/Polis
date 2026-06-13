@@ -47,9 +47,11 @@ curve in `../reference/formulas.md`). Tests must reference the constants, not ba
 Health has no band table; one threshold: `health < 40` → the people are **sickly**
 (descriptor + event gate).
 
-**Drunk** is not stored. Each cycle the chain reports wine's happiness contribution;
+**Drunk** is not an axis. Each cycle the chain reports wine's happiness contribution;
 `drunk = (wine_happy / demand) >= DRUNK_THRESHOLD` (0.25). Drunk is an *additional*
 descriptor, independent of the happy band ("Well fed, drunk, Miserable" is a valid city).
+*(As built: cached on `ThePublic.drunk` purely so the UI/serializer can display it between
+cycles — recomputed and overwritten by every needs step; never drifted, never a driver.)*
 
 - Input: city data `special_factions.the_public` (gains `population`, `fed`, `happy`).
 - Output: band words + drunk/sickly flags exposed to prompt, UI, and event system.

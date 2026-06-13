@@ -16,6 +16,7 @@ Application code for the simulation engine, API, and database.
 | `engine/` | Core simulation — models, formulas, actions, cycle, NPC, events |
 | `engine/actions/` | Faction action resolvers |
 | `engine/cycle/` | Sequential-initiative cycle runner — resolution, end-of-cycle |
+| `engine/needs/` | Public needs — bands, harvest chain, drift (public-needs_spec) |
 | `engine/npc/` | NPC behavior — weight building, action selection, targeting |
 | `engine/events/` | `cascades`/`world` (mechanical collapse + chaos) + `event_system` (event deck) |
 | `engine/mayor/` | Mayor actions + treasury (mayor_spec, treasury_spec) |
