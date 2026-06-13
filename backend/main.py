@@ -18,7 +18,7 @@ from engine.cycle import run_cycle
 from engine.needs import fed_band, happy_band
 from engine.projects import new_base_stacks
 from engine.logger import SimLogger
-from loaders import load_state_from_json, load_chains, load_the_public
+from loaders import load_state_from_json, load_chains, load_the_public, load_event_deck
 
 
 # ── End-of-Run Summary ────────────────────────────────────────────────────────
@@ -77,6 +77,8 @@ def main():
     base_stacks = new_base_stacks(domains)
     public = load_the_public(os.path.join(args.data_dir, "world_state.json"))
     chains = load_chains(os.path.join(args.data_dir, "chains.json"))
+    event_deck = load_event_deck(os.path.join(args.data_dir, "events.json"))
+    active_events = []
 
     print("Polis v3")
     print(f"  Cycles:   {args.cycles}")
@@ -100,6 +102,7 @@ def main():
 
         result = run_cycle(world, factions, domains, mayor=mayor, treasury=treasury,
                            base_stacks=base_stacks, public=public, chains=chains,
+                           event_deck=event_deck, active_events=active_events,
                            logger=logger)
 
         for event in result.events:

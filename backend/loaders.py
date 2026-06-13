@@ -212,6 +212,18 @@ def load_chains(path: Optional[str] = None) -> list:
         return json.load(f)
 
 
+_DEFAULT_EVENTS_PATH = os.path.join(os.path.dirname(__file__), "data", "events.json")
+
+
+def load_event_deck(path: Optional[str] = None) -> list:
+    """Load the city's event deck (events_spec). Missing file → []."""
+    path = path or _DEFAULT_EVENTS_PATH
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
 def load_the_public(path: Optional[str] = None):
     """Build ThePublic from world_state.json's special_factions.the_public block
     (public-needs_spec / special-factions_spec). Missing file or block → defaults."""

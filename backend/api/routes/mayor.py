@@ -419,6 +419,7 @@ def audience_begin(
     from engine.llm.audiences import begin_audience_step, AudienceError
     city_name, player_name, player_title = _get_audience_identity(session, db)
     try:
+        from api.routes.sim import _CHAINS
         state = begin_audience_step(
             faction=faction, mayor=mayor,
             run_id=session.run_id, cycle=session.world.cycle,
@@ -426,6 +427,7 @@ def audience_begin(
             city_description=_get_city_description(session, db),
             city_name=city_name, player_name=player_name, player_title=player_title,
             llm_config=_get_llm_config(session, db),
+            public=session.public, chains=_CHAINS,
         )
     except AudienceError as exc:
         mayor.action_points += ACTION_COSTS.get("MeetWithFaction", 1)  # refund on failure

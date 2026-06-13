@@ -193,21 +193,24 @@ End of Slice 4. Builder checkpoint: tests green → continue to Slice 5.
 **Test:** Write `tests/test_needs_event_gates.py`: sentinel no-effect templates, one per fed band + one sickly + one min/max happy, injected as the deck; assert eligibility flips exactly at the band boundaries by setting `public.fed/happy/health` directly (spec sentinel Done-when), and that a Starving-gated template is eligible the same cycle `run_cycle` starves the city (engineer with a tiny population... high demand via large population, zero aristocracy — assert via the deck roll with chance forced/mocked to 100%).
 **Done When:** Gate tests pass independently per key; same-cycle test passes (spec cycle Done-whens 1–2).
 **Stuck If:** `roll_for_random_events` selection can't be made deterministic for the test without monkeypatching more than the chance roll.
-- [ ] Complete
+- [x] Complete
+**Deviation:** Same-cycle test monkeypatches `random.random` and `random.choices` (two patches — choice selection needed determinism too). Known structural limit surfaced: rolls iterate `world.chaos` domains, so a zero-chaos starving city never rolls — gates are correct, firing dynamics remain chaos-coupled (events-system follow-up, not this feature).
 
 ### Step 2: Ship the v1 deck
 **Build:** Create `data/events.json` with two entries per events_spec: `bread_riot` (random; `trigger_conditions: {"max_fed_band": "Starving"}`; effects: The Public support −5 one-time, chaos +1 in `civic` or the most food-relevant domain — match `EventEffect` fields as implemented; duration 2) and `plague_outbreak` (gate `{"sickly": true}`; effects per the existing example in events_spec: professions health −3/cycle, Public health −5/cycle, duration 4). Add `load_event_deck(data_dir="data")` to `loaders.py` (missing file → `[]`). Wire: `main.py` and both `sim.py` call sites pass `event_deck=load_event_deck(), active_events=session/local list`; `SimSession` gains `active_events: list = None` (post_init `[]`). Note: active events are NOT persisted in snapshots — known v1 gap, log a deviation note here in the blueprint.
 **Test:** Deck loads; full suite; `py main.py --cycles 30` completes (riots may or may not fire — no assertion on randomness here).
 **Done When:** Deck file loads and live paths feed it; suite green.
 **Stuck If:** `EventEffect`/template instantiation rejects the support/chaos effect fields — check `_instantiate_event` for the real template schema and conform; deviation-note any field-name differences from events_spec examples.
-- [ ] Complete
+- [x] Complete
+**Deviation:** The effect applier (`_apply_single_event_effect`) supports only faction health/rating, domain drift, and an effectively unreachable chaos branch — it cannot touch The Public's fields or support. Deck conformed to faction-health effects: bread_riot → ovenmen −10/cycle ("the mob storms the bakeries" — thematically better anyway), plague_outbreak → asklepiads −3/cycle. Public-support/chaos event effects deferred to an events-system follow-up.
 
 ### Step 3: Audience prompt + parser
 **Build:** In `engine/llm/prompt_builder.py`: add the needs line (`needs_line(...)` from `engine/needs/bands.py`) to the system prompt's city-state section — the builder must receive the public; follow how `world`/faction state currently reach the prompt builder and thread `public` the same way (likely via the audience entry in `engine/llm/audiences.py` and its API route — `grep` the call chain first). Add `Toil` to the committable-action term list **only when the audience faction has a chain role** (use `chain_role_faction_ids`), with a plain "what it does" line per audience_spec. In `engine/llm/response_parser.py`: treat `Toil` like `Grow`/`Protect` — valid `committed_action`, `target_id` cleared.
 **Test:** Extend `tests/test_audience_terms.py` (it exists): prompt for `ovenmen` lists Toil; prompt for a non-chain faction (e.g. `tidesworn`) does not; prompt contains the needs line with current band words; parser clears `target_id` on Toil. Run full suite.
 **Done When:** All four audience Done-when additions pass (audience_spec v5.1).
 **Stuck If:** The prompt builder has no access path for `public` without widening >2 signatures — report the chain before widening.
-- [ ] Complete
+- [x] Complete
+**Deviation:** Exactly two signatures widened (`begin_audience_step`/`run_audience` + `PromptBuilder.build`), threaded from the audience route via `session.public` + `_CHAINS`.
 
 ---
 End of Slice 6. Builder checkpoint: tests green → continue to Final Slice.

@@ -127,6 +127,60 @@ def test_parser_target_guard():
     assert r_build.faction_terms[0].target_id == "dock"
 
 
+# (g) Toil — chain-role gating, needs line, parser target guard (audience_spec v5.1)
+def _build_prompt_for(fid, domain, public=None):
+    from engine.models import ThePublic
+    from loaders import load_chains
+    f = Faction(id=fid, name=fid.title(), domain_primary=domain, leader=Leader(name="X"), rating=2.0)
+    db = MagicMock()
+    db.query.return_value.filter.return_value.order_by.return_value.limit.return_value.all.return_value = []
+    db.query.return_value.filter.return_value.order_by.return_value.all.return_value = []
+    m = Mayor()
+    m.set_reputation(fid, 5)
+    return PromptBuilder().build(
+        faction=f, run_id="r", mayor=m, db=db, factions={fid: f}, domains={},
+        public=public or ThePublic(), chains=load_chains(),
+    )
+
+
+def test_toil_offered_only_to_chain_role_factions():
+    p_oven = _build_prompt_for("ovenmen", "guilds")
+    assert "Toil" in p_oven
+    assert '"action": "Toil"' in p_oven
+
+    p_temple = _build_prompt_for("tidesworn", "temples")
+    assert "Toil" not in p_temple
+
+
+def test_prompt_contains_needs_line():
+    from engine.models import ThePublic
+    p = _build_prompt_for("ovenmen", "guilds", public=ThePublic(fed=80, happy=10, health=100))
+    assert "The people are Well fed" in p
+    assert "Miserable" in p
+
+
+def test_prompt_without_public_has_no_needs_line():
+    assert "The people are" not in _build_prompt()
+
+
+def test_toil_schema_line_untargeted():
+    p = _build_prompt_for("ovenmen", "guilds")
+    toil_line = next(l for l in p.split("\n") if '"action": "Toil"' in l)
+    assert "target_id" not in toil_line
+
+
+def test_parser_clears_toil_target():
+    parser, f, m = ResponseParser(), _faction(), _mayor()
+    r = parser.parse(
+        _deal('{"type": "endorsement"}',
+              '{"type": "committed_action", "action": "Toil", "target_id": "f2", "duration": 4}'),
+        f, m,
+    )
+    assert r.accepted
+    assert r.faction_terms[0].action == "Toil"
+    assert r.faction_terms[0].target_id == ""
+
+
 # (e) a removed term bundled with a valid one is dropped; the deal still seals
 def test_budget_term_dropped_deal_seals():
     parser, f, m = ResponseParser(), _faction(), _mayor()

@@ -165,9 +165,9 @@ def run_cycle(
         if logger and r.dramatic and r.narrative:
             logger.log_dramatic(cycle_num, r.narrative)
 
-    # Roll for new random events
+    # Roll for new random events (public enables need-gated templates)
     if event_deck and active_events is not None:
-        new_events = roll_for_random_events(world, factions, domains, event_deck)
+        new_events = roll_for_random_events(world, factions, domains, event_deck, public=public)
         active_events.extend(new_events)
 
     # ── Step 9: Increment cycle + Mayor end-of-cycle ─────────────────────────

@@ -19,7 +19,7 @@ VALID_TERM_TYPES = {
     "committed_action", "committed_abstain",
 }
 
-VALID_FACTION_ACTIONS = {"BuildProject", "Protect", "Grow"}
+VALID_FACTION_ACTIONS = {"BuildProject", "Protect", "Grow", "Toil"}
 
 _DEAL_RE = re.compile(r"<deal>\s*(.*?)\s*</deal>", re.DOTALL)
 _DEAL_OPEN_RE = re.compile(r"<deal>\s*(.*?)$", re.DOTALL)  # truncated fallback
@@ -212,7 +212,7 @@ class ResponseParser:
             if term_type in ("committed_action",) and action not in VALID_FACTION_ACTIONS:
                 return [], f"invalid committed_action: {action!r}"
 
-            # Targeting is per-action: only BuildProject takes a target. Grow/Protect are untargeted.
+            # Targeting is per-action: only BuildProject takes a target. Grow/Protect/Toil are untargeted.
             if term_type == "committed_action" and action != "BuildProject":
                 target_id = ""
 

@@ -35,8 +35,10 @@ def roll_for_random_events(
     factions: Dict[str, Faction],
     domains: Dict[str, Domain],
     event_deck: List[dict],
+    public=None,
 ) -> List[GameEvent]:
-    """Roll for new random events this cycle. Returns newly-fired events."""
+    """Roll for new random events this cycle. Returns newly-fired events.
+    `public` enables Public-need gates on templates (events_spec — Public-need gates)."""
     if not event_deck:
         return []
 
@@ -50,7 +52,7 @@ def roll_for_random_events(
         candidates = [
             e for e in event_deck
             if e.get("type") == "random"
-            and _matches_trigger(e, domain_id, chaos_val, factions, world)
+            and _matches_trigger(e, domain_id, chaos_val, factions, world, public)
         ]
         if not candidates:
             continue
@@ -64,12 +66,16 @@ def roll_for_random_events(
     return new_events
 
 
+_NEED_GATE_KEYS = ("max_fed_band", "min_fed_band", "max_happy_band", "min_happy_band", "sickly")
+
+
 def _matches_trigger(
     template: dict,
     domain_id: str,
     chaos_val: float,
     factions: Dict[str, Faction],
     world: WorldState,
+    public=None,
 ) -> bool:
     conds = template.get("trigger_conditions", {})
     if "domain" in conds and conds["domain"] != domain_id:
@@ -80,6 +86,31 @@ def _matches_trigger(
         count = sum(1 for f in factions.values() if f.domain_primary == domain_id)
         if count < conds["min_factions"]:
             return False
+    if not _matches_need_gates(conds, public):
+        return False
+    return True
+
+
+def _matches_need_gates(conds: dict, public) -> bool:
+    """Public-need gates (events_spec). A template carrying any need gate is
+    ineligible when no public is provided."""
+    if not any(k in conds for k in _NEED_GATE_KEYS):
+        return True
+    if public is None:
+        return False
+    from ..needs.bands import FED_BANDS, HAPPY_BANDS, band_index, fed_band, happy_band, is_sickly
+    fed_i = band_index(fed_band(public.fed), FED_BANDS)
+    happy_i = band_index(happy_band(public.happy), HAPPY_BANDS)
+    if "max_fed_band" in conds and fed_i > band_index(conds["max_fed_band"], FED_BANDS):
+        return False
+    if "min_fed_band" in conds and fed_i < band_index(conds["min_fed_band"], FED_BANDS):
+        return False
+    if "max_happy_band" in conds and happy_i > band_index(conds["max_happy_band"], HAPPY_BANDS):
+        return False
+    if "min_happy_band" in conds and happy_i < band_index(conds["min_happy_band"], HAPPY_BANDS):
+        return False
+    if "sickly" in conds and conds["sickly"] != is_sickly(public.health):
+        return False
     return True
 
 

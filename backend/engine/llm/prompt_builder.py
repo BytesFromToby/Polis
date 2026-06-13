@@ -79,8 +79,13 @@ VALID_MAYOR_TERMS_TEMPLATE = """What the {title} can offer you:
 VALID_FACTION_TERMS_TEMPLATE = """What you can commit to (one commitment, every turn for 1–10 cycles):
 - Grow — invest in your own strength; no target
 - Protect — raise your defenses; you take less Harm from ALL rivals; no target
-- BuildProject — work to build {project_name} ({project_desc}); target it by your domain id below
+- BuildProject — work to build {project_name} ({project_desc}); target it by your domain id below{toil_term}
 - Refrain from Harm or Steal against one named faction"""
+
+# Offered only to factions with a supply-chain role (public-needs_spec / audience_spec v5.1).
+TOIL_TERM_LINE = ("\n- Toil — work your trade; the city's supply from your hands rises this "
+                  "cycle while you stand still politically; no target")
+TOIL_SCHEMA_LINE = '\n  - {"type": "committed_action", "action": "Toil", "duration": <1-10>}'
 
 SYSTEM_TEMPLATE = """{tone_line}
 
@@ -95,7 +100,7 @@ Your relationship with the {title}: {rep_label} ({rep_score:+d})
 
 Your organisation right now:
 {health_line} Your influence is {rating_desc} (level {level}, rating {rating:.2f}).
-
+{public_line}
 Recent events (last 5 cycles):
 {recent_events}
 
@@ -125,7 +130,7 @@ Each entry in "mayor_terms" and "faction_terms" MUST be a JSON object — never 
 - Your terms ("faction_terms") — commit to exactly ONE:
   - {{"type": "committed_action", "action": "Grow", "duration": <1-10>}}
   - {{"type": "committed_action", "action": "Protect", "duration": <1-10>}}
-  - {{"type": "committed_action", "action": "BuildProject", "target_id": "{domain}", "duration": <1-10>}}
+  - {{"type": "committed_action", "action": "BuildProject", "target_id": "{domain}", "duration": <1-10>}}{toil_schema_line}
   - {{"type": "committed_abstain", "action": "Harm" | "Steal", "target_id": "<a faction id>", "duration": <1-10>}}
 
 If you accept, "faction_terms" must contain at least one object stating what you commit to in return — an accepted deal where you give nothing will be rejected.
@@ -235,6 +240,8 @@ class PromptBuilder:
         city_name: str = "Polis",
         player_name: str = "Kallisto",
         player_title: str = "Prytanis",
+        public=None,
+        chains=None,
     ) -> str:
         leader_name = faction.leader.name if faction.leader else faction.name
         leader_note = ""
@@ -263,10 +270,22 @@ class PromptBuilder:
 
         valid_mayor = VALID_MAYOR_TERMS_TEMPLATE.format(title=player_title)
 
-        valid_actions = "BuildProject, Protect, Grow"
+        # Public needs line + Toil term (public-needs_spec / audience_spec v5.1).
+        # Toil is offered only to factions with a supply-chain role.
+        public_line = ""
+        has_chain_role = False
+        if public is not None:
+            from engine.needs import compute_chain, needs_line, chain_role_faction_ids
+            drunk = compute_chain(factions, public.population, chains or []).drunk
+            public_line = f"\nThe city: {needs_line(public, drunk)}\n"
+            if chains:
+                has_chain_role = faction.id in chain_role_faction_ids(chains, factions)
+
+        valid_actions = "BuildProject, Protect, Grow" + (", Toil" if has_chain_role else "")
         valid_faction = VALID_FACTION_TERMS_TEMPLATE.format(
             project_name=base_project_name(faction.domain_primary),
             project_desc=base_project_description(faction.domain_primary),
+            toil_term=TOIL_TERM_LINE if has_chain_role else "",
         )
 
         return SYSTEM_TEMPLATE.format(
@@ -290,4 +309,6 @@ class PromptBuilder:
             valid_mayor_terms=valid_mayor,
             valid_faction_terms=valid_faction,
             valid_actions=valid_actions,
+            public_line=public_line,
+            toil_schema_line=TOIL_SCHEMA_LINE if has_chain_role else "",
         )

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "bread_riot",
+    "name": "Bread Riot",
+    "type": "random",
+    "trigger_conditions": {"max_fed_band": "Starving"},
+    "weight": 4,
+    "template": {
+      "target_type": "faction",
+      "target_id": "ovenmen",
+      "duration": 2,
+      "effects": [
+        {"field": "health", "target_id": "ovenmen", "value": -10, "label": "the starving mob storms the bakeries"}
+      ]
+    }
+  },
+  {
+    "id": "plague_outbreak",
+    "name": "Plague Outbreak",
+    "type": "random",
+    "trigger_conditions": {"sickly": true},
+    "weight": 3,
+    "template": {
+      "target_type": "faction",
+      "target_id": "asklepiads",
+      "duration": 4,
+      "effects": [
+        {"field": "health", "target_id": "asklepiads", "value": -3, "label": "plague fills the sick-houses"}
+      ]
+    }
+  }
+]

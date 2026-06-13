@@ -21,10 +21,11 @@ from db.models import City, SimRun, CycleSnapshot, NarrativeLog, User
 from db.session import get_db
 from engine.cycle.runner import run_cycle
 from engine.models import Mayor, Treasury
-from loaders import load_projects, load_chains, load_the_public
+from loaders import load_projects, load_chains, load_the_public, load_event_deck
 
-# Chain definitions are static data — load once per process (public-needs_spec).
+# Chain definitions and the event deck are static data — load once per process.
 _CHAINS = load_chains()
+_EVENT_DECK = load_event_deck()
 from engine.projects import new_base_stacks
 from serializer import serialize_state, serialize_cycle_event, deserialize_state
 
@@ -292,7 +293,8 @@ def step_sim(
     result = run_cycle(session.world, session.factions, session.domains,
                        mayor=session.mayor, treasury=session.treasury,
                        projects=session.projects, base_stacks=session.base_stacks,
-                       public=session.public, chains=_CHAINS)
+                       public=session.public, chains=_CHAINS,
+                       event_deck=_EVENT_DECK, active_events=session.active_events)
 
     run.current_cycle = session.world.cycle
 
@@ -351,7 +353,8 @@ def run_n(
             result = run_cycle(session.world, session.factions, session.domains,
                                mayor=session.mayor, treasury=session.treasury,
                                projects=session.projects, base_stacks=session.base_stacks,
-                               public=session.public, chains=_CHAINS)
+                               public=session.public, chains=_CHAINS,
+                               event_deck=_EVENT_DECK, active_events=session.active_events)
             cycles_run += 1
 
             run.current_cycle = session.world.cycle

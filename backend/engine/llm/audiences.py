@@ -82,6 +82,8 @@ def begin_audience_step(
     player_name: str = "Kallisto",
     player_title: str = "Prytanis",
     llm_config: Optional[LLMConfig] = None,
+    public=None,
+    chains=None,
 ) -> dict:
     """Phase 1 — build context + run step 1 (faction opens). Returns opaque state dict."""
     cfg = llm_config or LLMConfig.from_env()
@@ -91,6 +93,7 @@ def begin_audience_step(
         factions=factions, domains=domains,
         city_description=city_description, city_setting=city_setting,
         city_name=city_name, player_name=player_name, player_title=player_title,
+        public=public, chains=chains,
     )
     messages: list[dict] = [{"role": "user", "content": _OPENING_USER_MSG}]
     messages_sent = list(messages)
@@ -247,6 +250,8 @@ def run_audience(
     player_name: str = "Kallisto",
     player_title: str = "Prytanis",
     llm_config: Optional[LLMConfig] = None,
+    public=None,
+    chains=None,
 ) -> AudienceResult:
     """
     Run a full 5-step audience negotiation.
@@ -275,6 +280,8 @@ def run_audience(
         city_name=city_name,
         player_name=player_name,
         player_title=player_title,
+        public=public,
+        chains=chains,
     )
 
     messages: list[dict] = []

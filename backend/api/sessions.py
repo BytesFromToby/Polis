@@ -27,6 +27,7 @@ class SimSession:
     projects: Dict[str, Project] = None                       # legacy: tax_collection / standard
     base_stacks: Dict[str, BaseProjectStack] = None           # one per domain (projects_spec v6)
     public: ThePublic = None                                  # the city's populace (public-needs_spec)
+    active_events: list = None                                # live GameEvents (events_spec; not persisted — v1 gap)
     is_running: bool = False   # True while sim/run/{n} is executing
     llm_profile_id: Optional[str] = None
     audience_state: Optional[dict] = None  # in-progress audience negotiation
@@ -36,6 +37,8 @@ class SimSession:
             self.projects = {}
         if self.base_stacks is None:
             self.base_stacks = {}
+        if self.active_events is None:
+            self.active_events = []
 
 
 # user_id → SimSession
