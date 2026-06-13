@@ -49,6 +49,7 @@ def apply_needs(
 
     public.fed = max(0, min(100, _drift_toward(public.fed, out.fed_target)))
     public.happy = max(0, min(100, _drift_toward(public.happy, out.happy_target)))
+    public.drunk = out.drunk   # display cache — derived, never drifted
 
     new_fed_word = fed_band(public.fed)
     new_happy_word = happy_band(public.happy)

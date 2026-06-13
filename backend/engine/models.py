@@ -359,6 +359,7 @@ class ThePublic:
     population: int = 20000    # real city population; grows/shrinks with needs (public-needs_spec)
     fed: int = 60              # 0-100; how well the people eat (public-needs_spec)
     happy: int = 50            # 0-100; the people's mood (public-needs_spec)
+    drunk: bool = False        # display cache of the chain's drunk flag — derived each cycle, never drifted
 
     def derive_disposition(self) -> str:
         if self.support >= 20:   return "content"

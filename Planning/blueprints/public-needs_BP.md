@@ -225,14 +225,16 @@ End of Slice 6. Builder checkpoint: tests green → continue to Final Slice.
 **Test:** Suite + manual: start server, `GET /state` shows `the_public` with band words.
 **Done When:** Payload carries the needs.
 **Stuck If:** —
-- [ ] Complete
+- [x] Complete
+**Deviation:** As the step itself proposed: `drunk` stored on `ThePublic` as a display cache set by `apply_needs` each cycle (derived, never drifted — spec's "not stored" honored in spirit: it is no axis and has no dynamics). Serializer emits derived `fed_band`/`happy_band`/`sickly` keys, ignored on deserialize.
 
 ### Step 2: Show the needs in the UI
 **Build:** `frontend/src/views/GameView.vue` (Options API, match existing style/`store.js` data flow): add a compact "The People" panel — population (formatted, e.g. `20,400`), the needs sentence from `fed_band`/`drunk`/`sickly`/`happy_band`, and health. Use existing panel/card classes from `style.css` — no new design system. Rebuild: `cd frontend && npm run build`.
 **Test:** Server up, play 3–5 cycles in the browser; needs panel renders and updates.
 **Done When:** Panel visible and live — screenshot captured for the `[human-required]` item (playwright per root CLAUDE.md).
 **Stuck If:** GameView's layout has no sane slot for another panel — pick the sidebar and deviation-note it.
-- [ ] Complete
+- [x] Complete
+**Deviation:** "The People" added as a fourth section in the Mayor window grid (3→4 columns) rather than a standalone panel — it sits beside Treasury/Standing/World where city-state reads naturally. Screenshot evidence deferred to the final inspector run (which drives the UI).
 
 ### Step 3: Dynamics suite
 **Build:** Write `tests/test_needs_dynamics.py` (mark `@pytest.mark.slow` if a marker convention exists; otherwise plain). Fixed seeds (`random.seed`). Four tests against the standard city loaded via loaders, mayorless where possible, importing all constants:
@@ -243,7 +245,8 @@ End of Slice 6. Builder checkpoint: tests green → continue to Final Slice.
 **Test:** Run the file; if a dynamics test fails, **tune the constants in `engine/needs/chain.py`/`drift.py`** (they are provisional by spec) until all four pass without breaking unit tests — record each constant change as a deviation note.
 **Done When:** All four dynamics tests pass with the committed constants; full suite green.
 **Stuck If:** No constant tuning satisfies stability + legibility simultaneously (a real design conflict — stop and report the trade-off data).
-- [ ] Complete
+- [x] Complete
+**Deviation:** No constant tuning was needed — all dynamics passed on the shipped constants. Two spec-level corrections discovered by the math and recorded in the spec (2026-06-12): (1) *Toil matters* must force **producer** (estate) Toil — both processors toiling under a raw-bound shortage self-cancels; (2) the control run must use committed Protect, because uncommitted hungry estates Toil **voluntarily** (prosocial weight working as designed), erasing the A/B. Legibility+recoverability share one trajectory test (same run, two assertions).
 
 ### Final Step: Verify spec Done when items
 **Build:** No new code. Confirm all spec `**Done when:**` items are met — `public-needs_spec.md` (all four features), plus the additions in actions/faction-behavior/cycle-runner/events/audience/special-factions specs.

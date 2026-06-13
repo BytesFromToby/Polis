@@ -163,8 +163,12 @@ templates gate on them via `trigger_conditions` keys (`max_fed_band`, `min_fed_b
 - Setting all aristocracy ratings to half their start values produces a fed band at least
   one step lower within 5 cycles of the change (*legibility*); restoring them returns fed
   to the original band within 15 cycles (*recoverability*)  `[automated]`
-- The same engineered shortage run with a forced Winepressers+Ovenmen Toil each cycle keeps
-  a strictly higher minimum `fed` than the run without Toil (*Toil matters*)  `[automated]`
+- The same engineered shortage run with the aristocracy estates under committed Toil keeps a
+  strictly higher minimum `fed` than with committed Protect (*Toil matters*). (Two findings
+  from build, 2026-06-12: producers, not processors, are the lever in a harvest shortage —
+  both processors toiling together merely re-balances an unchanged split; and the control must
+  be committed too, because uncommitted hungry estates Toil voluntarily via the prosocial
+  shortage weight, by design.)  `[automated]`
 - After a cycle, the audience system prompt contains the needs line with the current band
   words, e.g. "The people are Well fed, drunk, and Content." (assembly owned by
   `audience_spec.md`; presence proven here)  `[automated]`

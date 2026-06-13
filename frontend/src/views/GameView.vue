@@ -120,6 +120,18 @@
               </div>
               <div v-else class="muted mayor-stub">—</div>
             </div>
+
+            <!-- The People (public-needs) -->
+            <div class="mayor-section">
+              <div class="mayor-section-label">The People</div>
+              <div v-if="pub" style="font-size:0.82rem">
+                <div class="info-row"><span class="muted">Population</span><span class="accent bold">{{ pub.population.toLocaleString() }}</span></div>
+                <div class="info-row"><span class="muted">Fed</span><span :class="needBandColor(pub.fed)">{{ pub.fed_band }}</span></div>
+                <div class="info-row"><span class="muted">Mood</span><span :class="needBandColor(pub.happy)">{{ pub.happy_band }}{{ pub.drunk ? ' (drunk)' : '' }}</span></div>
+                <div class="info-row"><span class="muted">Health</span><span :class="pub.sickly ? 'danger' : ''">{{ pub.health }}{{ pub.sickly ? ' (sickly)' : '' }}</span></div>
+              </div>
+              <div v-else class="muted mayor-stub">—</div>
+            </div>
           </div>
         </div>
 
@@ -307,6 +319,9 @@ export default {
       if (!this.snapshot?.factions) return []
       return Object.values(this.snapshot.factions)
         .sort((a, b) => a.name.localeCompare(b.name))
+    },
+    pub() {
+      return this.snapshot?.the_public || null
     },
     factionsByDomain() {
       const factions = this.snapshot?.factions
@@ -513,6 +528,13 @@ export default {
       if (score <= -10) return 'danger'
       return 'muted'
     },
+    needBandColor(value) {
+      // Band thresholds mirror engine/needs/bands.py (public-needs_spec)
+      if (value >= 76) return 'green'
+      if (value <= 20) return 'danger'
+      if (value <= 45) return 'accent'
+      return ''
+    },
   },
 }
 </script>
@@ -593,7 +615,7 @@ export default {
 .mayor-actions-bar { display: flex; gap: 0.5rem; }
 .mayor-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
 }
 .center-log {
