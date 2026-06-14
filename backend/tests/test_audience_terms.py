@@ -59,7 +59,7 @@ def test_prompt_explains_each_term():
 
 
 # (b3) the prompt names the faction's OWN buildable + targets it by domain id
-# (audience-build-target-info_spec)
+# (audience_spec.md — BuildProject buildable info)
 def test_prompt_names_own_buildable_and_domain_target():
     from engine.projects import base_project_description
     p = _build_prompt()                            # faction: domain_primary="trade" → "Agora"
@@ -74,7 +74,7 @@ def test_prompt_names_own_buildable_and_domain_target():
     assert "Docks" not in p and "Barracks" not in p
 
 
-# (b2) tax exemption is shelved — the prompt offers only endorsement (tax-exemption-shelve_spec)
+# (b2) tax exemption is shelved — the prompt offers only endorsement (audience_spec.md; record in archive/)
 def test_prompt_offers_only_endorsement():
     p = _build_prompt()
     assert "endorsement" in p.lower()

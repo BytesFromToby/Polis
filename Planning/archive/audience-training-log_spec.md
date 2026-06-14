@@ -1,5 +1,8 @@
 # Spec: Audience Training Log
 
+> **ARCHIVED 2026-06-13 — consolidated into `../specs/audience_spec.md`** ("Training Log"), which
+> carries the live rule + Done-when items. Kept here for full context. Non-authoritative.
+
 A separate, structured JSONL log that captures each completed **live-AI** audience as one
 record — the system prompt, the full negotiation transcript (including the Mayor's freeform
 inputs), the raw LLM responses, the parsed deal, and the final outcome. It exists to build a

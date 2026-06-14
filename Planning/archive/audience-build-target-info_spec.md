@@ -1,5 +1,9 @@
 # Spec: Audience Build-Target Info
 
+> **ARCHIVED 2026-06-13 — consolidated into `../specs/audience_spec.md`** ("BuildProject — the
+> faction's own buildable"), which carries the live rule + Done-when items. Kept here for full
+> problem-statement context. Non-authoritative.
+
 A faction can only build its **own domain's** base project (the resolver gates on
 `domain_primary`; `_committed_plan` hardcodes the target to the faction's domain). But the
 audience prompt tells the LLM nothing about what it can build — it just says "name the project"

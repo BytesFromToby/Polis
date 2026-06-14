@@ -80,7 +80,7 @@ The demo roster is **8 levers**, grouped below. The action map (`engine/mayor/ac
 
 **Grant Tax Exemption** (1 AP) — **deferred/dormant (shelved 2026-06-08).** No income effect
 under treasury_spec v3, so it is not exposed in the UI and not offered in audiences. The
-backend lever and engine machinery remain dormant; see `tax-exemption-shelve_spec.md`.
+backend lever and engine machinery remain dormant; full shelving record in `../archive/tax-exemption-shelve_spec.md`.
 - Exempt a specific faction from taxation for 1–10 cycles (Mayor sets duration at time of granting)
 - Exempted faction's weight is excluded from that domain's tax income calculation
 - Exempted faction gains +5 Mayor reputation per cycle of exemption

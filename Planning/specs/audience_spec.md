@@ -1,8 +1,9 @@
 # Audience Specification
 
-**Version:** v5.1
+**Version:** v5.2
 **Date:** 2026-06-07
 **Updated:** 2026-06-12 — **Toil committable** (chain-role factions only) + **Public needs line** in the system prompt (public-needs / barley-run).
+**Updated:** 2026-06-13 — consolidated three former satellite specs into this one (audience is one subsystem, one spec): **BuildProject buildable info**, **Deal card** transcript presentation, **Training log** capture. The originals are archived for their full problem-statement context.
 
 The Mayor can request a formal audience with a faction leader. Audiences are the only way to create binding deals. The faction leader is driven by an LLM that opens the scene, negotiates through two player exchanges, and delivers a final decision.
 
@@ -97,7 +98,7 @@ you from House X," because Protect has no target.
 > **`tax_exemption` is deferred (shelved 2026-06-08).** It had no income effect under
 > treasury_spec v3 (income = base + Tax Offices), so it is no longer offered to factions —
 > `endorsement` is the only Mayor term in the demo. The parser still accepts a stray
-> `tax_exemption` term (dormant); see `tax-exemption-shelve_spec.md`.
+> `tax_exemption` term (dormant); full shelving record in `../archive/tax-exemption-shelve_spec.md`.
 
 ### Faction can commit to (one per deal):
 
@@ -134,6 +135,21 @@ The leader sees the same city the engine does.
 - The response parser clears `target_id` on a `committed_action` of `Grow`, `Protect`, or `Toil`, and preserves it for `BuildProject`  `[automated]`
 - A `<deal>` that offers `budget_allocation` **alongside** a valid Mayor term drops only `budget_allocation` and still seals on the valid term  `[automated]`
 - A `<deal>` whose **only** Mayor term is `budget_allocation` yields no deal — it is dropped, leaving the Mayor side empty (one-sided), and `mayor.deals` is unchanged  `[automated]`
+
+### BuildProject — the faction's own buildable (consolidated from build-target-info, 2026-06-13)
+
+A faction can build **only its own domain's** base project. The prompt tells the LLM the one
+project it can build (name + a one-line effect) and the `<deal>` BuildProject `target_id` is the
+faction's **domain id** (matching `base_stacks` keys / the engine), so the agreed deal terms match
+what is actually built. The effect text is single-sourced: `base_project_description(domain_id)`
+parallels `BASE_PROJECT_NAMES` in `engine/projects/processing.py` (defaults to a generic
+"raises {Domain}'s capacity…" sentence), so prompt/UI/docs cannot drift.
+
+**Done when:**
+- `base_project_description(domain_id)` returns a non-empty one-line string for every domain in `BASE_PROJECT_NAMES`, and a sensible default for an unknown domain  `[automated]`
+- The built prompt for a faction contains its own domain's base-project name (e.g. a `harbor` faction's prompt contains "Docks") and that project's description text  `[automated]`
+- The built prompt's BuildProject `<deal>` target instruction references the faction's domain id and contains no free-text "project id" placeholder and no `dock_expansion`  `[automated]`
+- A faction's prompt does not enumerate other domains' base projects (only its own buildable appears)  `[automated]`
 
 ---
 
@@ -242,6 +258,24 @@ Exact wording is a UI choice; the semantics above are the contract.
 
 ---
 
+## Transcript Presentation — Deal Card (consolidated from audience-deal-card, 2026-06-13)
+
+Faction LLMs sometimes emit the `<deal>` JSON block early (step 1 or 3). Each faction turn in
+`AudienceModal.vue` is split on `<deal>`/`</deal>`: the prose before the block is shown in the
+bubble; the JSON between the tags is parsed and, when it parses, rendered as a compact **"Proposed
+deal" card** under that bubble (styled with the existing `.confirm-box` / `.terms-grid` classes) —
+so raw JSON never leaks into a dialogue bubble. Frontend-only; the parser, schema, and negotiation
+flow are unchanged. Card fields: **You give** (`mayor_terms`), **They give** (`faction_terms`),
+**Break penalty** (`rep_cost_if_broken_by_mayor`), **Memory note**, and a muted **Why** (`reasoning`).
+
+**Done when:**
+- `cd frontend && npm run build` succeeds with no template/script errors  `[automated]`
+- No faction transcript bubble displays a raw `<deal>`/`</deal>` tag or JSON braces — bubbles show only in-character prose  `[human-required]`
+- When a faction turn carried a deal, a "Proposed deal" card renders under that bubble, visually consistent with the Confirm-the-deal box, showing You give / They give / break-penalty sentence / memory note / muted "Why:" line  `[human-required]`
+- A faction turn with **no** deal block renders as prose only (no card); a malformed `<deal>` is stripped and produces no card and no render error  `[human-required]`
+
+---
+
 ## Debug Instrumentation
 
 Every audience step returns a **debug payload** alongside its narrative, so the exact LLM
@@ -262,6 +296,34 @@ shown in the transcript.
 - Each audience step response (`begin`, `reply`, `conclude`) includes a debug payload containing the request sent to the LLM (system prompt + messages) and the raw response text for that step  `[automated]`
 - The Step 5 debug response is the raw unparsed LLM text including the `<deal>` block, distinct from the displayed narrative  `[automated]`
 - The audience UI shows "Show JSON" and "Debug" controls at the bottom, collapsed by default, expanding to the request JSON and the full per-call request+response history respectively  `[human-required]`
+
+---
+
+## Training Log (consolidated from audience-training-log, 2026-06-13)
+
+A structured JSONL log captures each completed **live-AI** audience as one record, to build a
+dataset for later fine-tuning a small LM that plays faction leaders. This is **capture only** (no
+training/export pipeline). The writer (`engine/llm/audience_log.py`) is invoked when the audience
+fully resolves: in `audience_conclude` on a faction **decline**, and in `audience_finalize` on a
+faction **accept**. It appends one line to `backend/logs/audiences.jsonl`, reading from
+`session.audience_state`. **Live-AI only** — nothing is written when `llm_config.provider == "stub"`
+(so the test suite and stub play write nothing); no API key/secret is ever recorded.
+
+Record (one JSON object per line): `schema_version`, `timestamp` (ISO-8601 UTC), `run_id`, `cycle`,
+`provider`, `model`, `faction` (id/name/domain_primary/traits), `system_prompt`, `turns` (faction
+steps 1/3/5 + the Mayor's two freeform inputs, in conversation order), `step5_raw` (unparsed step-5
+text with the `<deal>` block), `parsed_deal`, and `outcome` (`faction_declined` |
+`accepted_confirmed` | `accepted_mayor_declined`).
+
+**Done when:**
+- A completed live audience (real profile; faction accepts; Mayor confirms) appends exactly one new line to `backend/logs/audiences.jsonl`, parsing as JSON with all required top-level keys (`schema_version`, `timestamp`, `run_id`, `cycle`, `provider`, `model`, `faction`, `system_prompt`, `turns`, `step5_raw`, `parsed_deal`, `outcome`)  `[automated]`
+- A stub-mode audience (`llm_config.provider == "stub"`) writes **no** record — the file line count is unchanged across a full stub audience  `[automated]`
+- A faction-declined live audience writes its record at the `conclude` step (no `finalize` needed) with `outcome == "faction_declined"`  `[automated]`
+- A faction-accepted live audience confirmed by the Mayor records `outcome == "accepted_confirmed"`; accepted-but-Mayor-declined records `outcome == "accepted_mayor_declined"`  `[automated]`
+- The `turns` array contains the faction's step-1/3/5 text **and** the Mayor's two freeform inputs, in conversation order (faction, mayor, faction, mayor, faction)  `[automated]`
+- The record includes `step5_raw` (the unparsed step-5 text containing the `<deal>` block), distinct from `parsed_deal`  `[automated]`
+- The record includes `provider` and `model`, and contains **no** API key / secret field anywhere in the line  `[automated]`
+- The writer appends to `backend/logs/audiences.jsonl` only — `narrative.log` and `system.log` are unaffected  `[automated]`
 
 ---
 

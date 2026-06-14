@@ -1,5 +1,5 @@
 """
-engine/llm/audience_log.py — Audience training log (audience-training-log_spec).
+engine/llm/audience_log.py — Audience training log (audience_spec.md — Training Log).
 
 Appends one JSONL record per COMPLETED, live-AI audience to backend/logs/audiences.jsonl,
 capturing the system prompt, the full transcript (incl. the Mayor's freeform inputs), the raw

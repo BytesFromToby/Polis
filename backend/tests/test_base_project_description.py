@@ -1,6 +1,6 @@
 """
 tests/test_base_project_description.py — per-base-project one-line description
-(audience-build-target-info_spec). Single source of truth for the effect text.
+(audience_spec.md — BuildProject buildable info). Single source of truth for the effect text.
 """
 from __future__ import annotations
 

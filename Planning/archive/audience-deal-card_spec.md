@@ -1,5 +1,9 @@
 # Spec: Audience Deal Card
 
+> **ARCHIVED 2026-06-13 — consolidated into `../specs/audience_spec.md`** ("Transcript
+> Presentation — Deal Card"), which carries the live rule + Done-when items. Kept here for full
+> context. Non-authoritative.
+
 Faction LLMs sometimes emit the `<deal>` JSON block early (step 1 or 3), and the audience
 transcript renders each turn's text verbatim — so raw JSON leaks into the dialogue bubble. This
 replaces any in-transcript `<deal>` block with clean in-character prose plus a compact, formatted

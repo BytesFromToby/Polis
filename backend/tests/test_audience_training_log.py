@@ -1,6 +1,6 @@
 """
 tests/test_audience_training_log.py — the audience training log writer
-(audience-training-log_spec). Drives log_audience directly with a hand-built state.
+(audience_spec.md — Training Log). Drives log_audience directly with a hand-built state.
 """
 from __future__ import annotations
 import json

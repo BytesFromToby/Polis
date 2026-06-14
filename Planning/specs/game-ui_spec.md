@@ -128,7 +128,7 @@ Rows, grouped:
 - **Political** — Publicly Endorse (`act('PubliclyEndorse', factionId)`), Publicly Condemn
   (`act('PubliclyCondemn', factionId)`).
 - **Economic** — **Sabotage** (`act('Sabotage', factionId)`), **Build Project** (`act('BuildProject', domainId)`).
-  (Grant Tax Exemption is deferred/shelved 2026-06-08 — no UI row; see `tax-exemption-shelve_spec.md`.)
+  (Grant Tax Exemption is deferred/shelved 2026-06-08 — no UI row; see `../archive/tax-exemption-shelve_spec.md`.)
 - **Deals** — the existing Active Deals section with Break (`act('BreakADeal', dealId)`).
 
 Removed entirely (no row): Broker a Deal, Request a Report, Plant a Rumor, Allocate Budget,

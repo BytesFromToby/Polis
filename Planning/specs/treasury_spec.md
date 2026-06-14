@@ -147,7 +147,7 @@ history.
 - **Faction tax exemption** — had no income effect under v3 (income = base + Tax Offices, not
   faction-weighted), so it is shelved: no UI action, not offered in audiences. The engine
   exemption machinery (`mayor.exemptions`, domain jealousy) remains dormant. See
-  `tax-exemption-shelve_spec.md`.
+  `../archive/tax-exemption-shelve_spec.md`.
 
 **Done when:**
 - The demo exposes no invest, borrow, guard-surge, or public-works action, and adjusting a domain tax rate has no income or reputation effect  `[human-required]`

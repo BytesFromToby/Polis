@@ -1,5 +1,9 @@
 # Spec: Shelve Tax Exemption
 
+> **ARCHIVED 2026-06-13 — non-authoritative record.** The shelving is complete; its live facts
+> are stated self-sufficiently in `../specs/audience_spec.md`, `../specs/treasury_spec.md`,
+> `../specs/mayor_spec.md`, and `../specs/game-ui_spec.md`. Kept here as the full shelving record.
+
 The Grant Tax Exemption action has **no effect on income** under treasury_spec v3 — income is
 `BASE_INCOME + TAX_OFFICE_INCOME × Tax Offices` and `_calc_income` never reads factions or
 `mayor.is_exempt`. So the control lies about its name, and "tax_exemption" deal terms pollute the

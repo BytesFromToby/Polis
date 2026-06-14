@@ -8,8 +8,9 @@
 > **Status — layered design doc, not a Done-when feature spec.** This describes the LLM
 > system's *architecture* (client / translation / memory layers) and carries no `**Done when:**`
 > items. The *testable* prompt and parser behaviour is owned by the specs this one already points
-> at: `audience_spec.md`, `player-identity_spec.md`, `faction-descriptions_spec.md`, and
-> `tax-exemption-shelve_spec.md`. Treat those as authority where they overlap.
+> at: `audience_spec.md` (which now also carries the former build-target-info / deal-card /
+> training-log / tax-exemption-shelve content), `player-identity_spec.md`, and
+> `faction-descriptions_spec.md`. Treat those as authority where they overlap.
 
 The LLM system has three layers that sit between the game engine and any AI model provider. The rest of the codebase interacts only with the translation layer — it never calls an LLM client directly. The game runs fully without an LLM configured (stub mode).
 
@@ -296,7 +297,7 @@ Parses the LLM's step 5 conclusion output.
 
 ```python
 VALID_MAYOR_TERM_TYPES = {"tax_exemption", "endorsement"}  # tax_exemption dormant: still
-# parsed if present, but no longer offered in the prompt (tax-exemption-shelve_spec.md)
+# parsed if present, but no longer offered in the prompt (audience_spec.md; record in archive/)
 VALID_FACTION_TERM_TYPES = {"committed_action", "committed_abstain"}
 VALID_FACTION_ACTIONS = {"BuildProject", "Protect", "Grow", "Toil"}  # Toil added by public-needs_spec
 DURATION_RANGE = range(1, 11)
