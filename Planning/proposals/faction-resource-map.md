@@ -3,9 +3,9 @@
 **Date:** 2026-06-14
 **Status:** PROPOSAL — incubating. The per-domain tables below are the **first pass** (all 41
 factions). The **Roster Decisions** section directly under this is the resolved design intent
-from the 2026-06-14 cut-test discussion — **design intent only, nothing built yet.** Six domains
-are settled; temples + academy remain open pending the piety decision. Companion to
-`resource-chains.md` (the sinks framework + mechanics).
+from the 2026-06-14 cut-test discussion — **design intent only, nothing built yet.** All seven
+domains are now settled (the Public's scale model + the piety decision live in
+`resource-chains.md` → Public state model). Companion to `resource-chains.md`.
 
 ## Purpose
 
@@ -22,8 +22,11 @@ Ratings shown are current starting `rating` in `data/factions.json`.
 
 ## Roster Decisions — 2026-06-14 (design intent, NOT built)
 
-Resolved in discussion. Net so far: **41 → ~26–28** factions, **9 → 7–8** domains (trade
-deleted; academy may fold). No data/code touched yet.
+Resolved in discussion. Net: **41 → 28 factions, 9 → 7 domains** (trade and academy deleted;
+`civic` is the faction-less treasury domain). No data/code touched yet.
+
+**Resulting domains:** aristocracy (4) · guilds (9) · Port (4) · military (3) · professions (4) ·
+temples (4) · civic (0, faction-less) — academy and trade dissolved.
 
 ### Aristocracy — 3 → 4 (one add)
 - **Split Skiadai into two estates** to complete the Mediterranean triad (grain / wine / oil +
@@ -92,30 +95,36 @@ deleted; academy may fold). No data/code touched yet.
   (money + records + sensor) · Perfumers ($ luxury export). Joy now has three *profiles*: Players
   (steady) · Raving Choir (risky) · games-event (periodic).
 
-### Temples + Academy — **OPEN** (gated on the piety decision)
-Both domains are **mortgaged against unbuilt systems** (piety, disasters, stance layer, elections).
-Principle held: *don't keep a faction alive on the promise of a future mechanic — right-size to
-built/imminent, re-add when the system ships.*
+### Temples — 5 → 4 (PIETY adopted; belief is the mechanic, the gods are not)
 
-- **Temples — the fork is: adopt PIETY as a Public need, yes/no?**
-  - *Yes* → temples justified as a domain. Lean-keep ~3: **Greenmantle** (Demeter, food-yield
-    multiplier — only temple with a shipped hook), **Bright Order** (Apollo, the oracle/**sensor**
-    — anchors the Army/Fleet telegraph), **Raving Choir** (Dionysos, risky JOY). Cut
-    **Hearthwardens** (Hestia — vaguest faction on the board, "cohesion" isn't a mechanic).
-    **Tidesworn** (Poseidon, sea-disaster mitigation) defer-dependent — keep iff crisis-and-stance
-    is next-ish (the Port/grain lifeline makes sea-disaster near-term).
-  - *No* → keep only the two with hard mechanics (Greenmantle food, Bright Order sensor); domain
-    shrinks to a utility pair.
-- **Academy — the genuinely exposed domain** (no shipped mechanic; Grove/Sophists/Goldentongues
-  blur as "persuasion/knowledge").
-  - Lean: keep **one** anchor — **Stargazers** (navigation→FLEET + planting calendar→FOOD
-    multipliers; a foot in the present). Cut Grove (re-add with stance), Goldentongues (re-add with
-    elections), Sophists.
-  - **Radical option on the table:** fold Stargazers into temples ("those who read the unseen") and
-    **delete academy as a domain**, like trade→Port.
-- **Sensor consolidation:** Apollo's oracle and Stargazers' astronomy are both sensors — pick
-  **one** (the oracle is more central). That further argues for folding Stargazers in for its
-  *multipliers*, not its sensing.
+**Piety is adopted as a Public need** (see `resource-chains.md` → Public state model). Belief is
+the system; the gods never reach into physics — temples *produce* piety (rites/festivals) and
+*interpret* crises. Every effect below is re-grounded as human/morale/interpretation, not a divine
+buff. Each god maps to a distinct, now-live scale:
+
+| Faction (god) | Re-grounded mechanic | Touches |
+|---|---|---|
+| **Greenmantle** (Demeter) | Harvest cult organizes the planting calendar + farmer morale → a *human* multiplier on food yield | FOOD + piety |
+| **Bright Order** (Apollo, **+ absorbed Stargazers**) | The oracle **and** the heaven-readers: foresight (the SENSOR that telegraphs events → makes Army/Fleet investable) + practical sky-knowledge (navigation→FLEET, planting calendar→FOOD timing) | sensor + FLEET/FOOD-mult + piety |
+| **Raving Choir** (Dionysos) | The cathartic **unrest-release valve** — festivals bleed off tension now, but drive **consumption** up and risk chaos (double-edged) | unrest + consumption + happy + piety |
+| **Tidesworn** (Poseidon) | Keeps sailors *willing to sail*; **frames sea-disasters** (impiety-blame vs fatalism), tied to the Port/grain lifeline | piety + sea-disaster interpretation |
+
+- **Stargazers merged into Bright Order** — the oracle and the astronomers both "read the heavens";
+  the merge kills the sensor-duplication *and* absorbs academy's only present-value faction.
+- **Hearthwardens (Hestia) — CUT.** Vaguest faction on the board; its only candidate mechanic
+  (non-coercive unrest-damping) overlaps the City Guard. *Optional revival only if a belief-based
+  unrest damper distinct from coercion is wanted — the hearth calms without the truncheon.*
+
+### Academy — DELETED as a domain (like trade → Port)
+
+No domain-worthy core remains once the sensor moves to Apollo. Dissolved:
+- **Stargazers** → absorbed into Bright Order (above).
+- **Grove** (stance interpreters) → **parked**; returns with the stance layer, likely as a
+  stance-layer *function*, not a domain faction.
+- **Goldentongues** (assembly orators) → **parked**; returns with elections, placed with
+  **governance/the assembly**, not a revived academy.
+- **Sophists** → **cut outright** (thinnest; no home the others don't cover).
+- Principle: future-system factions return **placed by function**, not by reviving a soft-power domain.
 
 ### Principles affirmed this pass
 - **Capability pools (MIL / BUILD / FLEET) derive directly from faction strength** — no raw
@@ -253,15 +262,14 @@ multipliers (Stargazers) and sensors (Grove / Bright Order), never a chain.
 > The per-domain tables above are the **first pass**; the resolved structure is in **Roster
 > Decisions**. What remains open:
 
-**Blocking the last two domains:**
-- **Adopt PIETY as a Public need, yes/no?** — this single fork decides temples (justified domain
-  vs. utility pair) and cascades into academy (stand vs. fold into temples). Everything else in
-  temples/academy waits on it.
-
 **Resolved this pass** (see Roster Decisions; recorded, not built):
+- ~~Adopt PIETY?~~ → **yes**, as belief (gods = interpretation, not magic). Public state model in
+  `resource-chains.md`.
+- ~~Temples & academy layout~~ → temples 5→4 (Stargazers merged into Apollo; Hestia cut);
+  academy deleted (Grove/Goldentongues parked by function; Sophists cut).
 - ~~Lock the estate raws~~ → grain/wine/oil + flocks (Skiadai split).
 - ~~Overlap clusters~~ → luxury (cut Adorners), JOY (Garland-Chasers → event), building supplies
-  (Builders merge), naval (Keelwrights gatekeeper), academy persuaders (lean: cut to Stargazers).
+  (Builders merge), naval (Keelwrights gatekeeper).
 - ~~Capability pools scale existing math~~ → confirmed: MIL/BUILD/FLEET derive direct from
   strength, no new gauges.
 
