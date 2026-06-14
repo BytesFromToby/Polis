@@ -1,9 +1,11 @@
 # Proposal: Faction → Resource Map
 
 **Date:** 2026-06-14
-**Status:** PROPOSAL — incubating, first-pass mapping for editing. Companion to
-`resource-chains.md` (the sinks framework + mechanics) — this doc is the per-faction detail:
-*every one of the 41 factions gets a mechanical job.* Nothing here is built or locked.
+**Status:** PROPOSAL — incubating. The per-domain tables below are the **first pass** (all 41
+factions). The **Roster Decisions** section directly under this is the resolved design intent
+from the 2026-06-14 cut-test discussion — **design intent only, nothing built yet.** Six domains
+are settled; temples + academy remain open pending the piety decision. Companion to
+`resource-chains.md` (the sinks framework + mechanics).
 
 ## Purpose
 
@@ -15,6 +17,114 @@ column is yours.
 **$** (treasury/export) · MIL (security) · BUILD · FLEET · KNOW (knowledge/efficiency/sensor).
 
 Ratings shown are current starting `rating` in `data/factions.json`.
+
+---
+
+## Roster Decisions — 2026-06-14 (design intent, NOT built)
+
+Resolved in discussion. Net so far: **41 → ~26–28** factions, **9 → 7–8** domains (trade
+deleted; academy may fold). No data/code touched yet.
+
+### Aristocracy — 3 → 4 (one add)
+- **Split Skiadai into two estates** to complete the Mediterranean triad (grain / wine / oil +
+  herds): a **vine estate** (grapes → Winepressers; keep the Skiadai "shadowed" name) and a new
+  **olive estate** (olives → Oil-pressers, the export spine).
+- The olive estate is the **stronger** of the two (it feeds the most important chain on the
+  board); the vine estate is modest. Differentiation is data-only in `chains.json`.
+- Estates: Eumelidai (flocks → meat + wool) · Pyrrhidai (grain) · vine estate (grapes) · olive
+  estate (olives).
+
+### Guilds — 10 → 9 (one merge)
+- **Stonewrights + Carpenters → "the Builders"** — one faction making **building supplies**
+  (BUILD), derived **directly from strength, no raw chain** (capability pools go direct; reserve
+  chains for FOOD + flagship goods).
+- **Keelwrights kept, distinct** — ships → FLEET, also direct-from-strength (no input). It is the
+  **gatekeeper on fleet recovery**: no shipwrights → no replacing a smashed fleet even with gold.
+  (Justified because ships are *destroyable assets with a rebuild loop*; building supplies are a
+  flow, which is why that one merged.)
+
+### Military — 4 → 3 (cut + restructure), framed by who they face
+- **City Guard** (inward) — the day-to-day lever on the Public: suppresses **anger / crime**.
+  *Costed suppression, not a free anger-eraser* — treats the **symptom (unrest), not the cause
+  (hunger)**, so leaning on it while the city starves buys time and the bill comes due bigger.
+  Ties to the existing **20g/cycle guard payroll** (skip payroll → Guard weakens). Double-edged:
+  heavy-handed guarding costs support.
+- **Army** (outward, land) — the threat-absorber. Idle day-to-day, critical on events.
+- **Fleet** (outward, sea) — protects the import lifeline (Oarsworn). Idle day-to-day, critical
+  on events.
+- Collapses Shieldsworn / Free Spears / Companions into Guard + Army. The **mercenary
+  gold-for-force** lever survives as a *hire-mercenaries property on the Army*, not a faction.
+- **Army/Fleet "insurance" only works with telegraphing** → pairs with the oracle (Bright Order):
+  foresight makes standing forces an investable bet, not a blind tax.
+- *(Parking lot, later: a strong Army/Guard becomes a coup risk to the Mayor.)*
+
+### Harbor + Trade → **"Port"** — 9 → 4 (domain deleted + cuts)
+- **Trade domain eliminated.** Harbor renamed **Port** = the whole maritime-commerce bloc and the
+  city's economic center of gravity. Domain count 9 → 8 (Agora base-project folds into the Port
+  stack; domain relationships rewire).
+- **Netmenders** — unchanged (fish → FOOD, the designated next slice).
+- **Dockhands** (merged Quaymen + Harborwardens) — **the pipe**: capacity + **customs income** +
+  the **import gate**. A multiplier / chokepoint, not a producer; neglect throttles imports and
+  export revenue.
+- **Trading faction** (merged Amphora + Saltroad + Outland) — all sea trade: **export ($)** +
+  **import (the grain lifeline)**. The most-courted faction; sits mid-chain (Dockhands gate →
+  Trading → Fleet escort), so not omnipotent.
+- **Storehouse Ring** — the **resilience knob**: sets how deep the granary/drift buffer runs
+  (reuses the shipped public-needs drift mechanic — no inventory state). **Relationship-conditional**:
+  *buffers* you if courted (releases stock in famine), *hoards* if alienated (the Withhold villain).
+- **Cut: Stallmongers** (last-mile distribution assumed). **Cut: Silverbench** (see professions).
+- Keep merchant-vs-labor class friction at the **faction level** (Storehouse Ring speculators vs
+  Dockhands laborers as rivals), since it's no longer a domain-vs-domain split.
+
+### Professions — 6 → 4 (two cuts)
+- **Cut Adorners** — redundant luxury export *and* orphaned input (no silver/gems producer once
+  Silverbench is gone). **Keep Perfumers** as the olive chain's luxury terminus.
+- **Cut Garland-Chasers → games become an EVENT** (faction teams compete for prizes → Public joy
+  spike + faction-standing shuffle + **Mayor sponsorship = bread & circuses**, a distract-from-hunger
+  lever). *Rich version waits on the event-applier reaching faction rep — a known follow-up; the
+  joy-spike version works today.*
+- **Keep Quillsworn** — the **sensor**: public revenue + records (play **blind** without it).
+  Absorbs Silverbench's bookkeeping/money-changing.
+- **Silverbench cut**: its adversarial-creditor mechanic already lives in the (dormant) special
+  **Moneylender**; bookkeeping → Quillsworn; money-changing → assumed. *Later, if finance revives,
+  prefer a **political** creditor (negotiable, plays the faction web) over the faceless external timer.*
+- Professions lands at: Asklepiads (HEALTH, sole healer) · Players (JOY, steady) · Quillsworn
+  (money + records + sensor) · Perfumers ($ luxury export). Joy now has three *profiles*: Players
+  (steady) · Raving Choir (risky) · games-event (periodic).
+
+### Temples + Academy — **OPEN** (gated on the piety decision)
+Both domains are **mortgaged against unbuilt systems** (piety, disasters, stance layer, elections).
+Principle held: *don't keep a faction alive on the promise of a future mechanic — right-size to
+built/imminent, re-add when the system ships.*
+
+- **Temples — the fork is: adopt PIETY as a Public need, yes/no?**
+  - *Yes* → temples justified as a domain. Lean-keep ~3: **Greenmantle** (Demeter, food-yield
+    multiplier — only temple with a shipped hook), **Bright Order** (Apollo, the oracle/**sensor**
+    — anchors the Army/Fleet telegraph), **Raving Choir** (Dionysos, risky JOY). Cut
+    **Hearthwardens** (Hestia — vaguest faction on the board, "cohesion" isn't a mechanic).
+    **Tidesworn** (Poseidon, sea-disaster mitigation) defer-dependent — keep iff crisis-and-stance
+    is next-ish (the Port/grain lifeline makes sea-disaster near-term).
+  - *No* → keep only the two with hard mechanics (Greenmantle food, Bright Order sensor); domain
+    shrinks to a utility pair.
+- **Academy — the genuinely exposed domain** (no shipped mechanic; Grove/Sophists/Goldentongues
+  blur as "persuasion/knowledge").
+  - Lean: keep **one** anchor — **Stargazers** (navigation→FLEET + planting calendar→FOOD
+    multipliers; a foot in the present). Cut Grove (re-add with stance), Goldentongues (re-add with
+    elections), Sophists.
+  - **Radical option on the table:** fold Stargazers into temples ("those who read the unseen") and
+    **delete academy as a domain**, like trade→Port.
+- **Sensor consolidation:** Apollo's oracle and Stargazers' astronomy are both sensors — pick
+  **one** (the oracle is more central). That further argues for folding Stargazers in for its
+  *multipliers*, not its sensing.
+
+### Principles affirmed this pass
+- **Capability pools (MIL / BUILD / FLEET) derive directly from faction strength** — no raw
+  chains. Raw→process chains are reserved for FOOD and flagship export goods.
+- **The "buy time vs. fix the cause" spine:** City Guard (suppress unrest), games (distract from
+  hunger), Toil/Withhold (delay). Many ways to mask pressure, few to solve it, bills compound.
+- **Don't keep factions alive on future promises** — the roster tracks built mechanics, not the roadmap.
+- **Events are the catch-all for "fun things"** and will carry more over time (games are the first
+  faction-cut handed to the event layer).
 
 ---
 
@@ -139,9 +249,24 @@ Differentiate the three estates so each owns a specific raw (data-only change in
 multipliers (Stargazers) and sensors (Grove / Bright Order), never a chain.
 
 ## Open decisions
-- Lock the three estates' raws (aristocracy is the root of everything agricultural)?
-- Adopt PIETY as a sink, or keep Temples on JOY/HEALTH only? (mirrors `resource-chains.md` OQ)
-- Resolve each overlap cluster: distinct flavor, or merge?
-- Capability pools (MIL / BUILD / FLEET / KNOW) — confirm they scale existing math rather than
-  becoming new gauges (per `resource-chains.md`).
+
+> The per-domain tables above are the **first pass**; the resolved structure is in **Roster
+> Decisions**. What remains open:
+
+**Blocking the last two domains:**
+- **Adopt PIETY as a Public need, yes/no?** — this single fork decides temples (justified domain
+  vs. utility pair) and cascades into academy (stand vs. fold into temples). Everything else in
+  temples/academy waits on it.
+
+**Resolved this pass** (see Roster Decisions; recorded, not built):
+- ~~Lock the estate raws~~ → grain/wine/oil + flocks (Skiadai split).
+- ~~Overlap clusters~~ → luxury (cut Adorners), JOY (Garland-Chasers → event), building supplies
+  (Builders merge), naval (Keelwrights gatekeeper), academy persuaders (lean: cut to Stargazers).
+- ~~Capability pools scale existing math~~ → confirmed: MIL/BUILD/FLEET derive direct from
+  strength, no new gauges.
+
+**Still to settle (non-blocking):**
 - Estate/faction differentiation: data-only (`chains.json`) vs a `produces` field on `Faction`.
+- City Guard: exact unrest-suppression curve + the support cost of heavy-handedness.
+- Storehouse Ring: how relationship maps to buffer-vs-hoard (threshold? continuous?).
+- Whether finance, when revived, returns as the political creditor or stays the external timer.
