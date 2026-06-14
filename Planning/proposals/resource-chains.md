@@ -5,7 +5,8 @@
 shipped 2026-06-12** — see `../archive/barley-run.md` (decision record) and
 `../specs/public-needs_spec.md` (as-built spec). This doc now holds everything *beyond* v1:
 the full resource map, agreed in design discussion 2026-06-12. The first-pass brainstorm is
-preserved raw at the bottom.
+preserved raw at the bottom. **Per-faction detail** (every faction's resource job) lives in the
+companion `faction-resource-map.md`.
 
 ## Problem (unchanged)
 
