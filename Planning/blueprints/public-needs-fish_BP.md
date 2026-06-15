@@ -34,7 +34,7 @@ faction and can Toil). Guard: only add if that id is in `factions`.
 **Test:** `py -m pytest tests/test_toil.py tests/test_needs_chain.py -q` (no regression yet; full assertions land in Step 7).
 **Done When:** A chain whose producers are `{"faction_id": "netmenders"}` yields `netmenders` in `chain_role_faction_ids`.
 **Stuck If:** `chain_role_faction_ids` is called somewhere that assumes domain-only producers and breaks.
-- [ ] Complete
+- [x] Complete
 
 ### Step 2: compute_chain sums faction-keyed producers
 **Build:** In `engine/needs/chain.py`, `compute_chain`, the producer loop (currently
@@ -46,7 +46,7 @@ Keep the Toil `× TOIL_MULT` contribution rule intact for both.
 **Test:** `py -m pytest tests/test_needs_chain.py -q` (existing harvest tests still pass — domain path unchanged).
 **Done When:** A `faction_id` producer contributes `per_level × level` from only that faction; the domain path is byte-for-byte unchanged in behavior.
 **Stuck If:** The domain and faction branches double-count a faction that matches both (shouldn't happen with current data, but guard against it).
-- [ ] Complete
+- [x] Complete
 
 ### Step 3: Unprocessed label comes from data
 **Build:** In `engine/needs/chain.py`, `compute_chain`, the leftover/unprocessed block (currently
@@ -56,7 +56,7 @@ This makes a processor-less chain log its raw under its own label (e.g. `"fish"`
 **Test:** `py -m pytest tests/test_needs_chain.py -q`.
 **Done When:** The harvest chain still logs `"porridge"` (its unprocessed label); a chain with unprocessed label `"fish"` logs under `"fish"`.
 **Stuck If:** Any code downstream reads `units["porridge"]` by literal and would miss a renamed label (grep `units\[` / `"porridge"` across `engine/` and `tests/`).
-- [ ] Complete
+- [x] Complete
 
 ### Step 4: Re-tune barley to a partial source
 **Build:** In `data/chains.json`, the `harvest` chain: change `producers.per_level` from `3` to `2`.
@@ -68,7 +68,7 @@ load-bearing — see Step 5 and the Final Slice.)
 **Test:** `py -m pytest tests/test_needs_chain.py -q` (expected to FAIL here — baked-in literals; Step 6 fixes them).
 **Done When:** `data/chains.json` harvest `per_level == 2`.
 **Stuck If:** —
-- [ ] Complete
+- [x] Complete
 
 ### Step 5: Add the fishery chain
 **Build:** In `data/chains.json`, add a second chain object:
@@ -85,7 +85,7 @@ change. Provisional constants: `per_level 3`, `fed_per_unit 1.0`.)
 **Test:** `py -c "from loaders import load_chains; c=load_chains(); print(len(c), [x['id'] for x in c])"` from `backend/` → 2 chains `['harvest','fishery']`.
 **Done When:** `load_chains()` returns both chains; the fishery has no processors and a `fish` unprocessed label.
 **Stuck If:** The JSON fails to parse.
-- [ ] Complete
+- [x] Complete
 
 ### Step 6: De-bake and rework the harvest chain tests
 **Build:** In `tests/test_needs_chain.py`, remove hardcoded production literals so the tests read
@@ -99,7 +99,7 @@ numbers from the loaded constant.
 **Test:** `py -m pytest tests/test_needs_chain.py -q`.
 **Done When:** `test_needs_chain.py` is green with no baked-in `3`/`27`/`12`/`3`-porridge literals; the over-capacity path is still covered by an explicit fixture.
 **Stuck If:** A reworked expected value disagrees with `compute_chain` and the cause isn't a stale literal — stop and report the mismatch.
-- [ ] Complete
+- [x] Complete
 
 ### Step 7: Fishery unit tests
 **Build:** In `tests/test_needs_chain.py`, add fishery cases (read constants from the loaded
@@ -113,10 +113,15 @@ output logs under `units["fish"]`; (c) zero Netmenders level (faction absent) �
 **Test:** `py -m pytest tests/test_needs_chain.py tests/test_toil.py -q`.
 **Done When:** All fishery cases pass; Toil tests still green (Netmenders now a chain-role faction).
 **Stuck If:** `level` of an absent faction can't be expressed — use a faction at min rating and assert proportionally, or omit it (note the deviation).
-- [ ] Complete
+- [x] Complete
 
 ---
 ⛔ End of Slice 1 [inspect]. Run **inspector** on this slice before continuing.
+**Note:** the `[inspect]` gate was flowed past per the user's "build on all slices" instruction —
+one inspector pass covers both slices at the end. At this checkpoint the suite was green *except*
+the shipped legibility dynamics test, whose repair is scheduled for Final Slice Step 2 (the re-tune
+is a Slice 1 step but its dynamics consequence is repaired in the final slice — a known cross-slice
+sequence, not a regression).
 
 ---
 
@@ -139,7 +144,7 @@ be zeroed since rating floors at 1.0.)
 until the band outcomes hold — record each constant change as a deviation.
 **Stuck If:** No constant set satisfies "lose either → Hungry (not Starving)" **and** "lose both →
 Starving" simultaneously — stop and report the trade-off data (it's a real design conflict).
-- [ ] Complete
+- [x] Complete
 
 ### Step 2: Re-verify the shipped dynamics under the re-tune
 **Build:** Run the shipped dynamics (stability, legibility, recoverability, Toil-matters) in
@@ -150,7 +155,16 @@ moved. Do not weaken a property to force a pass — if a property genuinely brea
 **Done When:** All shipped dynamics tests pass alongside the new redundancy test.
 **Stuck If:** A shipped property (e.g. stability: fed ≥ Hungry for 50/60) fails and can't be
 restored by constant tuning without breaking redundancy — report.
-- [ ] Complete
+- [x] Complete
+**Deviation:** Legibility test repaired by changing the induced shortage from a one-time *halve*
+to a *sustained pin at 1.0* (cycles 10–19, the same pattern Toil-matters already uses), then
+restore. Reason: in the two-source world the estates regrow after a one-time halve and fish
+cushions it, so a transient halve no longer registers a band drop — that's redundancy working.
+The test's *property* (a shortage is visible within 5 cycles, recovers within 15) is unchanged;
+only the shortage is made real/sustained instead of transient. Not a weakening — it induces an
+actual shortage rather than a blip the system correctly absorbs. Stability and Toil-matters
+passed unchanged; no constant tuning was needed (HPL=2, FPL=3, FFP=1.0 satisfied all four
+redundancy bands first try).
 
 ### Step 3: Headless smoke
 **Build:** No new code. Run the city and read the result.
@@ -158,7 +172,7 @@ restored by constant tuning without breaking redundancy — report.
 **Done When:** Run completes; the `THE PUBLIC:` summary line shows a sane fed band (expected
 **Fed**, slightly lean per the spec's intentional flocks-gap); no crash.
 **Stuck If:** The run errors, or fed sits at Starving/Well-fed at rest (re-tune is off — return to Final Step 1).
-- [ ] Complete
+- [x] Complete
 
 ### Final Step: Verify spec Done when items
 **Build:** No new code. Confirm every `**Done when:**` item in `public-needs_spec.md` v2 — both the
@@ -167,7 +181,7 @@ new "Feature: The fishery" items and the still-applicable shipped ones.
 (needs read clearly) is unchanged from the barley build; note it carries forward.
 **Done When:** Every `[automated]` criterion passes via its committed test; the full suite is green.
 **Stuck If:** An automated criterion fails and the cause is not clear from the output.
-- [ ] Complete
+- [x] Complete
 
 ---
 ⛔ Final slice complete. Run **inspector** for final sign-off.

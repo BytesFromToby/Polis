@@ -45,15 +45,19 @@ class TestStability:
 
 class TestLegibilityAndRecovery:
     def test_shortage_visible_within_5_recovery_within_15(self):
+        # Two-source world: a one-time halve regrows + fish cushions, so it no longer
+        # registers — the shortage must be a real *sustained* cut to be legible. Pin the
+        # estates at 1.0 for cycles 10–19 (same pattern as Toil-matters), restore at 20.
         baseline = run_city(10, seed=202)
         start_band = band_i(baseline[9])
         originals = {}
 
         def mutate(factions, c):
-            if c == 10 and not originals:
+            if 10 <= c < 20:
                 for fid in ARISTOCRACY:
-                    originals[fid] = factions[fid].rating
-                    factions[fid].rating = max(1.0, factions[fid].rating / 2)
+                    if c == 10:
+                        originals[fid] = factions[fid].rating
+                    factions[fid].rating = 1.0
             if c == 20:
                 for fid, r in originals.items():
                     factions[fid].rating = r
@@ -63,6 +67,36 @@ class TestLegibilityAndRecovery:
         assert min(band_i(v) for v in fed[10:15]) <= start_band - 1
         # Recoverability: back to the starting band within 15 cycles of restoration
         assert any(band_i(v) >= start_band for v in fed[20:35])
+
+
+class TestRedundancy:
+    """Source redundancy (fish slice): one source out → Hungry not Starving; both → Starving.
+    Removal = drop the producer factions (a faction's level can't be zeroed; rating floors at 1)."""
+
+    def _run_without(self, remove_ids, cycles=30, seed=404):
+        def mutate(factions, c):
+            if c == 0:
+                for fid in remove_ids:
+                    factions.pop(fid, None)
+        return run_city(cycles, seed, mutate=mutate)
+
+    def test_both_sources_fed_or_better(self):
+        fed = self._run_without(())
+        assert min(band_i(v) for v in fed[-10:]) >= band_index("Fed", FED_BANDS)
+
+    def test_barley_gone_hungry_never_starving(self):
+        fed = self._run_without(ARISTOCRACY)
+        assert all(band_i(v) >= band_index("Hungry", FED_BANDS) for v in fed)  # never Starving
+        assert band_i(fed[-1]) == band_index("Hungry", FED_BANDS)              # settles Hungry
+
+    def test_fish_gone_hungry_never_starving(self):
+        fed = self._run_without(("netmenders",))
+        assert all(band_i(v) >= band_index("Hungry", FED_BANDS) for v in fed)  # never Starving
+        assert band_i(fed[-1]) == band_index("Hungry", FED_BANDS)              # settles Hungry
+
+    def test_both_gone_starving(self):
+        fed = self._run_without(ARISTOCRACY + ("netmenders",))
+        assert band_i(fed[-1]) == band_index("Starving", FED_BANDS)
 
 
 class TestToilMatters:

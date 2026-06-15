@@ -33,10 +33,14 @@ def chain_role_faction_ids(chains: List[dict], factions: Dict[str, "Faction"]) -
     """Faction ids with a chain role: producer-domain members + named processors."""
     ids: Set[str] = set()
     for chain in chains:
-        producer_domain = chain.get("producers", {}).get("domain")
+        producers = chain.get("producers", {})
+        producer_domain = producers.get("domain")
+        producer_faction = producers.get("faction_id")
         for fid, f in factions.items():
-            if f.domain_primary == producer_domain:
+            if producer_domain and f.domain_primary == producer_domain:
                 ids.add(fid)
+        if producer_faction and producer_faction in factions:
+            ids.add(producer_faction)
         for proc in chain.get("processors", []):
             if proc["faction_id"] in factions:
                 ids.add(proc["faction_id"])
@@ -58,9 +62,11 @@ def compute_chain(
     for chain in chains:
         producers = chain.get("producers", {})
         per_level = producers.get("per_level", 0)
+        prod_domain = producers.get("domain")
+        prod_faction = producers.get("faction_id")
         raw = 0.0
-        for f in factions.values():
-            if f.domain_primary == producers.get("domain"):
+        for fid, f in factions.items():
+            if (prod_domain and f.domain_primary == prod_domain) or (prod_faction and fid == prod_faction):
                 contribution = per_level * f.level
                 if f.toiling:
                     contribution *= TOIL_MULT
@@ -95,7 +101,8 @@ def compute_chain(
 
         leftover = raw - processed_total
         unprocessed = chain.get("unprocessed", {})
-        units["porridge"] = units.get("porridge", 0.0) + leftover
+        label = unprocessed.get("label", "porridge")
+        units[label] = units.get(label, 0.0) + leftover
         fed_supply += leftover * unprocessed.get("fed_per_unit", 0.0)
 
     demand = population / POP_PER_SUPPLY_UNIT
