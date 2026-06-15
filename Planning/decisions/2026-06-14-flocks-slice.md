@@ -31,3 +31,11 @@ Third Food source, completing the three-source redundancy. Eumelidai already exi
   disaster model), if a test needs it. The fish-slice two-source `Redundancy` Done-when is
   superseded by the three-source version (losing fish now leaves the city Fed — the resilience
   gain, not Hungry).
+
+- **Pending: restructure** — `public-needs_spec.md` is now at 6 features / ~300 lines, at the
+  architect size flag. The Resource+Public program will keep folding new slices in (piety, unrest,
+  consumption, withhold, further chains), so this spec is heading past the threshold. Plan a later
+  split into per-feature specs (e.g. `food-chains`, `public-scales`) with shared terms (bands,
+  `ThePublic` fields, chain constants) pulled into the reference tier. Not done now — flagged so it
+  isn't lost. Natural trigger: the piety/unrest slice (the first that adds a genuinely new
+  subsystem rather than another chain).
