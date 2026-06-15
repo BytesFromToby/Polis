@@ -46,6 +46,8 @@ Read top-down within a group; `cycle-runner` is the entry point.
 **Not built** (see `proposals/`)
 - [city-generation](proposals/city-generation.md) — procedural city/domain/faction generation
 - [resource-chains](proposals/resource-chains.md) — the full resource map (second pass 2026-06-12): three sinks, food redundancy, Withhold, imports, capability pools, tuning doctrine; v1 slice **shipped** as [public-needs](specs/public-needs_spec.md) (archived: [barley-run](archive/barley-run.md))
+- [faction-resource-map](proposals/faction-resource-map.md) — per-faction resource jobs + the 2026-06-14 cut-test roster (41→28 factions, 9→7 domains; design intent, not built)
+- [public-model](proposals/public-model.md) — the Public as a subsystem: belief-as-mechanic, the seven scales (fed/happy/health/piety/confidence/unrest/consumption), band matrix, extreme-crisis events
 - [crisis-and-stance](proposals/crisis-and-stance.md) — disasters as crisis generators + bounded LLM stance layer (rejects LLM-decides-everything; records why)
 - [elections-and-titles](proposals/elections-and-titles.md) — recurring election endgame + dynamic title ladder threaded into the audience prompt
 - [ui-pottery-art-direction](proposals/ui-pottery-art-direction.md) — Geometric-pottery visual direction for the UI redo (band grammar, two-glaze themes); competes with the Wine-Dark system in `docs/Polis Design/`

@@ -5,7 +5,7 @@
 factions). The **Roster Decisions** section directly under this is the resolved design intent
 from the 2026-06-14 cut-test discussion — **design intent only, nothing built yet.** All seven
 domains are now settled (the Public's scale model + the piety decision live in
-`resource-chains.md` → Public state model). Companion to `resource-chains.md`.
+`public-model.md`). Companions: `resource-chains.md` and `public-model.md`.
 
 ## Purpose
 
@@ -97,7 +97,7 @@ temples (4) · civic (0, faction-less) — academy and trade dissolved.
 
 ### Temples — 5 → 4 (PIETY adopted; belief is the mechanic, the gods are not)
 
-**Piety is adopted as a Public need** (see `resource-chains.md` → Public state model). Belief is
+**Piety is adopted as a Public need** (see `public-model.md`). Belief is
 the system; the gods never reach into physics — temples *produce* piety (rites/festivals) and
 *interpret* crises. Every effect below is re-grounded as human/morale/interpretation, not a divine
 buff. Each god maps to a distinct, now-live scale:

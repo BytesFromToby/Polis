@@ -112,65 +112,13 @@ deliver it needs no tracking — the faction simply doesn't appear in this cycle
 - **Silver** — Laurion: a mine asset → Silverbench mints → treasury income. Gives the money
   world a production root.
 
-## Public state model (settled 2026-06-14)
+## Public state model → `public-model.md`
 
-The Public's state is **seven tracked scales in three layers.** Not balancing them yet — they
-exist as the model. A scale earns a stored slot only if it has a **distinct driver**, a **distinct
-consequence**, and **benefits from memory** — and the sharpest filter: *both extremes must do
-something, and ideally neither extreme is purely "good."* (Derived descriptors that fail this stay
-derived.)
-
-**Layer 1 — Needs (inputs; driven by suppliers; memory/drift):**
-- **fed** (food chain) · **happy** (joy: festivals, games, wine) · **health** (driven by fed +
-  plague + low consumption) — all shipped in `public-needs_spec.md`.
-- **piety** — **adopted.** *Belief is the mechanic; the gods are not.* The engine models whether
-  the **people feel the city is in good standing with the heavens**, never whether prayers work —
-  every material outcome stays materially caused; belief is the *lens* on it, with real political
-  teeth. Temples produce piety (rites/festivals) and **interpret** crises (a plague reads as
-  "divine punishment / the Mayor angered the gods" → blame, or "a trial we'll endure" → rallying,
-  depending on piety + which temple has the people's ear). Historical anchor: the Athenian plague
-  of 430 BC — belief was the decisive political force without the gods being real.
-  - *Extremes (neither purely good):* **high** → resilient, the Mayor has religious legitimacy,
-    *but* zealotry — temples grow powerful enough to challenge him, scapegoating the impious.
-    **low** → brittle, anxious, doom-reading, *but* free of priestly power (cynical, unbound).
-
-**Layer 2 — Standing axes (the political/output layer):**
-- **confidence** = the existing `support` (mayor reputation with The Public; −50..+50). *Already
-  tracked.* Drives the removal spiral + audience leverage; it is also one of unrest's inputs.
-  Distinct from unrest (approval ≠ propensity to riot).
-- **unrest** — **promoted** from the too-narrow `disposition` (which only read off support). The
-  real scale is the **aggregate of pressure** — hunger + impiety + low confidence + drunken
-  volatility — with **memory**, because the City Guard mechanic requires it: the Guard *suppresses
-  unrest while the cause festers* (stored value pushed down temporarily). Boils over → riots/crime.
-  Structurally it sits **on top of** the needs (output), not beside them (input).
-
-**Layer 3 — The balance-axis (interior optimum — tune to the middle, don't maximize):**
-- **consumption** (alcohol) — **adopted.** Driven by wine supply (vine estate → Winepressers /
-  Dionysos). Bad at *both* ends, which is what earns it: **low** → more shock-sensitive *and*
-  **less healthy** (clean water was a real threat; watered wine was the safe daily drink → too
-  little drives health down via bad water). **high** → less work done *and* the City Watch is less
-  effective. Two bonuses it delivers: it makes **wine a double-edged good** (joy + safe-drink +
-  sloth-if-overdone) and it **differentiates the joy sources** (Dionysos drives joy *through*
-  consumption; theater/games drive joy *sober*).
-
-**Derived descriptors (never stored as their own levers):** `disposition` (read off unrest/
-confidence), `drunk` (read off consumption — and *feeds* unrest as volatility).
-
-**Design notes carried with the model:**
-- **Watch the feedback loop:** if misery drives drinking *and* high drinking cuts output, that's a
-  doom spiral (drink → less work → less food → more misery → drink). First cut: consumption tracks
-  wine supply only; add drink-to-cope later *with a governor*.
-- **Consumption → output is the first Public→production wire.** Today the Public's scales reach
-  *outward* (support, events); "high consumption → less work" reaches *back into production*,
-  closing the loop. Model it as a single **global efficiency multiplier**, not a per-faction
-  tangle, to keep it legible — and balance it carefully (two-way loops are where it gets subtle).
-- **The "buy time vs. fix the cause" spine:** festivals (Dionysos), games-event, and the City
-  Guard are all *symptom* levers (soothe/suppress now); the real fixes (feed them, raise piety
-  honestly, prepare for the disaster) are the hard road. Many ways to mask pressure, few to solve
-  it, bills compound.
-
-Per-faction temple/academy layout that produces and interprets piety: see
-`faction-resource-map.md` → Roster Decisions (temples 4; academy dissolved).
+The Public's state (belief-as-mechanic, the **seven scales** in three layers, the band matrix,
+and the extreme-crisis events) outgrew this doc and now lives in **`public-model.md`**. The
+relevant fact for *this* doc: **piety is an adopted fourth Public need** (belief-based — the gods
+never reach into physics), produced and interpreted by the temples
+(`faction-resource-map.md` → Roster Decisions).
 
 ## What is deliberately NOT a resource
 
