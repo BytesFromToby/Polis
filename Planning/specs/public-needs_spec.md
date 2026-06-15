@@ -1,12 +1,16 @@
 # Spec: Public Needs (The Barley Run)
 
-**Version:** v2
+**Version:** v3
 **Date:** 2026-06-12
 **Updated:** 2026-06-14 — **fish slice**: the Netmenders become a **second Food source**, giving
 the city source redundancy (`../proposals/resource-chains.md` → "Food: three sources, by design";
 `../proposals/public-model.md`). Producers can now be **faction-keyed** (not only domain-keyed),
 and a chain may be **processor-less** (its raw feeds a need directly). Barley is re-tuned down so
 each source is partial — see Feature: The fishery.
+**Updated:** 2026-06-14 — **flocks slice**: the Eumelidai become a **third Food source** (flocks →
+meat, fed directly), **completing** the three-source redundancy and closing the fish slice's
+intentional ~20% lean. Purely **additive** — barley and fish are unchanged (the fish slice already
+left the 20% gap). See Feature: The pastoral chain.
 **Proposal:** `../proposals/barley-run.md` (v1 slice of `../proposals/resource-chains.md`)
 
 The Public becomes the material center of the city: a real population that eats, drinks, and
@@ -20,14 +24,17 @@ All numeric constants in this spec are provisional — tune by feel (same status
 curve in `../reference/formulas.md`). Tests must reference the constants, not bake in copies.
 
 ## Scope
-- Does: population + `fed`/`happy` traits on `ThePublic`; band tables; **two Food sources** —
-  the harvest chain (aristocracy → Ovenmen/Winepressers → bread/wine/porridge) and the
-  **fishery** (Netmenders → fish, fed directly); consumption and drift; shortage and plenty
-  effects (health driver, support deltas, population growth/decline); the cycle step.
-- Does NOT: a third Food source (flocks/meat — the next extension after fish); fish processing
-  (salting via Tanners — fish feeds `fed` *fresh* this slice); the new Public scales
-  (piety/unrest/consumption — a later slice); warehouses, stockpiles, trade values, or any
-  persisted goods; pop-gated faction levels; Mayor split levers; title/boon mechanics.
+- Does: population + `fed`/`happy` traits on `ThePublic`; band tables; **three Food sources** —
+  the harvest chain (aristocracy → Ovenmen/Winepressers → bread/wine/porridge), the **fishery**
+  (Netmenders → fish, fed directly), and the **pastoral** chain (Eumelidai → meat, fed directly);
+  consumption and drift; shortage and plenty effects (health driver, support deltas, population
+  growth/decline); the cycle step.
+- Does NOT: meat processing (butchering via Tanners, temple sacrifice — meat feeds `fed` *fresh*
+  this slice); wool (the Eumelidai's other output — a future Goods chain, not Food); **full
+  per-estate differentiation** (Eumelidai stays a *mixed* estate producing both barley and
+  flocks for now — see Feature: The pastoral chain; the clean one-estate-one-food split is
+  deferred to the roster restructure); the new Public scales (piety/unrest/consumption — a later
+  slice); warehouses, stockpiles, trade values; pop-gated faction levels; Mayor split levers.
 
 ## Feature: Public needs state
 
@@ -159,16 +166,66 @@ demand)` is unchanged. Constants remain provisional — tune against the redunda
 - A toiling Netmenders contributes `× TOIL_MULT` fish that cycle only  `[automated]`
 - Conservation holds per chain: each chain's output units sum to its own raw (harvest: bread +
   wine + porridge = harvest raw; fishery: fish = fish raw)  `[automated]`
-- **Redundancy** (dynamics, from the balanced two-source standard city, tolerance bands not exact
-  values): both sources running → fed band is **Fed** or better; remove the aristocracy estates
-  (barley gone) → fed settles in **Hungry** and never reaches Starving within 30 cycles from the
-  Fed start; remove the Netmenders (fish gone) → fed settles in **Hungry**, never Starving;
-  remove **both** → fed reaches **Starving**  `[automated]`
+- **Redundancy** — *superseded by the three-source redundancy in Feature: The pastoral chain*
+  (once flocks is added, losing fish leaves the city Fed, not Hungry — the resilience gain). The
+  two-source property held at the fish slice; the live test (`TestRedundancy`) is the three-source
+  version  `[automated]`
 - The shipped harvest dynamics (stability, legibility, recoverability, Toil-matters) still pass
   under the re-tuned constants and the added fish source (updated as needed for the two-source
   world)  `[automated]`
 - All chain tests reference the named constants (`HARVEST_PER_LEVEL`, `FISH_PER_LEVEL`,
   `FISH_FED_PER_UNIT`), never baked-in literals  `[automated]`
+
+## Feature: The pastoral chain — third Food source (flocks slice)
+
+The Eumelidai ("the well-flocked") raise flocks that feed `fed` directly as fresh **meat** —
+the third Food source, completing the three-source redundancy and closing the fish slice's
+intentional ~20% lean. Same shape as the fishery: a faction-keyed, processor-less producer.
+
+**Purely additive — barley and fish are unchanged.** The fish slice tuned barley(~50%) +
+fish(~30%) to ~80% of demand on purpose, leaving the gap this fills. The three sources now sum
+to ≈ demand, so the standard city sits at the top of **Fed** / into **Well-fed**, and the
+population treadmill engages (grows while well-fed → demand rises → settles back toward Fed).
+
+**Mixed estate (deliberate interim).** The Eumelidai are an `aristocracy` faction, so they
+*still* contribute to the harvest (barley) chain via its `domain: aristocracy` producer **and**
+produce flocks via this chain. A great landed house holding both grainfields and herds is
+realistic; the clean one-estate-one-food split is deferred to the roster restructure (which
+reworks the estates holistically). Rejected for now: making the Eumelidai a flocks-only producer
+— it needs a producer-list schema and a multi-constant re-tune, and the estates' sizes
+(4/3/2) don't map onto the 50/30/20 source proportions if the biggest estate owns the smallest
+source. See the decision log.
+
+The **pastoral** chain in `data/chains.json`:
+- **Producer:** `faction_id == "eumelidai"`. Contributes `FLOCKS_PER_LEVEL × level` units of raw
+  flocks. **`FLOCKS_PER_LEVEL = 1`** (provisional).
+- **No processors.** Flocks feed `fed` directly as fresh meat via the unprocessed path:
+  `fed_supply += flocks × MEAT_FED_PER_UNIT`, **`MEAT_FED_PER_UNIT = 1.0`** (meat is protein;
+  feeds like fish/bread). No `happy` contribution. Unprocessed `label: "meat"`.
+- **Toil:** the Eumelidai are a chain-role faction (producer), so they may Toil; a toiling
+  Eumelidai contributes `× TOIL_MULT` flocks that cycle, like any producer.
+
+- Input: live factions (Eumelidai level + toiling flag) + `ThePublic.population`.
+- Output: meat units folded into `fed_supply` (the per-path tonnage log gains a `meat` row).
+
+**Done when:**
+- The pastoral chain (Netmenders-style: `faction_id` producer, no processors) routes all its raw
+  to `fed` at `MEAT_FED_PER_UNIT`: raw flocks = `FLOCKS_PER_LEVEL × eumelidai.level`, and
+  `fed_supply` rises by `raw_flocks × MEAT_FED_PER_UNIT`; logs under `units["meat"]`; zero
+  Eumelidai level → zero flocks  `[automated]`
+- A toiling Eumelidai contributes `× TOIL_MULT` flocks that cycle only; `eumelidai` is in
+  `chain_role_faction_ids`  `[automated]`
+- Per-chain conservation still holds across all three chains (harvest, fishery, pastoral)  `[automated]`
+- Barley and fish output are **unchanged** by this slice — the harvest and fishery chains in
+  `data/chains.json` are byte-for-byte the same as the fish slice (additive, no re-tune)  `[automated]`
+- **Three-source redundancy** (dynamics, tolerance bands, from a Fed start): all three sources
+  running → the standard city sits at **Fed or better** (the fish-slice lean is gone); removing
+  the **Netmenders** (fish, ~30%) → the city stays **Fed** (a smaller-source loss is absorbed —
+  3-source is more resilient than 2); removing the **aristocracy** producers (barley *and* flocks,
+  both produced there) → fed settles in **Hungry**, never Starving within 30 cycles; removing
+  **all** food producers (aristocracy + Netmenders) → fed reaches **Starving**  `[automated]`
+- The shipped dynamics (stability, legibility, recoverability, Toil-matters) still pass under the
+  three-source city  `[automated]`
 
 ## Feature: Drift, shortage, and plenty
 
