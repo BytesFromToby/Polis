@@ -1,7 +1,12 @@
 # Spec: Public Needs (The Barley Run)
 
-**Version:** v1
+**Version:** v2
 **Date:** 2026-06-12
+**Updated:** 2026-06-14 — **fish slice**: the Netmenders become a **second Food source**, giving
+the city source redundancy (`../proposals/resource-chains.md` → "Food: three sources, by design";
+`../proposals/public-model.md`). Producers can now be **faction-keyed** (not only domain-keyed),
+and a chain may be **processor-less** (its raw feeds a need directly). Barley is re-tuned down so
+each source is partial — see Feature: The fishery.
 **Proposal:** `../proposals/barley-run.md` (v1 slice of `../proposals/resource-chains.md`)
 
 The Public becomes the material center of the city: a real population that eats, drinks, and
@@ -15,12 +20,14 @@ All numeric constants in this spec are provisional — tune by feel (same status
 curve in `../reference/formulas.md`). Tests must reference the constants, not bake in copies.
 
 ## Scope
-- Does: population + `fed`/`happy` traits on `ThePublic`; band tables; the harvest chain
-  (aristocracy → Ovenmen/Winepressers → bread/wine/porridge); consumption and drift; shortage
-  and plenty effects (health driver, support deltas, population growth/decline); the cycle step.
-- Does NOT: any second chain (fish is the designated extension, not in v1); warehouses,
-  stockpiles, trade values, or any persisted goods; pop-gated faction levels; Mayor split
-  levers; title/boon mechanics (parked for elections-and-titles).
+- Does: population + `fed`/`happy` traits on `ThePublic`; band tables; **two Food sources** —
+  the harvest chain (aristocracy → Ovenmen/Winepressers → bread/wine/porridge) and the
+  **fishery** (Netmenders → fish, fed directly); consumption and drift; shortage and plenty
+  effects (health driver, support deltas, population growth/decline); the cycle step.
+- Does NOT: a third Food source (flocks/meat — the next extension after fish); fish processing
+  (salting via Tanners — fish feeds `fed` *fresh* this slice); the new Public scales
+  (piety/unrest/consumption — a later slice); warehouses, stockpiles, trade values, or any
+  persisted goods; pop-gated faction levels; Mayor split levers; title/boon mechanics.
 
 ## Feature: Public needs state
 
@@ -69,11 +76,17 @@ cycles — recomputed and overwritten by every needs step; never drifted, never 
 A pure function from live faction state to need supply. Derived every cycle, never persisted
 (per `../decisions/2026-03-29-no-persistent-derived-fields.md`).
 
-**Chain definition** lives in `data/chains.json` (one chain in v1):
+**Chain definitions** live in `data/chains.json` (two chains as of the fish slice: `harvest`
+and `fishery`). A chain's `producers` may be keyed by **`domain`** (every faction in it) or by
+**`faction_id`** (one specific faction); a chain may have **no processors** (its raw feeds a
+need directly via the unprocessed path — see the fishery).
+
+The **harvest** chain (barley + wine):
 
 - **Producers:** every faction with `domain_primary == "aristocracy"` (Eumelidai, Pyrrhidai,
-  Skiadai). Each contributes `HARVEST_PER_LEVEL × level` units of raw harvest
-  (`HARVEST_PER_LEVEL = 3`).
+  Skiadai). Each contributes `HARVEST_PER_LEVEL × level` units of raw harvest.
+  **`HARVEST_PER_LEVEL = 2`** (re-tuned down from 3 in the fish slice so barley is a *partial*
+  Food source — see Feature: The fishery for why).
 - **Processors:** `ovenmen` and `winepressers`. Each has capacity
   `CAPACITY_PER_LEVEL × level` units (`CAPACITY_PER_LEVEL = 6`).
 - **Split:** if total capacity ≥ raw, processors take raw in proportion to capacity; else
@@ -111,6 +124,51 @@ A pure function from live faction state to need supply. Derived every cycle, nev
   nonzero whenever raw is nonzero  `[automated]`
 - A Toiling producer contributes ×1.5 harvest and a Toiling processor ×1.5 capacity, this
   cycle only  `[automated]`
+
+## Feature: The fishery — second Food source (fish slice)
+
+A second chain that gives the city **source redundancy**: the Netmenders land fish that feed
+`fed` directly. The design goal (`resource-chains.md` → Food: three sources): **one source out →
+Hungry at worst, never Starving from full health; two out → Starving.** Fish only matters if
+barley alone is *insufficient* — so `HARVEST_PER_LEVEL` is re-tuned down (3 → 2) to make barley
+a partial source, and fish supplies the rest. (Flocks/meat, the third source ~20%, is the next
+slice; until then the two sources are tuned to roughly meet demand together, leaving a deliberate
+flocks-shaped gap.)
+
+The **fishery** chain in `data/chains.json`:
+- **Producer:** keyed by `faction_id == "netmenders"` (one faction, not a domain). Contributes
+  `FISH_PER_LEVEL × level` units of raw fish. **`FISH_PER_LEVEL = 3`** (provisional).
+- **No processors.** Fish is eaten fresh — its raw feeds `fed` directly via the unprocessed path:
+  `fed_supply += fish × FISH_FED_PER_UNIT`, **`FISH_FED_PER_UNIT = 1.0`** (fish is protein; feeds
+  like bread). No `happy` contribution.
+- **Toil:** the Netmenders are a chain-role faction (they are a producer), so they may Toil; a
+  toiling Netmenders contributes `× TOIL_MULT` fish that cycle, like any producer.
+
+All Food chains accumulate into one `fed_supply`; `fed_target = min(100, 75 × fed_supply /
+demand)` is unchanged. Constants remain provisional — tune against the redundancy test below.
+
+- Input: live factions (Netmenders level + toiling flag) + `ThePublic.population`.
+- Output: fish units folded into `fed_supply` (and the per-path tonnage log gains a `fish` row).
+
+**Done when:**
+- `compute_chain` sums a `faction_id`-keyed producer over only that one faction (other factions
+  in the Netmenders' domain contribute no fish); a `domain`-keyed producer is unchanged  `[automated]`
+- The fishery (no processors) routes all its raw to `fed` at `FISH_FED_PER_UNIT`: raw fish =
+  `FISH_PER_LEVEL × netmenders.level`, and `fed_supply` rises by `raw_fish × FISH_FED_PER_UNIT`;
+  zero Netmenders level → zero fish  `[automated]`
+- A toiling Netmenders contributes `× TOIL_MULT` fish that cycle only  `[automated]`
+- Conservation holds per chain: each chain's output units sum to its own raw (harvest: bread +
+  wine + porridge = harvest raw; fishery: fish = fish raw)  `[automated]`
+- **Redundancy** (dynamics, from the balanced two-source standard city, tolerance bands not exact
+  values): both sources running → fed band is **Fed** or better; remove the aristocracy estates
+  (barley gone) → fed settles in **Hungry** and never reaches Starving within 30 cycles from the
+  Fed start; remove the Netmenders (fish gone) → fed settles in **Hungry**, never Starving;
+  remove **both** → fed reaches **Starving**  `[automated]`
+- The shipped harvest dynamics (stability, legibility, recoverability, Toil-matters) still pass
+  under the re-tuned constants and the added fish source (updated as needed for the two-source
+  world)  `[automated]`
+- All chain tests reference the named constants (`HARVEST_PER_LEVEL`, `FISH_PER_LEVEL`,
+  `FISH_FED_PER_UNIT`), never baked-in literals  `[automated]`
 
 ## Feature: Drift, shortage, and plenty
 
@@ -178,5 +236,8 @@ templates gate on them via `trigger_conditions` keys (`max_fed_band`, `min_fed_b
   noticeable when bands shift)  `[human-required]`
 
 ## Open Questions
-- None blocking. Constants are provisional by design; first tuning pass happens against the
-  dynamics tests.
+- None blocking. Constants are provisional by design; the tuning pass happens against the
+  redundancy + dynamics tests.
+- Intentional, not a gap: after the fish slice the standard city runs slightly lean (barley +
+  fish ≈ demand, with a deliberate ~20% flocks-shaped hole). The flocks/meat source closes it
+  in the next slice; until then "Fed, not Well-fed" at rest is expected.
