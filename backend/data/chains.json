@@ -13,5 +13,11 @@
     "producers": {"faction_id": "netmenders", "per_level": 3},
     "processors": [],
     "unprocessed": {"fed_per_unit": 1.0, "label": "fish"}
+  },
+  {
+    "id": "pastoral",
+    "producers": {"faction_id": "eumelidai", "per_level": 1},
+    "processors": [],
+    "unprocessed": {"fed_per_unit": 1.0, "label": "meat"}
   }
 ]

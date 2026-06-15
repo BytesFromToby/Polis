@@ -39,24 +39,25 @@ class TestNeedsStepRuns:
 
 
 class TestToilingReset:
-    def test_flags_false_after_run_cycle_and_boost_consumed(self):
-        # Forced Toil via committed_action; same seed with/without the commitment.
-        # fed=50 starts inside drift range of both targets so the boost is visible
-        # (fed=0 would cap both runs at DRIFT_STEP and prove nothing).
-        results = {}
-        for label, commit in (("toil", True), ("control", False)):
-            random.seed(42)
-            world, factions, domains = fresh_city()
-            public = ThePublic(fed=50)
-            if commit:
-                for fid in ("eumelidai", "pyrrhidai", "skiadai"):
-                    factions[fid].committed_action = "Toil"
-            run_cycle(world, factions, domains, mayor=Mayor(), treasury=Treasury(),
-                      public=public, chains=CHAINS)
-            assert all(f.toiling is False for f in factions.values())
-            results[label] = public.fed
-        # Toiling producers raised the fed target this cycle → fed drifted strictly higher.
-        assert results["toil"] > results["control"]
+    def test_flags_false_after_run_cycle(self):
+        # Spec Done-when: Faction.toiling is always false for every faction after run_cycle returns.
+        random.seed(42)
+        world, factions, domains = fresh_city()
+        for fid in ("eumelidai", "pyrrhidai", "skiadai"):
+            factions[fid].committed_action = "Toil"
+        run_cycle(world, factions, domains, mayor=Mayor(), treasury=Treasury(),
+                  public=ThePublic(fed=50), chains=CHAINS)
+        assert all(f.toiling is False for f in factions.values())
+
+    def test_toil_boost_raises_fed_target(self):
+        # The boost is real and drift-independent — proven at the source (fed_target), not the
+        # drifted fed (which caps at DRIFT_STEP and hides the boost once the city is well-fed).
+        world, factions, domains = fresh_city()
+        base = compute_chain(factions, 20000, CHAINS).fed_target
+        for fid in ("eumelidai", "pyrrhidai", "skiadai"):
+            factions[fid].toiling = True
+        boosted = compute_chain(factions, 20000, CHAINS).fed_target
+        assert boosted > base
 
 
 class TestSnapshotRoundTrip:

@@ -70,8 +70,9 @@ class TestLegibilityAndRecovery:
 
 
 class TestRedundancy:
-    """Source redundancy (fish slice): one source out → Hungry not Starving; both → Starving.
-    Removal = drop the producer factions (a faction's level can't be zeroed; rating floors at 1)."""
+    """Three-source redundancy (flocks slice): all three → Fed; lose a smaller source → still
+    Fed (the resilience gain); lose the aristocracy (barley AND flocks — the Eumelidai produce
+    both) → Hungry not Starving; lose all food → Starving. Removal = drop the producer factions."""
 
     def _run_without(self, remove_ids, cycles=30, seed=404):
         def mutate(factions, c):
@@ -80,21 +81,22 @@ class TestRedundancy:
                     factions.pop(fid, None)
         return run_city(cycles, seed, mutate=mutate)
 
-    def test_both_sources_fed_or_better(self):
+    def test_all_three_fed_or_better(self):
         fed = self._run_without(())
         assert min(band_i(v) for v in fed[-10:]) >= band_index("Fed", FED_BANDS)
 
-    def test_barley_gone_hungry_never_starving(self):
+    def test_fish_gone_stays_fed(self):
+        # losing a smaller source (~30%) is absorbed — 3-source is more resilient than 2
+        fed = self._run_without(("netmenders",))
+        assert band_i(fed[-1]) >= band_index("Fed", FED_BANDS)
+
+    def test_aristocracy_gone_hungry_never_starving(self):
+        # the Eumelidai produce both barley and flocks, so this drops two sources at once
         fed = self._run_without(ARISTOCRACY)
         assert all(band_i(v) >= band_index("Hungry", FED_BANDS) for v in fed)  # never Starving
         assert band_i(fed[-1]) == band_index("Hungry", FED_BANDS)              # settles Hungry
 
-    def test_fish_gone_hungry_never_starving(self):
-        fed = self._run_without(("netmenders",))
-        assert all(band_i(v) >= band_index("Hungry", FED_BANDS) for v in fed)  # never Starving
-        assert band_i(fed[-1]) == band_index("Hungry", FED_BANDS)              # settles Hungry
-
-    def test_both_gone_starving(self):
+    def test_all_food_gone_starving(self):
         fed = self._run_without(ARISTOCRACY + ("netmenders",))
         assert band_i(fed[-1]) == band_index("Starving", FED_BANDS)
 

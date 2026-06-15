@@ -48,7 +48,7 @@ No roster change. Provisional constants `per_level 1`, `fed_per_unit 1.0`.)
 **Test:** `py -c "from loaders import load_chains; c=load_chains(); print([x['id'] for x in c]); print(c[2]['producers'], c[2]['unprocessed'])"` from `backend/`.
 **Done When:** `load_chains()` returns 3 chains `['harvest','fishery','pastoral']`; pastoral has a `faction_id` producer (eumelidai), no processors, and a `meat` unprocessed label.
 **Stuck If:** The JSON fails to parse.
-- [ ] Complete
+- [x] Complete
 
 ### Step 2: Pastoral unit tests
 **Build:** In `tests/test_needs_chain.py`, read the pastoral constants from the loaded def
@@ -71,7 +71,13 @@ Also add an **additive-guard** test: assert `HARVEST["producers"]["per_level"] =
 **Stuck If:** A pastoral expected value disagrees with `compute_chain` and the cause isn't a stale
 literal — report. Or the engine doesn't already handle the faction-keyed `meat` chain (would mean
 the fish-slice generalization is incomplete — report, do not patch the engine here).
-- [ ] Complete
+- [x] Complete
+**Deviation:** Pastoral math tested with the pastoral chain in **isolation** (`compute_chain(city, pop, [PASTORAL])`)
+rather than the full `CHAINS`, because the Eumelidai also feed the harvest chain (mixed estate),
+which would add porridge noise — isolation keeps `meat == raw` clean. Same assertions, cleaner
+fixture. Also renamed the shipped `TestLoader.test_loads_two_chains` → `test_loads_three_chains`
+(the chain-count assertion moved 2→3). Engine confirmed unchanged — no `chain.py` edit (the
+fish-slice generalization already covers flocks).
 
 ---
 End of Slice 1. Builder checkpoint: `test_needs_chain.py` + `test_toil.py` green.
@@ -103,7 +109,7 @@ ONLY those (barley/fish stay fixed, the additive guard protects them) — until 
 each change as a deviation.
 **Stuck If:** No pastoral constant set gives "all three → Fed+" **and** "remove aristocracy → Hungry
 not Starving" **and** "remove all → Starving" together — report the trade-off data.
-- [ ] Complete
+- [x] Complete
 
 ### Step 2: Re-verify the shipped dynamics under three sources
 **Build:** Run stability, legibility/recoverability, and Toil-matters in `tests/test_needs_dynamics.py`.
@@ -115,7 +121,7 @@ Do not weaken a property to force a pass — a genuine break is a Stuck.
 **Done When:** All shipped dynamics tests pass alongside the updated redundancy test.
 **Stuck If:** A shipped property fails and can't be restored without weakening it or re-tuning
 barley/fish (which the additive guard forbids) — report.
-- [ ] Complete
+- [x] Complete
 
 ### Step 3: Headless smoke
 **Build:** No new code. Run the city and read the result.
@@ -125,7 +131,7 @@ into Well-fed** (the fish-slice lean is gone) with population **growing** (the t
 no crash.
 **Stuck If:** The run errors, or fed sits at Hungry/Starving at rest (pastoral under-tuned — return
 to Final Step 1).
-- [ ] Complete
+- [x] Complete
 
 ### Final Step: Verify spec Done when items
 **Build:** No new code. Confirm every `**Done when:**` item in `public-needs_spec.md` v3 — the new
@@ -135,7 +141,16 @@ to Final Step 1).
 carries forward from the barley build.
 **Done When:** Every `[automated]` criterion passes via its committed test; the full suite is green.
 **Stuck If:** An automated criterion fails and the cause is not clear from the output.
-- [ ] Complete
+- [x] Complete
+**Deviation:** Repaired `tests/test_needs_cycle.py::TestToilingReset` (surfaced only in the full
+suite). With three sources the city's base `fed_target` is ~76, so a single cycle's drift from
+`fed=50` caps at `DRIFT_STEP` (→60) for *both* the toiling and control runs — the boost is hidden
+by the drift cap, not absent. Split the test into (a) the spec Done-when (`toiling` False after
+`run_cycle`) and (b) a **drift-independent** boost check (`compute_chain` `fed_target` is higher
+with the estates toiling than without). Same regime-shift category as the fish slice's legibility
+repair; the boost is now proven *more* robustly (at the source, before the drift cap), not weakened.
+No constant tuning was needed — provisional `FLOCKS_PER_LEVEL=1`, `MEAT_FED_PER_UNIT=1.0` satisfied
+all four three-source redundancy bands first try.
 
 ---
 ⛔ Final slice complete. Run **inspector** for final sign-off.

@@ -36,11 +36,14 @@ WINE_HPU = HARVEST["processors"][1]["happy_per_unit"]   # winepressers happy/uni
 PORRIDGE_FPU = HARVEST["unprocessed"]["fed_per_unit"]
 FPL = FISHERY["producers"]["per_level"]                 # fish per-level
 FFP = FISHERY["unprocessed"]["fed_per_unit"]            # fish fed/unit
+PASTORAL = next(c for c in CHAINS if c["id"] == "pastoral")
+EPL = PASTORAL["producers"]["per_level"]                # flocks per-level
+MEAT_FPU = PASTORAL["unprocessed"]["fed_per_unit"]      # meat fed/unit
 
 
 class TestLoader:
-    def test_loads_two_chains(self):
-        assert [c["id"] for c in CHAINS] == ["harvest", "fishery"]
+    def test_loads_three_chains(self):
+        assert [c["id"] for c in CHAINS] == ["harvest", "fishery", "pastoral"]
 
     def test_missing_file_returns_empty(self):
         assert load_chains("nonexistent/chains.json") == []
@@ -192,3 +195,53 @@ class TestFishery:
 
     def test_netmenders_has_chain_role(self):
         assert "netmenders" in chain_role_faction_ids(CHAINS, mk_fish_city())
+
+
+def mk_flock_city(eumelidai=4.0, with_other_aristocracy=False):
+    factions = {"eumelidai": mk_faction("eumelidai", "aristocracy", eumelidai)}
+    if with_other_aristocracy:
+        factions["pyrrhidai"] = mk_faction("pyrrhidai", "aristocracy", 3.0)
+    return factions
+
+
+class TestPastoral:
+    # Pastoral math is tested with the pastoral chain in isolation ([PASTORAL]) — the Eumelidai
+    # also feed the harvest chain (mixed estate), so full CHAINS would add porridge noise.
+    def test_faction_keyed_sums_only_eumelidai(self):
+        out = compute_chain(mk_flock_city(with_other_aristocracy=True), 20000, [PASTORAL])
+        assert out.units["meat"] == EPL * 4   # eumelidai level 4 only; pyrrhidai adds no meat
+
+    def test_processor_less_routes_raw_to_fed(self):
+        out = compute_chain(mk_flock_city(eumelidai=4.0), 20000, [PASTORAL])
+        raw_meat = EPL * 4
+        assert out.units["meat"] == raw_meat
+        demand = 20000 / POP_PER_SUPPLY_UNIT
+        expected_fed = min(100.0, PARITY_TARGET * (raw_meat * MEAT_FPU) / demand)
+        assert abs(out.fed_target - expected_fed) < 1e-9
+
+    def test_zero_eumelidai_zero_flocks(self):
+        out = compute_chain({}, 20000, [PASTORAL])
+        assert out.units.get("meat", 0.0) == 0.0
+        assert out.raw == 0
+
+    def test_toiling_eumelidai(self):
+        factions = mk_flock_city()
+        baseline = compute_chain(factions, 20000, [PASTORAL]).units["meat"]
+        factions["eumelidai"].toiling = True
+        boosted = compute_chain(factions, 20000, [PASTORAL]).units["meat"]
+        assert boosted == baseline * TOIL_MULT
+
+    def test_per_chain_conservation(self):
+        out = compute_chain(mk_flock_city(), 20000, [PASTORAL])
+        assert out.units["meat"] == out.raw   # pastoral-only → meat == its raw
+
+    def test_eumelidai_has_chain_role(self):
+        assert "eumelidai" in chain_role_faction_ids(CHAINS, mk_flock_city())
+
+
+class TestAdditiveGuard:
+    def test_barley_and_fish_unchanged(self):
+        # the flocks slice must not re-tune the shipped chains (fish-slice values)
+        assert HPL == 2
+        assert FPL == 3
+        assert FFP == 1.0
