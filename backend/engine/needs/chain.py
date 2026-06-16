@@ -1,5 +1,5 @@
 """
-engine/needs/chain.py — the harvest chain (public-needs_spec).
+engine/needs/chain.py — the Food production chains (food-supply_spec).
 
 A pure function from live faction state + population to supply targets.
 Derived every cycle, never persisted. All constants are provisional —

@@ -40,7 +40,8 @@ Operations run in this order each cycle. Items marked → are detailed in anothe
     `process_active_events`) — apply the effects of already-active events and decrement their
     timers. Runs **before** the needs step so a `withhold` event asserts `withholding` on its
     target in time for the chain to read it this cycle (added with Withhold, 2026-06-16).
-5b. **Public needs** → `public-needs_spec.md` — derive the harvest chain from live faction
+5b. **Public needs** → `public-needs_spec.md` (drift/consequences) + `food-supply_spec.md`
+    (the chain math) — derive the food chains from live faction
     state (honoring `toiling` and `withholding` flags), compute targets vs population, drift
     `fed`/`happy`, apply health/support/population effects.
 6. *(none — active-event effect application moved up to 5a)*

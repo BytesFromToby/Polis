@@ -119,7 +119,7 @@ estates, the Ovenmen, the Winepressers) · **Contested:** No
 The faction works its trade instead of maneuvering. Sets the cycle-only flag
 `faction.toiling = True`; the Public-needs step multiplies that faction's chain contribution
 (harvest for producers, capacity for processors) by `TOIL_MULT = 1.5` this cycle (see
-`public-needs_spec.md`). No rank, health, or project effect — the opportunity cost *is* the
+`food-supply_spec.md`). No rank, health, or project effect — the opportunity cost *is* the
 effect: a toiling faction stands still politically.
 
 Toil is a valid `committed_action` deal term (see `audience_spec.md`) — the only way deals
@@ -139,7 +139,7 @@ Toil's evil twin — the supply-interruption primitive (`../proposals/resource-c
 faction refuses to deliver its trade, squeezing the city. Sets the cycle-only flag
 `faction.withholding = True`; the Public-needs step multiplies that faction's chain contribution
 (harvest for producers, capacity for processors) by **0** this cycle — symmetric with Toil's
-×1.5 (see `public-needs_spec.md`). No warehouses needed: the grain was never stored, so refusing
+×1.5 (see `food-supply_spec.md`). No warehouses needed: the grain was never stored, so refusing
 to deliver it needs no tracking — the faction simply doesn't appear in this cycle's chain math.
 
 Like Toil, it is **pure opportunity cost**: no rank, health, or project effect, and no cost to
