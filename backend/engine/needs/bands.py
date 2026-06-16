@@ -25,6 +25,23 @@ HAPPY_BANDS: List[Tuple[int, str]] = [
     (100, "Festive"),
 ]
 
+# Piety/unrest use the 20% increments of public-model.md (five bands each).
+PIETY_BANDS: List[Tuple[int, str]] = [
+    (20, "Godless"),
+    (40, "Lax"),
+    (60, "Observant"),
+    (80, "Devout"),
+    (100, "Zealous"),
+]
+
+UNREST_BANDS: List[Tuple[int, str]] = [   # low is good
+    (20, "Placid"),
+    (40, "Quiet"),
+    (60, "Restless"),
+    (80, "Agitated"),
+    (100, "Boiling"),
+]
+
 SICKLY_THRESHOLD = 40   # health below this → the people are sickly
 
 
@@ -41,6 +58,14 @@ def fed_band(value: int) -> str:
 
 def happy_band(value: int) -> str:
     return _band(value, HAPPY_BANDS)
+
+
+def piety_band(value: int) -> str:
+    return _band(value, PIETY_BANDS)
+
+
+def unrest_band(value: int) -> str:
+    return _band(value, UNREST_BANDS)
 
 
 def band_index(word: str, table: List[Tuple[int, str]]) -> int:
