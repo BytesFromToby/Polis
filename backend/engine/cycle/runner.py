@@ -122,7 +122,7 @@ def run_cycle(
     # ── Steps 1–2: Sequential initiative action loop ─────────────────────────
     resolution_results = run_sequential_actions(
         world, factions, domains, projects, cycle_num, logger, base_stacks=base_stacks,
-        public=public, chain_roles=chain_roles,
+        public=public, chain_roles=chain_roles, mayor=mayor,
     )
     all_results.extend(resolution_results)
 
@@ -189,10 +189,11 @@ def run_cycle(
         pub_results = process_the_public(public, mayor, factions, all_results)
         all_results.extend(pub_results)
 
-    # Reset cycle-only Toil flags after the needs step consumed them
-    # (cycle-runner_spec — Cycle-Only State).
+    # Reset cycle-only Toil/Withhold flags after the needs step consumed them
+    # (cycle-runner_spec — Cycle-Only State). An active withhold event re-asserts next cycle.
     for f in factions.values():
         f.toiling = False
+        f.withholding = False
 
     # ── Build CycleResult ─────────────────────────────────────────────────────
     cycle_events = [_to_cycle_event(r, cycle_num) for r in all_results]

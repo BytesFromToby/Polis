@@ -72,6 +72,7 @@ class Faction:
     # Cycle-only state (reset each cycle, not persisted)
     unstable_stacks: int = 0       # -1 per stack to rolls, max 3
     toiling: bool = False          # cycle-only: set by Toil resolution, consumed by needs step, reset in end_of_cycle — never persisted
+    withholding: bool = False      # cycle-only: set by Withhold resolution or an active withhold event, consumed by needs step (×0), reset in the runner — never persisted
 
     def __post_init__(self):
         self.rating = max(1.0, min(10.0, self.rating))

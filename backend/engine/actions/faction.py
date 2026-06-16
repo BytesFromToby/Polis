@@ -70,6 +70,20 @@ def resolve_toil(faction: Faction) -> ActionResult:
     )
 
 
+# ── WITHHOLD ───────────────────────────────────────────────────────────────────
+
+def resolve_withhold(faction: Faction) -> ActionResult:
+    """Toil's evil twin (public-needs_spec / actions_spec). The faction refuses to
+    deliver its trade: sets the cycle-only `withholding` flag; the needs step
+    multiplies this faction's chain contribution by 0. Pure opportunity cost —
+    no rank, health, or project effect."""
+    faction.withholding = True
+    return ActionResult(
+        "Withhold", faction.id, None, "success",
+        narrative=f"{faction.name} seal their stores against the city.",
+    )
+
+
 # ── AID ───────────────────────────────────────────────────────────────────────
 
 def resolve_aid(faction: Faction, target: Faction) -> ActionResult:

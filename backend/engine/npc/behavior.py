@@ -17,6 +17,11 @@ from ..models import Faction, Domain, WorldState, FactionPlan, FactionTrait, Pro
 SKIP_CHANCE = 0.05
 MAX_TRAITS = 6
 
+# Withhold (actions_spec / faction-behavior_spec): base 0; earns weight only from anger —
+# the Mayor's standing with the faction being low. Keeps a strike structurally rare + legible.
+WITHHOLD_ANGER_THRESHOLD = -20   # mayor reputation with the faction at/below this → strike pressure
+WITHHOLD_ANGER_WEIGHT = 40.0     # weight per step; +1 step per 10 points below the threshold
+
 BASE_WEIGHTS: Dict[str, float] = {
     "Grow":            40.0,
     "Harm":            20.0,
@@ -24,6 +29,7 @@ BASE_WEIGHTS: Dict[str, float] = {
     "Protect":         25.0,
     "Steal":           20.0,
     "Toil":            10.0,   # only factions with a chain role keep this (public-needs_spec)
+    "Withhold":        0.0,    # chain-role only; lifts off 0 only under anger (Step 3)
     "BuildProject":    15.0,
     "SabotageProject": 10.0,
 }
@@ -81,6 +87,7 @@ def select_faction_action(
     base_stacks: Optional[Dict[str, "BaseProjectStack"]] = None,
     public: Optional["ThePublic"] = None,
     chain_roles: Optional[set] = None,
+    mayor: Optional["Mayor"] = None,
 ) -> FactionPlan:
     """Select one action and target for this faction this turn.
 
@@ -138,8 +145,16 @@ def select_faction_action(
             from ..needs.bands import FED_BANDS, band_index, fed_band
             if band_index(fed_band(public.fed), FED_BANDS) <= band_index("Hungry", FED_BANDS):
                 weights["Toil"] = weights.get("Toil", 0.0) + 25
+        # Withhold — base 0; anger (low Mayor standing with this faction) lifts it off the floor,
+        # scaling with how far below the threshold (faction-behavior_spec Step 3).
+        if mayor is not None:
+            rep = mayor.get_reputation(faction.id)
+            if rep <= WITHHOLD_ANGER_THRESHOLD:
+                steps = 1 + (WITHHOLD_ANGER_THRESHOLD - rep) // 10
+                weights["Withhold"] = weights.get("Withhold", 0.0) + WITHHOLD_ANGER_WEIGHT * steps
     else:
         weights.pop("Toil", None)
+        weights.pop("Withhold", None)
 
     if faction.health < 30:
         weights["Protect"] = weights.get("Protect", 0.0) + 20

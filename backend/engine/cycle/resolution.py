@@ -14,6 +14,7 @@ from ..actions import (
     resolve_harm,
     resolve_protect,
     resolve_toil,
+    resolve_withhold,
     resolve_aid,
     resolve_steal,
     resolve_build_project,
@@ -40,10 +41,12 @@ def run_sequential_actions(
     base_stacks: Dict[str, "BaseProjectStack"] = None,
     public=None,
     chain_roles: Optional[set] = None,
+    mayor=None,
 ) -> List[ActionResult]:
     """Step 1+2: roll initiative, then resolve each faction's single action in order.
     A target dropped to 0 health Breaks before the loop continues.
-    `public`/`chain_roles` flow to the behavior engine for Toil (public-needs_spec)."""
+    `public`/`chain_roles` flow to the behavior engine for Toil; `mayor` flows for Withhold
+    anger-weighting (public-needs_spec / faction-behavior_spec)."""
     results: List[ActionResult] = []
     if base_stacks is None:
         base_stacks = {}
@@ -66,7 +69,7 @@ def run_sequential_actions(
             continue
 
         plan = select_faction_action(faction, factions, domains, world, projects, base_stacks,
-                                     public=public, chain_roles=chain_roles)
+                                     public=public, chain_roles=chain_roles, mayor=mayor)
         result = _execute(plan, faction, factions, domains, projects, base_stacks)
         if not result:
             continue
@@ -106,6 +109,8 @@ def _execute(
         return resolve_protect(faction)
     if action == "Toil":
         return resolve_toil(faction)
+    if action == "Withhold":
+        return resolve_withhold(faction)
     if action == "Aid" and plan.target_id:
         target = factions.get(plan.target_id)
         if target:

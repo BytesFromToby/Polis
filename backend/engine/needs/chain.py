@@ -68,7 +68,9 @@ def compute_chain(
         for fid, f in factions.items():
             if (prod_domain and f.domain_primary == prod_domain) or (prod_faction and fid == prod_faction):
                 contribution = per_level * f.level
-                if f.toiling:
+                if f.withholding:           # Withhold wins over Toil: zero contribution this cycle
+                    contribution = 0.0
+                elif f.toiling:
                     contribution *= TOIL_MULT
                 raw += contribution
         total_raw += raw
@@ -78,7 +80,9 @@ def compute_chain(
         for proc in processors:
             f = factions.get(proc["faction_id"])
             cap = proc["per_level_capacity"] * f.level if f else 0.0
-            if f and f.toiling:
+            if f and f.withholding:         # Withhold wins over Toil: zero capacity this cycle
+                cap = 0.0
+            elif f and f.toiling:
                 cap *= TOIL_MULT
             capacities.append(cap)
         total_capacity = sum(capacities)
