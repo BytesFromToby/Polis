@@ -197,13 +197,15 @@ note: the sea closes; the nets stay ashore. For its duration the fishery contrib
 ### The Mob Marches  (flagship — unrest)
 ```
 trigger: random, gated min_unrest_band: "Boiling"
-target: a domain's base-project stack
+target: a domain (its chaos) + The Public
 duration: 1 cycle
 effects:
-  - the addressed domain's base-project progress: −20 (the mob wrecks the works)
-  - factions Steal in the chaos (behavior already lifts Steal at high unrest)
+  - world chaos in the target domain: +2 (the riot spreads disorder)
+  - The Public health: −5 (injuries in the streets)
+  - factions Steal in the chaos (behavior already lifts Steal at high unrest — no event effect)
 cascade: none
-note: open riot at the boiling point. The City Guard is the standing counter — it presses unrest
+note: open riot at the boiling point. Effects reuse existing fields (chaos) + the new
+      public-targeted effect (health). The City Guard is the standing counter — it presses unrest
       down before this gate is reached; when unrest still hits Boiling, the riot lands. Heavier
       flagships (Insurrection, the direct removal bid) are deferred — this is the in-slice teeth.
 ```
@@ -283,7 +285,9 @@ condition to `sickly: true`.
 - `min_/max_piety_band` and `min_/max_unrest_band` gate templates exactly at their band
   boundaries, proven with sentinel templates (a `min_unrest_band: "Boiling"` template is eligible
   only at Boiling)  `[automated]`
-- The Mob Marches reduces the addressed domain stack's progress by 20 when it fires  `[automated]`
+- Event effects can target **`the_public`** (fields `piety`/`unrest`/`support`/`fed`/`happy`/
+  `health`), clamped to range — the capability events previously lacked  `[automated]`
+- The Mob Marches raises the target domain's chaos and lowers Public `health` when it fires  `[automated]`
 - The Ignored Omen lowers `piety` and `support` when it fires while the piety band is Lax or
   Godless, and is never eligible at Observant+  `[automated]`
 
