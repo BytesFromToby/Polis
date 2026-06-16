@@ -11,13 +11,13 @@ import loaders
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 
 EXPECTED_DOMAIN_IDS = {
-    "aristocracy", "guilds", "trade", "professions",
-    "temples", "military", "academy", "harbor",
+    "aristocracy", "guilds", "port", "professions",
+    "temples", "military",
 }
 
 EXPECTED_FACTION_COUNTS = {
-    "aristocracy": 3, "guilds": 10, "trade": 5, "professions": 6,
-    "temples": 5, "military": 4, "academy": 4, "harbor": 4,
+    "aristocracy": 4, "guilds": 9, "port": 4, "professions": 4,
+    "temples": 4, "military": 3,
 }
 
 FUNCTIONAL_TRAITS = {
@@ -32,10 +32,10 @@ def _load(name):
         return json.load(f)
 
 
-def test_eight_domains_with_default_values():
+def test_faction_domains_with_default_values():
     domains = _load("domains.json")
-    # treasury_spec v3 adds the faction-less `civic` ("Public Treasury") lane alongside
-    # the 8 Greek faction domains; it has its own properties and is checked separately.
+    # the faction-less `civic` ("Public Treasury") lane sits alongside the six faction
+    # domains (roster restructure); it has its own properties and is checked separately.
     greek = [d for d in domains if d["id"] in EXPECTED_DOMAIN_IDS]
     assert {d["id"] for d in greek} == EXPECTED_DOMAIN_IDS
     for d in greek:
@@ -57,9 +57,9 @@ def test_eight_domains_with_default_values():
     assert civic["relationships"] == []
 
 
-def test_forty_one_factions_assigned_to_real_domains():
+def test_factions_assigned_to_real_domains():
     factions = _load("factions.json")
-    assert len(factions) == 41
+    assert len(factions) == 28
     counts = {}
     for f in factions:
         assert f["domain_primary"] in EXPECTED_DOMAIN_IDS
@@ -78,10 +78,10 @@ def test_every_faction_trait_is_functional():
 
 def test_loader_accepts_greek_data():
     world, factions, domains = loaders.load_state_from_json(DATA_DIR)
-    # 8 Greek faction domains + the faction-less civic lane (treasury_spec v3).
+    # six faction domains + the faction-less civic lane.
     assert EXPECTED_DOMAIN_IDS <= set(domains)
     assert "civic" in domains
-    assert len(factions) == 41
+    assert len(factions) == 28
 
 
 def test_every_project_uses_a_greek_domain():

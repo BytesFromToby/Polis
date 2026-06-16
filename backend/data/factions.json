@@ -65,7 +65,7 @@
     "id": "skiadai",
     "name": "The Skiadai",
     "domain_primary": "aristocracy",
-    "rating": 2.0,
+    "rating": 1.0,
     "health": 80,
     "leader": {
       "name": "Demarete of the Skiadai",
@@ -122,37 +122,6 @@
     "relationships": [],
     "blurb": "priests of the Earth-Shaker (Poseidon)",
     "description": "The sea-god's cult — storms, earthquakes, the harbor's fear. They claim the god's wrath as leverage."
-  },
-  {
-    "id": "hearthwardens",
-    "name": "The Hearthwardens",
-    "domain_primary": "temples",
-    "rating": 3.0,
-    "health": 80,
-    "leader": {
-      "name": "Hestaia the Unmoved",
-      "traits": [
-        "conservative",
-        "defensive"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Serene, rigid; treats every reform as a draft on the flame."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "conservative",
-        "intensity": "strong"
-      },
-      {
-        "trait": "defensive",
-        "intensity": "moderate"
-      }
-    ],
-    "relationships": [],
-    "blurb": "keepers of the eternal flame (Hestia)",
-    "description": "Guardians of the city's sacred hearth, the unbroken civic fire. The still, traditional soul of the polis."
   },
   {
     "id": "greenmantle",
@@ -279,68 +248,6 @@
     "description": "The hoplite militia of property-owning citizens, the city's backbone — and proud that only citizens should bear its spear."
   },
   {
-    "id": "free-spears",
-    "name": "The Free Spears",
-    "domain_primary": "military",
-    "rating": 2.0,
-    "health": 80,
-    "leader": {
-      "name": "Kallias the Coinbought",
-      "traits": [
-        "opportunistic",
-        "corrupt"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Affable, amoral; serves whoever pays and remembers who didn't."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "opportunistic",
-        "intensity": "strong"
-      },
-      {
-        "trait": "corrupt",
-        "intensity": "moderate"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the sellsword companies",
-    "description": "Professional soldiers for hire, foreign and rootless, loyal to coin and the next contract."
-  },
-  {
-    "id": "companions",
-    "name": "The Companions",
-    "domain_primary": "military",
-    "rating": 3.0,
-    "health": 80,
-    "leader": {
-      "name": "Antimachos the Laurelled",
-      "traits": [
-        "ambitious",
-        "aggressive"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Charismatic and hungry; wears past victories like a claim on the future."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "ambitious",
-        "intensity": "strong"
-      },
-      {
-        "trait": "aggressive",
-        "intensity": "moderate"
-      }
-    ],
-    "relationships": [],
-    "blurb": "a victorious general's sworn veterans",
-    "description": "The personal following of a celebrated commander — battle-hardened, devoted to their man over the city."
-  },
-  {
     "id": "oarsworn",
     "name": "The Oarsworn",
     "domain_primary": "military",
@@ -372,40 +279,9 @@
     "description": "The triremes and the citizen-rowers who drive them — the city's reach across the sea, and a restless power base of the common man."
   },
   {
-    "id": "quaymen",
-    "name": "The Quaymen",
-    "domain_primary": "harbor",
-    "rating": 3.0,
-    "health": 80,
-    "leader": {
-      "name": "Brontes Bighand",
-      "traits": [
-        "defensive",
-        "aggressive"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Gruff and immovable; protective of his gangs and quick to down tools."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "defensive",
-        "intensity": "moderate"
-      },
-      {
-        "trait": "aggressive",
-        "intensity": "moderate"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the dockhands and stevedores",
-    "description": "The labor of the wharves — they load, unload, and haul. Numerous and organized; a word from them can still the whole port."
-  },
-  {
     "id": "netmenders",
     "name": "The Netmenders",
-    "domain_primary": "harbor",
+    "domain_primary": "port",
     "rating": 2.0,
     "health": 80,
     "leader": {
@@ -434,164 +310,9 @@
     "description": "The boat crews who work the waters — weather-beaten, independent, traditional. The city's daily catch and a food supply unto themselves."
   },
   {
-    "id": "harborwardens",
-    "name": "The Harborwardens",
-    "domain_primary": "harbor",
-    "rating": 4.0,
-    "health": 80,
-    "leader": {
-      "name": "Warden Pheidon",
-      "traits": [
-        "corrupt",
-        "conservative"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Courteous and dry; every favor has a price, and he never forgets a ledger."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "corrupt",
-        "intensity": "strong"
-      },
-      {
-        "trait": "conservative",
-        "intensity": "slight"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the port authority — berths, customs, bonded warehouses",
-    "description": "The officials who decide who docks, when, and at what toll — and who control the stored cargo. Gatekeepers who take their cut."
-  },
-  {
-    "id": "saltroad-houses",
-    "name": "The Saltroad Houses",
-    "domain_primary": "harbor",
-    "rating": 3.0,
-    "health": 80,
-    "leader": {
-      "name": "Timaios the Farsailed",
-      "traits": [
-        "expansionary",
-        "ambitious"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Restless and far-seeing; measures the city by how far its hulls reach."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "expansionary",
-        "intensity": "strong"
-      },
-      {
-        "trait": "ambitious",
-        "intensity": "moderate"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the shipowners and freight-carriers (naukleroi)",
-    "description": "The owners of the merchant hulls that carry the city's cargo — they don't buy the goods, they move them, and they live to expand the routes."
-  },
-  {
-    "id": "amphora-houses",
-    "name": "The Amphora Houses",
-    "domain_primary": "trade",
-    "rating": 4.0,
-    "health": 80,
-    "leader": {
-      "name": "Polemarchos the Stout",
-      "traits": [
-        "expansionary",
-        "ambitious"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Jovial and grasping; counts the city's worth in cargoes landed."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "expansionary",
-        "intensity": "strong"
-      },
-      {
-        "trait": "ambitious",
-        "intensity": "moderate"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the great wholesale merchants",
-    "description": "The big import-export traders who deal in bulk — grain, oil, wine, and timber. The dominant commercial power, always reaching for a wider market."
-  },
-  {
-    "id": "silverbench",
-    "name": "The Silverbench",
-    "domain_primary": "trade",
-    "rating": 4.0,
-    "health": 80,
-    "leader": {
-      "name": "Aristion of the Bench",
-      "traits": [
-        "conservative",
-        "corrupt"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Cool and exact; never raises his voice, never forgives a default."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "conservative",
-        "intensity": "strong"
-      },
-      {
-        "trait": "corrupt",
-        "intensity": "slight"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the money-changers and lenders (trapezitai)",
-    "description": "The bankers at their tables — deposits, loans, currency, debt. Quiet, patient, and owed by half the city."
-  },
-  {
-    "id": "stallmongers",
-    "name": "The Stallmongers",
-    "domain_primary": "trade",
-    "rating": 2.0,
-    "health": 80,
-    "leader": {
-      "name": "Myrto Quicktongue",
-      "traits": [
-        "opportunistic",
-        "defensive"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Sharp and fast-talking; speaks for the little traders and misses nothing."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "opportunistic",
-        "intensity": "strong"
-      },
-      {
-        "trait": "defensive",
-        "intensity": "moderate"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the agora retailers and shopkeepers (kapeloi)",
-    "description": "The petty traders of the marketplace stalls — numerous, scrappy, working every angle for a thin margin."
-  },
-  {
     "id": "storehouse-ring",
     "name": "The Storehouse Ring",
-    "domain_primary": "trade",
+    "domain_primary": "port",
     "rating": 3.0,
     "health": 80,
     "leader": {
@@ -618,37 +339,6 @@
     "relationships": [],
     "blurb": "the warehouse speculators who corner the market",
     "description": "A cartel that buys up stock and sits on it — hoarding grain and goods to choke supply and spike the price, then selling at the city's worst hour."
-  },
-  {
-    "id": "outland-houses",
-    "name": "The Outland Houses",
-    "domain_primary": "trade",
-    "rating": 2.0,
-    "health": 80,
-    "leader": {
-      "name": "Xenon the Outlander",
-      "traits": [
-        "ambitious",
-        "opportunistic"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Gracious and weary; rich enough to buy half the council, forbidden to sit on it."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "ambitious",
-        "intensity": "strong"
-      },
-      {
-        "trait": "opportunistic",
-        "intensity": "slight"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the resident-foreigner merchants (metoikoi)",
-    "description": "Wealthy foreign traders who pay the city's taxes and move much of its commerce, yet are barred from citizenship — prosperous, useful, and resentful of their place outside the rolls. The citizen Amphora Houses resent them right back."
   },
   {
     "id": "bronzehands",
@@ -680,37 +370,6 @@
     "relationships": [],
     "blurb": "the smiths and metalworkers",
     "description": "The forges — bronze and iron, arms, tools, fittings. Their hammers arm the city and shoe its every need."
-  },
-  {
-    "id": "stonewrights",
-    "name": "The Stonewrights",
-    "domain_primary": "guilds",
-    "rating": 3.0,
-    "health": 80,
-    "leader": {
-      "name": "Lithos the Master-Builder",
-      "traits": [
-        "industrious",
-        "ambitious"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Proud and driven; sees the city as unfinished and himself as the one to finish it."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "industrious",
-        "intensity": "strong"
-      },
-      {
-        "trait": "ambitious",
-        "intensity": "moderate"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the masons and builders",
-    "description": "The stoneworkers who raise temples, walls, and monuments — the muscle behind every great public work, and hungry for the next big contract."
   },
   {
     "id": "keelwrights",
@@ -930,37 +589,6 @@
     "description": "The looms that clothe the city — wool, linen, and dyed cloth for home and trade. Patient and domestic, and more powerful than their quiet suggests."
   },
   {
-    "id": "carpenters",
-    "name": "The Carpenters",
-    "domain_primary": "guilds",
-    "rating": 2.0,
-    "health": 80,
-    "leader": {
-      "name": "Tekton the Joiner",
-      "traits": [
-        "industrious",
-        "conservative"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Methodical and exacting; measures twice and trusts wood over words."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "industrious",
-        "intensity": "strong"
-      },
-      {
-        "trait": "conservative",
-        "intensity": "slight"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the woodworkers and joiners",
-    "description": "The timber workshops — furniture, carts, beams, doors, tools. The frame behind daily life, beside (not in) the shipyards."
-  },
-  {
     "id": "asklepiads",
     "name": "The Asklepiads",
     "domain_primary": "professions",
@@ -1021,37 +649,6 @@
     "relationships": [],
     "blurb": "the actors, musicians, and poets of the stage",
     "description": "The theatre folk who command the crowd's heart — beloved, mocking, and able to make or unmake a reputation in an afternoon's performance."
-  },
-  {
-    "id": "garland-chasers",
-    "name": "The Garland-Chasers",
-    "domain_primary": "professions",
-    "rating": 2.0,
-    "health": 80,
-    "leader": {
-      "name": "Pankrates the Victor",
-      "traits": [
-        "ambitious",
-        "aggressive"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Proud and restless; measures his worth in wreaths and refuses to lose at anything."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "ambitious",
-        "intensity": "strong"
-      },
-      {
-        "trait": "aggressive",
-        "intensity": "slight"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the champion athletes and gymnasium trainers",
-    "description": "The victors of the games and the men who train them — living glory, courted by every faction that wants the crowd's adoration reflected onto itself."
   },
   {
     "id": "quillsworn",
@@ -1116,51 +713,20 @@
     "description": "Blenders of myron for the rich and the temples — but their real trade is access: scent, flattery, and the secrets of every household they serve."
   },
   {
-    "id": "adorners",
-    "name": "The Adorners",
-    "domain_primary": "professions",
-    "rating": 2.0,
+    "id": "elaiades",
+    "name": "The Elaiades",
+    "domain_primary": "aristocracy",
+    "rating": 1.5,
     "health": 80,
     "leader": {
-      "name": "Chrysanthe of the Gem",
-      "traits": [
-        "opportunistic",
-        "ambitious"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Dazzling and watchful; dresses the powerful, and listens while she fastens the clasp."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "opportunistic",
-        "intensity": "moderate"
-      },
-      {
-        "trait": "ambitious",
-        "intensity": "moderate"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the jewelers and gem-setters to the great houses",
-    "description": "The high-end goldsmiths — diadems, signet rings, necklaces. Status made wearable, fitted to the elite they flatter — and they compete with the Perfumers to be closest to power."
-  },
-  {
-    "id": "grove",
-    "name": "The Grove",
-    "domain_primary": "academy",
-    "rating": 3.0,
-    "health": 80,
-    "leader": {
-      "name": "Sophron the Elder",
+      "name": "Theron of the Grove",
       "traits": [
         "ambitious",
-        "defensive"
+        "conservative"
       ],
       "status": "present",
       "personality_notes": [
-        "Serene and unbending; gathers devoted students and distrusts those who argue for pay."
+        "A younger house, oil-rich and hungry for an old name."
       ]
     },
     "traits": [
@@ -1169,29 +735,91 @@
         "intensity": "moderate"
       },
       {
-        "trait": "defensive",
+        "trait": "conservative",
         "intensity": "slight"
       }
     ],
     "relationships": [],
-    "blurb": "the philosophers' school",
-    "description": "The seekers of truth and virtue who teach the city's young men to think — principled, doctrinaire, and certain their ideas should steer the city."
+    "blurb": "the olive-groves of the inland slopes",
+    "description": "a younger branch of the old estates, rich in oil if not yet in name."
   },
   {
-    "id": "sophists",
-    "name": "The Sophists",
-    "domain_primary": "academy",
-    "rating": 2.0,
+    "id": "the-builders",
+    "name": "The Builders",
+    "domain_primary": "guilds",
+    "rating": 3.0,
     "health": 80,
     "leader": {
-      "name": "Protarchos the Sophist",
+      "name": "Mnesikles the Master",
+      "traits": [
+        "industrious",
+        "conservative"
+      ],
+      "status": "present",
+      "personality_notes": [
+        "Stone and timber speak with one voice; conflict is wasted labour."
+      ]
+    },
+    "traits": [
+      {
+        "trait": "industrious",
+        "intensity": "strong"
+      },
+      {
+        "trait": "conservative",
+        "intensity": "moderate"
+      }
+    ],
+    "relationships": [],
+    "blurb": "the masons and carpenters",
+    "description": "the joined guild of stone and timber that raises wall, roof, and temple."
+  },
+  {
+    "id": "dockhands",
+    "name": "The Dockhands",
+    "domain_primary": "port",
+    "rating": 4.0,
+    "health": 80,
+    "leader": {
+      "name": "Glaukos of the Quay",
+      "traits": [
+        "industrious",
+        "conservative"
+      ],
+      "status": "present",
+      "personality_notes": [
+        "Nothing moves through the harbour but by their leave."
+      ]
+    },
+    "traits": [
+      {
+        "trait": "industrious",
+        "intensity": "moderate"
+      },
+      {
+        "trait": "conservative",
+        "intensity": "moderate"
+      }
+    ],
+    "relationships": [],
+    "blurb": "the wharf-hands and port wardens",
+    "description": "labour and authority of the quay - berths, customs, and how much the harbour can bear."
+  },
+  {
+    "id": "merchant-houses",
+    "name": "The Merchant Houses",
+    "domain_primary": "port",
+    "rating": 4.0,
+    "health": 80,
+    "leader": {
+      "name": "Demaratos the Elder",
       "traits": [
         "opportunistic",
         "ambitious"
       ],
       "status": "present",
       "personality_notes": [
-        "Silver-tongued and amused; sells certainty to whoever pays, and means none of it."
+        "The grain and the gold both flow through their ledgers."
       ]
     },
     "traits": [
@@ -1205,69 +833,38 @@
       }
     ],
     "relationships": [],
-    "blurb": "the teachers of rhetoric, for a fee",
-    "description": "The masters of winning argument — they'll teach anyone with coin to out-talk an opponent, truth be damned. The Grove's bitter rivals."
+    "blurb": "the wholesale traders and shipowners",
+    "description": "the great houses that move grain and oil by sea - the city's lifeline and its purse."
   },
   {
-    "id": "goldentongues",
-    "name": "The Goldentongues",
-    "domain_primary": "academy",
+    "id": "city-guard",
+    "name": "The City Guard",
+    "domain_primary": "military",
     "rating": 3.0,
     "health": 80,
     "leader": {
-      "name": "Phrasikles the Orator",
+      "name": "Captain Brasidas",
       "traits": [
-        "ambitious",
+        "defensive",
         "aggressive"
       ],
       "status": "present",
       "personality_notes": [
-        "Thunderous and vain; lives for the roar of the crowd and the fall of a rival."
+        "Order within the walls, by the spear if the bread fails."
       ]
     },
     "traits": [
       {
-        "trait": "ambitious",
-        "intensity": "strong"
+        "trait": "defensive",
+        "intensity": "moderate"
       },
       {
         "trait": "aggressive",
-        "intensity": "moderate"
-      }
-    ],
-    "relationships": [],
-    "blurb": "the public orators of the assembly",
-    "description": "The great speakers who move the crowd — eloquence as a weapon, capable of swinging the city in a single afternoon's speech."
-  },
-  {
-    "id": "stargazers",
-    "name": "The Stargazers",
-    "domain_primary": "academy",
-    "rating": 2.0,
-    "health": 80,
-    "leader": {
-      "name": "Astron the Measurer",
-      "traits": [
-        "conservative",
-        "paranoid"
-      ],
-      "status": "present",
-      "personality_notes": [
-        "Cold and exact; speaks in numbers and sees patterns others would rather not know."
-      ]
-    },
-    "traits": [
-      {
-        "trait": "conservative",
-        "intensity": "moderate"
-      },
-      {
-        "trait": "paranoid",
         "intensity": "slight"
       }
     ],
     "relationships": [],
-    "blurb": "the astronomers, mathematicians, and natural philosophers",
-    "description": "The men of numbers and stars — calendars, geometry, the hidden order of things. Insular, austere, and quietly feared by those who trust prophecy over proof."
+    "blurb": "the watch within the walls",
+    "description": "the force that keeps the peace at home - and leans on the crowd when it must."
   }
 ]

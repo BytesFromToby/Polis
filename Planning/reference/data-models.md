@@ -99,10 +99,10 @@ Examples:
 | `drift` | `float` | `0.0` | Yes | Natural utilization change per cycle |
 | `relationships` | `List[DomainRelationship]` | `[]` | Yes | Domain-to-domain dispositions |
 
-**The 9 domains (as-built — `backend/data/domains.json`):**
+**The 7 domains (as-built — `backend/data/domains.json`; roster restructure 2026-06-14):**
 
-aristocracy, temples, military, harbor, trade, guilds, professions, academy, civic
-(civic displays as "Public Treasury" — a faction-less domain whose base project is the Tax Office; see treasury_spec v3)
+aristocracy, guilds, port, professions, temples, military, civic
+(civic displays as "Public Treasury" — a faction-less domain whose base project is the Tax Office; see treasury_spec v3. `port` was `harbor`; `trade` and `academy` were dissolved — see `../specs/roster-restructure_spec.md`.)
 
 ---
 

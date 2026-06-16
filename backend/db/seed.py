@@ -25,11 +25,22 @@ class _CityDef(NamedTuple):
 _OFFICIAL_CITIES: list[_CityDef] = [
     _CityDef(
         city_name="Polis",
-        description="An ancient-Greek city-state of eight domains: aristocracy, guilds, "
-                    "trade, the professions, temples, military, academy, and harbor.",
+        description="An ancient-Greek city-state of six domains: aristocracy, guilds, the "
+                    "port, the professions, temples, and military (plus the civic treasury).",
         data_dir="data",
     ),
 ]
+
+# Domain ids cut/renamed by the roster restructure — an official template carrying any of
+# these is stale and gets refreshed in place.
+_STALE_DOMAIN_MARKERS = {"trade", "academy", "harbor"}
+
+
+def _is_stale(city: City) -> bool:
+    try:
+        return bool(set(json.loads(city.domains_json)) & _STALE_DOMAIN_MARKERS)
+    except (ValueError, TypeError):
+        return False
 
 
 def seed_official_cities(db: Session, base_dir: str = ".") -> int:
@@ -39,7 +50,9 @@ def seed_official_cities(db: Session, base_dir: str = ".") -> int:
         existing = db.query(City).filter_by(
             city_name=city_def.city_name, is_official=True
         ).first()
-        if existing:
+        # A current official template is left alone; a stale one (old roster) is refreshed in
+        # place below. User-created cities (is_official=False) are never touched.
+        if existing and not _is_stale(existing):
             continue
 
         data_dir = os.path.join(base_dir, city_def.data_dir)
@@ -50,19 +63,28 @@ def seed_official_cities(db: Session, base_dir: str = ".") -> int:
             print(f"[seed] WARNING: Could not load '{city_def.city_name}': {e}")
             continue
 
-        city = City(
-            city_name=city_def.city_name,
-            author="official",
-            description=city_def.description,
-            setting="Greek",
-            details="",
-            is_official=True,
-            published=True,
-            domains_json=json.dumps({did: serialize_domain(d) for did, d in domains.items()}),
-            factions_json=json.dumps({fid: serialize_faction(f) for fid, f in factions.items()}),
-            world_state_json=json.dumps(serialize_world_state(world)),
-        )
-        db.add(city)
+        domains_json = json.dumps({did: serialize_domain(d) for did, d in domains.items()})
+        factions_json = json.dumps({fid: serialize_faction(f) for fid, f in factions.items()})
+        world_state_json = json.dumps(serialize_world_state(world))
+
+        if existing:  # stale official template → refresh in place (keeps its id; FK-safe)
+            existing.domains_json = domains_json
+            existing.factions_json = factions_json
+            existing.world_state_json = world_state_json
+            existing.description = city_def.description
+        else:
+            db.add(City(
+                city_name=city_def.city_name,
+                author="official",
+                description=city_def.description,
+                setting="Greek",
+                details="",
+                is_official=True,
+                published=True,
+                domains_json=domains_json,
+                factions_json=factions_json,
+                world_state_json=world_state_json,
+            ))
         seeded += 1
 
     if seeded:

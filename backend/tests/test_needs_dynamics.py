@@ -13,7 +13,7 @@ from loaders import load_state_from_json, load_chains
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 CHAINS = load_chains()
-ARISTOCRACY = ("eumelidai", "pyrrhidai", "skiadai")
+ARISTOCRACY = ("eumelidai", "pyrrhidai", "skiadai", "elaiades")  # all aristocracy estates (incl. the split olive estate)
 
 
 def run_city(cycles, seed, mutate=None):
@@ -45,22 +45,21 @@ class TestStability:
 
 class TestLegibilityAndRecovery:
     def test_shortage_visible_within_5_recovery_within_15(self):
-        # Two-source world: a one-time halve regrows + fish cushions, so it no longer
-        # registers — the shortage must be a real *sustained* cut to be legible. Pin the
-        # estates at 1.0 for cycles 10–19 (same pattern as Toil-matters), restore at 20.
+        # Three-source world: the Skiadai split raised the aristocracy floor (4 estates, each
+        # min level 1), so even pinning the estates to 1.0 is cushioned by the extra estate +
+        # flocks + fish and no longer drops a band. The shortage must be a real source
+        # *removal* to be legible — remove the aristocracy (barley + flocks) for cycles 10–19,
+        # restore at 20. (Redundancy still cushions losing one *smaller* source — see TestRedundancy.)
         baseline = run_city(10, seed=202)
         start_band = band_i(baseline[9])
-        originals = {}
+        removed = {}
 
         def mutate(factions, c):
-            if 10 <= c < 20:
+            if c == 10:
                 for fid in ARISTOCRACY:
-                    if c == 10:
-                        originals[fid] = factions[fid].rating
-                    factions[fid].rating = 1.0
+                    removed[fid] = factions.pop(fid)
             if c == 20:
-                for fid, r in originals.items():
-                    factions[fid].rating = r
+                factions.update(removed)
 
         fed = run_city(40, seed=202, mutate=mutate)
         # Legibility: band at least one step lower within 5 cycles of the cut

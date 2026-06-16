@@ -38,11 +38,11 @@ def test_model_defaults_empty():
     assert f.description == ""
 
 
-# ── data: all 41 populated ───────────────────────────────────────────────────────
+# ── data: all 28 populated ───────────────────────────────────────────────────────
 
 def test_all_factions_have_blurb_and_description():
     factions = _factions_json()
-    assert len(factions) == 41
+    assert len(factions) == 28
     for f in factions:
         assert f.get("blurb", "").strip(), f"{f['id']} missing blurb"
         assert f.get("description", "").strip(), f"{f['id']} missing description"
@@ -53,9 +53,10 @@ def test_spot_checks_match_theming():
     eu = by_id["eumelidai"]
     assert "well-flocked" in eu["blurb"]
     assert "senior clan" in eu["description"]
-    sb = by_id["silverbench"]
-    assert "money-changers" in sb["blurb"]
-    assert "bankers at their tables" in sb["description"]
+    # silverbench was cut in the roster restructure; spot-check a surviving (new) faction
+    mh = by_id["merchant-houses"]
+    assert "wholesale traders" in mh["blurb"]
+    assert "lifeline" in mh["description"]
 
 
 # ── serializer round-trip ─────────────────────────────────────────────────────────

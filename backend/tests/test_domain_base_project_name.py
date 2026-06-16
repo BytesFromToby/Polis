@@ -14,10 +14,10 @@ from serializer import serialize_domain, deserialize_domain
 
 
 def test_serialize_domain_includes_base_project_name():
-    d = Domain(id="harbor", name="Harbor", cap=10)
+    d = Domain(id="port", name="Port", cap=10)
     out = serialize_domain(d)
     assert out["base_project_name"] == "Docks"
-    assert out["base_project_name"] == base_project_name("harbor")
+    assert out["base_project_name"] == base_project_name("port")
 
 
 def test_unknown_domain_gets_derived_label():

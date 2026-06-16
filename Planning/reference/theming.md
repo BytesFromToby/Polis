@@ -108,10 +108,10 @@ scene-setting context. Written in the second person, addressed to the model-as-l
 
 ---
 
-## Domain roster (LOCKED 2026-05-26)
+## Domain roster (roster restructure 2026-06-14)
 
-The eight canonical spheres of influence. Mechanically each is a domain with a cap, drift,
-and a relationship row to every other domain.
+The six canonical spheres of influence (plus the faction-less `civic` treasury lane).
+Mechanically each is a domain with a cap, drift, and a relationship row to every other domain.
 
 Each domain is a distinct answer to *"where does your power come from?"* The English name is
 used in-game; the Greek is flavor.
@@ -120,16 +120,18 @@ used in-game; the Greek is flavor.
 |---|---|---|
 | **Aristocracy** | *Eupatridai* — "the well-born" | The old landed clans. Power by **birth** — blood, lineage, inherited estates. |
 | **Guilds** | *Demiourgoi* — "craftsmen" | Smiths, masons, shipwrights and their backers. Power by **production** — they make things. |
-| **Trade** | *Emporoi* — "merchants" | Merchants, money, banking. Power by **exchange** — they move goods and coin, they don't make them. |
-| **The Professions** | *Technitai* — "people of skill" | Healers, performers, skilled practitioners. Power by **cultivated skill and public renown**. |
+| **Port** | *Limēn* — "the port" | The maritime-commercial bloc — dock labor, the merchant houses, the warehouses. Power by **command of the sea and its trade**. |
+| **The Professions** | *Technitai* — "people of skill" | Healers, performers, clerks, skilled practitioners. Power by **cultivated skill and public renown**. |
 | **Temples** | *Hiereis* — "the priesthood" | Cults, priesthoods, oracles. Power by **divine legitimacy**. |
-| **Military** | *Stratos* — "the host" | The hoplite phalanx and the sellswords it absorbs. Power by **force of arms**. |
-| **Academy** | *Akadēmeia* — "the school" | Philosophers, sophists, rhetoricians. Power by **intellect** — shaping thought and opinion. |
-| **Harbor** | *Limēn* — "the port" | Shipping, the fleet, dock labor. Power by **command of the sea**. |
+| **Military** | *Stratos* — "the host" | The guard, the army, and the fleet. Power by **force of arms**. |
 
-The canonical roster is these **eight domains**. Every domain is a set of groups the player
-can actually hold audience with — that is the test for what counts as a faction. The common
-people are handled by a separate future *population* system (not a domain); **Assembly** and
+> **Restructure (2026-06-14):** was eight domains. **Trade** folded into **Port** (the merchant
+> houses and the warehouse ring moved there; the bankers' bookkeeping went to the Quillsworn).
+> **Academy** was dissolved — its philosophers and orators are parked for the future institutions
+> feature, and its star-readers joined the Bright Order. **Harbor** was renamed **Port** to cover
+> the whole maritime-commercial bloc. See `../specs/roster-restructure_spec.md`.
+
+The common people are handled by the *public-needs* system (not a domain); **Assembly** and
 **Council** are deferred to the future institutions feature (see the player-title note below).
 
 ---
@@ -176,9 +178,16 @@ Rival noble houses, each an ancient name with its own claim on the city.
 > Leader: **Kleon Pyrrhos** — young, brilliant, impatient for primacy.
 
 > **The Skiadai** — *"the shadowed"*
-> A once-great house in decline, clinging on through favors, debts, and quiet leverage.
+> A once-great house in decline, clinging on through favors, debts, and quiet leverage; what
+> remains of its land is mostly vineyard now.
 > Character: `opportunistic` (strong), `corrupt` (slight)
 > Leader: **Demarete of the Skiadai** — gracious in public, ruthless in the dark.
+
+> **The Elaiades** — *the olive-groves of the inland slopes*
+> A younger branch of the old estates, rich in oil if not yet in name — climbing on the back of
+> the city's most valuable crop.
+> Character: `ambitious` (moderate), `conservative` (slight)
+> Leader: **Theron of the Grove** — patient and acquisitive; plants for grandsons and buys land the way others buy bread.
 
 ### Temples (*Hiereis*) — power by divine legitimacy
 
@@ -189,11 +198,6 @@ that come with it. The first four are core; the last two are extras to keep or c
 > The sea-god's cult — storms, earthquakes, the harbor's fear. They claim the god's wrath as leverage.
 > Character: `aggressive` (moderate), `ambitious` (moderate)
 > Leader: **Nereus Halios** — booming and volatile; speaks of the god's anger as if it were his own.
-
-> **The Hearthwardens** — *keepers of the eternal flame (Hestia)*
-> Guardians of the city's sacred hearth, the unbroken civic fire. The still, traditional soul of the polis.
-> Character: `conservative` (strong), `defensive` (moderate)
-> Leader: **Hestaia the Unmoved** — serene, rigid; treats every reform as a draft on the flame.
 
 > **The Greenmantle** — *the harvest cult of the earth-mother (Demeter)*
 > The grain-and-fertility cult, rooted in the seasons; blesses the fields and feeds the festivals.
@@ -206,90 +210,56 @@ that come with it. The first four are core; the last two are extras to keep or c
 > Leader: **Eurymache the Raving** — wild-eyed, speaks in the god's tongue; no one knows what she'll do next.
 
 > **The Bright Order** — *the great oracle of the far-shooting god (Apollo)*
-> The establishment oracle — prestigious, panhellenic, consulted before wars and colonies. Kingmakers in robes.
+> The establishment oracle — prestigious, panhellenic, consulted before wars and colonies. Kingmakers in robes. The city's star-readers and calendar-keepers now keep their charts under the Order's roof.
 > Character: `ambitious` (strong), `opportunistic` (moderate)
 > Leader: **High Seer Aletheian** — calm and smiling; every prophecy is a move on a longer board.
 
 ### Military (*Stratos*) — power by force of arms
 
-The armed power of the city: the citizen soldiery, the hired companies, and the ambitious
-commanders who would point them. The fourth is an extra to keep or cut.
+The armed power of the city: the watch that keeps order within the walls, the citizen army,
+and the fleet. (The hired companies and a victorious general's veterans have been folded into
+these three — the mercenary lever survives as a way to reinforce the army.)
 
-> **The Shieldsworn** — *the citizen phalanx*
-> The hoplite militia of property-owning citizens, the city's backbone — and proud that only citizens should bear its spear.
+> **The City Guard** — *the watch within the walls*
+> The force that keeps the peace at home — patrols, the gaols, the breaking of riots — and leans on the crowd with the spear-butt when the bread fails.
+> Character: `defensive` (moderate), `aggressive` (slight)
+> Leader: **Captain Brasidas** — hard and dutiful; keeps order first and asks after justice later.
+
+> **The Shieldsworn** — *the citizen phalanx (the Army)*
+> The hoplite militia of property-owning citizens, the city's backbone and its land army — and proud that only citizens should bear its spear.
 > Character: `defensive` (strong), `conservative` (moderate)
 > Leader: **Drakon the Steadfast** — stolid, dutiful; distrusts hired blades and glory-hounds alike.
 
-> **The Free Spears** — *the sellsword companies*
-> Professional soldiers for hire, foreign and rootless, loyal to coin and the next contract.
-> Character: `opportunistic` (strong), `corrupt` (moderate)
-> Leader: **Kallias the Coinbought** — affable, amoral; serves whoever pays and remembers who didn't.
-
-> **The Companions** — *a victorious general's sworn veterans*
-> The personal following of a celebrated commander — battle-hardened, devoted to their man over the city.
-> Character: `ambitious` (strong), `aggressive` (moderate)
-> Leader: **Antimachos the Laurelled** — charismatic and hungry; wears past victories like a claim on the future.
-
-> **The Oarsworn** — *the war fleet and its crews*
-> The triremes and the citizen-rowers who drive them — the city's reach across the sea, and a restless power base of the common man.
+> **The Oarsworn** — *the war fleet and its crews (the Fleet)*
+> The triremes and the citizen-rowers who drive them — the city's reach across the sea, the shield of its grain-ships, and a restless power base of the common man.
 > Character: `expansionary` (strong), `ambitious` (moderate)
 > Leader: **Naukrates of the Long Oars** — bold and restless; dreams of a city whose walls are its ships.
 
-### Harbor (*Limēn*) — power by command of the sea
+### Port (*Limēn*) — power by command of the sea and its trade
 
-The commercial maritime world — the labor, the boats, the authority, and the carrying trade
-that move goods and people across the water. (The *war* fleet sits under Military; Harbor is
-the civilian port.) Trade buys and sells; Harbor *moves and handles*.
+The maritime-commercial bloc: the labor of the wharves, the merchant houses that run the
+sea-lanes, the warehouses, and the fishing crews. Whoever holds the Port holds the city's food
+imports and its purse. (The *war* fleet sits under Military.)
 
-> **The Quaymen** — *the dockhands and stevedores*
-> The labor of the wharves — they load, unload, and haul. Numerous and organized; a word from them can still the whole port.
-> Character: `defensive` (moderate), `aggressive` (moderate)
-> Leader: **Brontes Bighand** — gruff and immovable; protective of his gangs and quick to down tools.
+> **The Dockhands** — *the wharf-hands and port wardens*
+> Labour and authority of the quay merged into one bloc — they load and haul, and they decide who docks, when, and at what toll. A word from them can still the whole harbour.
+> Character: `industrious` (moderate), `conservative` (moderate)
+> Leader: **Glaukos of the Quay** — gruff and immovable; protective of his gangs and his ledgers alike.
 
 > **The Netmenders** — *the fishing crews who feed the city*
 > The boat crews who work the waters — weather-beaten, independent, traditional. The city's daily catch and a food supply unto themselves.
 > Character: `conservative` (moderate), `defensive` (slight)
 > Leader: **Glaukos the Weathered** — salt-cured and plain-spoken; trusts the tide more than any magistrate.
 
-> **The Harborwardens** — *the port authority — berths, customs, bonded warehouses*
-> The officials who decide who docks, when, and at what toll — and who control the stored cargo. Gatekeepers who take their cut.
-> Character: `corrupt` (strong), `conservative` (slight)
-> Leader: **Warden Pheidon** — courteous and dry; every favor has a price, and he never forgets a ledger.
-
-> **The Saltroad Houses** — *the shipowners and freight-carriers (naukleroi)*
-> The owners of the merchant hulls that carry the city's cargo — they don't buy the goods, they move them, and they live to expand the routes.
-> Character: `expansionary` (strong), `ambitious` (moderate)
-> Leader: **Timaios the Farsailed** — restless and far-seeing; measures the city by how far its hulls reach.
-
-### Trade (*Emporoi*) — power by exchange
-
-The world of buying, selling, lending, and the games played with supply and price. Trade
-*moves goods and coin*; it does not make them (Guilds) or carry them by sea (Harbor).
-
-> **The Amphora Houses** — *the great wholesale merchants*
-> The big import-export traders who deal in bulk — grain, oil, wine, and timber. The dominant commercial power, always reaching for a wider market.
-> Character: `expansionary` (strong), `ambitious` (moderate)
-> Leader: **Polemarchos the Stout** — jovial and grasping; counts the city's worth in cargoes landed.
-
-> **The Silverbench** — *the money-changers and lenders (trapezitai)*
-> The bankers at their tables — deposits, loans, currency, debt. Quiet, patient, and owed by half the city.
-> Character: `conservative` (strong), `corrupt` (slight)
-> Leader: **Aristion of the Bench** — cool and exact; never raises his voice, never forgives a default.
-
-> **The Stallmongers** — *the agora retailers and shopkeepers (kapeloi)*
-> The petty traders of the marketplace stalls — numerous, scrappy, working every angle for a thin margin.
-> Character: `opportunistic` (strong), `defensive` (moderate)
-> Leader: **Myrto Quicktongue** — sharp and fast-talking; speaks for the little traders and misses nothing.
+> **The Merchant Houses** — *the wholesale traders and shipowners*
+> The great houses that move grain and oil by sea — wholesale traders, shipowners, and the resident foreigners among them. The city's lifeline and its purse, always reaching for a wider market.
+> Character: `opportunistic` (strong), `ambitious` (moderate)
+> Leader: **Demaratos the Elder** — jovial and grasping; counts the city's worth in cargoes landed.
 
 > **The Storehouse Ring** — *the warehouse speculators who corner the market*
-> A cartel that buys up stock and sits on it — hoarding grain and goods to choke supply and spike the price, then selling at the city's worst hour.
+> A cartel that buys up stock and sits on it — hoarding grain and goods to choke supply and spike the price, then selling at the city's worst hour. Courted, they cushion a famine; crossed, they make one worse.
 > Character: `corrupt` (strong), `opportunistic` (moderate)
 > Leader: **Hieron the Patient** — soft-spoken and predatory; waits for famine the way others wait for harvest.
-
-> **The Outland Houses** — *the resident-foreigner merchants (metoikoi)*
-> Wealthy foreign traders who pay the city's taxes and move much of its commerce, yet are barred from citizenship — prosperous, useful, and resentful of their place outside the rolls. The citizen Amphora Houses resent them right back.
-> Character: `ambitious` (strong), `opportunistic` (slight)
-> Leader: **Xenon the Outlander** — gracious and weary; rich enough to buy half the council, forbidden to sit on it.
 
 ### Guilds (*Demiourgoi*) — power by production
 
@@ -301,10 +271,10 @@ them, Harbor ships them. This is the city's largest domain — a crowded quarter
 > Character: `industrious` (strong), `defensive` (slight)
 > Leader: **Akmon the Forgemaster** — soot-stained and blunt; guards the secrets of the forge like family.
 
-> **The Stonewrights** — *the masons and builders*
-> The stoneworkers who raise temples, walls, and monuments — the muscle behind every great public work, and hungry for the next big contract.
-> Character: `industrious` (strong), `ambitious` (moderate)
-> Leader: **Lithos the Master-Builder** — proud and driven; sees the city as unfinished and himself as the one to finish it.
+> **The Builders** — *the masons and carpenters*
+> The joined guild of stone and timber — masons who raise temples, walls, and monuments, and the woodworkers who frame, beam, and joint the rest. The muscle behind every great public work, hungry for the next big contract.
+> Character: `industrious` (strong), `conservative` (moderate)
+> Leader: **Mnesikles the Master** — proud and driven; sees the city as unfinished and himself as the one to finish it.
 
 > **The Keelwrights** — *the shipwrights*
 > The yards that build the hulls — merchantmen and triremes alike. They rise and fall with the city's ambitions on the water.
@@ -341,11 +311,6 @@ them, Harbor ships them. This is the city's largest domain — a crowded quarter
 > Character: `industrious` (moderate), `defensive` (moderate)
 > Leader: **Theano of the Loom** — soft-spoken and tireless; weaves alliances as readily as cloth.
 
-> **The Carpenters** — *the woodworkers and joiners*
-> The timber workshops — furniture, carts, beams, doors, tools. The frame behind daily life, beside (not in) the shipyards.
-> Character: `industrious` (strong), `conservative` (slight)
-> Leader: **Tekton the Joiner** — methodical and exacting; measures twice and trusts wood over words.
-
 ### The Professions (*Technitai*) — power by cultivated skill and public renown
 
 The skilled who rose by talent, not birth or making — those whose power is what they *can do*
@@ -362,50 +327,26 @@ skill and service.)
 > Character: `opportunistic` (strong), `ambitious` (slight)
 > Leader: **Komos of the Stage** — vain and magnetic; plays the audience like a lyre and never forgets a critic.
 
-> **The Garland-Chasers** — *the champion athletes and gymnasium trainers*
-> The victors of the games and the men who train them — living glory, courted by every faction that wants the crowd's adoration reflected onto itself.
-> Character: `ambitious` (strong), `aggressive` (slight)
-> Leader: **Pankrates the Victor** — proud and restless; measures his worth in wreaths and refuses to lose at anything.
-
 > **The Quillsworn** — *the city's clerks, record-keepers, and tax-farmers*
-> The bureaucrats who run the paperwork and the purse — registries, deeds, proclamations, and the collection of the city's taxes, which they bid to farm and quietly skim. They know where every document and every drachma sits.
+> The bureaucrats who run the paperwork and the purse — registries, deeds, proclamations, the collection of the city's taxes (which they bid to farm and quietly skim), and now the money-changing and book-keeping the old bankers' bench once handled. They know where every document and every drachma sits.
 > Character: `conservative` (moderate), `corrupt` (moderate)
 > Leader: **Grapheus the Reckoner** — meticulous and unhurried; forgets nothing, files everything, and counts twice.
+
+> *(The champion athletes and their games are handled by the events system, not a standing
+> faction — see `../proposals/faction-resource-map.md`.)*
 
 > **The Perfumers** — *the purveyors of scented oils (myrepsoi)*
 > Blenders of *myron* for the rich and the temples — but their real trade is access: scent, flattery, and the secrets of every household they serve.
 > Character: `opportunistic` (moderate), `ambitious` (slight)
 > Leader: **Myrrha of the Flask** — elegant and discreet; knows what the great families whisper, and to whom it's worth a word.
 
-> **The Adorners** — *the jewelers and gem-setters to the great houses*
-> The high-end goldsmiths — diadems, signet rings, necklaces. Status made wearable, fitted to the elite they flatter — and they compete with the Perfumers to be closest to power.
-> Character: `opportunistic` (moderate), `ambitious` (moderate)
-> Leader: **Chrysanthe of the Gem** — dazzling and watchful; dresses the powerful, and listens while she fastens the clasp.
+### Academy — dissolved (roster restructure 2026-06-14)
 
-### Academy (*Akadēmeia*) — power by intellect
-
-The shapers of thought, argument, and knowledge — those whose power is what people *believe*
-and how they are persuaded. (The Professions apply skill; the Academy shapes minds.)
-
-> **The Grove** — *the philosophers' school*
-> The seekers of truth and virtue who teach the city's young men to think — principled, doctrinaire, and certain their ideas should steer the city.
-> Character: `ambitious` (moderate), `defensive` (slight)
-> Leader: **Sophron the Elder** — serene and unbending; gathers devoted students and distrusts those who argue for pay.
-
-> **The Sophists** — *the teachers of rhetoric, for a fee*
-> The masters of winning argument — they'll teach anyone with coin to out-talk an opponent, truth be damned. The Grove's bitter rivals.
-> Character: `opportunistic` (strong), `ambitious` (moderate)
-> Leader: **Protarchos the Sophist** — silver-tongued and amused; sells certainty to whoever pays, and means none of it.
-
-> **The Goldentongues** — *the public orators of the assembly*
-> The great speakers who move the crowd — eloquence as a weapon, capable of swinging the city in a single afternoon's speech.
-> Character: `ambitious` (strong), `aggressive` (moderate)
-> Leader: **Phrasikles the Orator** — thunderous and vain; lives for the roar of the crowd and the fall of a rival.
-
-> **The Stargazers** — *the astronomers, mathematicians, and natural philosophers*
-> The men of numbers and stars — calendars, geometry, the hidden order of things. Insular, austere, and quietly feared by those who trust prophecy over proof.
-> Character: `conservative` (moderate), `paranoid` (slight)
-> Leader: **Astron the Measurer** — cold and exact; speaks in numbers and sees patterns others would rather not know.
+The intellect domain was cut. Its **philosophers (the Grove)** and **assembly orators (the
+Goldentongues)** are parked for the future institutions / stance-layer features, to return placed
+by function rather than as a standing domain; the **rhetoric-sellers (the Sophists)** were cut
+outright; and the **star-readers (the Stargazers)** folded into the Bright Order. See
+`../proposals/faction-resource-map.md`.
 
 ---
 

@@ -3,7 +3,7 @@ tests/test_seed_official.py — Pins the official-city seeding for the Greek the
 (theme-conversion spec, Features: Single official city; Clear old saved games).
 
 Seeds into a fresh in-memory DB and asserts the only official city is the Greek "Polis",
-carrying the eight Greek domains and 41 factions, with no legacy-theme ids present.
+carrying the six faction domains (+ civic) and 28 factions, with no legacy-theme ids present.
 """
 from __future__ import annotations
 import sys, os, json
@@ -21,8 +21,8 @@ from db.seed import seed_official_cities
 BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 EXPECTED_DOMAIN_IDS = {
-    "aristocracy", "guilds", "trade", "professions",
-    "temples", "military", "academy", "harbor",
+    "aristocracy", "guilds", "port", "professions",
+    "temples", "military",
 }
 
 LEGACY_DOMAIN_IDS = {
@@ -32,6 +32,8 @@ LEGACY_DOMAIN_IDS = {
     "transportation", "religion", "underworld",
     # legacy medieval river-port set
     "docks", "noble_houses", "city_watch", "commons", "arcane", "registry", "temple",
+    # cut/renamed in the roster restructure
+    "trade", "academy", "harbor",
 }
 
 
@@ -63,9 +65,9 @@ def test_seeded_polis_has_greek_roster(db):
     city = db.query(City).filter_by(is_official=True).one()
     domains = json.loads(city.domains_json)
     factions = json.loads(city.factions_json)
-    # 8 Greek faction domains + the faction-less civic lane (treasury_spec v3).
+    # six faction domains + the faction-less civic lane.
     assert set(domains.keys()) == EXPECTED_DOMAIN_IDS | {"civic"}
-    assert len(factions) == 41
+    assert len(factions) == 28
 
 
 def test_no_legacy_domain_ids_in_db(db):

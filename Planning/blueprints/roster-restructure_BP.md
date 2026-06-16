@@ -47,7 +47,7 @@ adorners, garland-chasers, hearthwardens, grove, sophists, goldentongues, starga
 **Test:** `py -c "import json; f=json.load(open('data/factions.json',encoding='utf-8')); print(len(f)); from collections import Counter; print(Counter(x['domain_primary'] for x in f)); print(sum(int(x['rating']) for x in f if x['domain_primary']=='aristocracy'))"`
 **Done When:** 28 factions; domain counts aristocracy 4 / guilds 9 / port 4 / military 3 / professions 4 / temples 4; aristocracy Σ`int(rating)` == 9.
 **Stuck If:** A surviving faction's required fields are missing, or the JSON won't parse.
-- [ ] Complete
+- [x] Complete
 
 ### Step 2: Rewrite `data/domains.json` to the 7 domains
 **Build:** Edit `data/domains.json` to the six faction domains `aristocracy` `guilds` `port`
@@ -59,7 +59,7 @@ unchanged: `name: "Public Treasury"`, `cap: 12`, `relationships: []`.
 **Test:** `py -c "import json; d=json.load(open('data/domains.json',encoding='utf-8')); print(sorted(x['id'] for x in d)); [print(x['id'], len(x['relationships'])) for x in d]"`
 **Done When:** Domain ids are exactly {aristocracy,guilds,port,professions,temples,military,civic}; each faction domain has 6 relationship entries (self Foe, others Neutral); civic has 0.
 **Stuck If:** A relationship row references a deleted domain (`trade`/`academy`/`harbor`).
-- [ ] Complete
+- [x] Complete
 
 ### Step 3: Update the project catalog `BASE_PROJECT_NAMES` (code)
 **Build:** In `engine/projects/processing.py`, `BASE_PROJECT_NAMES`: remove the `"trade": "Agora"`
@@ -69,7 +69,7 @@ and `base_project_name`/`base_project_description` logic unchanged.
 **Test:** `py -c "from engine.projects import BASE_PROJECT_NAMES; print(sorted(BASE_PROJECT_NAMES))"` from `backend/`.
 **Done When:** `set(BASE_PROJECT_NAMES) == {aristocracy,guilds,port,professions,temples,military,civic}`; no `trade`/`academy`/`harbor` key.
 **Stuck If:** Another code site references `BASE_PROJECT_NAMES["harbor"|"trade"|"academy"]` directly (grep first).
-- [ ] Complete
+- [x] Complete
 
 ### Step 4: Confirm no other code references the dead domain ids
 **Build:** Grep `engine/ api/ db/` (excluding tests) for `"harbor"`, `"trade"`, `"academy"`. Recon
@@ -78,7 +78,7 @@ found only `BASE_PROJECT_NAMES` (now fixed). If any *other* live reference exist
 **Test:** `grep -rn -E '"(harbor|trade|academy)"' engine api db --include=*.py | grep -v test`
 **Done When:** No live (non-comment) code reference to `harbor`/`trade`/`academy` remains.
 **Stuck If:** A reference is logic-bearing (not a simple id) — report it.
-- [ ] Complete
+- [x] Complete
 
 ### Step 5: Reconcile `tests/test_theme_data.py`
 **Build:** Update the hardcoded old roster: `EXPECTED_DOMAIN_IDS` → `{aristocracy, guilds, port,
@@ -90,7 +90,7 @@ the legacy-prefix project-id checks.
 **Test:** `py -m pytest tests/test_theme_data.py -q`
 **Done When:** `test_theme_data.py` green.
 **Stuck If:** A relationship-row or cap assertion fails for a reason other than the count change — report.
-- [ ] Complete
+- [x] Complete
 
 ### Step 6: Reconcile `tests/test_seed_official.py`
 **Build:** Update `EXPECTED_DOMAIN_IDS`, the `len == 41` → `== 28`, the "eight Greek domains / 41
@@ -100,7 +100,7 @@ files, so a fresh-DB seed picks up the new roster.
 **Test:** `py -m pytest tests/test_seed_official.py -q`
 **Done When:** `test_seed_official.py` green; the seeded official city has 28 factions and the 7 domain ids.
 **Stuck If:** The seed still produces 41 (the seed path caches/skips — see Step 8) — report.
-- [ ] Complete
+- [x] Complete
 
 ### Step 7: Reconcile `tests/test_faction_descriptions.py`
 **Build:** Update `len(factions) == 41` → `== 28`. Its blurb spot-check names **`silverbench`** (now
@@ -110,7 +110,7 @@ factions still have non-empty blurb+description (the 5 new ones from Step 1 incl
 **Test:** `py -m pytest tests/test_faction_descriptions.py -q`
 **Done When:** `test_faction_descriptions.py` green; no assertion references a cut faction id.
 **Stuck If:** A new faction is missing blurb/description (fix in Step 1, note deviation).
-- [ ] Complete
+- [x] Complete
 
 ### Step 8: Refresh the seeded official city
 **Build:** In `db/seed.py` `seed_official_cities`: ensure a *stale* official "Polis" row (old roster)
@@ -121,7 +121,7 @@ fresh DB correctly and no persistent stale row is in play, keep the change minim
 **Test:** `py -m pytest tests/test_seed_official.py -q` (still green) + `py -c "from db.seed import seed_official_cities" ` import check.
 **Done When:** Seeding a fresh DB yields the 28/7 official city; a stale official row would be refreshed; user cities untouched.
 **Stuck If:** Refreshing risks deleting user data — stop and report (must be non-destructive).
-- [ ] Complete
+- [x] Complete
 
 ### Step 9: Update reference docs
 **Build:** `reference/data-models.md` — the domain list (currently the 9) → the 7 domains
@@ -132,10 +132,30 @@ Quillsworn the money-changing. Keep it consistent with `data/factions.json`.
 **Test:** `grep -c -E "stargazers|silverbench|carpenters|hearthwardens" reference/theming.md` (expect 0 live entries) + manual read.
 **Done When:** `data-models.md` lists 7 domains; `theming.md` names none of the 18 cut factions and includes the 5 new ones. (Human-required — inspector reads.)
 **Stuck If:** —
-- [ ] Complete
+- [x] Complete
 
 ---
-⛔ End of Slice 1 [inspect]. Run **inspector** on this slice before continuing. (Checkpoint: full suite green on the new roster.)
+⛔ End of Slice 1 [inspect]. Run **inspector** on this slice before continuing. (Checkpoint: full suite green on the new roster — 455 passed.)
+**Deviations (Slice 1):**
+- *Steps 1–2:* the factions.json/domains.json rewrites were done with a one-off Python transform
+  (load → cut/re-home/add → write) rather than hand-editing 28+7 JSON objects — deterministic and
+  less error-prone. Same result the steps describe.
+- *Steps 5–7 (scope):* the test reconciliation surfaced **test-fixture** references to the dead
+  domains beyond the three named test files: `test_audience_terms.py` (a synthetic `"trade"`
+  faction asserting the "Agora" project name → switched to a `"guilds"` faction / "Workshop") and
+  `test_domain_base_project_name.py` (`harbor`→"Docks" → `port`→"Docks"). Fixed as mechanical id
+  swaps. Harmless synthetic uses of dead ids as arbitrary labels (test_actions, test_city_load_cap_freeze,
+  test_events_system) were left — they don't break and aren't covered by the no-dead-id Done-when (engine/api/db only).
+- *Food coupling (notable):* `tests/test_needs_dynamics.py` referenced the old 3-estate aristocracy.
+  The Skiadai split added `elaiades`, so (a) the `ARISTOCRACY` tuple gained `elaiades`, and (b) the
+  **legibility** test was reframed from *pin estates to 1.0* to *remove the aristocracy and restore*
+  — because the extra estate raised the aristocracy floor (4 estates, each min level 1) so a pin is
+  now cushioned by the redundancy and no longer drops a band. The test's property (visible ≤5 cycles,
+  recover ≤15) is unchanged; the shortage is made severe enough to register. Same regime-shift category
+  as the fish/flocks legibility repairs. The food **balance** is untouched (aristocracy Σ level == 9,
+  redundancy bands all hold).
+- *Step 8:* added an in-place **refresh** of a stale official template (update, not delete — FK-safe;
+  user cities untouched) so an existing dev DB migrates; fresh DBs (the tests) take the create path.
 
 ---
 

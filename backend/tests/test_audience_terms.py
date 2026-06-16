@@ -15,7 +15,7 @@ from engine.llm.response_parser import ResponseParser, VALID_TERM_TYPES, _STRING
 
 
 def _faction(fid="f1"):
-    return Faction(id=fid, name="The Guild", domain_primary="trade", leader=Leader(name="Vane"))
+    return Faction(id=fid, name="The Guild", domain_primary="guilds", leader=Leader(name="Vane"))
 
 
 def _mayor():
@@ -53,7 +53,7 @@ def test_prompt_explains_each_term():
     p = _build_prompt()
     assert "Grow" in p
     assert "Protect" in p and "ALL" in p          # "less Harm from ALL rivals"
-    assert "BuildProject" in p and "Agora" in p    # the trade faction's own buildable, named
+    assert "BuildProject" in p and "Workshop" in p   # the guilds faction's own buildable, named
     assert "endorsement" in p.lower()
     assert "Refrain" in p                          # committed_abstain, plain language
 
@@ -62,12 +62,12 @@ def test_prompt_explains_each_term():
 # (audience_spec.md — BuildProject buildable info)
 def test_prompt_names_own_buildable_and_domain_target():
     from engine.projects import base_project_description
-    p = _build_prompt()                            # faction: domain_primary="trade" → "Agora"
-    assert "Agora" in p
-    assert base_project_description("trade") in p
+    p = _build_prompt()                            # faction: domain_primary="guilds" → "Workshop"
+    assert "Workshop" in p
+    assert base_project_description("guilds") in p
     # BuildProject <deal> target is the faction's domain id, not a free-text project id
     build_line = next(l for l in p.split("\n") if '"BuildProject"' in l)
-    assert '"target_id": "trade"' in build_line
+    assert '"target_id": "guilds"' in build_line
     assert "<a project id>" not in p
     assert "dock_expansion" not in p
     # only the faction's own buildable appears — not other domains' base projects

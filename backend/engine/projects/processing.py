@@ -270,12 +270,10 @@ def commission_project(
 
 # One repeatable base project per domain; building it raises the domain's cap.
 BASE_PROJECT_NAMES: Dict[str, str] = {
-    "harbor":      "Docks",
-    "trade":       "Agora",
+    "port":        "Docks",
     "guilds":      "Workshop",
     "military":    "Barracks",
     "temples":     "Temenos",
-    "academy":     "Lyceum",
     "aristocracy": "Estate",
     "professions": "Gymnasion",
     "civic":       "Tax Office",
