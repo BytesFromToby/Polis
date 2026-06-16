@@ -66,7 +66,8 @@ def roll_for_random_events(
     return new_events
 
 
-_NEED_GATE_KEYS = ("max_fed_band", "min_fed_band", "max_happy_band", "min_happy_band", "sickly")
+_NEED_GATE_KEYS = ("max_fed_band", "min_fed_band", "max_happy_band", "min_happy_band", "sickly",
+                   "max_piety_band", "min_piety_band", "max_unrest_band", "min_unrest_band")
 
 
 def _matches_trigger(
@@ -110,6 +111,17 @@ def _matches_need_gates(conds: dict, public) -> bool:
     if "min_happy_band" in conds and happy_i < band_index(conds["min_happy_band"], HAPPY_BANDS):
         return False
     if "sickly" in conds and conds["sickly"] != is_sickly(public.health):
+        return False
+    from ..needs.bands import PIETY_BANDS, UNREST_BANDS, piety_band, unrest_band
+    piety_i = band_index(piety_band(public.piety), PIETY_BANDS)
+    unrest_i = band_index(unrest_band(public.unrest), UNREST_BANDS)
+    if "max_piety_band" in conds and piety_i > band_index(conds["max_piety_band"], PIETY_BANDS):
+        return False
+    if "min_piety_band" in conds and piety_i < band_index(conds["min_piety_band"], PIETY_BANDS):
+        return False
+    if "max_unrest_band" in conds and unrest_i > band_index(conds["max_unrest_band"], UNREST_BANDS):
+        return False
+    if "min_unrest_band" in conds and unrest_i < band_index(conds["min_unrest_band"], UNREST_BANDS):
         return False
     return True
 
@@ -204,6 +216,7 @@ def process_active_events(
     factions: Dict[str, Faction],
     domains: Dict[str, Domain],
     world: WorldState,
+    public=None,
 ) -> List[ActionResult]:
     """Apply effects of all active events. Decrement timers. Fire cascades."""
     results = []
@@ -215,7 +228,7 @@ def process_active_events(
 
         if event.status == "active":
             # Apply effects this cycle
-            results.extend(_apply_event_effects(event.effects, factions, domains, world, event))
+            results.extend(_apply_event_effects(event.effects, factions, domains, world, event, public))
             event.cycles_remaining -= 1
 
             if event.cycles_remaining <= 0:
@@ -230,7 +243,7 @@ def process_active_events(
                 event.cascade_delay_remaining -= 1
             else:
                 results.extend(
-                    _apply_event_effects(event.cascade.effects, factions, domains, world, event)
+                    _apply_event_effects(event.cascade.effects, factions, domains, world, event, public)
                 )
                 event.status = "resolved"
                 results.append(ActionResult(
@@ -251,10 +264,11 @@ def _apply_event_effects(
     domains: Dict[str, Domain],
     world: WorldState,
     event: GameEvent,
+    public=None,
 ) -> List[ActionResult]:
     results = []
     for eff in effects:
-        _apply_single_event_effect(eff, factions, domains, world)
+        _apply_single_event_effect(eff, factions, domains, world, public)
         results.append(ActionResult(
             action="EventEffect",
             actor_id=event.id,
@@ -266,13 +280,24 @@ def _apply_event_effects(
     return results
 
 
+_PUBLIC_EFFECT_FIELDS = ("piety", "unrest", "support", "fed", "happy", "health")
+
+
 def _apply_single_event_effect(
     eff: EventEffect,
     factions: Dict[str, Faction],
     domains: Dict[str, Domain],
     world: WorldState,
+    public=None,
 ) -> None:
     tid = eff.target_id
+
+    if tid == "the_public" and public is not None and eff.field in _PUBLIC_EFFECT_FIELDS:
+        # Events can finally touch the Public (events_spec 2026-06-16): clamp-apply a scale delta.
+        lo = -50 if eff.field == "support" else 0
+        cur = getattr(public, eff.field)
+        setattr(public, eff.field, max(lo, min(100, cur + int(eff.value))))
+        return
 
     if tid in factions:
         faction = factions[tid]

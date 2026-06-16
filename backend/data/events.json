@@ -43,5 +43,37 @@
         {"field": "withhold", "target_id": "netmenders", "value": 0, "label": "the sea closes; the nets stay ashore"}
       ]
     }
+  },
+  {
+    "id": "mob_marches",
+    "name": "The Mob Marches",
+    "type": "random",
+    "trigger_conditions": {"min_unrest_band": "Boiling"},
+    "weight": 3,
+    "template": {
+      "target_type": "domain",
+      "target_id": "the_public",
+      "duration": 1,
+      "effects": [
+        {"field": "chaos", "target_id": "guilds", "value": 2, "label": "the riot spreads disorder"},
+        {"field": "health", "target_id": "the_public", "value": -5, "label": "injuries in the streets"}
+      ]
+    }
+  },
+  {
+    "id": "ignored_omen",
+    "name": "The Ignored Omen",
+    "type": "random",
+    "trigger_conditions": {"max_piety_band": "Lax"},
+    "weight": 2,
+    "template": {
+      "target_type": "public",
+      "target_id": "the_public",
+      "duration": 1,
+      "effects": [
+        {"field": "piety", "target_id": "the_public", "value": -5, "label": "the godless city shrugs off a portent"},
+        {"field": "support", "target_id": "the_public", "value": -3, "label": "impiety begets impiety"}
+      ]
+    }
   }
 ]

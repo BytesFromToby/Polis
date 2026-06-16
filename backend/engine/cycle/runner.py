@@ -142,7 +142,7 @@ def run_cycle(
     # contribution this cycle (cycle-runner_spec — added with Withhold). New events are still
     # *rolled* after the needs step (below) so their band gates see this cycle's bands.
     if active_events:
-        event_results = process_active_events(active_events, factions, domains, world)
+        event_results = process_active_events(active_events, factions, domains, world, public=public)
         all_results.extend(event_results)
         # Remove resolved events
         active_events[:] = [e for e in active_events if e.status != "resolved"]
