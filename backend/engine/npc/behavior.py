@@ -21,6 +21,7 @@ MAX_TRAITS = 6
 # the Mayor's standing with the faction being low. Keeps a strike structurally rare + legible.
 WITHHOLD_ANGER_THRESHOLD = -20   # mayor reputation with the faction at/below this → strike pressure
 WITHHOLD_ANGER_WEIGHT = 40.0     # weight per step; +1 step per 10 points below the threshold
+UNREST_CRIME_WEIGHT = 15.0       # Steal weight per unrest band at/above Restless (public-needs_spec)
 
 BASE_WEIGHTS: Dict[str, float] = {
     "Grow":            40.0,
@@ -155,6 +156,15 @@ def select_faction_action(
     else:
         weights.pop("Toil", None)
         weights.pop("Withhold", None)
+
+    # Unrest → crime: civic disorder is cover for theft (public-needs_spec Unrest). Restless+
+    # lifts Steal, scaling one step at Agitated and again at Boiling.
+    if public is not None:
+        from ..needs.bands import UNREST_BANDS, band_index, unrest_band
+        u = band_index(unrest_band(public.unrest), UNREST_BANDS)
+        restless = band_index("Restless", UNREST_BANDS)
+        if u >= restless:
+            weights["Steal"] = weights.get("Steal", 0.0) + UNREST_CRIME_WEIGHT * (u - restless + 1)
 
     if faction.health < 30:
         weights["Protect"] = weights.get("Protect", 0.0) + 20

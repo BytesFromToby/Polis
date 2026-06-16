@@ -9,9 +9,12 @@ from __future__ import annotations
 from typing import List, Optional, TYPE_CHECKING
 
 from engine.models import ActionResult
-from .bands import fed_band, happy_band, piety_band
+from .bands import fed_band, happy_band, piety_band, unrest_band
 from .chain import ChainOutput
-from .scales import piety_target, blame_factor, ZEALOT_SUPPORT_TAX
+from .scales import (
+    piety_target, blame_factor, ZEALOT_SUPPORT_TAX,
+    unrest_target, UNREST_EASE, GUARD_SUPPRESS, GUARD_HEAVY_THRESHOLD, GUARD_HEAVY_SUPPORT,
+)
 
 if TYPE_CHECKING:
     from engine.models import ThePublic, Mayor, Faction
@@ -46,6 +49,7 @@ def apply_needs(
     out: ChainOutput,
     factions: Optional[Dict[str, "Faction"]] = None,
     mayor: Optional["Mayor"] = None,
+    guard_paid: bool = True,
 ) -> List[ActionResult]:
     """Drift fed/happy/piety toward targets, apply band effects, move population, then unrest.
 
@@ -90,6 +94,24 @@ def apply_needs(
         public.piety = max(0, min(100, _drift_toward(public.piety, piety_target(factions, public.population))))
         if piety_band(public.piety) == "Zealous":
             _apply_support(public, ZEALOT_SUPPORT_TAX, mayor)
+
+    # Unrest — the pressure aggregate (reads the just-settled piety band). Asymmetric memory:
+    # rises toward a higher target fast, eases toward a lower one slowly.
+    target = unrest_target(public)
+    if target >= public.unrest:
+        public.unrest = min(100, _drift_toward(public.unrest, target))
+    else:
+        public.unrest = max(0, public.unrest - UNREST_EASE)
+
+    # City Guard — costed symptom suppression (does not touch the cause/target). Only if the
+    # guard is present and was paid this cycle. Heavy-handedness breeds resentment.
+    if factions is not None:
+        guard = factions.get("city-guard")
+        if guard is not None and guard.level >= 1 and guard_paid:
+            removed = min(public.unrest, GUARD_SUPPRESS * guard.level)
+            public.unrest -= removed
+            if removed >= GUARD_HEAVY_THRESHOLD:
+                _apply_support(public, GUARD_HEAVY_SUPPORT, mayor)
 
     if new_fed_word != old_fed_word or new_happy_word != old_happy_word:
         results.append(ActionResult(

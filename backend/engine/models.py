@@ -431,6 +431,7 @@ class Treasury:
 
     income_this_cycle: int = 0
     expenditure_this_cycle: int = 0
+    guard_paid_this_cycle: bool = True   # set in treasury step0; read by the unrest Guard lever
 
     TAX_DEFAULT: float = 0.20
     TAX_LEVELS: tuple = (0.00, 0.10, 0.20, 0.30, 0.40, 0.50)

@@ -83,6 +83,8 @@ def process_treasury_step0(
     paid = min(treasury.gold, required)
     treasury.gold -= paid
     treasury.expenditure_this_cycle += paid
+    # The Guard is paid this cycle only if the full guard payroll cleared (unrest lever reads this).
+    treasury.guard_paid_this_cycle = (paid >= guard_cost)
 
     results.append(ActionResult(
         action="GuardPayroll", actor_id="treasury", target_id=None,
