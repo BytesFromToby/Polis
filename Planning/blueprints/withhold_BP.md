@@ -120,3 +120,5 @@ the flag set); (b) the *Withhold matters* and redundancy properties hold (one so
 Hungry, two = Starving); (c) the cycle reorder is needs-neutral for non-withhold event effects;
 (d) base weight 0 — nothing reaches for Withhold absent anger. Stamp this blueprint and write the
 report to `output/inspect/`.
+
+✅ Inspector: PASS — 2026-06-16 — 474 suite green; chain ×0 + Withhold-beats-Toil, base-0/anger-gated weights, event-forced withhold under the 5a/5b reorder (needs-neutral), and one/all-source redundancy all re-derived from code; headless 8-cycle run clean.

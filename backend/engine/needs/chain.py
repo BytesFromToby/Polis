@@ -52,7 +52,7 @@ def compute_chain(
     population: int,
     chains: List[dict],
 ) -> ChainOutput:
-    """Pure — reads faction levels and toiling flags, mutates nothing."""
+    """Pure — reads faction levels and toiling/withholding flags, mutates nothing."""
     fed_supply = 0.0
     happy_supply = 0.0
     wine_happy = 0.0
