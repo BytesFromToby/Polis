@@ -201,3 +201,4 @@ app (server + a fresh game) and capture evidence (playwright per CLAUDE.md).
 
 ---
 ⛔ Final slice complete. Run **inspector** for final sign-off.
+✅ Inspector: PASS — 2026-06-14

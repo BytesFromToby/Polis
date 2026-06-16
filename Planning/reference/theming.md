@@ -187,7 +187,7 @@ Rival noble houses, each an ancient name with its own claim on the city.
 > A younger branch of the old estates, rich in oil if not yet in name — climbing on the back of
 > the city's most valuable crop.
 > Character: `ambitious` (moderate), `conservative` (slight)
-> Leader: **Theron of the Grove** — patient and acquisitive; plants for grandsons and buys land the way others buy bread.
+> Leader: **Theron of the Slopes** — patient and acquisitive; plants for grandsons and buys land the way others buy bread.
 
 ### Temples (*Hiereis*) — power by divine legitimacy
 
@@ -263,8 +263,8 @@ imports and its purse. (The *war* fleet sits under Military.)
 
 ### Guilds (*Demiourgoi*) — power by production
 
-The makers — those whose power is the things they build. Guilds *make* goods; Trade sells
-them, Harbor ships them. This is the city's largest domain — a crowded quarter of crafts.
+The makers — those whose power is the things they build. Guilds *make* goods; the Port ships
+and trades them. This is the city's largest domain — a crowded quarter of crafts.
 
 > **The Bronzehands** — *the smiths and metalworkers*
 > The forges — bronze and iron, arms, tools, fittings. Their hammers arm the city and shoe its every need.
