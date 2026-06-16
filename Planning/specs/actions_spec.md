@@ -3,6 +3,7 @@
 **Version:** v5.1
 **Date:** 2026-06-03
 **Updated:** 2026-06-12 — **Toil added** (public-needs / barley-run); see `public-needs_spec.md`.
+**Updated:** 2026-06-16 — **Withhold added** (resource-chains: the supply-interruption primitive); Toil's evil twin at ×0. See `public-needs_spec.md` and `events_spec.md`.
 **Supersedes:** v4 (2026-05-19)
 
 Demo redesign. Rank is now a float **1.0–10.0** (`level = int(rank)`); `entrench` removed. Health is a **breaking-point buffer**, not a death meter — factions are permanent. **Block removed. Aid added** (cooperation). Harm damages health; Protect is an immediate heal. See `../proposals/demo-redesign.md` and `../reference/formulas.md`.
@@ -38,7 +39,7 @@ Leaderless faction penalty: −2 to all rolls. (Open "roll dial": whether to fee
 
 ## Action Set
 
-Six faction actions: **Grow · Protect · Aid · Harm · Steal · Toil**. Project actions (BuildProject / SabotageProject) are retained pending the projects rework — see the bottom of this spec.
+Seven faction actions: **Grow · Protect · Aid · Harm · Steal · Toil · Withhold**. Project actions (BuildProject / SabotageProject) are retained pending the projects rework — see the bottom of this spec.
 
 ### Grow
 
@@ -129,6 +130,42 @@ touch supply.
 - Factions with no chain role never select or resolve Toil  `[automated]`
 - `committed_action == "Toil"` forces Toil selection for the committed cycles, same as the
   existing committed-action machinery  `[automated]`
+
+### Withhold
+
+**Who:** Faction with a role in a supply chain (`data/chains.json`) · **Contested:** No
+
+Toil's evil twin — the supply-interruption primitive (`../proposals/resource-chains.md`). The
+faction refuses to deliver its trade, squeezing the city. Sets the cycle-only flag
+`faction.withholding = True`; the Public-needs step multiplies that faction's chain contribution
+(harvest for producers, capacity for processors) by **0** this cycle — symmetric with Toil's
+×1.5 (see `public-needs_spec.md`). No warehouses needed: the grain was never stored, so refusing
+to deliver it needs no tracking — the faction simply doesn't appear in this cycle's chain math.
+
+Like Toil, it is **pure opportunity cost**: no rank, health, or project effect, and no cost to
+the withholder beyond the forgone action — they stand still politically while squeezing. The
+pain is entirely downstream: withholding → shortage → the Public goes Hungry → support drains
+from the *Mayor*. The faction holds the Mayor's standing hostage with no new machinery.
+
+**Rare structurally, not by tuning** — base weight **0** (see `faction-behavior_spec.md`).
+Nothing reaches for Withhold by default; weight comes only from anger (low Mayor reputation,
+`angry at mayor` traits, fresh grievances). Every Withhold is legible as a consequence.
+
+Withhold rides the generic `committed_action` machinery, so a deal or event can force it for a
+number of cycles like any committed action. The deal that *ends* a strike, though, is the
+faction committing to a **non-withhold** action (Toil, Grow, abstain) — the existing audience
+terms already settle a strike; Withhold itself is **not** offered as a Mayor-proposable audience
+term (`audience_spec.md` is unchanged). The same `withholding` flag is also set by an **event**
+for its duration (a great storm closes the sea → the Netmenders are force-withheld; see
+`events_spec.md`): the flag does not care why the contribution is zero — faction anger, a deal,
+or a disaster — one mechanism for all three causes.
+
+**Done when:**
+- A resolved Withhold sets `withholding` on the actor and produces no rank or health change  `[automated]`
+- Factions with no chain role never select or resolve Withhold  `[automated]`
+- `committed_action == "Withhold"` forces Withhold selection for the committed cycles, same as
+  the existing committed-action machinery  `[automated]`
+- Withhold's base weight is 0 — absent any anger signal a chain-role faction never selects it  `[automated]`
 
 ---
 

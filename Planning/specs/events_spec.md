@@ -3,6 +3,7 @@
 **Version:** v1.1
 **Date:** 2026-05-17
 **Updated:** 2026-06-12 — **Public-need gates** added to `trigger_conditions` (public-needs / barley-run).
+**Updated:** 2026-06-16 — **`withhold` effect field** added (force a faction's chain output to 0 for a duration); active-event effect application moved before the needs step. See `actions_spec.md`, `public-needs_spec.md`.
 
 Events are timed pressure sequences injected into the faction system. They are not resource management — they are triggers that cause faction-system effects. A mine disaster doesn't add a mining mechanic; it pressures specific factions for a defined duration.
 
@@ -41,11 +42,18 @@ class Event:
 ```python
 @dataclass
 class EventEffect:
-    field: str        # what is modified: "rating" | "health" | "entrench" | "action_weight" | "chaos"
+    field: str        # what is modified: "rating" | "health" | "entrench" | "action_weight" | "chaos" | "withhold"
     target_id: str    # entity the field belongs to
     value: float      # delta applied each cycle (negative = penalty)
     label: str        # description for narrative
 ```
+
+The `withhold` field is the disaster face of the supply-interruption primitive
+(`actions_spec.md`, `public-needs_spec.md`): while the event is active it sets
+`faction.withholding = True` on its target each cycle (the `value` is ignored), forcing that
+faction's chain contribution to 0 for the event's `duration`. A great storm that closes the sea
+force-withholds the Netmenders; the same `withholding` flag a striking faction sets on itself, an
+event sets on its victim — one mechanism, three causes (anger, deal, disaster).
 
 ```python
 @dataclass
@@ -96,13 +104,23 @@ Examples:
 
 ## Event Processing
 
-Events are processed at Step 8 (after end-of-cycle and collapse cascades — see `cycle-runner_spec.md` Full Orchestration). Each active event:
+**Active-event effect application runs immediately before the Public-needs step (item 5b); new
+events are still *rolled* after the needs step.** This split (added with Withhold, 2026-06-16)
+lets a `withhold` event force its target's chain contribution to 0 *this* cycle: the needs step
+reads `withholding` flags that active events have just asserted, and the end-of-cycle reset
+clears them — so an active storm re-asserts the flag each cycle for its duration, and the city
+recovers the cycle after it expires. New-event *rolling* stays after needs so its band gates see
+this cycle's freshly-drifted `fed`/`happy` (see Public-need gates below). Effects other than
+`withhold` (health/rating/drift/chaos) are unaffected by the move — the needs step does not read
+those fields. See `cycle-runner_spec.md` Full Orchestration.
+
+Each active event:
 
 1. Applies its effects for this cycle
 2. Decrements `cycles_remaining`
 3. If `cycles_remaining == 0` and cascade exists: fire cascade after `cascade.delay` cycles
 
-New events are added to the active events list during Step 8.
+New events are added to the active events list during the post-needs roll.
 
 ---
 
@@ -162,6 +180,20 @@ cascade: none
 note: adds distrusts relational trait between A and B at moderate intensity
 ```
 
+### The Great Storm
+```
+trigger: random (port domain)
+target: netmenders
+duration: 3 cycles
+effects:
+  - netmenders: withhold (forced — sets withholding each active cycle)
+cascade: none
+note: the sea closes; the nets stay ashore. For its duration the fishery contributes 0 fed.
+      Source redundancy (barley + flocks) keeps the city Hungry-not-Starving from one storm —
+      a second lost source is what tips it to Starving (public-needs_spec redundancy property).
+      The material thing a disaster breaks (crisis-and-stance.md hook).
+```
+
 ---
 
 ## City Event Deck
@@ -200,6 +232,16 @@ The needs step runs before new-event rolling each cycle (cycle-runner item 5b), 
 the current cycle's bands. Deck additions for v1: a band-gated **Bread Riot**
 (`max_fed_band: "Starving"`) and a **Plague Outbreak** gate switching from the old scripted
 condition to `sickly: true`.
+
+**Done when (Withhold events, 2026-06-16):**
+- An active `withhold`-effect event sets `withholding = True` on its target faction each cycle it
+  is active, driving that faction's chain contribution to 0; the same cycle the event resolves,
+  the target's contribution returns to normal (the flag is no longer re-asserted)  `[automated]`
+- A force-withhold of one Food producer leaves the Public Hungry-not-Starving (redundancy holds);
+  force-withholding two Food sources at once drives it toward Starving  `[automated]`
+- Active-event effect application is ordered before the needs step while new-event rolling stays
+  after it: a `withhold` storm is felt the same cycle, and band-gated rolls still see this
+  cycle's bands (both proven in one ordering test)  `[automated]`
 
 **Done when:**
 - A template with `max_fed_band: "Starving"` is never rolled while the Public's fed band is

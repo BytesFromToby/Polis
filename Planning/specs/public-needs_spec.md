@@ -100,6 +100,12 @@ The **harvest** chain (barley + wine):
   each processes its full capacity and the remainder is eaten as **porridge**.
 - **Toil:** a faction that Toiled this cycle (see `actions_spec.md`) has its contribution —
   harvest for producers, capacity for processors — multiplied by `TOIL_MULT = 1.5`.
+- **Withhold:** a faction that is withholding this cycle (`faction.withholding` — set by the
+  Withhold action or an active event; see `actions_spec.md`, `events_spec.md`) has that same
+  contribution multiplied by **0** — it does not appear in this cycle's chain math at all.
+  Withhold is checked before Toil; a withholding faction contributes nothing regardless of any
+  Toil flag (the two are mutually exclusive actions, but events can force `withholding` onto a
+  faction that the engine also flagged `toiling` — Withhold wins).
 
 **Conversion profiles** (per unit of raw processed):
 
@@ -114,7 +120,7 @@ The **harvest** chain (barley + wine):
   the Fed/Well-fed boundary; surplus pushes toward 100.
 - `happy_target = clamp(BASE_HAPPY + 75 × happy_supply / demand, 0, 100)`, `BASE_HAPPY = 30`.
 
-- Input: live factions list + `ThePublic.population` (+ this cycle's Toil flags).
+- Input: live factions list + `ThePublic.population` (+ this cycle's Toil and Withhold flags).
 - Output: `fed_target`, `happy_target`, `wine_happy`, per-path tonnage for the cycle log.
 
 **Done when:**
@@ -131,6 +137,13 @@ The **harvest** chain (barley + wine):
   nonzero whenever raw is nonzero  `[automated]`
 - A Toiling producer contributes ×1.5 harvest and a Toiling processor ×1.5 capacity, this
   cycle only  `[automated]`
+- A withholding producer contributes 0 harvest and a withholding processor 0 capacity, this
+  cycle only; setting `withholding` on a faction that is also `toiling` still yields 0 (Withhold
+  wins)  `[automated]`
+- *Withhold matters* (the inverted *Toil matters*): a single angry high-level producer that
+  withholds drives a strictly **lower** minimum `fed` than the same faction acting normally —
+  but source redundancy holds, so one withholder alone never drives the Public to Starving from
+  full health (it takes a second lost source, per the fishery redundancy property)  `[automated]`
 
 ## Feature: The fishery — second Food source (fish slice)
 

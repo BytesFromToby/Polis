@@ -73,6 +73,8 @@ Examples:
 | Field | Type | Notes |
 |---|---|---|
 | `unstable_stacks` | `int` | Penalty stacks; −1 per stack to rolls, max 3 |
+| `toiling` | `bool` | Set by Toil (or a deal); the needs step multiplies this faction's chain contribution ×`TOIL_MULT` |
+| `withholding` | `bool` | Set by Withhold (action, deal, or an active `withhold` event); the needs step multiplies this faction's chain contribution ×0 |
 
 **Helper methods:**
 

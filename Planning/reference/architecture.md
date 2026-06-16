@@ -113,9 +113,10 @@ see what earlier ones did. The conceptual phases:
 
 **`Planning/specs/cycle-runner_spec.md` is authoritative** for the full per-cycle
 orchestration (treasury → external threats → mayor → action loop → Break sweep →
-**public needs (item 5b)** → events → projects → world chaos → moneylender → the public).
-`Faction.toiling` is cycle-only: set in the action loop, consumed by the needs step,
-reset before `run_cycle` returns.
+**active-event effects (item 5a)** → **public needs (item 5b)** → projects → world chaos +
+new-event rolling → moneylender → the public). `Faction.toiling` and `Faction.withholding` are
+cycle-only: set in the action loop (withholding also by an active `withhold` event applied at 5a,
+just before needs), consumed by the needs step, reset before `run_cycle` returns.
 
 ---
 

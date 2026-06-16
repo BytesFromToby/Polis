@@ -3,6 +3,7 @@
 **Version:** v4.1
 **Date:** 2026-06-03
 **Updated:** 2026-06-12 — **Toil weights added** (public-needs / barley-run); chain-role gating per `actions_spec.md`.
+**Updated:** 2026-06-16 — **Withhold weights added** (resource-chains); base 0, anger-driven (low Mayor standing) per `actions_spec.md`.
 **Supersedes:** v3 (2026-05-19)
 
 Demo redesign: **Block removed, Aid added**; entrench-based modifiers gone; aggression targeting now excludes level-1 factions; near-cap logic uses `utilization = Σ level`. Rank is a float 1–10 (`level = int(rank)`). Faction is the sole autonomous agent; behavior driven by personality traits; sequential per-turn with live state.
@@ -37,13 +38,16 @@ BASE_WEIGHTS = {
     "Protect":         25,
     "Steal":           20,
     "Toil":            10,
+    "Withhold":        0,
     "BuildProject":    15,
     "SabotageProject": 10,
 }
 ```
 
-`Toil` is only available to factions with a chain role (`data/chains.json`); for all others
-its weight is 0 (see `actions_spec.md`).
+`Toil` and `Withhold` are only available to factions with a chain role (`data/chains.json`); for
+all others their weight is 0 (see `actions_spec.md`). `Withhold` further starts at base weight 0
+even *for* chain-role factions — nothing reaches for it by default; it earns weight only from
+anger (Step 3). This keeps a strike structurally rare and always legible as a consequence.
 
 ### Step 2 — Apply Personality Modifiers
 
@@ -88,6 +92,7 @@ Relational traits (targeted at a specific faction) apply only when that faction 
 |---|---|
 | `faction.health < 30` | Protect +20, Grow +15, Harm −10 |
 | Public `fed` band ≤ Hungry AND faction has a chain role | Toil +25 (the prosocial branch — a desperate city's producers work, or steal, per personality) |
+| Faction has a chain role AND the Mayor's standing with it is low (`mayor.get_reputation(faction.id) <= WITHHOLD_ANGER_THRESHOLD`, default −20) | Withhold += `WITHHOLD_ANGER_WEIGHT` (default 40) — a strike is a deliberate, anger-driven act; the angrier signal is the only thing that lifts Withhold off its base of 0. The strength of the anger scales with how far below threshold (one step per −10 below it, so a deeply hostile faction reaches for it harder). `mayor` absent (headless without a player) → no Withhold weight, Withhold stays at 0 |
 | `domain.utilization >= domain.cap * 0.9` (utilization = Σ level) | Grow −20, Steal +15 |
 | An allied faction is at `health < 50` (Friend / `allied with`) | Aid +25 |
 | Project under construction in faction's domain | BuildProject +20 |
