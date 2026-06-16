@@ -172,7 +172,7 @@ the rebuilt objects (snapshots are self-contained — the current data files are
 **Test:** `py -m pytest tests/test_roster_migration.py -q` (or the chosen file).
 **Done When:** An old-roster snapshot `deserialize_state`s without error — the new-games-only policy holds.
 **Stuck If:** `deserialize_state` rejects an unknown faction/domain id (it shouldn't — it rebuilds from the dict) — report.
-- [ ] Complete
+- [x] Complete
 
 ### Step 2: Confirm the food system is undisturbed
 **Build:** No new code. Run the shipped food tests — the chain raw/redundancy/dynamics must be
@@ -180,14 +180,14 @@ unchanged (aristocracy Σ level was conserved at 9; the chain producer faction i
 **Test:** `py -m pytest tests/test_needs_chain.py tests/test_needs_dynamics.py tests/test_needs_cycle.py tests/test_toil.py -q`
 **Done When:** All food tests green — the three-source redundancy and the harvest balance are unchanged.
 **Stuck If:** A food test fails — the Σ level was not conserved or a producer id was lost; return to Slice 1 Step 1.
-- [ ] Complete
+- [x] Complete
 
 ### Step 3: Headless run on the new roster
 **Build:** No new code. Run the city.
 **Test:** `py main.py --cycles 5` from `backend/`.
 **Done When:** Runs to completion; the FACTIONS summary lists 28 factions; the `THE PUBLIC:` line is sane; no crash, no legacy id.
 **Stuck If:** The run errors or references a cut faction/domain.
-- [ ] Complete
+- [x] Complete
 
 ### Final Step: Verify spec Done when items
 **Build:** No new code. Confirm every `**Done when:**` in `roster-restructure_spec.md` (all three
@@ -197,7 +197,7 @@ app (server + a fresh game) and capture evidence (playwright per CLAUDE.md).
 **Test:** `py -m pytest tests/ -q` — full suite. Capture output.
 **Done When:** Every `[automated]` criterion passes via its committed test; `[human-required]` items have captured evidence; the full suite is green.
 **Stuck If:** An automated criterion fails and the cause is not clear from the output.
-- [ ] Complete
+- [x] Complete
 
 ---
 ⛔ Final slice complete. Run **inspector** for final sign-off.
