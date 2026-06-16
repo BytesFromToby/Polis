@@ -61,6 +61,10 @@ materially scary.
 
 ## Withhold — the supply-interruption primitive
 
+> **SHIPPED 2026-06-16** (`decisions/2026-06-14`… see `decisions/2026-06-16-withhold.md`;
+> specs: actions/public-needs/faction-behavior/events/cycle-runner). Faction-chosen *and*
+> event-forced (the Great Storm force-withholds the Netmenders). Inspector PASS, 474 green.
+
 Toil's evil twin, and the leverage mechanic. **No warehouses needed**: Toil is a cycle-only
 flag at ×1.5; Withhold is the same flag at **×0**. The grain was never stored, so refusing to
 deliver it needs no tracking — the faction simply doesn't appear in this cycle's chain math.
