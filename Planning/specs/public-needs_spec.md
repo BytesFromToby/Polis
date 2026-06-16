@@ -143,7 +143,7 @@ The **harvest** chain (barley + wine):
 - *Withhold matters* (the inverted *Toil matters*): a single angry high-level producer that
   withholds drives a strictly **lower** minimum `fed` than the same faction acting normally —
   but source redundancy holds, so one withholder alone never drives the Public to Starving from
-  full health (it takes a second lost source, per the fishery redundancy property)  `[automated]`
+  full health (it takes the loss of every Food source, per the redundancy property)  `[automated]`
 
 ## Feature: The fishery — second Food source (fish slice)
 

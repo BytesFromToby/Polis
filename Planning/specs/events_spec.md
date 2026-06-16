@@ -189,9 +189,9 @@ effects:
   - netmenders: withhold (forced — sets withholding each active cycle)
 cascade: none
 note: the sea closes; the nets stay ashore. For its duration the fishery contributes 0 fed.
-      Source redundancy (barley + flocks) keeps the city Hungry-not-Starving from one storm —
-      a second lost source is what tips it to Starving (public-needs_spec redundancy property).
-      The material thing a disaster breaks (crisis-and-stance.md hook).
+      Source redundancy (barley + flocks remain) keeps the city never-Starving from one storm
+      alone — it is the loss of every Food source together that Starves it (public-needs_spec
+      redundancy property). The material thing a disaster breaks (crisis-and-stance.md hook).
 ```
 
 ---
@@ -237,8 +237,9 @@ condition to `sickly: true`.
 - An active `withhold`-effect event sets `withholding = True` on its target faction each cycle it
   is active, driving that faction's chain contribution to 0; the same cycle the event resolves,
   the target's contribution returns to normal (the flag is no longer re-asserted)  `[automated]`
-- A force-withhold of one Food producer leaves the Public Hungry-not-Starving (redundancy holds);
-  force-withholding two Food sources at once drives it toward Starving  `[automated]`
+- A force-withhold of one Food source leaves the Public never Starving from full health
+  (redundancy holds); force-withholding **all** Food sources at once drives it to Starving — the
+  same redundancy property removal proves, now via the `withholding` flag  `[automated]`
 - Active-event effect application is ordered before the needs step while new-event rolling stays
   after it: a `withhold` storm is felt the same cycle, and band-gated rolls still see this
   cycle's bands (both proven in one ordering test)  `[automated]`

@@ -28,5 +28,20 @@
         {"field": "health", "target_id": "asklepiads", "value": -3, "label": "plague fills the sick-houses"}
       ]
     }
+  },
+  {
+    "id": "great_storm",
+    "name": "The Great Storm",
+    "type": "random",
+    "trigger_conditions": {"domain": "port", "min_chaos": 3},
+    "weight": 2,
+    "template": {
+      "target_type": "faction",
+      "target_id": "netmenders",
+      "duration": 3,
+      "effects": [
+        {"field": "withhold", "target_id": "netmenders", "value": 0, "label": "the sea closes; the nets stay ashore"}
+      ]
+    }
   }
 ]

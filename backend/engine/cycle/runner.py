@@ -137,18 +137,21 @@ def run_cycle(
     if mayor is not None:
         tick_deals(mayor, factions, all_results, cycle_num, logger=logger)
 
-    # ── Item 5b: Public needs (public-needs_spec) ─────────────────────────────
-    # Runs before event processing so this cycle's event rolls see this cycle's bands.
-    if public is not None:
-        needs_out = compute_chain(factions, public.population, chains)
-        all_results.extend(apply_needs(public, needs_out, mayor=mayor))
-
-    # ── Step 8: Active game events ────────────────────────────────────────────
+    # ── Item 5a: Active game event effects (events_spec) ──────────────────────
+    # Applied BEFORE the needs step so a `withhold` event zeroes its target's chain
+    # contribution this cycle (cycle-runner_spec — added with Withhold). New events are still
+    # *rolled* after the needs step (below) so their band gates see this cycle's bands.
     if active_events:
         event_results = process_active_events(active_events, factions, domains, world)
         all_results.extend(event_results)
         # Remove resolved events
         active_events[:] = [e for e in active_events if e.status != "resolved"]
+
+    # ── Item 5b: Public needs (public-needs_spec) ─────────────────────────────
+    # Reads `toiling`/`withholding` flags (the latter just asserted by active events above).
+    if public is not None:
+        needs_out = compute_chain(factions, public.population, chains)
+        all_results.extend(apply_needs(public, needs_out, mayor=mayor))
 
     # ── Step 4–6 already ran above ────────────────────────────────────────────
     # Project ticking (health, construction, effects)

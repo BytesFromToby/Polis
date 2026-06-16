@@ -280,6 +280,11 @@ def _apply_single_event_effect(
             faction.health = max(0, min(100, faction.health + int(eff.value)))
         elif eff.field == "rating":
             faction.rating = max(1.0, min(10.0, faction.rating + eff.value))
+        elif eff.field == "withhold":
+            # Disaster face of the supply-interruption primitive: force this faction's chain
+            # contribution to 0 this cycle (value ignored). Re-asserted each active cycle; the
+            # runner's end-of-cycle reset clears it (events_spec / public-needs_spec).
+            faction.withholding = True
 
     elif tid in domains:
         domain = domains[tid]
