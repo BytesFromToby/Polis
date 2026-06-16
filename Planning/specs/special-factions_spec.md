@@ -38,11 +38,14 @@ class ThePublic:
     population: int = 20000   # Real city population; grows/shrinks with needs (public-needs)
     fed: int = 60             # 0–100 — how well the people eat (public-needs)
     happy: int = 50           # 0–100 — the people's mood (public-needs)
+    piety: int = 50           # 0–100 — belief the city stands well with the heavens (public-needs)
+    unrest: int = 10          # 0–100 — aggregate civic pressure; low is good (public-needs)
 ```
 
-`population`, `fed`, and `happy` (added 2026-06-12) are owned by `public-needs_spec.md` —
-band tables, drift, the harvest chain that feeds them, and population growth/decline all live
-there. This spec owns the entity and the support table below.
+`population`, `fed`, `happy` (2026-06-12) and `piety`, `unrest` (2026-06-16) are owned by
+`public-needs_spec.md` — band tables, drift, the drivers that feed them, and the
+growth/consequence rules all live there. This spec owns the entity and the support table below.
+`confidence` in `public-model.md` **is** this `support` axis — no new field.
 
 ### Disposition
 
@@ -79,6 +82,12 @@ Public support is modified by events in the cycle, not by a formula:
 | Fed band: Well fed (public-needs) | +2/cycle |
 | Happy band: Miserable (public-needs) | −2/cycle |
 | Happy band: Festive (public-needs) | +2/cycle |
+| Piety: Zealous — temples defy the Mayor (public-needs) | −1/cycle |
+| City Guard heavy-handed suppression (public-needs) | −2/cycle when ≥ threshold unrest removed |
+
+**Piety crisis-blame modifier (public-needs):** the **negative** shortage/health support deltas
+above (Starving/Hungry/Miserable) are scaled by the piety band — ×1.5 Godless … ×0.75 Devout/
+Zealous. Positive deltas are unscaled. Owned by the needs step, catalogued here.
 
 Public support also equals Mayor reputation with The Public — tracked as a single value, not separately.
 

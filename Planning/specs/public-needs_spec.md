@@ -23,13 +23,15 @@ All numeric constants in this spec are provisional — tune by feel (same status
 curve in `../reference/formulas.md`). Tests must reference the constants, not bake in copies.
 
 ## Scope
-- Does: population + `fed`/`happy` scales on `ThePublic`; band tables; consumption and **drift**
-  toward the supply targets that `food-supply_spec.md` computes; shortage and plenty consequences
-  (health driver, support deltas, population growth/decline); the cycle step that runs the needs
-  update.
-- Does NOT: the Food production chains themselves (harvest/fishery/pastoral, `compute_chain` —
-  now `food-supply_spec.md`); the new Public scales (piety/unrest/consumption — a later slice);
-  warehouses, stockpiles, trade values; pop-gated faction levels; Mayor split levers.
+- Does: population + `fed`/`happy`/**`piety`**/**`unrest`** scales on `ThePublic`; band tables;
+  consumption and **drift** toward targets (`fed`/`happy` from `food-supply_spec.md`, `piety` from
+  the temple driver here, `unrest` from the pressure aggregate here); shortage/plenty and
+  piety/unrest consequences (health driver, support deltas, population, crisis-blame modifier,
+  crime/riot gating); the **City Guard** unrest damper; the cycle step that runs the needs update.
+- Does NOT: the Food production chains (`food-supply_spec.md`); **consumption** (the alcohol
+  balance-axis — the next scale slice); the two Public→production wires (health-output,
+  consumption-output); the richer extreme-event deck beyond the flagship few (Witch-Hunt,
+  Oracle's Demand, Insurrection — later); warehouses; pop-gated faction levels.
 
 ## Feature: Public needs state
 
@@ -40,21 +42,30 @@ curve in `../reference/formulas.md`). Tests must reference the constants, not ba
 | `population` | `int` | ≥ 1000 | 20000 | City population; real state with memory |
 | `fed` | `int` | 0–100 | 60 | How well the people eat |
 | `happy` | `int` | 0–100 | 50 | The people's mood |
+| `piety` | `int` | 0–100 | 50 | Belief the city stands well with the heavens (Feature: Piety) |
+| `unrest` | `int` | 0–100 | 10 | Aggregate civic pressure; **low is good** (Feature: Unrest) |
 
 `health` (0–100) already exists and is unchanged structurally — this spec gives it a driver.
+`piety` and `unrest` are new persisted scales (round-trip + default like `fed`/`happy`).
 
 **Word bands** — defined once, used by the audience prompt, the UI, and event gating
 (precedent: `ThePublic.derive_disposition()`):
 
-| Value | `fed` band | `happy` band |
-|---|---|---|
-| 0–20 | Starving | Miserable |
-| 21–45 | Hungry | Sullen |
-| 46–75 | Fed | Content |
-| 76–100 | Well fed | Festive |
+| Value | `fed` band | `happy` band | `piety` band | `unrest` band (low good) |
+|---|---|---|---|---|
+| 0–20 | Starving | Miserable | Godless | Placid |
+| 21–40 | Hungry | Sullen | Lax | Quiet |
+| 41–60 | Fed | Content | Observant | Restless |
+| 61–80 | Well fed* | Festive* | Devout | Agitated |
+| 81–100 | Well fed | Festive | Zealous | Boiling |
+
+\* `fed`/`happy` keep their existing 4-band tables (boundaries 20/45/75); the 5-row grid above
+shows piety/unrest's 5 bands aligned to the 20% increments of `public-model.md`. `fed`/`happy`
+band boundaries are unchanged by this slice (still Starving ≤20, Hungry ≤45, Fed ≤75, Well fed).
 
 Health has no band table; one threshold: `health < 40` → the people are **sickly**
-(descriptor + event gate).
+(descriptor + event gate). Piety bands gate events and modulate crisis blame; unrest bands gate
+crime/riot and feed faction behavior.
 
 **Drunk** is not an axis. Each cycle the chain reports wine's happiness contribution;
 `drunk = (wine_happy / demand) >= DRUNK_THRESHOLD` (0.25). Drunk is an *additional*
@@ -66,10 +77,12 @@ cycles — recomputed and overwritten by every needs step; never drifted, never 
 - Output: band words + drunk/sickly flags exposed to prompt, UI, and event system.
 
 **Done when:**
-- `ThePublic` round-trips `population`, `fed`, `happy` through serialization; absent fields
-  default to 20000/60/50 (existing saves load)  `[automated]`
+- `ThePublic` round-trips `population`, `fed`, `happy`, `piety`, `unrest` through serialization;
+  absent fields default to 20000/60/50/50/10 (existing saves load)  `[automated]`
 - Band lookup returns the table above exactly at the boundaries (20→Starving, 21→Hungry,
   45→Hungry, 46→Fed, 75→Fed, 76→Well fed; same boundaries for happy)  `[automated]`
+- Piety band lookup at the 20/40/60/80 boundaries returns Godless/Lax/Observant/Devout/Zealous;
+  unrest band lookup returns Placid/Quiet/Restless/Agitated/Boiling at the same boundaries  `[automated]`
 - `drunk` is true exactly when wine happiness per demand ≥ `DRUNK_THRESHOLD`; `sickly`
   exactly when `health < 40`  `[automated]`
 
@@ -81,6 +94,12 @@ pure function that turns faction strength into `fed_target`/`happy_target` — w
 needs scales below **drift** toward them each cycle.
 
 ## Feature: Drift, shortage, and plenty
+
+This feature covers `fed`/`happy` (the food needs). `piety` and `unrest` drift by their own rules
+(Features: Piety, Unrest) within the **same needs step**, in this order: food targets → drift
+`fed`/`happy` → apply health/support/population consequences (support penalties scaled by the
+**piety** crisis-blame modifier) → compute & drift `piety` → compute `unrest_target`, drift/ease
+`unrest`, then the City Guard suppression. (`piety` must settle before `unrest` reads its band.)
 
 Each cycle (see Cycle integration) after targets are computed:
 
@@ -107,6 +126,100 @@ Each cycle (see Cycle integration) after targets are computed:
 - *Drunk city* fixture: strong Winepressers + weak Ovenmen (e.g. ratings swapped to 4.0/1.0)
   yields, within 10 cycles, `happy` above and `fed` below their values in the balanced
   baseline city  `[automated]`
+
+## Feature: Piety — the belief need
+
+Belief is the mechanic; the gods are not (`../proposals/public-model.md`). The engine models
+whether the **people feel the city stands well with the heavens** — never whether prayers work.
+Piety is a need like `fed`/`happy`: temples *produce* it, it drifts, and it has political teeth at
+both ends.
+
+**Driver — the temple supply** (mirrors the food chain shape, but lives here, not in
+`food-supply_spec.md`, because it produces a Public scale, not food):
+- Every faction with `domain_primary == "temples"` contributes `PIETY_PER_LEVEL × level` units of
+  piety supply. **`PIETY_PER_LEVEL = 4`** (provisional — tuned so the standard temple roster holds
+  piety near Observant at rest).
+- `piety_target = clamp(100 × piety_supply / (demand × PIETY_PARITY), 0, 100)`, where
+  `demand = population / 1000` and **`PIETY_PARITY = 1.0`** (supply meeting parity-demand sits at
+  the top of Observant). Toil/Withhold apply to temple factions here exactly as to food producers
+  (a Toiling temple ×1.5 piety supply; a withholding/struck temple ×0 — a priestly strike).
+
+**Bands & both-ends-bite:**
+- **Godless (0–20):** crises read as the Mayor's impiety → blame. **Lax (20–40):** unease.
+  **Observant (40–60):** stable. **Devout (60–80):** crises reframe as trials the city endures.
+  **Zealous (80–100):** the temples are over-mighty and **defy the Mayor** — `support` −1/cycle
+  while zealous (high piety is *not* purely good).
+
+**Consequences this slice:**
+1. **Crisis-blame modifier:** piety scales the **negative `support` deltas the needs step itself
+   applies** (the shortage/health penalties — Starving −5, Hungry −2, Miserable −2, etc.). A
+   godless city blames the impious Mayor for the heavens' displeasure; a devout one endures.
+   Factor by band: Godless ×`PIETY_BLAME_MAX` (1.5), Lax ×1.25, Observant ×1.0, Devout ×0.75,
+   Zealous ×0.75. **Positive** support deltas are unscaled. (Self-contained in the needs step — no
+   event-support machinery needed; the flagship events lean on band *gating*, not support effects.)
+2. **Feeds unrest:** low piety (Godless/Lax) is a pressure term in the unrest aggregate (below).
+3. **Zealot tax:** the −1 `support`/cycle at Zealous, above.
+
+**Drift:** `piety` moves toward `piety_target` by at most `DRIFT_STEP` each cycle (same granary
+logic as fed/happy).
+
+**Done when:**
+- `piety_supply` sums `PIETY_PER_LEVEL × level` over temple-domain factions only; zero temple
+  levels → `piety_target` 0; a Toiling temple contributes ×`TOIL_MULT`, a withholding temple 0  `[automated]`
+- `piety` drifts toward `piety_target` by exactly `DRIFT_STEP` when far, lands without overshoot
+  when within `DRIFT_STEP`  `[automated]`
+- The crisis-blame modifier scales the needs step's **negative** support deltas by the piety-band
+  factor (a Starving Godless city loses 1.5× the support a Starving Observant city does; positive
+  deltas unscaled)  `[automated]`
+- While `piety` is Zealous, `support` decreases by 1/cycle from the zealot tax; at Observant it
+  does not  `[automated]`
+
+## Feature: Unrest — the pressure aggregate
+
+Unrest sits **on top of** the needs (`../proposals/public-model.md`): it is the aggregate of
+civic pressure, with **memory** — it climbs while causes fester and the City Guard can press it
+down without fixing the cause. **Low is good.**
+
+**Driver — the pressure target.** Each cycle compute `unrest_pressure` (0–100) as the sum of
+band-keyed pressure terms (provisional weights, all importable constants):
+
+| Source | Condition | Pressure |
+|---|---|---|
+| Hunger | fed Starving / Hungry | `UNREST_HUNGER` (30) / half (15) |
+| Impiety | piety Godless / Lax | `UNREST_IMPIETY` (20) / half (10) |
+| Low confidence | `support < 0` | `UNREST_CONFIDENCE × (-support)/50` (max 20) |
+| Drunkenness | `drunk` true | `UNREST_DRUNK` (10) |
+
+`unrest_target = clamp(unrest_pressure, 0, 100)`.
+
+**Memory (asymmetric drift):** unrest rises toward a higher target at up to `DRIFT_STEP` (10), but
+when the target is *lower* than current unrest it eases by only **`UNREST_EASE` (4)/cycle** — the
+cause clears faster than the mood. (So a fed, pious, confident city still takes several cycles to
+go from Boiling to Placid.)
+
+**The City Guard lever (costed symptom suppression).** If the `city-guard` faction is present and
+the guard payroll was met this cycle (`treasury_spec.md` — skipped payroll → no suppression),
+unrest is pressed down by `GUARD_SUPPRESS × city_guard.level` (**`GUARD_SUPPRESS = 3`**) *after*
+drift — treating the symptom, not `unrest_target`. **Heavy-handedness costs support:** if that
+suppression actually removes ≥ `GUARD_HEAVY_THRESHOLD` (15) of unrest in a cycle, `support`
+−`GUARD_HEAVY_SUPPORT` (2) that cycle. So a strong Guard buys calm but a resentful populace.
+
+**Bands & consequences:**
+- **Placid (0–20)/Quiet (20–40):** calm. **Restless (40–60):** crime — faction `Steal` weight up
+  (`faction-behavior_spec.md`). **Agitated (60–80):** riots loom (event gate). **Boiling
+  (80–100):** open riot / revolt events (event gate; the flagship riot below).
+
+**Done when:**
+- `unrest_target` equals the summed pressure terms for a constructed state (Starving + Godless +
+  `support = −50` + drunk yields `UNREST_HUNGER + UNREST_IMPIETY + 20 + UNREST_DRUNK`, clamped)  `[automated]`
+- Asymmetric drift: unrest rises by `DRIFT_STEP` toward a higher target but falls by only
+  `UNREST_EASE` toward a lower one  `[automated]`
+- With `city-guard` present and payroll met, post-drift unrest is reduced by
+  `GUARD_SUPPRESS × level`; with payroll unmet (or no guard) it is not  `[automated]`
+- A suppression removing ≥ `GUARD_HEAVY_THRESHOLD` unrest applies the `−GUARD_HEAVY_SUPPORT`
+  support cost; a light suppression does not  `[automated]`
+- Restless+ unrest raises faction `Steal` weight (proven in `faction-behavior` tests); an
+  Agitated/Boiling-gated sentinel event becomes eligible exactly at those bands  `[automated]`
 
 ## Feature: Cycle integration
 

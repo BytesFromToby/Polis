@@ -194,6 +194,33 @@ note: the sea closes; the nets stay ashore. For its duration the fishery contrib
       redundancy property). The material thing a disaster breaks (crisis-and-stance.md hook).
 ```
 
+### The Mob Marches  (flagship — unrest)
+```
+trigger: random, gated min_unrest_band: "Boiling"
+target: a domain's base-project stack
+duration: 1 cycle
+effects:
+  - the addressed domain's base-project progress: −20 (the mob wrecks the works)
+  - factions Steal in the chaos (behavior already lifts Steal at high unrest)
+cascade: none
+note: open riot at the boiling point. The City Guard is the standing counter — it presses unrest
+      down before this gate is reached; when unrest still hits Boiling, the riot lands. Heavier
+      flagships (Insurrection, the direct removal bid) are deferred — this is the in-slice teeth.
+```
+
+### The Ignored Omen  (flagship — piety)
+```
+trigger: random, gated max_piety_band: "Lax"  (eligible while Godless or Lax)
+target: The Public
+duration: 1 cycle
+effects:
+  - piety −5 (the godless city shrugs off a portent; the slide compounds)
+  - support −3 (a crisis-blame penalty; the needs step's piety modifier makes it bite harder)
+cascade: none
+note: the low-belief city dismisses a warning; impiety begets impiety. A teaching event — it makes
+      the godless band visible and nudges the player to tend piety before a real disaster lands.
+```
+
 ---
 
 ## City Event Deck
@@ -226,6 +253,8 @@ The starting city includes a curated deck of 8–12 events appropriate to its do
 | `max_fed_band` | Public fed band ≤ this band (e.g. `"Hungry"` → eligible when Hungry or Starving) |
 | `min_fed_band` | Public fed band ≥ this band (e.g. `"Well fed"` for boon events) |
 | `max_happy_band` / `min_happy_band` | Same, on the happy band |
+| `max_piety_band` / `min_piety_band` | Same, on the piety band (Godless…Zealous) — added 2026-06-16 |
+| `max_unrest_band` / `min_unrest_band` | Same, on the unrest band (Placid…Boiling) — added 2026-06-16 |
 | `sickly` | `true` → eligible only while Public `health < 40` (the plague gate) |
 
 The needs step runs before new-event rolling each cycle (cycle-runner item 5b), so gates see
@@ -249,6 +278,14 @@ condition to `sickly: true`.
   above Starving, and becomes eligible the same cycle the band reaches it  `[automated]`
 - Each gate key (`min_/max_fed_band`, `min_/max_happy_band`, `sickly`) is honored
   independently, proven with no-effect sentinel templates injected by the test  `[automated]`
+
+**Done when (piety/unrest gates + flagships, 2026-06-16):**
+- `min_/max_piety_band` and `min_/max_unrest_band` gate templates exactly at their band
+  boundaries, proven with sentinel templates (a `min_unrest_band: "Boiling"` template is eligible
+  only at Boiling)  `[automated]`
+- The Mob Marches reduces the addressed domain stack's progress by 20 when it fires  `[automated]`
+- The Ignored Omen lowers `piety` and `support` when it fires while the piety band is Lax or
+  Godless, and is never eligible at Observant+  `[automated]`
 
 ---
 
