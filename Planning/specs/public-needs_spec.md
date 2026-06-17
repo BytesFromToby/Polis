@@ -28,10 +28,13 @@ curve in `../reference/formulas.md`). Tests must reference the constants, not ba
   the temple driver here, `unrest` from the pressure aggregate here); shortage/plenty and
   piety/unrest consequences (health driver, support deltas, population, crisis-blame modifier,
   crime/riot gating); the **City Guard** unrest damper; the cycle step that runs the needs update.
-- Does NOT: the Food production chains (`food-supply_spec.md`); **consumption** (the alcohol
-  balance-axis — the next scale slice); the two Public→production wires (health-output,
-  consumption-output); the richer extreme-event deck beyond the flagship few (Witch-Hunt,
-  Oracle's Demand, Insurrection — later); warehouses; pop-gated faction levels.
+- Also does: **confidence** band-consequences on `support` (the 7th scale — bands, faction
+  posture modifier, band-gated events); see Feature: Confidence.
+- Does NOT: the Food production chains (`food-supply_spec.md`); the **hard removal endgame**
+  (confidence's Removal Coalition is a band-gated *pressure* event this slice — the actual
+  countdown-to-defeat belongs to `../proposals/elections-and-titles.md`); the misery→drink
+  feedback; the richer extreme-event deck (Witch-Hunt, Oracle's Demand, Insurrection — later);
+  warehouses; pop-gated faction levels.
 
 ## Feature: Public needs state
 
@@ -284,6 +287,38 @@ three-source redundancy and dynamics properties still hold — the wire nudges, 
 - The shipped three-source redundancy and dynamics (stability, legibility, recoverability,
   Toil-matters) still pass with the wire live (re-tuned/adjusted only as the anticipated coupling
   requires, same discipline as the fish/flocks repairs)  `[automated]`
+
+## Feature: Confidence — the band-consequences on support
+
+Confidence is the city's faith in the Mayor — and it is **not a new field**: it is the existing
+`support` axis (−50..+50, owned by `special-factions_spec.md`), given the band-consequences the
+proposal's matrix calls for (`../proposals/public-model.md`). High is good; both the trust and the
+distrust ends do something. This completes the seventh scale.
+
+**Bands (over the −50..+50 support range, not 0–100):**
+
+| `support` | Confidence band | Meaning |
+|---|---|---|
+| −50..−30 | **Hostile** | a removal coalition stirs; rivals emboldened |
+| −29..−10 | **Suspicious** | the city doubts you; cooperation thin |
+| −9..+10 | **Neutral** | stable |
+| +11..+30 | **Favorable** | the city backs you; factions cooperate |
+| +31..+50 | **Beloved** | political capital — acclamation possible |
+
+(`disposition` is a separate, coarser derived label off `support`; confidence is the 5-band view
+the events and behavior modifier read. Low confidence also already feeds **unrest** — the
+`support < 0` pressure term, `Feature: Unrest`.)
+
+**Consequence — faction posture toward rivals (`faction-behavior_spec.md`):** the public's mood
+shifts how boldly factions act. **Favorable/Beloved** → the public backs the Mayor, so open
+aggression costs cover: `Harm`/`Steal` are damped (`CONFIDENCE_COOP_WEIGHT`). **Hostile/Suspicious**
+→ rivals feel licensed: `Harm`/`Steal` lifted (`CONFIDENCE_EMBOLDEN_WEIGHT`). Neutral → no change.
+
+**Done when:**
+- `confidence_band(support)` returns Hostile/Suspicious/Neutral/Favorable/Beloved at the
+  −30/−10/+10/+30 boundaries  `[automated]`
+- A Hostile/Suspicious public lifts faction `Harm`/`Steal` weight; a Favorable/Beloved public
+  damps them; Neutral leaves them unchanged (`public` absent → no effect)  `[automated]`
 
 ## Feature: Cycle integration
 

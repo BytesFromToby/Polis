@@ -4,6 +4,7 @@
 **Date:** 2026-05-17
 **Updated:** 2026-06-12 — **Public-need gates** added to `trigger_conditions` (public-needs / barley-run).
 **Updated:** 2026-06-16 — **`withhold` effect field** added (force a faction's chain output to 0 for a duration); active-event effect application moved before the needs step. See `actions_spec.md`, `public-needs_spec.md`.
+**Updated:** 2026-06-17 — **piety/unrest/consumption/confidence band gates** + flagship events (Mob Marches, Ignored Omen, Wells Sicken, Drunken Riot, Removal Coalition, Effigy, Acclamation); public-targeted effects.
 
 Events are timed pressure sequences injected into the faction system. They are not resource management — they are triggers that cause faction-system effects. A mine disaster doesn't add a mining mechanic; it pressures specific factions for a defined duration.
 
@@ -235,6 +236,44 @@ note: abstinence causing illness is period-true — weak wine meant people drank
       Surprises players who treat "less drinking" as strictly good. The dry end of the U.
 ```
 
+### The Removal Coalition  (flagship — confidence, low)
+```
+trigger: random, gated max_confidence_band: "Hostile"
+target: a high-rating faction (the would-be ringleader) + The Public
+duration: 1 cycle
+effects:
+  - the ringleader faction: rating +0.3 (the coalition lends it weight)
+  - world chaos in that faction's domain +1 (plotting)
+cascade: none
+note: a band-gated PRESSURE event — hostile factions move against the Mayor. Reuses existing
+      effect fields (rating, chaos); the *standing* emboldening is the faction-behavior confidence
+      modifier. The hard countdown-to-removal endgame is elections-and-titles, not this slice.
+```
+
+### Effigy in the Agora  (flagship — confidence, low/mid)
+```
+trigger: random, gated max_confidence_band: "Suspicious"  (Hostile or Suspicious)
+target: a rival faction + The Public
+duration: 1 cycle
+effects:
+  - a rival faction: rating +0.2 (public rejection of the Mayor emboldens it)
+  - The Public support −2 (the symbolic rejection compounds)
+cascade: none
+note: the city burns the Mayor in effigy; rivals read the mood and press.
+```
+
+### Acclamation  (flagship — confidence, high)
+```
+trigger: random, gated min_confidence_band: "Beloved"
+target: The Public
+duration: 1 cycle
+effects:
+  - The Public support +5 (the assembly grants an honor — political capital)
+cascade: none
+note: the beloved-end windfall. A title-ladder step would attach here once elections-and-titles
+      lands; for now it is the political-capital boost (support, the confidence axis itself).
+```
+
 ### The Drunken Riot  (flagship — consumption, high)
 ```
 trigger: random, gated min_consumption_band: "Sodden" AND min_unrest_band: "Restless"
@@ -283,6 +322,7 @@ The starting city includes a curated deck of 8–12 events appropriate to its do
 | `max_piety_band` / `min_piety_band` | Same, on the piety band (Godless…Zealous) — added 2026-06-16 |
 | `max_unrest_band` / `min_unrest_band` | Same, on the unrest band (Placid…Boiling) — added 2026-06-16 |
 | `max_consumption_band` / `min_consumption_band` | Same, on the consumption band (Dry…Sodden) — added 2026-06-16 |
+| `max_confidence_band` / `min_confidence_band` | Same, on the confidence band (Hostile…Beloved, off `support`) — added 2026-06-17 |
 | `sickly` | `true` → eligible only while Public `health < 40` (the plague gate) |
 
 The needs step runs before new-event rolling each cycle (cycle-runner item 5b), so gates see
@@ -319,6 +359,10 @@ condition to `sickly: true`.
 - `min_/max_consumption_band` gate templates at their band boundaries (sentinel-proven)  `[automated]`
 - The Wells Sicken is eligible only at Dry and drains Public health; The Drunken Riot needs both
   Sodden consumption AND Restless+ unrest, and raises chaos + lowers Public health when it fires  `[automated]`
+- `min_/max_confidence_band` gate templates at their support-band boundaries (sentinel-proven)  `[automated]`
+- The Removal Coalition is eligible only at Hostile and raises a faction's rating + its domain
+  chaos; Acclamation is eligible only at Beloved and raises Public support; Effigy fires at
+  Hostile/Suspicious  `[automated]`
 
 ---
 
