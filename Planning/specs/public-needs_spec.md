@@ -44,45 +44,47 @@ curve in `../reference/formulas.md`). Tests must reference the constants, not ba
 | `happy` | `int` | 0–100 | 50 | The people's mood |
 | `piety` | `int` | 0–100 | 50 | Belief the city stands well with the heavens (Feature: Piety) |
 | `unrest` | `int` | 0–100 | 10 | Aggregate civic pressure; **low is good** (Feature: Unrest) |
+| `consumption` | `int` | 0–100 | 45 | Alcohol consumption; **mid is good** — both ends bite (Feature: Consumption) |
 
 `health` (0–100) already exists and is unchanged structurally — this spec gives it a driver.
-`piety` and `unrest` are new persisted scales (round-trip + default like `fed`/`happy`).
+`piety`, `unrest`, `consumption` are new persisted scales (round-trip + default like `fed`/`happy`).
 
 **Word bands** — defined once, used by the audience prompt, the UI, and event gating
 (precedent: `ThePublic.derive_disposition()`):
 
-| Value | `fed` band | `happy` band | `piety` band | `unrest` band (low good) |
-|---|---|---|---|---|
-| 0–20 | Starving | Miserable | Godless | Placid |
-| 21–40 | Hungry | Sullen | Lax | Quiet |
-| 41–60 | Fed | Content | Observant | Restless |
-| 61–80 | Well fed* | Festive* | Devout | Agitated |
-| 81–100 | Well fed | Festive | Zealous | Boiling |
+| Value | `fed` band | `happy` band | `piety` band | `unrest` band (low good) | `consumption` band (mid good) |
+|---|---|---|---|---|---|
+| 0–20 | Starving | Miserable | Godless | Placid | Dry |
+| 21–40 | Hungry | Sullen | Lax | Quiet | Sober |
+| 41–60 | Fed | Content | Observant | Restless | Tempered |
+| 61–80 | Well fed* | Festive* | Devout | Agitated | Tipsy |
+| 81–100 | Well fed | Festive | Zealous | Boiling | Sodden |
 
 \* `fed`/`happy` keep their existing 4-band tables (boundaries 20/45/75); the 5-row grid above
-shows piety/unrest's 5 bands aligned to the 20% increments of `public-model.md`. `fed`/`happy`
-band boundaries are unchanged by this slice (still Starving ≤20, Hungry ≤45, Fed ≤75, Well fed).
+shows piety/unrest/consumption's 5 bands aligned to the 20% increments of `public-model.md`.
+`fed`/`happy` band boundaries are unchanged (still Starving ≤20, Hungry ≤45, Fed ≤75, Well fed).
 
 Health has no band table; one threshold: `health < 40` → the people are **sickly**
 (descriptor + event gate). Piety bands gate events and modulate crisis blame; unrest bands gate
 crime/riot and feed faction behavior.
 
-**Drunk** is not an axis. Each cycle the chain reports wine's happiness contribution;
-`drunk = (wine_happy / demand) >= DRUNK_THRESHOLD` (0.25). Drunk is an *additional*
-descriptor, independent of the happy band ("Well fed, drunk, Miserable" is a valid city).
-*(As built: cached on `ThePublic.drunk` purely so the UI/serializer can display it between
-cycles — recomputed and overwritten by every needs step; never drifted, never a driver.)*
+**Drunk** is now a *derived descriptor of the consumption band* (Feature: Consumption): the city
+is `drunk` exactly while consumption is **Tipsy or Sodden**. It remains independent of the happy
+band ("Well fed, drunk, Miserable" is still a valid city) and is cached on `ThePublic.drunk` for
+the UI/prompt and read by unrest. (Before the consumption slice, `drunk` was an ad-hoc threshold
+on wine; consumption subsumes it — wine now drives the consumption *scale*, and drunk reads off it.)
 
 - Input: city data `special_factions.the_public` (gains `population`, `fed`, `happy`).
 - Output: band words + drunk/sickly flags exposed to prompt, UI, and event system.
 
 **Done when:**
-- `ThePublic` round-trips `population`, `fed`, `happy`, `piety`, `unrest` through serialization;
-  absent fields default to 20000/60/50/50/10 (existing saves load)  `[automated]`
+- `ThePublic` round-trips `population`, `fed`, `happy`, `piety`, `unrest`, `consumption` through
+  serialization; absent fields default to 20000/60/50/50/10/45 (existing saves load)  `[automated]`
 - Band lookup returns the table above exactly at the boundaries (20→Starving, 21→Hungry,
   45→Hungry, 46→Fed, 75→Fed, 76→Well fed; same boundaries for happy)  `[automated]`
 - Piety band lookup at the 20/40/60/80 boundaries returns Godless/Lax/Observant/Devout/Zealous;
-  unrest band lookup returns Placid/Quiet/Restless/Agitated/Boiling at the same boundaries  `[automated]`
+  unrest band lookup returns Placid/Quiet/Restless/Agitated/Boiling; consumption band lookup
+  returns Dry/Sober/Tempered/Tipsy/Sodden — all at the same boundaries  `[automated]`
 - `drunk` is true exactly when wine happiness per demand ≥ `DRUNK_THRESHOLD`; `sickly`
   exactly when `health < 40`  `[automated]`
 
@@ -95,11 +97,14 @@ needs scales below **drift** toward them each cycle.
 
 ## Feature: Drift, shortage, and plenty
 
-This feature covers `fed`/`happy` (the food needs). `piety` and `unrest` drift by their own rules
-(Features: Piety, Unrest) within the **same needs step**, in this order: food targets → drift
-`fed`/`happy` → apply health/support/population consequences (support penalties scaled by the
-**piety** crisis-blame modifier) → compute & drift `piety` → compute `unrest_target`, drift/ease
-`unrest`, then the City Guard suppression. (`piety` must settle before `unrest` reads its band.)
+This feature covers `fed`/`happy` (the food needs). `piety`, `consumption`, and `unrest` drift by
+their own rules (Features: Piety, Consumption, Unrest) within the **same needs step**, in this
+order: the food chain computes targets **already scaled by the production-wire efficiency**
+(read from the Public's start-of-cycle health/consumption bands) → drift `fed`/`happy` → apply
+health/support/population consequences (support penalties scaled by the **piety** crisis-blame
+modifier; plus the Dry bad-water health drain) → drift `piety` (+ zealot tax) → drift `consumption`
+and set `drunk` → compute `unrest_target`, drift/ease `unrest`, then the City Guard suppression.
+(`piety` and `consumption` must settle before `unrest` reads impiety and `drunk`.)
 
 Each cycle (see Cycle integration) after targets are computed:
 
@@ -220,6 +225,65 @@ suppression actually removes ≥ `GUARD_HEAVY_THRESHOLD` (15) of unrest in a cyc
   support cost; a light suppression does not  `[automated]`
 - Restless+ unrest raises faction `Steal` weight (proven in `faction-behavior` tests); an
   Agitated/Boiling-gated sentinel event becomes eligible exactly at those bands  `[automated]`
+
+## Feature: Consumption — the alcohol balance-axis
+
+Consumption is the city's drinking, and the model's one **U-shaped** scale: **both ends bite, the
+middle is the sweet spot** (`../proposals/public-model.md`). It subsumes the old ad-hoc `drunk`
+flag — wine now drives a *scale*, and `drunk` reads off its band.
+
+**Driver — wine supply only (first cut, deliberately).** The food chain reports wine's happiness
+contribution (`wine_happy`, see `food-supply_spec.md`); `consumption_target = clamp(100 ×
+wine_happy / (demand × CONSUMPTION_PARITY), 0, 100)`, **`CONSUMPTION_PARITY`** tuned so the
+standard city sits in **Tempered**. Consumption drifts toward target by `DRIFT_STEP`.
+- **No misery→drink feedback this slice.** The doom-loop the proposal warns of (unhappiness raises
+  drinking *and* drinking cuts output → spiral) is avoided by tracking wine supply *only*. A
+  drink-to-cope term is deferred behind a governor.
+
+**Bands & both-ends-bite:**
+- **Dry (0–20):** too little wine → people drink raw water. Bad-water health drain
+  (`CONSUMPTION_DRY_HEALTH = −2`/cycle) + the *Wells Sicken* event. (Abstinence causing illness is
+  period-true — clean water was the real danger.)
+- **Sober (20–40):** fine, a touch brittle. **Tempered (40–60):** the sweet spot.
+- **Tipsy (60–80):** work slows — the production wire (below); `drunk` true → feeds unrest.
+- **Sodden (80–100):** work largely stops — a heavier production hit; `drunk`; the *Drunken Riot*
+  event becomes possible (the consumption+unrest combo).
+
+**Drift:** `consumption` moves toward `consumption_target` by at most `DRIFT_STEP`; then
+`public.drunk = consumption_band in (Tipsy, Sodden)`.
+
+**Done when:**
+- `consumption_target` tracks `wine_happy` per demand (more wine → higher target; zero wine → 0);
+  consumption drifts toward it by `DRIFT_STEP` with no overshoot near it  `[automated]`
+- `public.drunk` is true exactly when the consumption band is Tipsy or Sodden (and the old
+  wine-threshold `drunk` computation is gone — consumption is the single source)  `[automated]`
+- A Dry city loses `CONSUMPTION_DRY_HEALTH` health/cycle (bad water); Tempered does not  `[automated]`
+
+## Feature: The Public→production wire
+
+The first **two-way** loops: the Public's state reaches back into production as one **global
+efficiency multiplier** the food chain applies to its output (`food-supply_spec.md`). Read from the
+Public's **current** bands (start-of-cycle, before this cycle's drift — the chain runs first):
+
+`efficiency = 1.0 + health_bonus − consumption_penalty`, clamped to `[EFF_MIN, EFF_MAX]` (e.g.
+`[0.5, 1.25]`):
+- **Health (output↑):** Robust (`health` 61–80) → `+HEALTH_OUTPUT` (0.05); Thriving (81–100) →
+  `+2×HEALTH_OUTPUT` — a hale workforce produces more (the user-approved wire).
+- **Consumption (output↓):** Tipsy → `−CONSUMPTION_OUTPUT` (0.10); Sodden → `−2×CONSUMPTION_OUTPUT`
+  — a drunk city does less work.
+
+Applied to the food chain's supply (the measurable production this slice; extending the multiplier
+to other production is future). Magnitudes are provisional and **deliberately small** so the shipped
+three-source redundancy and dynamics properties still hold — the wire nudges, it does not dominate.
+
+**Done when:**
+- `compute_chain` scales food output by the efficiency multiplier: a Thriving city produces
+  strictly more, a Sodden city strictly less, than the same factions at a neutral
+  (Healthy/Tempered) Public; a Healthy+Tempered Public yields exactly the un-wired output (×1.0)  `[automated]`
+- The efficiency multiplier is clamped to `[EFF_MIN, EFF_MAX]`  `[automated]`
+- The shipped three-source redundancy and dynamics (stability, legibility, recoverability,
+  Toil-matters) still pass with the wire live (re-tuned/adjusted only as the anticipated coupling
+  requires, same discipline as the fish/flocks repairs)  `[automated]`
 
 ## Feature: Cycle integration
 

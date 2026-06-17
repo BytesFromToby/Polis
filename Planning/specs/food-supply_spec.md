@@ -20,7 +20,10 @@ All numeric constants here are provisional — tune by feel (same status as the 
 - Does: the three Food sources — the **harvest** chain (aristocracy → Ovenmen/Winepressers →
   bread/wine/porridge), the **fishery** (Netmenders → fish, fed directly), and the **pastoral**
   chain (Eumelidai → meat, fed directly); the `compute_chain` pure function; the Toil (×1.5) and
-  Withhold (×0) contribution modifiers; per-chain conservation; demand vs population.
+  Withhold (×0) contribution modifiers; the **Public→production efficiency multiplier** (an input
+  scaling food output — defined in `public-needs_spec.md` Feature: The Public→production wire);
+  per-chain conservation; demand vs population. `compute_chain` also reports `wine_happy` (the wine
+  happiness contribution) so `public-needs` can drive the consumption scale.
 - Does NOT: the Public's needs scales, bands, drift, or consequences (those are
   `public-needs_spec.md`); meat processing (butchering, temple sacrifice — meat feeds `fed`
   fresh); wool (a future Goods chain); full per-estate differentiation (the Eumelidai stays a

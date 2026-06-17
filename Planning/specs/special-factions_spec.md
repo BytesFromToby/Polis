@@ -40,10 +40,11 @@ class ThePublic:
     happy: int = 50           # 0–100 — the people's mood (public-needs)
     piety: int = 50           # 0–100 — belief the city stands well with the heavens (public-needs)
     unrest: int = 10          # 0–100 — aggregate civic pressure; low is good (public-needs)
+    consumption: int = 45     # 0–100 — alcohol; mid is good, both ends bite (public-needs)
 ```
 
-`population`, `fed`, `happy` (2026-06-12) and `piety`, `unrest` (2026-06-16) are owned by
-`public-needs_spec.md` — band tables, drift, the drivers that feed them, and the
+`population`, `fed`, `happy` (2026-06-12) and `piety`, `unrest`, `consumption` (2026-06-16) are
+owned by `public-needs_spec.md` — band tables, drift, the drivers that feed them, and the
 growth/consequence rules all live there. This spec owns the entity and the support table below.
 `confidence` in `public-model.md` **is** this `support` axis — no new field.
 

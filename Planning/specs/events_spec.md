@@ -223,6 +223,31 @@ note: the low-belief city dismisses a warning; impiety begets impiety. A teachin
       the godless band visible and nudges the player to tend piety before a real disaster lands.
 ```
 
+### The Wells Sicken  (flagship — consumption, low)
+```
+trigger: random, gated max_consumption_band: "Dry"
+target: The Public
+duration: 2 cycles
+effects:
+  - The Public health −4/cycle (too little wine → raw water → waterborne illness)
+cascade: none
+note: abstinence causing illness is period-true — weak wine meant people drank dangerous water.
+      Surprises players who treat "less drinking" as strictly good. The dry end of the U.
+```
+
+### The Drunken Riot  (flagship — consumption, high)
+```
+trigger: random, gated min_consumption_band: "Sodden" AND min_unrest_band: "Restless"
+target: a domain (its chaos) + The Public
+duration: 1 cycle
+effects:
+  - world chaos in the target domain +2 (a festival tips to violence)
+  - The Public health −3 (the Watch too sodden to hold it)
+cascade: none
+note: the consumption+unrest combo — a wasted, violent night. The sodden end of the U; needs both
+      a drunk city AND simmering unrest, so it only fires when the city is already on edge.
+```
+
 ---
 
 ## City Event Deck
@@ -257,6 +282,7 @@ The starting city includes a curated deck of 8–12 events appropriate to its do
 | `max_happy_band` / `min_happy_band` | Same, on the happy band |
 | `max_piety_band` / `min_piety_band` | Same, on the piety band (Godless…Zealous) — added 2026-06-16 |
 | `max_unrest_band` / `min_unrest_band` | Same, on the unrest band (Placid…Boiling) — added 2026-06-16 |
+| `max_consumption_band` / `min_consumption_band` | Same, on the consumption band (Dry…Sodden) — added 2026-06-16 |
 | `sickly` | `true` → eligible only while Public `health < 40` (the plague gate) |
 
 The needs step runs before new-event rolling each cycle (cycle-runner item 5b), so gates see
@@ -290,6 +316,9 @@ condition to `sickly: true`.
 - The Mob Marches raises the target domain's chaos and lowers Public `health` when it fires  `[automated]`
 - The Ignored Omen lowers `piety` and `support` when it fires while the piety band is Lax or
   Godless, and is never eligible at Observant+  `[automated]`
+- `min_/max_consumption_band` gate templates at their band boundaries (sentinel-proven)  `[automated]`
+- The Wells Sicken is eligible only at Dry and drains Public health; The Drunken Riot needs both
+  Sodden consumption AND Restless+ unrest, and raises chaos + lowers Public health when it fires  `[automated]`
 
 ---
 
