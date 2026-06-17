@@ -89,8 +89,9 @@ def unrest_target(public: "ThePublic") -> float:
 
 # ── Consumption ────────────────────────────────────────────────────────────────
 # wine_happy/demand at CONSUMPTION_PARITY maps to the Tempered midpoint (50). Tuned so the
-# standard city sits Tempered (measured wine_happy/demand ≈ 0.097 at the std roster).
-CONSUMPTION_PARITY = 0.10
+# FRESH standard city sits Tempered: its wine_happy/demand == 0.27 (Winepressers level 2), so
+# PARITY == 0.27 → target 50. (An earlier 0.097 was mis-measured from an evolved roster.)
+CONSUMPTION_PARITY = 0.27
 CONSUMPTION_DRY_HEALTH = -2   # health/cycle while Dry (too little wine → raw water → illness)
 
 

@@ -2,14 +2,23 @@
 
 Spec: public-needs_spec (Feature: Consumption). Constants imported, never copied.
 """
-from engine.models import ThePublic
+import os
+import random
+
+from engine.cycle.runner import run_cycle
+from engine.models import Mayor, ThePublic, Treasury
 from engine.needs.bands import consumption_band
 from engine.needs.chain import ChainOutput
 from engine.needs.drift import apply_needs, DRIFT_STEP
 from engine.needs.scales import (
-    consumption_target, is_drunk, CONSUMPTION_PARITY, CONSUMPTION_DRY_HEALTH,
+    consumption_target, is_drunk, production_efficiency,
+    CONSUMPTION_PARITY, CONSUMPTION_DRY_HEALTH,
 )
+from loaders import load_state_from_json, load_chains
 from serializer import serialize_the_public, deserialize_the_public
+
+DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
+CHAINS = load_chains()
 
 
 def out_with(wine_happy=0.0, fed_target=60.0, happy_target=50.0):
@@ -75,6 +84,39 @@ class TestDrunkDerivation:
         p = ThePublic(consumption=50)
         apply_needs(p, out_with(wine_happy=CONSUMPTION_PARITY * 20.0), factions=None)
         assert p.drunk is False
+
+
+class TestStdCityRestsTempered:
+    """Regression for the PARITY mis-tune (inspector FAIL 2026-06-17): the standard city must
+    REST in Tempered and never pin Sodden/drunk. This asserts real run_cycle state — not the
+    tautology `consumption_target(PARITY*demand) == 50`."""
+
+    def _run(self, seed, cycles=30):
+        random.seed(seed)
+        world, factions, domains = load_state_from_json(DATA_DIR)
+        public = ThePublic()
+        bands = []
+        for _ in range(cycles):
+            run_cycle(world, factions, domains, mayor=Mayor(), treasury=Treasury(),
+                      public=public, chains=CHAINS)
+            bands.append(consumption_band(public.consumption))
+        return bands
+
+    def test_fresh_city_starts_tempered(self):
+        # the opening cycles sit in the sweet spot, not pinned at an extreme
+        bands = self._run(seed=101, cycles=5)
+        assert all(b == "Tempered" for b in bands)
+
+    def test_never_pins_sodden(self):
+        # across seeds, the resting city is not chronically drunk (was 100% Sodden when mis-tuned)
+        for seed in (101, 202, 303):
+            bands = self._run(seed)
+            assert bands.count("Sodden") == 0
+
+    def test_resting_efficiency_has_no_drunk_drag(self):
+        # a Tempered city carries no consumption penalty in the production wire
+        p = ThePublic(health=50, consumption=50)  # Healthy + Tempered
+        assert production_efficiency(p) == 1.0
 
 
 class TestDryHealthDrain:
