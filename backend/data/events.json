@@ -106,5 +106,52 @@
         {"field": "health", "target_id": "the_public", "value": -3, "label": "the Watch too sodden to hold it"}
       ]
     }
+  },
+  {
+    "id": "removal_coalition",
+    "name": "The Removal Coalition",
+    "type": "random",
+    "trigger_conditions": {"max_confidence_band": "Hostile"},
+    "weight": 3,
+    "template": {
+      "target_type": "faction",
+      "target_id": "merchant-houses",
+      "duration": 1,
+      "effects": [
+        {"field": "rating", "target_id": "merchant-houses", "value": 0.3, "label": "the coalition lends the ringleader weight"},
+        {"field": "chaos", "target_id": "port", "value": 1, "label": "factions plot against the Mayor"}
+      ]
+    }
+  },
+  {
+    "id": "effigy_in_the_agora",
+    "name": "Effigy in the Agora",
+    "type": "random",
+    "trigger_conditions": {"max_confidence_band": "Suspicious"},
+    "weight": 2,
+    "template": {
+      "target_type": "faction",
+      "target_id": "merchant-houses",
+      "duration": 1,
+      "effects": [
+        {"field": "rating", "target_id": "merchant-houses", "value": 0.2, "label": "public rejection of the Mayor emboldens a rival"},
+        {"field": "support", "target_id": "the_public", "value": -2, "label": "the city burns the Mayor in effigy"}
+      ]
+    }
+  },
+  {
+    "id": "acclamation",
+    "name": "Acclamation",
+    "type": "random",
+    "trigger_conditions": {"min_confidence_band": "Beloved"},
+    "weight": 2,
+    "template": {
+      "target_type": "public",
+      "target_id": "the_public",
+      "duration": 1,
+      "effects": [
+        {"field": "support", "target_id": "the_public", "value": 5, "label": "the assembly grants an honor"}
+      ]
+    }
   }
 ]
