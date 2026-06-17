@@ -75,5 +75,36 @@
         {"field": "support", "target_id": "the_public", "value": -3, "label": "impiety begets impiety"}
       ]
     }
+  },
+  {
+    "id": "wells_sicken",
+    "name": "The Wells Sicken",
+    "type": "random",
+    "trigger_conditions": {"max_consumption_band": "Dry"},
+    "weight": 2,
+    "template": {
+      "target_type": "public",
+      "target_id": "the_public",
+      "duration": 2,
+      "effects": [
+        {"field": "health", "target_id": "the_public", "value": -4, "label": "too little wine; the raw water sickens the city"}
+      ]
+    }
+  },
+  {
+    "id": "drunken_riot",
+    "name": "The Drunken Riot",
+    "type": "random",
+    "trigger_conditions": {"min_consumption_band": "Sodden", "min_unrest_band": "Restless"},
+    "weight": 3,
+    "template": {
+      "target_type": "domain",
+      "target_id": "the_public",
+      "duration": 1,
+      "effects": [
+        {"field": "chaos", "target_id": "guilds", "value": 2, "label": "a festival tips to violence"},
+        {"field": "health", "target_id": "the_public", "value": -3, "label": "the Watch too sodden to hold it"}
+      ]
+    }
   }
 ]

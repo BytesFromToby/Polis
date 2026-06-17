@@ -67,7 +67,8 @@ def roll_for_random_events(
 
 
 _NEED_GATE_KEYS = ("max_fed_band", "min_fed_band", "max_happy_band", "min_happy_band", "sickly",
-                   "max_piety_band", "min_piety_band", "max_unrest_band", "min_unrest_band")
+                   "max_piety_band", "min_piety_band", "max_unrest_band", "min_unrest_band",
+                   "max_consumption_band", "min_consumption_band")
 
 
 def _matches_trigger(
@@ -122,6 +123,12 @@ def _matches_need_gates(conds: dict, public) -> bool:
     if "max_unrest_band" in conds and unrest_i > band_index(conds["max_unrest_band"], UNREST_BANDS):
         return False
     if "min_unrest_band" in conds and unrest_i < band_index(conds["min_unrest_band"], UNREST_BANDS):
+        return False
+    from ..needs.bands import CONSUMPTION_BANDS, consumption_band
+    cons_i = band_index(consumption_band(public.consumption), CONSUMPTION_BANDS)
+    if "max_consumption_band" in conds and cons_i > band_index(conds["max_consumption_band"], CONSUMPTION_BANDS):
+        return False
+    if "min_consumption_band" in conds and cons_i < band_index(conds["min_consumption_band"], CONSUMPTION_BANDS):
         return False
     return True
 
