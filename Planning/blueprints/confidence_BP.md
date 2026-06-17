@@ -67,3 +67,5 @@ correctly at the boundaries (not the 0–100 pattern); (b) the posture modifier 
 low / damps at high / no-ops at Neutral and with no public; (c) the three events gate on the
 correct confidence bands and fire their stated effects; (d) **no new persisted field** — confidence
 is purely a view over `support` (round-trip unaffected). Stamp the blueprint; report to `output/inspect/`.
+
+✅ Inspector: PASS — 2026-06-17 — bands map −50..+50 correctly, posture embolden/damp/no-op proven, 3 events gate + fire correctly, no new persisted field; rests Neutral (40/40/38 across seeds 101/202/303, no extreme pin); suite 550 green, headless clean.
