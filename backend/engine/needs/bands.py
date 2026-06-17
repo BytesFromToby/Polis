@@ -60,6 +60,15 @@ HEALTH_BANDS: List[Tuple[int, str]] = [
     (100, "Thriving"),
 ]
 
+# Confidence = the Mayor's `support` axis (−50..+50), not 0–100. High is good.
+CONFIDENCE_BANDS: List[Tuple[int, str]] = [
+    (-30, "Hostile"),
+    (-10, "Suspicious"),
+    (10, "Neutral"),
+    (30, "Favorable"),
+    (50, "Beloved"),
+]
+
 SICKLY_THRESHOLD = 40   # health below this → the people are sickly
 
 
@@ -92,6 +101,11 @@ def consumption_band(value: int) -> str:
 
 def health_band(value: int) -> str:
     return _band(value, HEALTH_BANDS)
+
+
+def confidence_band(support: int) -> str:
+    """Confidence is the −50..+50 `support` axis (special-factions_spec) viewed in 5 bands."""
+    return _band(support, CONFIDENCE_BANDS)
 
 
 def band_index(word: str, table: List[Tuple[int, str]]) -> int:

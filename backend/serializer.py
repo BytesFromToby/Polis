@@ -196,7 +196,7 @@ def deserialize_cycle_event(d: dict) -> CycleEvent:
 
 def serialize_the_public(p: ThePublic) -> dict:
     from engine.needs.bands import (fed_band, happy_band, piety_band, unrest_band,
-                                    consumption_band, is_sickly)
+                                    consumption_band, confidence_band, is_sickly)
     return {
         "support": p.support,
         "disposition": p.disposition,
@@ -215,6 +215,7 @@ def serialize_the_public(p: ThePublic) -> dict:
         "piety_band": piety_band(p.piety),
         "unrest_band": unrest_band(p.unrest),
         "consumption_band": consumption_band(p.consumption),
+        "confidence_band": confidence_band(p.support),
         "sickly": is_sickly(p.health),
     }
 

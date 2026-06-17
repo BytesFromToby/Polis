@@ -22,6 +22,8 @@ MAX_TRAITS = 6
 WITHHOLD_ANGER_THRESHOLD = -20   # mayor reputation with the faction at/below this → strike pressure
 WITHHOLD_ANGER_WEIGHT = 40.0     # weight per step; +1 step per 10 points below the threshold
 UNREST_CRIME_WEIGHT = 15.0       # Steal weight per unrest band at/above Restless (public-needs_spec)
+CONFIDENCE_EMBOLDEN_WEIGHT = 10.0  # Harm/Steal lift at low confidence (Hostile/Suspicious)
+CONFIDENCE_COOP_WEIGHT = 10.0      # Harm/Steal damp at high confidence (Favorable/Beloved)
 
 BASE_WEIGHTS: Dict[str, float] = {
     "Grow":            40.0,
@@ -165,6 +167,18 @@ def select_faction_action(
         restless = band_index("Restless", UNREST_BANDS)
         if u >= restless:
             weights["Steal"] = weights.get("Steal", 0.0) + UNREST_CRIME_WEIGHT * (u - restless + 1)
+
+    # Confidence posture: a distrusted Mayor can't shield rivals (low → embolden Harm/Steal); the
+    # public's backing raises the cost of open aggression (high → damp). Neutral = no change.
+    if public is not None:
+        from ..needs.bands import confidence_band
+        cb = confidence_band(public.support)
+        if cb in ("Hostile", "Suspicious"):
+            weights["Harm"] = weights.get("Harm", 0.0) + CONFIDENCE_EMBOLDEN_WEIGHT
+            weights["Steal"] = weights.get("Steal", 0.0) + CONFIDENCE_EMBOLDEN_WEIGHT
+        elif cb in ("Favorable", "Beloved"):
+            weights["Harm"] = weights.get("Harm", 0.0) - CONFIDENCE_COOP_WEIGHT
+            weights["Steal"] = weights.get("Steal", 0.0) - CONFIDENCE_COOP_WEIGHT
 
     if faction.health < 30:
         weights["Protect"] = weights.get("Protect", 0.0) + 20
