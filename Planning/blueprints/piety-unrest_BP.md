@@ -118,3 +118,5 @@ modifier scales only negative support deltas; (b) unrest's asymmetric memory (ri
 and the Guard lever (suppress without touching the cause, heavy-handed support cost); (c)
 public-targeted event effects clamp and the two flagships gate + fire correctly; (d) piety settles
 before unrest reads its band. Stamp this blueprint; report to `output/inspect/`.
+
+✅ Inspector: PASS — 2026-06-16 — piety+unrest verified (crisis-blame negative-only, unrest asymmetric memory + Guard symptom-suppression, public-targeted events, piety-before-unrest ordering); 507 green; one support-clamp nit fixed on the spot.

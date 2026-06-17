@@ -294,9 +294,10 @@ def _apply_single_event_effect(
 
     if tid == "the_public" and public is not None and eff.field in _PUBLIC_EFFECT_FIELDS:
         # Events can finally touch the Public (events_spec 2026-06-16): clamp-apply a scale delta.
-        lo = -50 if eff.field == "support" else 0
+        # support is the only -50..+50 scale; the rest are 0..100.
+        lo, hi = (-50, 50) if eff.field == "support" else (0, 100)
         cur = getattr(public, eff.field)
-        setattr(public, eff.field, max(lo, min(100, cur + int(eff.value))))
+        setattr(public, eff.field, max(lo, min(hi, cur + int(eff.value))))
         return
 
     if tid in factions:

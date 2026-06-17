@@ -36,6 +36,12 @@ class TestPublicTargetedEffect:
         process_active_events([ev], {}, {}, WorldState(), public=p)
         assert p.support == -50  # clamps at the support floor, not 0
 
+    def test_support_ceiling_plus_50(self):
+        p = ThePublic(support=45)
+        ev = mk_event("x", [EventEffect(field="support", target_id="the_public", value=20, label="x")])
+        process_active_events([ev], {}, {}, WorldState(), public=p)
+        assert p.support == 50  # support tops out at +50, not 100
+
     def test_no_public_is_safe(self):
         ev = mk_event("x", [EventEffect(field="piety", target_id="the_public", value=-5, label="x")])
         # public=None → the effect is simply skipped, no crash
