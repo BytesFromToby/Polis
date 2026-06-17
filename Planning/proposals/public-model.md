@@ -1,10 +1,14 @@
 # Proposal: The Public — state model, scales, and crisis events
 
 **Date:** 2026-06-14
-**Status:** PROPOSAL — incubating, design intent only (nothing built beyond shipped
-`public-needs_spec.md`). The Public outgrew being a subsection of `resource-chains.md`; this is
-its home. Companions: `resource-chains.md` (production/sinks) and `faction-resource-map.md`
-(the temples that produce/interpret piety).
+**Status:** PARTIALLY SHIPPED. Layer-1 needs fed/happy/health shipped (barley/fish/flocks);
+**piety + unrest shipped 2026-06-16** (`public-needs_spec.md` Features: Piety/Unrest, the City
+Guard lever, 2 flagship events, public-targeted event effects; decision
+`decisions/2026-06-16-piety-unrest.md`). **Still proposal-only:** consumption (the alcohol
+balance-axis), confidence's band-consequences (the axis itself is the existing `support`), the two
+Public→production wires, and the richer extreme-event deck. The Public outgrew being a subsection
+of `resource-chains.md`; this is its home. Companions: `resource-chains.md` (production/sinks),
+`food-supply_spec.md` (the food chains), `faction-resource-map.md` (the temples).
 
 ## Belief is the mechanic; the gods are not
 
