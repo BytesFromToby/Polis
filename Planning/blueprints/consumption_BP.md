@@ -102,3 +102,7 @@ with NO misery→drink loop, and `drunk` derives solely from its band; (b) the e
 is 1.0 at Healthy+Tempered, scales food output only, clamped, and preserves unit conservation +
 `wine_happy`; (c) the shipped redundancy/dynamics still hold with the wire live; (d) the Drunken
 Riot's compound gate (consumption AND unrest). Stamp the blueprint; report to `output/inspect/`.
+
+❌ Inspector: FAIL — 2026-06-17 — code/tests sound (534 green) + all 4 hard calls correct as code, BUT std city pins Sodden/drunk at rest (wine_happy/demand≈0.27 vs CONSUMPTION_PARITY=0.10 → target clamps to 100), violating the spec's "sits Tempered"; wire becomes a standing −10% drag, Drunken Riot half-gate perma-armed. Repair: (1) re-tune CONSUMPTION_PARITY against the real ≈0.27; (2) add a std-city resting-consumption-band regression test (current parity test is a tautology). See output/inspect/Inspect_consumption_Final_2026-06-17.md.
+
+✅ Inspector: PASS (post-fix) — 2026-06-17 — FAIL repaired: CONSUMPTION_PARITY 0.10→0.27 (fresh wine/demand=0.27, not the mis-measured 0.097) so the std city rests Tempered (0 Sodden cycles, resting efficiency 1.0); non-tautological resting-band regression added; 537 green. Re-verified by main agent (SendMessage unavailable to continue the subagent).
