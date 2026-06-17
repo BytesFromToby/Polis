@@ -362,7 +362,8 @@ class ThePublic:
     happy: int = 50            # 0-100; the people's mood (public-needs_spec)
     piety: int = 50            # 0-100; belief the city stands well with the heavens (public-needs_spec)
     unrest: int = 10           # 0-100; aggregate civic pressure, low is good (public-needs_spec)
-    drunk: bool = False        # display cache of the chain's drunk flag — derived each cycle, never drifted
+    consumption: int = 45      # 0-100; alcohol, mid is good — both ends bite (public-needs_spec)
+    drunk: bool = False        # derived from the consumption band (Tipsy/Sodden) each needs step
 
     def derive_disposition(self) -> str:
         if self.support >= 20:   return "content"

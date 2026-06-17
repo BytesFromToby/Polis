@@ -22,7 +22,7 @@ def temple(fid, rating=3.0):
 
 
 def out_with(**kw):
-    base = dict(fed_target=60.0, happy_target=50.0, drunk=False, raw=0.0, units={})
+    base = dict(fed_target=60.0, happy_target=50.0, wine_happy=0.0, raw=0.0, units={})
     base.update(kw)
     return ChainOutput(**base)
 
@@ -40,8 +40,10 @@ class TestPressureTarget:
 
 class TestAsymmetricMemory:
     def test_rises_by_drift_step(self):
+        # Starving + Godless + support −50 ≥ 70 of target — well above unrest 0, so it rises fast.
+        # (Drunkenness now comes from the consumption band, not the chain output.)
         p = ThePublic(unrest=0, fed=10, happy=60, piety=10, support=-50)
-        apply_needs(p, out_with(fed_target=0.0, happy_target=60.0, drunk=True), factions=None)
+        apply_needs(p, out_with(fed_target=0.0, happy_target=60.0), factions=None)
         assert p.unrest == DRIFT_STEP  # high target, rises fast
 
     def test_eases_slowly(self):

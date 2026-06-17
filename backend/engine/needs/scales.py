@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import Dict, TYPE_CHECKING
 
 from .chain import TOIL_MULT
-from .bands import piety_band, fed_band
+from .bands import piety_band, fed_band, consumption_band
 
 if TYPE_CHECKING:
     from engine.models import Faction, ThePublic
@@ -85,3 +85,23 @@ def unrest_target(public: "ThePublic") -> float:
         pressure += UNREST_DRUNK
 
     return max(0.0, min(100.0, pressure))
+
+
+# ── Consumption ────────────────────────────────────────────────────────────────
+# wine_happy/demand at CONSUMPTION_PARITY maps to the Tempered midpoint (50). Tuned so the
+# standard city sits Tempered (measured wine_happy/demand ≈ 0.097 at the std roster).
+CONSUMPTION_PARITY = 0.10
+CONSUMPTION_DRY_HEALTH = -2   # health/cycle while Dry (too little wine → raw water → illness)
+
+
+def consumption_target(wine_happy: float, population: int) -> float:
+    """Driven by wine supply only (no misery→drink feedback — the doom-loop governor).
+    wine/demand at CONSUMPTION_PARITY → 50 (Tempered); twice that → 100 (Sodden)."""
+    demand = population / 1000.0
+    if demand <= 0:
+        return 0.0
+    return max(0.0, min(100.0, 50.0 * (wine_happy / demand) / CONSUMPTION_PARITY))
+
+
+def is_drunk(consumption: int) -> bool:
+    return consumption_band(consumption) in ("Tipsy", "Sodden")

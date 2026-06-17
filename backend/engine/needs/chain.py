@@ -16,7 +16,6 @@ if TYPE_CHECKING:
 TOIL_MULT = 1.5              # contribution multiplier while toiling
 PARITY_TARGET = 75           # supply == demand sits at the Fed/Well-fed boundary
 BASE_HAPPY = 30              # happy target with zero happy supply
-DRUNK_THRESHOLD = 0.25       # wine happy contribution per demand ≥ this → drunk
 POP_PER_SUPPLY_UNIT = 1000   # 1 supply unit feeds 1000 people
 
 
@@ -24,7 +23,7 @@ POP_PER_SUPPLY_UNIT = 1000   # 1 supply unit feeds 1000 people
 class ChainOutput:
     fed_target: float = 100.0
     happy_target: float = 100.0
-    drunk: bool = False
+    wine_happy: float = 0.0   # wine's happiness contribution (pre-efficiency) — drives consumption
     raw: float = 0.0
     units: Dict[str, float] = field(default_factory=dict)   # label → units processed
 
@@ -115,12 +114,11 @@ def compute_chain(
 
     fed_target = min(100.0, PARITY_TARGET * fed_supply / demand)
     happy_target = max(0.0, min(100.0, BASE_HAPPY + PARITY_TARGET * happy_supply / demand))
-    drunk = (wine_happy / demand) >= DRUNK_THRESHOLD
 
     return ChainOutput(
         fed_target=fed_target,
         happy_target=happy_target,
-        drunk=drunk,
+        wine_happy=wine_happy,
         raw=total_raw,
         units=units,
     )

@@ -14,7 +14,9 @@ from .chain import ChainOutput
 from .scales import (
     piety_target, blame_factor, ZEALOT_SUPPORT_TAX,
     unrest_target, UNREST_EASE, GUARD_SUPPRESS, GUARD_HEAVY_THRESHOLD, GUARD_HEAVY_SUPPORT,
+    consumption_target, is_drunk, CONSUMPTION_DRY_HEALTH,
 )
+from .bands import consumption_band
 
 if TYPE_CHECKING:
     from engine.models import ThePublic, Mayor, Faction
@@ -65,7 +67,6 @@ def apply_needs(
 
     public.fed = max(0, min(100, _drift_toward(public.fed, out.fed_target)))
     public.happy = max(0, min(100, _drift_toward(public.happy, out.happy_target)))
-    public.drunk = out.drunk   # display cache — derived, never drifted
 
     new_fed_word = fed_band(public.fed)
     new_happy_word = happy_band(public.happy)
@@ -94,6 +95,14 @@ def apply_needs(
         public.piety = max(0, min(100, _drift_toward(public.piety, piety_target(factions, public.population))))
         if piety_band(public.piety) == "Zealous":
             _apply_support(public, ZEALOT_SUPPORT_TAX, mayor)
+
+    # Consumption — wine-driven (no misery→drink loop). Drift toward target, then derive `drunk`
+    # from the band and apply the Dry bad-water health drain. Settles before unrest reads `drunk`.
+    public.consumption = max(0, min(100, _drift_toward(public.consumption,
+                                                       consumption_target(out.wine_happy, public.population))))
+    public.drunk = is_drunk(public.consumption)
+    if consumption_band(public.consumption) == "Dry":
+        public.health = max(0, min(100, public.health + CONSUMPTION_DRY_HEALTH))
 
     # Unrest — the pressure aggregate (reads the just-settled piety band). Asymmetric memory:
     # rises toward a higher target fast, eases toward a lower one slowly.

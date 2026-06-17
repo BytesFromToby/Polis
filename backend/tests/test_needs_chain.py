@@ -7,7 +7,7 @@ import copy
 
 from engine.models import Faction, Leader
 from engine.needs.chain import (
-    TOIL_MULT, PARITY_TARGET, POP_PER_SUPPLY_UNIT, DRUNK_THRESHOLD,
+    TOIL_MULT, PARITY_TARGET, POP_PER_SUPPLY_UNIT,
     ChainOutput, chain_role_faction_ids, compute_chain,
 )
 from loaders import load_chains
@@ -123,15 +123,14 @@ class TestPorridgeFloor:
         assert out.fed_target > 0
 
 
-class TestDrunkThreshold:
-    def test_flips_across_the_boundary(self):
-        # drunk = wine_happy / demand >= DRUNK_THRESHOLD; boundary computed from live wine output
+class TestWineHappy:
+    def test_chain_reports_wine_happy(self):
+        # The chain reports wine's happiness contribution (pre-efficiency); the consumption scale
+        # consumes it (drunk now derives from the consumption band — see test_consumption.py).
         factions = mk_city()
-        wine_units = compute_chain(factions, 20000, CHAINS).units["wine"]
-        wine_happy = wine_units * WINE_HPU
-        boundary_pop = int(wine_happy / DRUNK_THRESHOLD * POP_PER_SUPPLY_UNIT)
-        assert compute_chain(factions, boundary_pop - 1000, CHAINS).drunk
-        assert not compute_chain(factions, boundary_pop + 1000, CHAINS).drunk
+        out = compute_chain(factions, 20000, CHAINS)
+        assert out.wine_happy == out.units["wine"] * WINE_HPU
+        assert out.wine_happy > 0
 
 
 class TestToil:

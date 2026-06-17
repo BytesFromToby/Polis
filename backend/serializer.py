@@ -195,7 +195,8 @@ def deserialize_cycle_event(d: dict) -> CycleEvent:
 # ── The Public serializers (public-needs_spec) ────────────────────────────────
 
 def serialize_the_public(p: ThePublic) -> dict:
-    from engine.needs.bands import fed_band, happy_band, piety_band, unrest_band, is_sickly
+    from engine.needs.bands import (fed_band, happy_band, piety_band, unrest_band,
+                                    consumption_band, is_sickly)
     return {
         "support": p.support,
         "disposition": p.disposition,
@@ -206,12 +207,14 @@ def serialize_the_public(p: ThePublic) -> dict:
         "happy": p.happy,
         "piety": p.piety,
         "unrest": p.unrest,
+        "consumption": p.consumption,
         "drunk": p.drunk,
         # Derived display keys (band tables in public-needs_spec) — ignored on deserialize
         "fed_band": fed_band(p.fed),
         "happy_band": happy_band(p.happy),
         "piety_band": piety_band(p.piety),
         "unrest_band": unrest_band(p.unrest),
+        "consumption_band": consumption_band(p.consumption),
         "sickly": is_sickly(p.health),
     }
 
@@ -227,6 +230,7 @@ def deserialize_the_public(d: dict) -> ThePublic:
         happy=d.get("happy", 50),
         piety=d.get("piety", 50),
         unrest=d.get("unrest", 10),
+        consumption=d.get("consumption", 45),
         drunk=d.get("drunk", False),
     )
 

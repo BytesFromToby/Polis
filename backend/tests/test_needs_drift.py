@@ -11,8 +11,8 @@ CHAINS = load_chains()
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 
 
-def out_with(fed_target=60.0, happy_target=50.0, drunk=False):
-    return ChainOutput(fed_target=fed_target, happy_target=happy_target, drunk=drunk)
+def out_with(fed_target=60.0, happy_target=50.0, wine_happy=0.0):
+    return ChainOutput(fed_target=fed_target, happy_target=happy_target, wine_happy=wine_happy)
 
 
 class TestDrift:

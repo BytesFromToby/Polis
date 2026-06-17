@@ -18,7 +18,7 @@ def temple(fid, rating):
 
 
 def out_with(**kw):
-    base = dict(fed_target=60.0, happy_target=50.0, drunk=False, raw=0.0, units={})
+    base = dict(fed_target=60.0, happy_target=50.0, wine_happy=0.0, raw=0.0, units={})
     base.update(kw)
     return ChainOutput(**base)
 

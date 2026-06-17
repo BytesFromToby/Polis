@@ -42,6 +42,14 @@ UNREST_BANDS: List[Tuple[int, str]] = [   # low is good
     (100, "Boiling"),
 ]
 
+CONSUMPTION_BANDS: List[Tuple[int, str]] = [   # mid is good (U-shaped) — both ends bite
+    (20, "Dry"),
+    (40, "Sober"),
+    (60, "Tempered"),
+    (80, "Tipsy"),
+    (100, "Sodden"),
+]
+
 SICKLY_THRESHOLD = 40   # health below this → the people are sickly
 
 
@@ -66,6 +74,10 @@ def piety_band(value: int) -> str:
 
 def unrest_band(value: int) -> str:
     return _band(value, UNREST_BANDS)
+
+
+def consumption_band(value: int) -> str:
+    return _band(value, CONSUMPTION_BANDS)
 
 
 def band_index(word: str, table: List[Tuple[int, str]]) -> int:

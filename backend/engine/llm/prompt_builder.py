@@ -275,9 +275,8 @@ class PromptBuilder:
         public_line = ""
         has_chain_role = False
         if public is not None:
-            from engine.needs import compute_chain, needs_line, chain_role_faction_ids
-            drunk = compute_chain(factions, public.population, chains or []).drunk
-            public_line = f"\nThe city: {needs_line(public, drunk)}\n"
+            from engine.needs import needs_line, chain_role_faction_ids
+            public_line = f"\nThe city: {needs_line(public, public.drunk)}\n"
             if chains:
                 has_chain_role = faction.id in chain_role_faction_ids(chains, factions)
 
