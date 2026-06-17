@@ -1,14 +1,16 @@
 # Proposal: The Public — state model, scales, and crisis events
 
 **Date:** 2026-06-14
-**Status:** PARTIALLY SHIPPED. Layer-1 needs fed/happy/health shipped (barley/fish/flocks);
-**piety + unrest shipped 2026-06-16** (`public-needs_spec.md` Features: Piety/Unrest, the City
-Guard lever, 2 flagship events, public-targeted event effects; decision
-`decisions/2026-06-16-piety-unrest.md`). **Still proposal-only:** consumption (the alcohol
-balance-axis), confidence's band-consequences (the axis itself is the existing `support`), the two
-Public→production wires, and the richer extreme-event deck. The Public outgrew being a subsection
-of `resource-chains.md`; this is its home. Companions: `resource-chains.md` (production/sinks),
-`food-supply_spec.md` (the food chains), `faction-resource-map.md` (the temples).
+**Status:** SUBSTANTIALLY SHIPPED — six of seven scales live. fed/happy/health (barley/fish/flocks),
+**piety + unrest** (2026-06-16), and **consumption + both Public→production wires** (2026-06-17,
+`decisions/2026-06-16-consumption-and-production-wire.md`) are built. The **U-shaped consumption
+axis** subsumes the old `drunk` flag; the **efficiency multiplier** (health↑ / consumption↓) is the
+first two-way loop. **Still proposal-only:** confidence's band-consequences (the axis itself is the
+existing `support` — only its removal-spiral/acclamation effects remain), the misery→drink feedback
+(deferred behind a governor), the multiplier on non-food production, and the richer extreme-event
+deck (Witch-Hunt, Oracle's Demand, Insurrection, the Exodus). The Public outgrew being a subsection
+of `resource-chains.md`; this is its home. Companions: `resource-chains.md`, `food-supply_spec.md`,
+`faction-resource-map.md`.
 
 ## Belief is the mechanic; the gods are not
 
