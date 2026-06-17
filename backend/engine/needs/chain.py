@@ -50,8 +50,13 @@ def compute_chain(
     factions: Dict[str, "Faction"],
     population: int,
     chains: List[dict],
+    efficiency: float = 1.0,
 ) -> ChainOutput:
-    """Pure — reads faction levels and toiling/withholding flags, mutates nothing."""
+    """Pure — reads faction levels and toiling/withholding flags, mutates nothing.
+
+    `efficiency` is the Public→production multiplier (public-needs_spec): it scales the food the
+    people *get* (fed/happy supply), not raw production or `wine_happy` — so unit conservation and
+    the consumption driver are untouched. Defaults to 1.0 (byte-identical to no wire)."""
     fed_supply = 0.0
     happy_supply = 0.0
     wine_happy = 0.0
@@ -112,8 +117,9 @@ def compute_chain(
     if demand <= 0:
         return ChainOutput(raw=total_raw, units=units)
 
-    fed_target = min(100.0, PARITY_TARGET * fed_supply / demand)
-    happy_target = max(0.0, min(100.0, BASE_HAPPY + PARITY_TARGET * happy_supply / demand))
+    # The Public→production wire scales the food/joy the people *get* (not raw, not wine_happy).
+    fed_target = min(100.0, PARITY_TARGET * (fed_supply * efficiency) / demand)
+    happy_target = max(0.0, min(100.0, BASE_HAPPY + PARITY_TARGET * (happy_supply * efficiency) / demand))
 
     return ChainOutput(
         fed_target=fed_target,

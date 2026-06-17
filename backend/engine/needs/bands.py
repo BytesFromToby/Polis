@@ -50,6 +50,16 @@ CONSUMPTION_BANDS: List[Tuple[int, str]] = [   # mid is good (U-shaped) — both
     (100, "Sodden"),
 ]
 
+# Health gains a band table for the production wire (Robust/Thriving → output↑). The sickly
+# threshold (health < 40) still holds: Plague + Sickly are exactly the sub-40 bands.
+HEALTH_BANDS: List[Tuple[int, str]] = [
+    (20, "Plague"),
+    (40, "Sickly"),
+    (60, "Healthy"),
+    (80, "Robust"),
+    (100, "Thriving"),
+]
+
 SICKLY_THRESHOLD = 40   # health below this → the people are sickly
 
 
@@ -78,6 +88,10 @@ def unrest_band(value: int) -> str:
 
 def consumption_band(value: int) -> str:
     return _band(value, CONSUMPTION_BANDS)
+
+
+def health_band(value: int) -> str:
+    return _band(value, HEALTH_BANDS)
 
 
 def band_index(word: str, table: List[Tuple[int, str]]) -> int:

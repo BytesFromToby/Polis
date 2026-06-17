@@ -150,7 +150,9 @@ def run_cycle(
     # ── Item 5b: Public needs (public-needs_spec) ─────────────────────────────
     # Reads `toiling`/`withholding` flags (the latter just asserted by active events above).
     if public is not None:
-        needs_out = compute_chain(factions, public.population, chains)
+        from ..needs.scales import production_efficiency
+        needs_out = compute_chain(factions, public.population, chains,
+                                  efficiency=production_efficiency(public))
         guard_paid = treasury.guard_paid_this_cycle if treasury is not None else True
         all_results.extend(apply_needs(public, needs_out, factions=factions, mayor=mayor,
                                        guard_paid=guard_paid))

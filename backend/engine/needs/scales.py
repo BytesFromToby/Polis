@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import Dict, TYPE_CHECKING
 
 from .chain import TOIL_MULT
-from .bands import piety_band, fed_band, consumption_band
+from .bands import piety_band, fed_band, consumption_band, health_band
 
 if TYPE_CHECKING:
     from engine.models import Faction, ThePublic
@@ -105,3 +105,21 @@ def consumption_target(wine_happy: float, population: int) -> float:
 
 def is_drunk(consumption: int) -> bool:
     return consumption_band(consumption) in ("Tipsy", "Sodden")
+
+
+# ── The Public→production wire ───────────────────────────────────────────────────
+# One global efficiency multiplier on food output, read from the Public's current bands.
+# Deliberately small: a nudge, not a regime change (the shipped redundancy/dynamics still hold).
+HEALTH_OUTPUT = 0.05       # Robust +1×, Thriving +2× — a hale workforce produces more
+CONSUMPTION_OUTPUT = 0.10  # Tipsy −1×, Sodden −2× — a drunk city does less work
+EFF_MIN, EFF_MAX = 0.5, 1.25
+
+_HEALTH_BONUS = {"Robust": 1, "Thriving": 2}
+_CONSUMPTION_PENALTY = {"Tipsy": 1, "Sodden": 2}
+
+
+def production_efficiency(public: "ThePublic") -> float:
+    """1.0 at Healthy+Tempered; health Robust/Thriving lift it, consumption Tipsy/Sodden cut it."""
+    bonus = HEALTH_OUTPUT * _HEALTH_BONUS.get(health_band(public.health), 0)
+    penalty = CONSUMPTION_OUTPUT * _CONSUMPTION_PENALTY.get(consumption_band(public.consumption), 0)
+    return max(EFF_MIN, min(EFF_MAX, 1.0 + bonus - penalty))
