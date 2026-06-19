@@ -122,3 +122,5 @@ four regions; pottery palette + meander/zigzag chrome; oxblood only on conflict;
 present; AP pips between Spent and buttons; Menu/Run Cycle/glaze toggle; Active Events from live
 state in oxblood/terra). Verify the two `[automated]` items (`npm run build` exit 0; the active-events
 serializer test + full suite). Stamp the blueprint; report + screenshots to `output/inspect/`.
+
+✅ Inspector: PASS — 2026-06-17 — live preview (real game, both themes): pottery quadrant faithful to the v6 mockup; seven People scales surface; AP pips between Spent & buttons; no Standing/World; Active/Chronicle band (2 dramatic beats oxblood-ruled); two-glaze toggle inverts cleanly; npm build green; active-events serializer + 556 backend green. Residuals: live oxblood disaster card unobserved (covered by test), full-log view deferred.
