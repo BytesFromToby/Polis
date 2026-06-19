@@ -20,12 +20,15 @@ before speccing.
   Cinzel/Spectral type + the two-glaze theme toggle), per `../reference/ui-art-direction.md`;
   relayout `GameView` into the quadrant; rebuild the **Mayor command panel** (Treasury + Action
   Points + Take Action / Hold Audience, and the seven-scale **People** readout as a co-header;
-  **drop** the Standing and World blocks from this panel); add an **Active Events** panel sourced
-  from the live event deck beside the Chronicle; add the command bar (logotype, Run Cycle, glaze
-  toggle, Menu → settings/home).
-- Does NOT: change engine/simulation behaviour or add backend endpoints (consumes the existing
-  `/state`, `/mayor`, `/treasury`, `/projects`, `/logs`, `/mayor/act`, and the active-events the
-  state already serialises); change the audience negotiation flow or Mayor-confirm (those are
+  **drop** the Standing and World blocks from this panel); add an **Active Events** panel beside
+  the Chronicle; add the command bar (logotype, Run Cycle, glaze toggle, Menu → settings/home).
+- Does (small backend addition): **serialize the live `active_events` into the `/state` payload**.
+  The session holds them (`api/sessions.py`) but `serialize_state` omits them (a known v1 gap), so
+  the Active Events panel needs a `GameEvent` serializer (id, name, `cycles_remaining`, target, a
+  disaster/boon flag) folded into the state snapshot. No new endpoint; no engine change.
+- Does NOT: change engine/simulation behaviour or add backend **endpoints** (consumes the existing
+  `/state`, `/mayor`, `/treasury`, `/projects`, `/logs`, `/mayor/act`); change the audience
+  negotiation flow or Mayor-confirm (those are
   `audience_spec.md`); build the per-domain silhouette **emblems** or the **LLM-chronicler**
   in-character summaries (both deferred — the Highlight uses the existing dramatic-beat narrative);
   guarantee light (black-figure) mode polish — dark ships first, light follows.
@@ -171,8 +174,9 @@ A wide band split into two registers:
 - A disaster/conflict active event is marked in oxblood; a boon/festival in terracotta  `[human-required]`
 - The Chronicle register shows the recent highlight narratives newest-first, with Breaks/betrayals
   in oxblood  `[human-required]`
-- The active-events list the panel renders comes from the serialised game state, not a client-side
-  invention  `[automated]`
+- The `/state` snapshot serialises `active_events` — each carrying `name`, `cycles_remaining`,
+  target, and a disaster/boon flag — so the panel renders live events, not a client-side invention
+  (`tests/test_state_active_events.py`)  `[automated]`
 
 ---
 
