@@ -83,7 +83,7 @@ def get_state(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     session = _get_or_restore_session(user_id, db)
     return serialize_state(session.world, session.factions, session.domains,
-                           public=session.public)
+                           public=session.public, active_events=session.active_events)
 
 
 @router.get("/factions")

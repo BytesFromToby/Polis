@@ -165,20 +165,34 @@
         </div>
 
         <div class="center-log">
-          <div class="panel-title">Event Log</div>
-          <div class="log-scroll">
-            <div v-for="entry in logsNewestFirst" :key="entry.cycle" class="log-cycle">
-              <div class="log-cycle-header">Cycle {{ entry.cycle }}</div>
-              <div v-for="(ev, i) in entry.events" :key="i"
-                   class="log-event"
-                   :class="{ dramatic: ev.dramatic }">
-                {{ ev.narrative }}
+          <div class="events-band">
+
+            <!-- Active Events -->
+            <div class="active-col">
+              <div class="panel-title">Active</div>
+              <div v-if="activeEvents.length" class="active-list">
+                <div v-for="ev in activeEvents" :key="ev.id" class="active-card" :class="'kind-' + ev.kind">
+                  <span class="active-name">{{ ev.name }}</span>
+                  <span class="active-cy muted">{{ ev.cycles_remaining }} cy</span>
+                </div>
               </div>
-              <div v-if="!entry.events.length" class="muted log-event">No events this cycle.</div>
+              <div v-else class="muted calm">The city is calm.</div>
             </div>
-            <div v-if="!logs.length" class="muted" style="padding:0.5rem; font-size:0.85rem">
-              Run a cycle to see events.
+
+            <!-- The Chronicle -->
+            <div class="chronicle-col">
+              <div class="panel-title">The Chronicle</div>
+              <div class="log-scroll">
+                <div v-for="(ev, i) in recentEvents" :key="i"
+                     class="frieze-row" :class="{ dramatic: ev.dramatic }">
+                  {{ ev.narrative }}
+                </div>
+                <div v-if="!recentEvents.length" class="muted" style="padding:0.5rem; font-size:0.85rem">
+                  Run a cycle to see deeds.
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
 
@@ -348,6 +362,18 @@ export default {
     },
     logsNewestFirst() {
       return [...this.logs].reverse()
+    },
+    activeEvents() {
+      return this.snapshot?.active_events || []
+    },
+    recentEvents() {
+      // Flatten the log newest-first into a frieze of recent deeds (dramatic beats highlighted).
+      const out = []
+      for (const entry of this.logsNewestFirst) {
+        for (const ev of entry.events || []) out.push(ev)
+        if (out.length >= 14) break
+      }
+      return out.slice(0, 14)
     },
     chaosDisplay() {
       if (!this.world?.chaos) return '—'
@@ -843,6 +869,47 @@ export default {
 .log-event.dramatic {
   color: var(--accent2);
 }
+
+/* Active Events & Chronicle band */
+.events-band {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 0.8rem;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.active-col, .chronicle-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.active-col { border-right: 1px solid var(--border); padding-right: 0.8rem; }
+.active-list { display: flex; flex-direction: column; gap: 0.4rem; overflow-y: auto; }
+.active-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--glaze-row);
+  border-left: 3px solid var(--accent-weak);
+  padding: 0.4rem 0.5rem;
+  font-size: 0.82rem;
+}
+.active-card.kind-disaster { border-left-color: var(--danger); }
+.active-card.kind-boon     { border-left-color: var(--accent); }
+.active-name { font-weight: 500; color: var(--text); }
+.active-cy { font-size: 0.72rem; }
+.calm { font-style: italic; font-size: 0.82rem; padding: 0.4rem 0; }
+.frieze-row {
+  font-size: 0.82rem;
+  padding: 0.22rem 0;
+  line-height: 1.4;
+  color: var(--muted);
+  border-bottom: 1px solid rgba(58,36,23,0.5);
+}
+.frieze-row.dramatic { color: var(--text); border-left: 3px solid var(--danger); padding-left: 0.5rem; }
 
 /* Mayor panel */
 .mayor-section {

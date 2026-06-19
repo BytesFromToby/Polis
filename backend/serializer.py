@@ -438,6 +438,32 @@ def deserialize_base_stack(d: dict):
 
 # ── Full state snapshot ───────────────────────────────────────────────────────
 
+def _event_kind(ev) -> str:
+    """Classify a live event for UI colouring: disaster (oxblood) | boon (terracotta) | neutral."""
+    effs = getattr(ev, "effects", []) or []
+    for e in effs:
+        f, v = getattr(e, "field", ""), (getattr(e, "value", 0) or 0)
+        if f == "withhold" or (f == "chaos" and v > 0) or \
+           (f in ("health", "rating", "support", "fed", "happy", "piety") and v < 0):
+            return "disaster"
+    for e in effs:
+        f, v = getattr(e, "field", ""), (getattr(e, "value", 0) or 0)
+        if f in ("support", "fed", "happy", "piety", "health") and v > 0:
+            return "boon"
+    return "neutral"
+
+
+def serialize_game_event(ev) -> dict:
+    """A live GameEvent for the Active Events panel (game-ui_spec)."""
+    return {
+        "id": getattr(ev, "id", ""),
+        "name": getattr(ev, "name", ""),
+        "cycles_remaining": getattr(ev, "cycles_remaining", 0),
+        "target_id": getattr(ev, "target_id", None),
+        "kind": _event_kind(ev),
+    }
+
+
 def serialize_state(
     world: WorldState,
     factions: Dict[str, Faction],
@@ -447,6 +473,7 @@ def serialize_state(
     projects: Optional[Dict[str, Project]] = None,
     base_stacks: Optional[dict] = None,
     public: Optional[ThePublic] = None,
+    active_events: Optional[list] = None,
 ) -> dict:
     data = {
         "world": serialize_world_state(world),
@@ -463,6 +490,8 @@ def serialize_state(
         data["projects"] = {pid: serialize_project(p) for pid, p in projects.items()}
     if base_stacks is not None:
         data["base_stacks"] = {did: serialize_base_stack(s) for did, s in base_stacks.items()}
+    if active_events:
+        data["active_events"] = [serialize_game_event(e) for e in active_events]
     return data
 
 
