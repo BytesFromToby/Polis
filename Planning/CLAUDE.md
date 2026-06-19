@@ -31,7 +31,7 @@ Read top-down within a group; `cycle-runner` is the entry point.
 
 **World & content**
 - [special-factions](specs/special-factions_spec.md) — The Public, moneylender, external threats
-- [public-needs](specs/public-needs_spec.md) — the Public's state & scales: population + fed/happy/health, word bands, drift toward supply targets, shortage/plenty consequences, the needs cycle step (piety/unrest scales pending)
+- [public-needs](specs/public-needs_spec.md) — the Public's state & all seven scales: population + fed/happy/health/piety/unrest/consumption/confidence, word bands, drift, the City-Guard lever, the Public→production wire, shortage/plenty + band consequences, the needs cycle step
 - [food-supply](specs/food-supply_spec.md) — the Food production chains (harvest/fishery/pastoral) + the `compute_chain` pure function; Toil ×1.5 / Withhold ×0 modifiers. Feeds targets to public-needs
 - [events](specs/events_spec.md) — timed pressure sequences injected into the faction system
 

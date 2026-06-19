@@ -5,6 +5,7 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
+import engine.npc.behavior as behavior
 from engine.models import Faction, Domain, WorldState, FactionTrait, Leader
 from engine.cycle import run_cycle
 
@@ -57,7 +58,22 @@ class TestRunCycle:
     def test_faction_actions_counted(self):
         world, factions, domains = make_minimal_world()
         result = run_cycle(world, factions, domains)
-        assert result.faction_actions >= 0
+        # bounded by the live roster (was a vacuous `>= 0`)
+        assert 0 <= result.faction_actions <= len(factions)
+
+    def test_faction_actions_excludes_skip(self, monkeypatch):
+        """cycle-runner Done-when: the faction_actions count excludes Skip. Force every faction
+        to Skip (the skip roll fires when random() < SKIP_CHANCE) → the count must be 0."""
+        world, factions, domains = make_minimal_world()
+        monkeypatch.setattr(behavior.random, "random", lambda: 0.0)  # always below SKIP_CHANCE
+        result = run_cycle(world, factions, domains)
+        assert result.faction_actions == 0
+
+    def test_faction_actions_counts_actors_when_none_skip(self, monkeypatch):
+        world, factions, domains = make_minimal_world()
+        monkeypatch.setattr(behavior.random, "random", lambda: 0.99)  # never skip
+        result = run_cycle(world, factions, domains)
+        assert result.faction_actions >= 1  # the actors that acted are counted
 
     def test_multiple_cycles_run(self):
         world, factions, domains = make_minimal_world()
@@ -67,8 +83,20 @@ class TestRunCycle:
         assert world.cycle == 5
 
     def test_domain_utilization_recalculated(self):
+        """cycle-runner Done-when: utilization = Σ level over the domain's live factions (was a
+        vacuous `>= 0`). Utilization is recomputed at the top of run_cycle from the *entering*
+        levels, so the expected sum is snapshotted before the call."""
+        world, factions, domains = make_minimal_world()
+        expected = sum(max(0, f.level) for f in factions.values()
+                       if f.domain_primary == "political")
+        assert expected == 3  # faction_a level 2 + faction_b level 1
+        run_cycle(world, factions, domains)
+        assert domains["political"].utilization == expected
+
+    def test_utilization_has_no_stale_carryover(self):
+        # a domain whose only faction left has utilization 0 (recomputed, not carried)
         world, factions, domains = make_minimal_world()
         run_cycle(world, factions, domains)
-        # political domain has 2 factions; utilization should be > 0
-        # (factions at floor 2 = weight 2 each)
-        assert domains["political"].utilization >= 0
+        factions.pop("faction_c")  # the sole 'street' faction
+        run_cycle(world, factions, domains)
+        assert domains["street"].utilization == 0
