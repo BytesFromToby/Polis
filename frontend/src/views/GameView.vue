@@ -120,68 +120,47 @@
       <div class="main-col">
 
         <div class="mayor-window">
-          <div class="mayor-window-head">
-            <span class="panel-title" style="margin:0">Mayor</span>
-            <div class="mayor-actions-bar">
-              <button class="btn-primary btn-sm" :disabled="!mayorData" @click="openStandaloneAudience">Request Audience ▸</button>
-              <button class="btn-subtle btn-sm" :disabled="!mayorData" @click="showMayorModal = true">Actions ▸</button>
-            </div>
-          </div>
+          <div class="mayor-two-col">
 
-          <div class="mayor-grid">
-            <!-- Treasury -->
-            <div class="mayor-section">
+            <!-- LEFT: Mayor title · Treasury · Action Points · buttons -->
+            <div class="mayor-left">
+              <div class="cinzel-title">Mayor &mdash; the Prytanis</div>
               <div class="mayor-section-label">Treasury</div>
-              <div v-if="treas" style="font-size:0.82rem">
+              <div v-if="treas" class="mayor-mini">
                 <div class="info-row"><span class="muted">Gold</span><span class="accent bold">{{ treas.gold }}</span></div>
                 <div class="info-row"><span class="muted">Income</span><span class="green">+{{ treas.income_this_cycle }}</span></div>
                 <div class="info-row"><span class="muted">Spent</span><span class="danger">-{{ treas.expenditure_this_cycle }}</span></div>
                 <div class="info-row" v-if="treas.debt > 0"><span class="muted">Debt</span><span class="danger">{{ treas.debt }}</span></div>
-                <div class="info-row" v-if="treas.invested > 0"><span class="muted">Invested</span><span>{{ treas.invested }} ({{ treas.invest_cycles_remaining }}cy)</span></div>
-                <div class="info-row"><span class="muted">Max Tax</span><span>{{ (treas.max_tax_rate * 100).toFixed(0) }}%</span></div>
+              </div>
+              <div v-else class="muted mayor-stub">—</div>
+              <div v-if="mayorData" class="ap-row">
+                <span class="mayor-section-label" style="margin:0">Action Points</span>
+                <span class="ap-pips">
+                  <span v-for="n in mayorData.action_cap" :key="n"
+                        :class="['pip', n <= mayorData.action_points ? 'pip-on' : 'pip-off']">&#9670;</span>
+                </span>
+              </div>
+              <div class="mayor-buttons">
+                <button class="btn-primary btn-sm" :disabled="!mayorData" @click="showMayorModal = true">Take Action</button>
+                <button class="btn-subtle btn-sm" :disabled="!mayorData" @click="openStandaloneAudience">Audience</button>
+              </div>
+            </div>
+
+            <!-- RIGHT: The People co-header + the seven scales -->
+            <div class="mayor-right">
+              <div class="cinzel-title">The People<span v-if="pub"> &middot; {{ pub.population.toLocaleString() }}</span></div>
+              <div v-if="pub" class="mayor-mini">
+                <div class="info-row"><span class="muted">Fed</span><span :class="bandClass(pub.fed_band)">{{ pub.fed_band }}</span></div>
+                <div class="info-row"><span class="muted">Mood</span><span :class="bandClass(pub.happy_band)">{{ pub.happy_band }}{{ pub.drunk ? ' · drunk' : '' }}</span></div>
+                <div class="info-row"><span class="muted">Health</span><span :class="pub.sickly ? 'danger' : ''">{{ pub.health }}{{ pub.sickly ? ' · sickly' : '' }}</span></div>
+                <div class="info-row"><span class="muted">Piety</span><span :class="bandClass(pub.piety_band)">{{ pub.piety_band }}</span></div>
+                <div class="info-row"><span class="muted">Unrest</span><span :class="bandClass(pub.unrest_band)">{{ pub.unrest_band }}</span></div>
+                <div class="info-row"><span class="muted">Drink</span><span :class="bandClass(pub.consumption_band)">{{ pub.consumption_band }}</span></div>
+                <div class="info-row"><span class="muted">Confidence</span><span :class="bandClass(pub.confidence_band)">{{ pub.confidence_band }}</span></div>
               </div>
               <div v-else class="muted mayor-stub">—</div>
             </div>
 
-            <!-- Standing: AP + reputation -->
-            <div class="mayor-section">
-              <div class="mayor-section-label">Standing</div>
-              <div v-if="mayorData" style="font-size:0.82rem">
-                <div class="info-row">
-                  <span class="muted">AP</span>
-                  <span>{{ mayorData.action_points }} / {{ mayorData.action_cap }}</span>
-                </div>
-                <div v-for="(score, fid) in topReputation" :key="fid" class="info-row">
-                  <span class="muted" style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ fid }}</span>
-                  <span :class="repColor(score)">{{ score > 0 ? '+' : '' }}{{ score }}</span>
-                </div>
-                <div v-if="Object.keys(mayorData.exemptions).length" style="margin-top:0.3rem;font-size:0.78rem;color:var(--muted)">
-                  Exempt: {{ Object.keys(mayorData.exemptions).join(', ') }}
-                </div>
-              </div>
-              <div v-else class="muted mayor-stub">—</div>
-            </div>
-
-            <!-- World -->
-            <div class="mayor-section">
-              <div class="mayor-section-label">World</div>
-              <div v-if="world" style="font-size:0.82rem">
-                <div>Chaos: <span class="accent">{{ chaosDisplay }}</span></div>
-              </div>
-              <div v-else class="muted mayor-stub">—</div>
-            </div>
-
-            <!-- The People (public-needs) -->
-            <div class="mayor-section">
-              <div class="mayor-section-label">The People</div>
-              <div v-if="pub" style="font-size:0.82rem">
-                <div class="info-row"><span class="muted">Population</span><span class="accent bold">{{ pub.population.toLocaleString() }}</span></div>
-                <div class="info-row"><span class="muted">Fed</span><span :class="needBandColor(pub.fed)">{{ pub.fed_band }}</span></div>
-                <div class="info-row"><span class="muted">Mood</span><span :class="needBandColor(pub.happy)">{{ pub.happy_band }}{{ pub.drunk ? ' (drunk)' : '' }}</span></div>
-                <div class="info-row"><span class="muted">Health</span><span :class="pub.sickly ? 'danger' : ''">{{ pub.health }}{{ pub.sickly ? ' (sickly)' : '' }}</span></div>
-              </div>
-              <div v-else class="muted mayor-stub">—</div>
-            </div>
           </div>
         </div>
 
@@ -555,6 +534,15 @@ export default {
       if (value <= 45) return 'accent'
       return ''
     },
+    bandClass(band) {
+      // Colour a scale's band word: oxblood for danger, terracotta for notable, clay otherwise.
+      const danger = ['Starving', 'Miserable', 'Plague', 'Godless', 'Boiling', 'Sodden', 'Dry', 'Hostile']
+      const notable = ['Hungry', 'Sullen', 'Sickly', 'Lax', 'Agitated', 'Restless', 'Tipsy',
+                       'Suspicious', 'Zealous', 'Devout', 'Favorable', 'Beloved', 'Well fed', 'Festive']
+      if (danger.includes(band)) return 'danger'
+      if (notable.includes(band)) return 'accent'
+      return ''
+    },
   },
 }
 </script>
@@ -861,13 +849,45 @@ export default {
   margin-bottom: 1rem;
 }
 .mayor-section-label {
-  font-size: 0.72rem;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.12em;
+  margin: 0.4rem 0 0.2rem;
+}
+
+/* Mayor command panel (two columns) */
+.mayor-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  overflow: auto;
+}
+.mayor-left { border-right: 1px solid var(--border); padding-right: 0.9rem; }
+.cinzel-title {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--accent-strong);
   margin-bottom: 0.3rem;
 }
+.mayor-mini { font-size: 0.82rem; }
+.ap-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+}
+.ap-pips { letter-spacing: 2px; font-size: 0.95rem; }
+.pip-on  { color: var(--accent-strong); }
+.pip-off { color: var(--accent-weak); opacity: 0.5; }
+.mayor-buttons { display: flex; gap: 0.5rem; margin-top: 0.6rem; }
 .mayor-stub {
   font-size: 0.8rem;
   font-style: italic;
