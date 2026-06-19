@@ -4,25 +4,27 @@
 
 ![Polis — the game view](docs/InPlayScreenshots/Polis_Demo.gif)
 
-**Polis** simulates power struggles inside an ancient Greek city-state. Eight spheres of influence are contested by **41 factions** (noble houses, priesthoods, merchant guilds, generals, orators), each with embedded leadership and AI-driven personalities. You play the **Mayor** — historically the *Prytanis*, the city's presiding official, who cannot command, only negotiate.
+**Polis** simulates power struggles inside an ancient Greek city-state. Seven domains of influence are contested by **28 factions** (noble estates, priesthoods, port traders, craft guilds, the city watch and fleet), each with embedded leadership and personality-driven behavior. You play the **Mayor** — historically the *Prytanis*, the city's presiding official, who cannot command, only negotiate. And below the factions sits **the Public** — a living populace that eats, believes, drinks, and decides whether it trusts you.
 
 **The innovation:** Faction leaders bargain through live LLM audiences. The terms you settle aren't flavor text — they parse into structured `<deal>` blocks that the deterministic simulation engine enforces. Honored, broken, or ignored — consequences persist across cycles.
 
-## Current Status: Playable Alpha 🧪
+## Current Status: Playable Alpha 🧪 — `v0.3.0 "Demos"`
 
-**The core loop is complete and tested.** The simulation engine, treasury logic, mayor actions, live LLM negotiation audiences, and structured deal enforcement all run end-to-end.
+**The core loop and the living city are complete and tested.** The simulation engine, treasury logic, mayor actions, live LLM negotiation audiences, structured deal enforcement, and the full Public model all run end-to-end.
 
-- ✅ **Proven Mechanics:** 372 committed tests cover contest math, cycle order, events, and the LLM deal-parser.
-- ✅ **Stable Engine:** Runs deterministically with zero external dependencies (stub mode) or with live AI providers.
+- ✅ **Proven Mechanics:** 553 committed tests cover contest math, cycle order, events, the LLM deal-parser, and the entire Public/resource layer.
+- ✅ **A Living Public (`v0.3.0`):** the populace is now a real actor with **seven scales** — *fed, happy, health, piety, unrest, consumption, confidence* — each with its own drivers, word bands, and consequences. It eats from a redundant **food economy** (three sources: grain, fish, flocks), believes (temples produce *piety*; impiety amplifies the blame it heaps on you), drinks (a U-shaped *consumption* axis — both abstinence and excess bite), simmers (*unrest* aggregates pressure with memory; the City Guard suppresses the symptom, not the cause), and trusts or turns on you (*confidence*, which emboldens or restrains the factions).
+- ✅ **Levers & Pressure:** factions can **Toil** (work harder) or **Withhold** (strike), disasters can force-withhold a supply, and band-gated events fire at the extremes (bread riots, the wells sickening, a drunken riot, a removal coalition).
+- ✅ **Stable Engine:** Runs deterministically with zero external dependencies (stub mode) or with live AI providers; the full suite runs in ~2 seconds.
 - ⏳ **Thematic Implementation:** No final art, audio, or UI assets. Visuals rely on raw engine output; placeholder content remains throughout.
 - ⏳ **Content & Systems In Progress:**
-    - End-game victory/defeat conditions (bankruptcy, coalition, revolt loss)
-    - Population, food, and disaster systems
+    - End-game victory/defeat conditions (the removal coalition exists as pressure; the hard endgame + an election/title ladder are next)
+    - The rest of the resource map (building supplies, the grain-import lifeline, per-estate differentiation)
+    - A disaster/crisis layer that wounds the now-rich Public state
     - City-wide Project implementation (mechanics ready, thematic content pending)
-    - Mayor advancement (dynamic respect scaling based on city growth)
     - Self-improving AI groundwork: every live audience is captured to a structured JSONL corpus (`backend/logs/audiences.jsonl`) — the dataset for a future fine-tuned, packaged small model that runs the factions without per-call API cost
 
-This is a **foundation-ready** codebase. The hard problems of state safety, emergence, and AI integration are solved; next comes content scaling and game feel tuning.
+This is a **foundation-ready** codebase. The hard problems of state safety, emergence, AI integration, and a deep simulated populace are solved; next comes the crisis/endgame layer and game-feel tuning.
 
 ## Quick Start
 
@@ -41,7 +43,7 @@ And even a *valid* acceptance doesn't bind on its own — the human Mayor must *
 *   **Why It Matters:** Players aren't roleplaying; they are making binding contracts that alter the math of the world. If a faction later breaks a deal, the engine records it — reputation drops and consequences cascade into future cycles. That is genuine accountability.
 
 ### 2. Emergent, Not Scripted
-There are no hand-authored event chains or "scripted outcomes." Each cycle, the 41 distinct personalities are shuffled into a random turn order and act **one at a time** — so Faction B reads the state Faction A just left behind.
+There are no hand-authored event chains or "scripted outcomes." Each cycle, the 28 distinct personalities are shuffled into a random turn order and act **one at a time** — so Faction B reads the state Faction A just left behind.
 *   **The Mechanics:** Factions have traits, resources, and goals. Cascades, power vacuums, and collapses fall out of ordering and contest math, not a script. A slight change in a single trait (e.g., a General becoming more aggressive) can trigger a civil war no designer could predict.
 *   **Why It Matters:** Every playthrough is unique. The depth scales with complexity without requiring exponential authoring time.
 
@@ -53,7 +55,7 @@ Factions remember their history with the Mayor, but memory is finite. As interac
 The `engine/` directory is a pure Python library that imports **only the standard library**. No web frameworks, no database calls, no I/O.
 *   **The Architecture:** The API, database, and UI wrap this engine; they do not reach into it. This separation ensures the simulation logic is:
     *   **Fast:** The full suite runs in ~1 second.
-    *   **Testable:** 372 unit tests verify every formula and state transition.
+    *   **Testable:** 553 unit tests verify every formula and state transition.
     *   **Portable:** It can run headless, in the browser, or inside a backend service with zero dependencies.
 *   **Why It Matters:** This proves the codebase is engineered for longevity and reliability, not just prototyping.
 
@@ -78,7 +80,7 @@ A modern, type-safe stack chosen for performance and testability:
 | **API** | FastAPI + Uvicorn | High-performance async with automatic, self-documenting OpenAPI. |
 | **Database** | SQLite + SQLAlchemy | Lightweight persistence, forward-compatible schema migrations. |
 | **Frontend** | Vue 3 + Vite | Reactive UI, fast build times, clean component separation. |
-| **Testing** | pytest | Strict test coverage (372+ tests) tied to spec criteria. |
+| **Testing** | pytest | Strict test coverage (553+ tests) tied to spec criteria. |
 
 > *Note: The frontend layer is intentionally decoupled from `engine/`. Future builds may replace Vue 3 with alternative UI frameworks without affecting simulation logic.*
 

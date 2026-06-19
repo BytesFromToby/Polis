@@ -37,3 +37,6 @@ tools/output/
 # OS cruft
 .DS_Store
 Thumbs.db
+
+# Claude Code working-instruction files — local only, kept out of the public repo
+CLAUDE.md
