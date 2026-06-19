@@ -1,27 +1,40 @@
 <template>
   <div class="game-layout">
 
-    <!-- Top bar -->
+    <!-- Command bar -->
     <div class="top-bar">
+      <span class="logotype">POLIS</span>
+      <span class="city-name">{{ cityName }}</span>
+      <span class="spacer"></span>
+      <span class="cycle-badge">Cycle {{ cycle }}</span>
+      <button class="theme-toggle btn-sm" @click="toggleTheme">
+        {{ theme === 'light' ? 'black-figure' : 'red-figure' }}
+      </button>
       <button class="btn-primary" @click="runCycle" :disabled="busy">
         {{ busy ? 'Running…' : 'Run Cycle' }}
       </button>
-      <span class="city-name">{{ cityName }}</span>
-      <span class="cycle-badge">Cycle {{ cycle }}</span>
-      <span class="spacer"></span>
-      <button class="btn-subtle btn-sm" @click="showSettings = true" style="margin-right:0.5rem">Settings</button>
-      <button class="btn-subtle btn-sm" @click="$router.push('/')">← Title</button>
+      <div class="menu-wrap">
+        <button class="btn-subtle btn-sm menu-btn" @click="showMenu = !showMenu" aria-label="Menu">☰</button>
+        <div v-if="showMenu" class="menu-pop" @click.self="showMenu = false">
+          <button @click="showMenu = false; showSettings = true">Settings</button>
+          <button @click="$router.push('/')">Home</button>
+        </div>
+      </div>
     </div>
+    <div class="mdr"></div>
 
     <LLMSettings v-if="showSettings" @close="showSettings = false" />
 
     <p v-if="error" class="error-bar">{{ error }}</p>
 
-    <!-- Three panels -->
+    <!-- Quadrant: left rail (Factions / Projects) + main (Mayor / Events) -->
     <div class="panels">
 
-      <!-- LEFT: Factions, grouped by domain -->
-      <div class="panel panel-left">
+      <!-- LEFT RAIL -->
+      <div class="left-rail">
+
+      <!-- Factions, grouped by domain -->
+      <div class="panel rail-panel">
         <div class="panel-title">Factions</div>
         <div class="faction-list">
           <div v-for="d in factionsByDomain" :key="d.id" class="domain-group">
@@ -65,9 +78,46 @@
           </div>
         </div>
       </div>
+      <!-- /Factions rail-panel -->
 
-      <!-- CENTER: Mayor window (top) + Event log (bottom) -->
-      <div class="panel panel-center">
+      <!-- Projects, grouped by domain -->
+      <div class="panel rail-panel">
+        <div class="panel-title">Projects</div>
+        <div class="project-list">
+          <div v-for="g in projectsByDomain" :key="g.id" class="domain-group">
+            <div class="domain-header" @click="toggleProjectDomain(g.id)">
+              <span class="domain-caret">{{ expandedProjectDomains[g.id] !== false ? '▾' : '▸' }}</span>
+              <span class="domain-name">{{ g.name }}</span>
+              <span class="domain-count">{{ g.stack ? g.stack.count : 0 }}</span>
+            </div>
+            <div v-if="expandedProjectDomains[g.id] !== false" class="domain-projects">
+              <template v-if="g.stack && g.stack.count > 0">
+                <div v-if="poolCount(g.stack) >= 1" class="project-row"
+                     @click="selectedProject = g.stack" title="View details">
+                  <span class="project-name">{{ g.stack.name }} ×{{ poolCount(g.stack) }}</span>
+                </div>
+                <div v-if="frontKind(g.stack) === 'building'" class="project-row building"
+                     @click="selectedProject = g.stack" title="View details">
+                  <span class="project-name">{{ g.stack.name }}</span>
+                  <span class="project-pct accent">{{ Math.round(g.stack.progress) }}%</span>
+                </div>
+                <div v-else-if="frontKind(g.stack) === 'damaged'" class="project-row damaged"
+                     @click="selectedProject = g.stack" title="View details">
+                  <span class="project-name">{{ g.stack.name }}</span>
+                  <span class="project-pct danger">{{ Math.round(g.stack.progress) }}% hp</span>
+                </div>
+              </template>
+              <div v-else class="muted" style="font-size:0.78rem; padding:0.3rem 0.5rem">No projects</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      </div>
+      <!-- /LEFT RAIL -->
+
+      <!-- MAIN: Mayor (top) + Active Events & Chronicle (bottom) -->
+      <div class="main-col">
 
         <div class="mayor-window">
           <div class="mayor-window-head">
@@ -153,42 +203,6 @@
           </div>
         </div>
 
-      </div>
-
-      <!-- RIGHT: Projects, grouped by domain -->
-      <div class="panel panel-right">
-        <div class="panel-title">Projects</div>
-        <div class="project-list">
-          <div v-for="g in projectsByDomain" :key="g.id" class="domain-group">
-            <div class="domain-header" @click="toggleProjectDomain(g.id)">
-              <span class="domain-caret">{{ expandedProjectDomains[g.id] !== false ? '▾' : '▸' }}</span>
-              <span class="domain-name">{{ g.name }}</span>
-              <span class="domain-count">{{ g.stack ? g.stack.count : 0 }}</span>
-            </div>
-
-            <div v-if="expandedProjectDomains[g.id] !== false" class="domain-projects">
-              <template v-if="g.stack && g.stack.count > 0">
-                <!-- Pooled pristine instances -->
-                <div v-if="poolCount(g.stack) >= 1" class="project-row"
-                     @click="selectedProject = g.stack" title="View details">
-                  <span class="project-name">{{ g.stack.name }} ×{{ poolCount(g.stack) }}</span>
-                </div>
-                <!-- In-flux front: building (build %) or damaged (health %) -->
-                <div v-if="frontKind(g.stack) === 'building'" class="project-row building"
-                     @click="selectedProject = g.stack" title="View details">
-                  <span class="project-name">{{ g.stack.name }}</span>
-                  <span class="project-pct accent">{{ Math.round(g.stack.progress) }}%</span>
-                </div>
-                <div v-else-if="frontKind(g.stack) === 'damaged'" class="project-row damaged"
-                     @click="selectedProject = g.stack" title="View details">
-                  <span class="project-name">{{ g.stack.name }}</span>
-                  <span class="project-pct danger">{{ Math.round(g.stack.progress) }}% hp</span>
-                </div>
-              </template>
-              <div v-else class="muted" style="font-size:0.78rem; padding:0.3rem 0.5rem">No projects</div>
-            </div>
-          </div>
-        </div>
       </div>
 
     </div>
@@ -308,6 +322,8 @@ export default {
       showAudiencePicker: false,
       llmProfileId: null,
       showAiWarning: false,
+      showMenu: false,
+      theme: 'dark',
     }
   },
   computed: {
@@ -477,6 +493,10 @@ export default {
         this.treas = await treasuryApi.get(store.userId)
       } catch { /* non-fatal */ }
     },
+    toggleTheme() {
+      this.theme = this.theme === 'light' ? 'dark' : 'light'
+      document.documentElement.dataset.theme = this.theme === 'light' ? 'light' : ''
+    },
     toggleDomain(id) {
       this.expandedDomains[id] = !this.expandedDomains[id]
     },
@@ -557,15 +577,60 @@ export default {
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
-.city-name {
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--accent);
+.logotype {
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: 0.34em;
+  color: var(--accent-strong);
 }
-.cycle-badge {
-  font-size: 0.85rem;
+.city-name {
+  font-style: italic;
+  font-size: 0.9rem;
   color: var(--muted);
 }
+.cycle-badge {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-weak);
+}
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.menu-wrap { position: relative; }
+.menu-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent-strong);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.25rem 0.55rem;
+}
+.menu-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  z-index: 50;
+}
+.menu-pop button {
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  border-radius: 0;
+  padding: 0.45rem 0.7rem;
+}
+.menu-pop button:hover { background: var(--glaze-row); }
 .spacer { flex: 1; }
 
 .error-bar {
@@ -577,35 +642,47 @@ export default {
   flex-shrink: 0;
 }
 
-/* Panels */
+/* Quadrant: left rail (Factions/Projects) + main col (Mayor/Events) */
 .panels {
   display: flex;
   flex: 1;
   overflow: hidden;
-  gap: 0;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+.left-rail {
+  width: 244px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+}
+.main-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.panel {
+/* Every region is a framed pottery panel */
+.panel,
+.mayor-window,
+.center-log {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-right: 1px solid var(--border);
-  padding: 0.75rem;
-}
-.panel:last-child { border-right: none; }
-
-.panel-left   { width: 300px; flex-shrink: 0; }
-.panel-center { flex: 1; padding: 0; }
-.panel-right  { width: 260px; flex-shrink: 0; }
-
-/* Center column: Mayor window on top, Event Log below */
-.panel-center { display: flex; flex-direction: column; gap: 0; }
-.mayor-window {
-  flex-shrink: 0;
-  padding: 0.75rem;
-  border-bottom: 1px solid var(--border);
   background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.7rem;
+  min-height: 0;
 }
+.rail-panel { flex: 1; }
+.mayor-window { flex: 1; }
+.center-log  { flex: 1; }
+
 .mayor-window-head {
   display: flex;
   justify-content: space-between;
@@ -617,13 +694,6 @@ export default {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-}
-.center-log {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 0.75rem;
 }
 
 .panel-title {
