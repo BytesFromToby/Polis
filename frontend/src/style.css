@@ -1,37 +1,76 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Polis · Wine-Dark palette — see docs/Polis Design/colors_and_type.css */
-  --bg:            #0C0A0C;   /* ink-900 — page                 */
-  --bg-raised:     #140C10;   /* ink-800 — panels on the page   */
-  --surface:       #1B1117;   /* ink-700 — cards                */
-  --surface-raised:#241820;   /* ink-600 — menus above cards    */
-  --border:        #3A2330;   /* line-dk                        */
-  --line-strong:   #5E3B4C;
-  --accent:        #74B6A4;   /* verdigris-300 — brand primary  */
-  --accent-strong: #AED6C9;   /* verdigris-200                  */
-  --accent-weak:   #2A5F53;   /* verdigris-600                  */
-  --on-accent:     #0C0A0C;   /* dark text on verdigris fill    */
-  --accent2:       #C99F5C;   /* bronze-300 — wealth / positive */
-  --danger:        #B0545E;   /* wine-400 — conflict / loss     */
-  --on-danger:     #F4EFE4;   /* bone-100                       */
-  --text:          #ECE6D6;   /* bone-200 — primary text        */
-  --muted:         #9C8E92;   /* bone-400 — meta text           */
-  --radius:        4px;       /* Polis is carved, not soft      */
+  /* Polis · Geometric-pottery palette (red-figure / dark) — see Planning/reference/ui-art-direction.md */
+  --bg:            #1d130e;   /* glaze-900 — page ground         */
+  --bg-raised:     #211712;   /* glaze-800 — panels              */
+  --surface:       #211712;   /* glaze-800 — cards               */
+  --surface-raised:#2a1c14;   /* glaze-700 — menus / raised rows */
+  --border:        #3a2417;   /* glaze-line — hairlines          */
+  --line-strong:   #5a3a22;
+  --accent:        #c4744a;   /* terra-500 — primary figure ink  */
+  --accent-strong: #d98a54;   /* terra-400 — bright variant      */
+  --accent-weak:   #8a5a3a;   /* terra-600 — muted ornament      */
+  --on-accent:     #1d130e;   /* glaze ground text on terracotta */
+  --accent2:       #d98a54;   /* terra-400 — wealth / positive   */
+  --danger:        #8a3324;   /* oxblood — conflict / loss       */
+  --on-danger:     #e8cfa8;   /* clay-100                        */
+  --text:          #e8cfa8;   /* clay-100 — primary text         */
+  --muted:         #a98a6a;   /* clay-400 — meta text            */
+  --glaze-row:     #26190f;   /* zebra / group-header rows       */
+  --ox-txt:        #d9694f;   /* oxblood text on glaze           */
+  --radius:        3px;       /* Polis is fired, not soft        */
   --gap:           1rem;
 }
+
+/* Black-figure / light theme — glaze figures on clay ground (same token names) */
+:root[data-theme="light"] {
+  --bg:            #e0bd8d;
+  --bg-raised:     #e8cfa8;
+  --surface:       #e8cfa8;
+  --surface-raised:#dcc096;
+  --border:        #b89a72;
+  --line-strong:   #8a5a3a;
+  --accent:        #8a4a2a;
+  --accent-strong: #6e3a20;
+  --accent-weak:   #b07a52;
+  --on-accent:     #e8cfa8;
+  --accent2:       #8a4a2a;
+  --danger:        #7a2a1c;
+  --on-danger:     #e8cfa8;
+  --text:          #2a1a10;
+  --muted:         #6e5238;
+  --glaze-row:     #d8b988;
+  --ox-txt:        #7a2a1c;
+}
+
+/* ── Pottery chrome (band grammar) ── */
+.mdr {
+  height: 13px; background-repeat: repeat-x; background-size: 16px 13px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='14'><path d='M2 12 V3 H14 V12 H8 V7' fill='none' stroke='%23c4744a' stroke-width='1.5'/></svg>");
+}
+.zig {
+  height: 10px; background-repeat: repeat-x; background-size: 10px 10px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><polyline points='0,8 5,2 10,8' fill='none' stroke='%238a5a3a' stroke-width='1.2'/></svg>");
+}
+.cinzel, .logotype { font-family: 'Cinzel', Georgia, serif; }
+.meander-fill {
+  background-color: rgba(196,116,74,0.5); background-repeat: repeat; background-size: 14px 12px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='12'><path d='M2 10 V3 H12 V10 H7 V6' fill='none' stroke='%23d98a54' stroke-width='1.2'/></svg>");
+}
+.meander-fill--ox { background-color: rgba(138,51,36,0.55); }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Spectral', Georgia, serif;
   font-size: 14px;
   line-height: 1.5;
 }
 
-h1 { font-size: 1.5rem; font-weight: 600; }
-h2 { font-size: 1.1rem; font-weight: 600; }
-h3 { font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+h1 { font-family: 'Cinzel', Georgia, serif; font-size: 1.5rem; font-weight: 600; letter-spacing: 0.06em; }
+h2 { font-family: 'Cinzel', Georgia, serif; font-size: 1.1rem; font-weight: 600; letter-spacing: 0.04em; }
+h3 { font-family: 'Cinzel', Georgia, serif; font-size: 0.85rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; }
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
