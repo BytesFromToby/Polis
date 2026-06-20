@@ -45,7 +45,7 @@ polis/
 │   │   ├── actions/            ← faction.py, _helpers.py
 │   │   ├── cycle/              ← runner.py, resolution.py, end_of_cycle.py
 │   │   ├── events/             ← cascades.py, world.py (mechanical), event_system.py (event deck)
-│   │   ├── needs/              ← bands.py, drift.py (public-needs_spec); chain.py (food-supply_spec)
+│   │   ├── needs/              ← bands.py, drift.py, scales.py (piety/unrest/consumption/confidence + production wire) per public-needs_spec; chain.py (food-supply_spec)
 │   │   ├── npc/                ← weights.py, behavior.py, targeting.py
 │   │   ├── mayor/              ← actions.py, treasury.py (mayor_spec, treasury_spec)
 │   │   ├── llm/                ← audiences, prompt_builder, response_parser, memory, client, crypto
@@ -82,7 +82,7 @@ polis/
 | `engine/events/cascades.py` | Retired no-op (collapse cascades removed — factions are permanent) |
 | `engine/events/world.py` | Chaos-driven upheavals (mechanical) |
 | `engine/events/event_system.py` | Scripted/random event deck + Public-need gates (events_spec) |
-| `engine/needs/` | Public needs: word bands, drift/shortage/population (public-needs_spec); the food chains, pure `compute_chain` (food-supply_spec) |
+| `engine/needs/` | Public needs: word bands, drift/shortage/population, the seven-scale drivers + production wire (`scales.py`) per public-needs_spec; the food chains, pure `compute_chain` (food-supply_spec) |
 | `engine/npc/{weights,behavior,targeting}.py` | Action weights, selection, and target picking |
 | `engine/mayor/{actions,treasury}.py` | Mayor actions + treasury (mayor_spec, treasury_spec) |
 | `engine/llm/` | LLM audiences, prompt building, response parsing, memory (llm-system_spec) |

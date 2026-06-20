@@ -357,9 +357,6 @@ export default {
       arr.forEach(g => g.factions.sort((a, b) => a.name.localeCompare(b.name)))
       return arr
     },
-    world() {
-      return this.snapshot?.world || null
-    },
     logsNewestFirst() {
       return [...this.logs].reverse()
     },
@@ -374,22 +371,6 @@ export default {
         if (out.length >= 14) break
       }
       return out.slice(0, 14)
-    },
-    chaosDisplay() {
-      if (!this.world?.chaos) return '—'
-      const entries = Object.entries(this.world.chaos)
-      if (!entries.length) return 'none'
-      return entries.map(([k, v]) => `${k}:${v.toFixed(1)}`).join(', ')
-    },
-    topReputation() {
-      if (!this.mayorData?.reputation) return {}
-      const rep = this.mayorData.reputation
-      return Object.fromEntries(
-        Object.entries(rep)
-          .filter(([, v]) => Math.abs(v) >= 5)
-          .sort(([, a], [, b]) => Math.abs(b) - Math.abs(a))
-          .slice(0, 5)
-      )
     },
     projectsByDomain() {
       const domains = this.snapshot?.domains
@@ -547,18 +528,6 @@ export default {
     leaderName(f) {
       if (!f.leader) return ''
       return f.leader.name || ''
-    },
-    repColor(score) {
-      if (score >= 10) return 'green'
-      if (score <= -10) return 'danger'
-      return 'muted'
-    },
-    needBandColor(value) {
-      // Band thresholds mirror engine/needs/bands.py (public-needs_spec)
-      if (value >= 76) return 'green'
-      if (value <= 20) return 'danger'
-      if (value <= 45) return 'accent'
-      return ''
     },
     bandClass(band) {
       // Colour a scale's band word: oxblood for danger, terracotta for notable, clay otherwise.

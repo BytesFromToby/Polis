@@ -77,6 +77,11 @@ class TestDriver:
         pop = int(PIETY_PER_LEVEL * 5 / PIETY_PARITY * 1000)  # demand s.t. target == 100
         assert piety_target(factions, pop) == 100.0
 
+    def test_target_clamped_at_100(self):
+        # supply far above parity-demand would compute > 100 — must clamp to 100 (not overflow)
+        factions = {"t": temple("t", 10.0)}  # supply 40
+        assert piety_target(factions, 1000) == 100.0  # demand 1 → raw 4000, clamped
+
 
 class TestDrift:
     def test_drifts_by_step_when_far(self):
