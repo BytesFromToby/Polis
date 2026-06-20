@@ -203,3 +203,28 @@ column and leads with integer level; `frontend/src/api.js` has no `commission`/`
 - The dashboard faction table has no `entrench` column/reference and leads each row with the integer
   level  `[automated]`
 - `frontend/src/api.js` contains no `commission` reference; `npm run build` exits 0  `[automated]`
+
+---
+
+## Feature: Frontend test harness
+
+The frontend's `[automated]` Done-when items had no runner — only `dev`/`build`/`preview`. A minimal
+**vitest** harness (`npm run test`) now backs them, so a regression (a re-added `commission`, a raw
+`rating` float leaking into the lead readout, a broken band-colour map) fails CI instead of slipping
+through. The harness tests two surfaces: **pure component logic** (Options-API methods are plain
+functions — `Component.methods.fn.call(...)` runs them without mounting) and **source guards** (read
+the `.vue`/`.js` source and assert/deny patterns). The `npm run build` exit-0 item stays a CI build
+step (compile-level, not a unit test).
+
+- Input: `frontend/src/` (components, `api.js`).
+- Output: `npm run test` (vitest) — green = the criteria below hold.
+
+**Done when:**
+- `npm run test` runs the vitest suite and passes  `[automated]`
+- A test asserts `frontend/src/api.js` has **no** `commission` / `/projects/commission`, and (the
+  surgical-pass item) the source guards integer-level lead — `f.rating` only appears in a
+  de-emphasized secondary, never as the primary readout  `[automated]`
+- A test exercises `GameView`'s `bandClass()` — danger bands → `danger`, notable → `accent`, nominal
+  → `''` — so the seven-scale colour map is regression-guarded  `[automated]`
+- A test exercises the projects-stack helpers (`poolCount`, `frontKind`) for pristine/building/damaged
+  tops  `[automated]`
