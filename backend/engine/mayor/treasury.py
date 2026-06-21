@@ -6,6 +6,7 @@ import random
 from typing import Dict, List, Optional
 from engine.models import Treasury, Mayor, Faction, Domain, ActionResult, BaseProjectStack
 from engine.formulas import BASE_INCOME, TAX_OFFICE_INCOME
+from engine.balance import NORMAL as _BAL
 
 
 def process_treasury_step0(
@@ -18,13 +19,14 @@ def process_treasury_step0(
     logger=None,
     base_stacks: Optional[Dict[str, BaseProjectStack]] = None,
     rng: Optional[random.Random] = None,
+    balance=_BAL,
 ) -> List[ActionResult]:
     """Apply income and fixed expenditure. Returns list of ActionResults for logging."""
     results = []
     treasury.reset_cycle_totals()
 
     # ── Income ──────────────────────────────────────────────────────────────
-    income = _calc_income(base_stacks)
+    income = _calc_income(base_stacks, balance)
 
     # Investment maturity
     if treasury.invest_cycles_remaining > 0:
@@ -194,12 +196,12 @@ def apply_tax_effects(
     return results
 
 
-def _calc_income(base_stacks: Optional[Dict[str, BaseProjectStack]]) -> int:
+def _calc_income(base_stacks: Optional[Dict[str, BaseProjectStack]], balance=_BAL) -> int:
     """Income (treasury_spec v3): flat base + per completed civic Tax Office.
     The per-domain auto-tax is removed — income depends only on base + Tax Offices."""
     civic = (base_stacks or {}).get("civic")
     office_count = civic.active_count() if civic is not None else 0
-    return BASE_INCOME + TAX_OFFICE_INCOME * office_count
+    return balance.base_income + balance.tax_office_income * office_count
 
 
 # ── Optional expenditure actions ─────────────────────────────────────────────

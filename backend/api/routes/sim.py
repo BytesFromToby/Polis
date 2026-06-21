@@ -20,6 +20,7 @@ from api.sessions import SimSession, get_session, set_session, clear_session, re
 from db.models import City, SimRun, CycleSnapshot, NarrativeLog, User
 from db.session import get_db
 from engine.cycle.runner import run_cycle
+from engine.balance import get_profile
 from engine.models import Mayor, Treasury
 from loaders import load_projects, load_chains, load_the_public, load_event_deck
 
@@ -300,7 +301,8 @@ def step_sim(
                        mayor=session.mayor, treasury=session.treasury,
                        projects=session.projects, base_stacks=session.base_stacks,
                        public=session.public, chains=_CHAINS,
-                       event_deck=_EVENT_DECK, active_events=session.active_events)
+                       event_deck=_EVENT_DECK, active_events=session.active_events,
+                       balance=get_profile(session.difficulty))
 
     run.current_cycle = session.world.cycle
 
@@ -360,7 +362,8 @@ def run_n(
                                mayor=session.mayor, treasury=session.treasury,
                                projects=session.projects, base_stacks=session.base_stacks,
                                public=session.public, chains=_CHAINS,
-                               event_deck=_EVENT_DECK, active_events=session.active_events)
+                               event_deck=_EVENT_DECK, active_events=session.active_events,
+                               balance=get_profile(session.difficulty))
             cycles_run += 1
 
             run.current_cycle = session.world.cycle

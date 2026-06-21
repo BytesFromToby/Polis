@@ -67,17 +67,25 @@ event chaos→probability table (`_CHAOS_CHANCE`, events), `WITHHOLD_ANGER_THRES
   (income, unrest ease, meet cooldown, removal thresholds). They demonstrate the
   base-plus-overrides mechanism.
 
-### Slice boundary (important)
+### Slice boundary
 
-- **Slice 1 (this spec, shipped 2026-06-21) — behavior-preserving.** `NORMAL` reproduces the old
-  constants exactly and is the *only* profile the engine consumes. `EASY`/`HARD` and
-  `SimRun.difficulty` exist and persist, but **do not yet change gameplay**. This is the
-  "prove the plumbing without touching the game" step.
-- **Slice 2 (next) — make difficulty bite.** Thread the active `BalanceProfile` (resolved from
-  `SimRun.difficulty`) through the cycle so the engine reads dials from it instead of the
-  module-level `NORMAL` re-exports; then tune `EASY`/`HARD`. Add the frontend difficulty
-  selector at new-game. House style threads dependencies explicitly (mayor, public, llm_config),
-  so prefer threading over a global active-profile.
+- **Slice 1 (shipped 2026-06-21) — behavior-preserving.** `NORMAL` reproduces the old constants
+  exactly and is the only profile the engine consumes; `EASY`/`HARD` and `SimRun.difficulty`
+  exist and persist but do not yet change gameplay. The "prove the plumbing" step.
+- **Slice 2 (shipped 2026-06-21) — difficulty bites.** `run_cycle` takes a `balance` argument
+  (default `NORMAL`) threaded into the per-cycle dial consumers: treasury income
+  (`process_treasury_step0`/`_calc_income`), the needs step (`apply_needs` + the `scales`
+  helpers `piety_*`/`blame_factor`/`unrest_target`/`consumption_target`/`production_efficiency`),
+  and the moneylender (`process_moneylender`). The API resolves `get_profile(run.difficulty)` and
+  passes it at both `/sim/step` and `/sim/run/{n}`. A difficulty selector is on the new-game
+  builder screen. Threaded explicitly (house style), not via a global — safe under FastAPI's
+  threadpool. Existing callers/tests omit `balance` → get `NORMAL` → unchanged.
+  - **Deferred (mayor-action path):** `meet_cooldown` and `sabotage_gold` are read on the
+    player-action dispatch map and the separate audience route, not the per-cycle path. They
+    still resolve from `NORMAL` regardless of difficulty; threading them is a follow-up and they
+    are intentionally not among the `EASY`/`HARD` overrides.
+  - **Still provisional:** `EASY`/`HARD` override *values* are untuned starting points; the
+    TitleView quick-start defaults to `normal` (no stored default-difficulty preference yet).
 
 ---
 
@@ -99,6 +107,10 @@ Forward-only migration in `db/session.py::_migrate` adds the column to existing 
 - `POST /sim/start` request gains optional `difficulty` (None/unknown → `"normal"`, validated via
   `get_profile().name`).
 - `SimStatusResponse` gains `difficulty` (default `"normal"`).
+- `/sim/step` and `/sim/run/{n}` resolve `get_profile(session.difficulty)` and pass it to
+  `run_cycle(..., balance=...)` so the run's difficulty drives the cycle.
+- Frontend: a difficulty selector on the new-game builder modal (`BuilderView.vue`), passed via
+  `sim.start(..., { difficulty })`.
 
 ---
 
@@ -108,10 +120,12 @@ Forward-only migration in `db/session.py::_migrate` adds the column to existing 
 engine/
     balance.py                 ← BalanceProfile, NORMAL/EASY/HARD, PROFILES, get_profile
     formulas.py                ← re-exports income + cap dials from NORMAL
-    needs/drift.py             ← re-exports drift/pop/delta dials
-    needs/scales.py            ← re-exports piety/unrest/guard/consumption/production dials
-    mayor/actions.py           ← re-exports meet_cooldown, sabotage_gold
-    special/moneylender.py     ← re-exports leverage/removal dials
+    needs/drift.py             ← re-exports + apply_needs(balance=…) threads dials
+    needs/scales.py            ← re-exports + piety/unrest/consumption/production fns take balance
+    mayor/actions.py           ← re-exports meet_cooldown, sabotage_gold (NOT yet threaded)
+    mayor/treasury.py          ← process_treasury_step0(balance=…) → _calc_income
+    special/moneylender.py     ← process_moneylender(balance=…)
+    cycle/runner.py            ← run_cycle(balance=…) threads it to the consumers above
 db/
     models.py                  ← SimRun.difficulty
     session.py                 ← _migrate adds the column
@@ -136,6 +150,11 @@ api/
 - A `difficulty` passed to `/sim/start` is stored on the `SimRun`; omitting it yields `"normal"`;
   an unknown value falls back to `"normal"`; resuming via `/sim/switch` restores it —
   `tests/test_sim_difficulty.py`  `[automated]`
+- `EASY`/`NORMAL`/`HARD` produce different per-cycle outcomes on the threaded path — treasury
+  income, unrest easing, population growth, and the removal-coalition trigger all diverge by
+  profile — `tests/test_difficulty_bite.py`  `[automated]`
+- The new-game builder offers a difficulty selector and starting with it set persists that
+  difficulty on the run  `[human-required]`
 
 ---
 
@@ -144,3 +163,5 @@ api/
 - `tests/test_balance.py` — NORMAL-matches-history lock, module re-export agreement, registry +
   `get_profile` resolution, easy/hard override shape.
 - `tests/test_sim_difficulty.py` — start persists / defaults / falls back; switch restores.
+- `tests/test_difficulty_bite.py` — easy/normal/hard diverge on income, unrest easing, population
+  growth, and the removal-coalition trigger.

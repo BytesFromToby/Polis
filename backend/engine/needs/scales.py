@@ -24,14 +24,14 @@ PIETY_BLAME = _BAL.piety_blame
 ZEALOT_SUPPORT_TAX = _BAL.zealot_support_tax   # support/cycle while piety is Zealous
 
 
-def piety_supply(factions: Dict[str, "Faction"]) -> float:
-    """Σ PIETY_PER_LEVEL × level over temple-domain factions, honoring Withhold (×0) then
+def piety_supply(factions: Dict[str, "Faction"], balance=_BAL) -> float:
+    """Σ piety_per_level × level over temple-domain factions, honoring Withhold (×0) then
     Toil (×TOIL_MULT) exactly as the food chain treats its producers."""
     total = 0.0
     for f in factions.values():
         if f.domain_primary != "temples":
             continue
-        contribution = PIETY_PER_LEVEL * f.level
+        contribution = balance.piety_per_level * f.level
         if f.withholding:
             contribution = 0.0
         elif f.toiling:
@@ -40,15 +40,15 @@ def piety_supply(factions: Dict[str, "Faction"]) -> float:
     return total
 
 
-def piety_target(factions: Dict[str, "Faction"], population: int) -> float:
+def piety_target(factions: Dict[str, "Faction"], population: int, balance=_BAL) -> float:
     demand = population / 1000.0
     if demand <= 0:
         return 0.0
-    return max(0.0, min(100.0, 100.0 * piety_supply(factions) / (demand * PIETY_PARITY)))
+    return max(0.0, min(100.0, 100.0 * piety_supply(factions, balance) / (demand * balance.piety_parity)))
 
 
-def blame_factor(piety: int) -> float:
-    return PIETY_BLAME[piety_band(piety)]
+def blame_factor(piety: int, balance=_BAL) -> float:
+    return balance.piety_blame[piety_band(piety)]
 
 
 # ── Unrest ─────────────────────────────────────────────────────────────────────
@@ -62,27 +62,27 @@ GUARD_HEAVY_THRESHOLD = _BAL.guard_heavy_threshold   # suppression removing ≥ 
 GUARD_HEAVY_SUPPORT = _BAL.guard_heavy_support     # support cost of heavy-handed guarding
 
 
-def unrest_target(public: "ThePublic") -> float:
+def unrest_target(public: "ThePublic", balance=_BAL) -> float:
     """Aggregate civic pressure (0–100) — hunger + impiety + low confidence + drunkenness."""
     pressure = 0.0
 
     fed_word = fed_band(public.fed)
     if fed_word == "Starving":
-        pressure += UNREST_HUNGER
+        pressure += balance.unrest_hunger
     elif fed_word == "Hungry":
-        pressure += UNREST_HUNGER / 2
+        pressure += balance.unrest_hunger / 2
 
     piety_word = piety_band(public.piety)
     if piety_word == "Godless":
-        pressure += UNREST_IMPIETY
+        pressure += balance.unrest_impiety
     elif piety_word == "Lax":
-        pressure += UNREST_IMPIETY / 2
+        pressure += balance.unrest_impiety / 2
 
     if public.support < 0:
-        pressure += min(UNREST_CONFIDENCE, UNREST_CONFIDENCE * (-public.support) / 50)
+        pressure += min(balance.unrest_confidence, balance.unrest_confidence * (-public.support) / 50)
 
     if public.drunk:
-        pressure += UNREST_DRUNK
+        pressure += balance.unrest_drunk
 
     return max(0.0, min(100.0, pressure))
 
@@ -95,13 +95,13 @@ CONSUMPTION_PARITY = _BAL.consumption_parity
 CONSUMPTION_DRY_HEALTH = _BAL.consumption_dry_health   # health/cycle while Dry (raw water → illness)
 
 
-def consumption_target(wine_happy: float, population: int) -> float:
+def consumption_target(wine_happy: float, population: int, balance=_BAL) -> float:
     """Driven by wine supply only (no misery→drink feedback — the doom-loop governor).
-    wine/demand at CONSUMPTION_PARITY → 50 (Tempered); twice that → 100 (Sodden)."""
+    wine/demand at consumption_parity → 50 (Tempered); twice that → 100 (Sodden)."""
     demand = population / 1000.0
     if demand <= 0:
         return 0.0
-    return max(0.0, min(100.0, 50.0 * (wine_happy / demand) / CONSUMPTION_PARITY))
+    return max(0.0, min(100.0, 50.0 * (wine_happy / demand) / balance.consumption_parity))
 
 
 def is_drunk(consumption: int) -> bool:
@@ -119,8 +119,8 @@ _HEALTH_BONUS = {"Robust": 1, "Thriving": 2}
 _CONSUMPTION_PENALTY = {"Tipsy": 1, "Sodden": 2}
 
 
-def production_efficiency(public: "ThePublic") -> float:
+def production_efficiency(public: "ThePublic", balance=_BAL) -> float:
     """1.0 at Healthy+Tempered; health Robust/Thriving lift it, consumption Tipsy/Sodden cut it."""
-    bonus = HEALTH_OUTPUT * _HEALTH_BONUS.get(health_band(public.health), 0)
-    penalty = CONSUMPTION_OUTPUT * _CONSUMPTION_PENALTY.get(consumption_band(public.consumption), 0)
-    return max(EFF_MIN, min(EFF_MAX, 1.0 + bonus - penalty))
+    bonus = balance.health_output * _HEALTH_BONUS.get(health_band(public.health), 0)
+    penalty = balance.consumption_output * _CONSUMPTION_PENALTY.get(consumption_band(public.consumption), 0)
+    return max(balance.eff_min, min(balance.eff_max, 1.0 + bonus - penalty))

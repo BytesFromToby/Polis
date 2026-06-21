@@ -15,6 +15,7 @@ from ..models import (
     Mayor, Treasury, MayorAction, Project, GameEvent, ThePublic, ExternalThreat,
 )
 from ..formulas import faction_weight, stack_cap_contribution
+from ..balance import NORMAL as _BAL
 from ..events import process_world_chaos, process_active_events, roll_for_random_events
 from .resolution import run_sequential_actions
 from .end_of_cycle import run_end_of_cycle, run_leadership_events, run_break_sweep, tick_deals
@@ -59,8 +60,13 @@ def run_cycle(
     external_threats: Optional[List[ExternalThreat]] = None,
     chains: Optional[List[dict]] = None,
     logger=None,
+    balance=_BAL,
 ) -> CycleResult:
-    """Run one full simulation cycle. Returns CycleResult."""
+    """Run one full simulation cycle. Returns CycleResult.
+
+    `balance` is the active BalanceProfile (difficulty) — defaults to NORMAL so existing
+    callers and tests are unchanged. Threaded into the per-cycle dial consumers below.
+    """
     from ..mayor import process_treasury_step0, apply_tax_effects, execute_mayor_actions, apply_reputation_decay
     from ..projects import tick_projects, apply_project_effects
     from ..special import process_the_public, process_moneylender, process_external_threats
@@ -101,7 +107,7 @@ def run_cycle(
         treasury_results = process_treasury_step0(
             treasury, mayor, factions, domains,
             active_project_count=n_active, logger=logger,
-            base_stacks=base_stacks,
+            base_stacks=base_stacks, balance=balance,
         )
         all_results.extend(treasury_results)
         all_results.extend(apply_tax_effects(treasury, mayor, factions))
@@ -152,10 +158,10 @@ def run_cycle(
     if public is not None:
         from ..needs.scales import production_efficiency
         needs_out = compute_chain(factions, public.population, chains,
-                                  efficiency=production_efficiency(public))
+                                  efficiency=production_efficiency(public, balance))
         guard_paid = treasury.guard_paid_this_cycle if treasury is not None else True
         all_results.extend(apply_needs(public, needs_out, factions=factions, mayor=mayor,
-                                       guard_paid=guard_paid))
+                                       guard_paid=guard_paid, balance=balance))
 
     # ── Step 4–6 already ran above ────────────────────────────────────────────
     # Project ticking (health, construction, effects)
@@ -188,7 +194,7 @@ def run_cycle(
 
     # Moneylender processing
     if treasury is not None and mayor is not None:
-        ml_results = process_moneylender(treasury, mayor, factions)
+        ml_results = process_moneylender(treasury, mayor, factions, balance=balance)
         all_results.extend(ml_results)
 
     # The Public

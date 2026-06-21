@@ -83,7 +83,10 @@ class BalanceProfile:
     eff_min: float = 0.5
     eff_max: float = 1.25
 
-    # ── Mayor actions (mayor/actions.py) ───────────────────────────────────────
+    # ── Mayor actions (mayor/actions.py) — DEFINED but NOT yet consumed ─────────
+    # These are read on the player-action / audience path (a fixed-signature dispatch map
+    # plus the separate audience route), not the per-cycle path. Threading them is a noted
+    # follow-up; for now they resolve from NORMAL regardless of difficulty.
     meet_cooldown: int = 10        # cycles between audiences with the same faction
     sabotage_gold: int = 50        # gold cost of a Sabotage
 
@@ -98,26 +101,25 @@ class BalanceProfile:
 #: Base profile — reproduces the pre-extraction constants exactly. The engine consumes this.
 NORMAL = BalanceProfile(name="normal")
 
-#: Forgiving "self-balancing" mode. Provisional overrides — NOT yet consumed (slice 2).
+#: Forgiving "self-balancing" mode. Overrides bite on the per-cycle path (income, drift,
+#: unrest, population, removal). Provisional, untuned values.
 EASY = replace(
     NORMAL,
     name="easy",
     base_income=30,
     pop_growth=0.03,
     unrest_ease=6,          # calms faster
-    meet_cooldown=6,        # more audiences
     removal_threshold=1200, # more debt tolerance
     removal_grace_cycles=8,
 )
 
-#: Harsher mode with real stakes. Provisional overrides — NOT yet consumed (slice 2).
+#: Harsher mode with real stakes. Provisional, untuned values.
 HARD = replace(
     NORMAL,
     name="hard",
     base_income=12,
     pop_growth=0.015,
     unrest_ease=2,          # grudges linger
-    meet_cooldown=14,       # fewer audiences
     removal_threshold=500,
     removal_grace_cycles=3,
 )

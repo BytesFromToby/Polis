@@ -93,6 +93,7 @@ export const sim = {
     llm_profile_id: llmProfileId || null,
     player_name: identity.player_name || null,
     player_title: identity.player_title || null,
+    difficulty: identity.difficulty || null,
   }),
   step:   (userId)    => post(`/users/${userId}/sim/step`),
   run:    (userId, n) => post(`/users/${userId}/sim/run/${n}`),

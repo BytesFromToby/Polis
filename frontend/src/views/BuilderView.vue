@@ -93,6 +93,14 @@
   <div v-if="showStartModal" class="modal-overlay" @click.self="showStartModal = false">
     <div class="card modal-box" style="width:420px; max-width:95vw">
       <h2 style="margin-bottom:1rem">Start Sim</h2>
+      <div class="field" style="margin-bottom:1rem">
+        <label>Difficulty</label>
+        <select v-model="selectedDifficulty" style="padding:0.4rem 0.5rem; width:100%">
+          <option value="easy">Easy — forgiving (the self-balancing city)</option>
+          <option value="normal">Normal</option>
+          <option value="hard">Hard — real stakes</option>
+        </select>
+      </div>
       <div class="field" style="margin-bottom:1.25rem">
         <label>AI Profile</label>
         <select v-model="selectedProfileId" style="padding:0.4rem 0.5rem; width:100%">
@@ -136,6 +144,7 @@ export default {
       cityEdit: { city_name: '', description: '' },
       showStartModal: false,
       selectedProfileId: '',
+      selectedDifficulty: 'normal',
       llmProfileList: [],
     }
   },
@@ -219,7 +228,8 @@ export default {
     async confirmStart() {
       this.starting = true
       try {
-        const status = await sim.start(store.userId, this.selectedProfileId || null)
+        const status = await sim.start(store.userId, this.selectedProfileId || null,
+                                       { difficulty: this.selectedDifficulty })
         store.simStatus = status
         this.$router.push('/dashboard')
       } catch (e) {

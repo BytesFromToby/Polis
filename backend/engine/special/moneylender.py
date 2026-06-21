@@ -20,6 +20,7 @@ def process_moneylender(
     factions: Dict[str, Faction],
     moneylender_id: str = "moneylender",
     removal_countdown: List[int] = None,
+    balance=_BAL,
 ) -> List[ActionResult]:
     """Apply moneylender leverage effects. Returns results."""
     results = []
@@ -27,7 +28,7 @@ def process_moneylender(
     if treasury.debt <= 0:
         return results
 
-    if treasury.debt > LEVERAGE_THRESHOLD:
+    if treasury.debt > balance.leverage_threshold:
         results.append(ActionResult(
             action="MoneylenderLeverage",
             actor_id=moneylender_id,
@@ -40,7 +41,7 @@ def process_moneylender(
         if ml:
             ml._leverage_steal_bonus = 10
 
-    if treasury.debt > REMOVAL_THRESHOLD:
+    if treasury.debt > balance.removal_threshold:
         # Add 'angry at Mayor' trait to moneylender faction
         ml = factions.get(moneylender_id)
         if ml:
@@ -58,7 +59,7 @@ def process_moneylender(
         # Removal coalition trigger
         if removal_countdown is not None:
             if len(removal_countdown) == 0:
-                removal_countdown.append(REMOVAL_GRACE_CYCLES)
+                removal_countdown.append(balance.removal_grace_cycles)
             else:
                 removal_countdown[0] -= 1
                 if removal_countdown[0] <= 0:
