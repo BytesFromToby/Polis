@@ -15,12 +15,15 @@ from ..actions import (
     resolve_protect,
     resolve_toil,
     resolve_withhold,
+    resolve_rally,
+    resolve_agitate,
     resolve_aid,
     resolve_steal,
     resolve_build_project,
     resolve_sabotage_project,
 )
 from ..npc import select_faction_action
+from ..balance import NORMAL as _BAL
 
 
 # Minimal name pool for auto-regenerated leaders (theme-appropriate placeholder).
@@ -42,6 +45,7 @@ def run_sequential_actions(
     public=None,
     chain_roles: Optional[set] = None,
     mayor=None,
+    balance=_BAL,
 ) -> List[ActionResult]:
     """Step 1+2: roll initiative, then resolve each faction's single action in order.
     A target dropped to 0 health Breaks before the loop continues.
@@ -70,7 +74,8 @@ def run_sequential_actions(
 
         plan = select_faction_action(faction, factions, domains, world, projects, base_stacks,
                                      public=public, chain_roles=chain_roles, mayor=mayor)
-        result = _execute(plan, faction, factions, domains, projects, base_stacks)
+        result = _execute(plan, faction, factions, domains, projects, base_stacks,
+                          mayor=mayor, balance=balance)
         if not result:
             continue
 
@@ -97,6 +102,8 @@ def _execute(
     domains: Dict[str, Domain],
     projects: Dict[str, Project],
     base_stacks: Dict[str, "BaseProjectStack"] = None,
+    mayor=None,
+    balance=_BAL,
 ) -> Optional[ActionResult]:
     base_stacks = base_stacks or {}
     action = plan.action
@@ -111,6 +118,10 @@ def _execute(
         return resolve_toil(faction)
     if action == "Withhold":
         return resolve_withhold(faction)
+    if action == "Rally" and mayor is not None:
+        return resolve_rally(faction, mayor, balance)
+    if action == "Agitate" and mayor is not None:
+        return resolve_agitate(faction, mayor, balance)
     if action == "Aid" and plan.target_id:
         target = factions.get(plan.target_id)
         if target:

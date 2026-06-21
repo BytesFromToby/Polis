@@ -118,6 +118,9 @@ class BalanceProfile:
     coup_base_chance: float = 0.15     # per-cycle assassination chance while a plot is active
     coup_guard_protection: float = 0.05  # chance reduction per City-Guard level (the guard defends)
 
+    # ── Faction public influence — Rally / Agitate (actions/faction.py) ─────────
+    influence_per_level: float = 0.5   # public-support moved per faction level by a Rally/Agitate
+
 
 # ── Profiles ────────────────────────────────────────────────────────────────────
 

@@ -21,6 +21,12 @@ MAX_TRAITS = 6
 # the Mayor's standing with the faction being low. Keeps a strike structurally rare + legible.
 WITHHOLD_ANGER_THRESHOLD = -20   # mayor reputation with the faction at/below this → strike pressure
 WITHHOLD_ANGER_WEIGHT = 40.0     # weight per step; +1 step per 10 points below the threshold
+
+# Rally / Agitate — sway the Public's opinion of the Mayor, gated by the faction's standing with him.
+RALLY_THRESHOLD = 20             # mayor reputation with the faction at/above this → rally pressure
+AGITATE_THRESHOLD = -20          # at/below this → agitate pressure (mirrors the Withhold anger gate)
+RALLY_WEIGHT = 30.0              # weight per step; +1 step per 10 points beyond the threshold
+AGITATE_WEIGHT = 30.0
 UNREST_CRIME_WEIGHT = 15.0       # Steal weight per unrest band at/above Restless (public-needs_spec)
 CONFIDENCE_EMBOLDEN_WEIGHT = 10.0  # Harm/Steal lift at low confidence (Hostile/Suspicious)
 CONFIDENCE_COOP_WEIGHT = 10.0      # Harm/Steal damp at high confidence (Favorable/Beloved)
@@ -35,6 +41,8 @@ BASE_WEIGHTS: Dict[str, float] = {
     "Withhold":        0.0,    # chain-role only; lifts off 0 only under anger (Step 3)
     "BuildProject":    15.0,
     "SabotageProject": 10.0,
+    "Rally":           0.0,    # any faction; lifts only from high Mayor standing (Step 3)
+    "Agitate":         0.0,    # any faction; lifts only from low Mayor standing (Step 3)
 }
 
 TRAIT_MODIFIERS: Dict[str, Dict[str, float]] = {
@@ -158,6 +166,18 @@ def select_faction_action(
     else:
         weights.pop("Toil", None)
         weights.pop("Withhold", None)
+
+    # Rally / Agitate — any faction sways the Public's opinion of the Mayor based on its standing
+    # with him (faction-behavior_spec Step 3 / actions_spec). Base 0; lifts only at the tiers, and
+    # scales one step per 10 points beyond the threshold — mirroring the Withhold anger gate.
+    if mayor is not None:
+        m_rep = mayor.get_reputation(faction.id)
+        if m_rep >= RALLY_THRESHOLD:
+            steps = 1 + (m_rep - RALLY_THRESHOLD) // 10
+            weights["Rally"] = weights.get("Rally", 0.0) + RALLY_WEIGHT * steps
+        elif m_rep <= AGITATE_THRESHOLD:
+            steps = 1 + (AGITATE_THRESHOLD - m_rep) // 10
+            weights["Agitate"] = weights.get("Agitate", 0.0) + AGITATE_WEIGHT * steps
 
     # Unrest → crime: civic disorder is cover for theft (public-needs_spec Unrest). Restless+
     # lifts Steal, scaling one step at Agitated and again at Boiling.

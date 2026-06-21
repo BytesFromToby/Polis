@@ -12,6 +12,7 @@ from typing import Dict
 from ..models import Faction, Domain, Project, ActionResult
 from ..formulas import grow_increment, resolve_contest, RATING_MAX
 from ..projects import apply_build_step, apply_sabotage_damage
+from ..balance import NORMAL as _BAL
 
 
 # ── GROW ──────────────────────────────────────────────────────────────────────
@@ -81,6 +82,36 @@ def resolve_withhold(faction: Faction) -> ActionResult:
     return ActionResult(
         "Withhold", faction.id, None, "success",
         narrative=f"{faction.name} seal their stores against the city.",
+    )
+
+
+# ── RALLY / AGITATE ────────────────────────────────────────────────────────────
+
+def _influence_delta(faction: Faction, balance) -> int:
+    """Public support a faction moves with one Rally/Agitate — rank-scaled, at least 1."""
+    return max(1, round(balance.influence_per_level * faction.level))
+
+
+def resolve_rally(faction: Faction, mayor, balance=_BAL) -> ActionResult:
+    """The faction champions the Mayor before the people, lifting public opinion (actions_spec):
+    mayor.reputation["the_public"] += a rank-scaled amount. Pure opportunity cost — no rank,
+    health, or project effect."""
+    delta = _influence_delta(faction, balance)
+    mayor.adjust_reputation("the_public", delta)
+    return ActionResult(
+        "Rally", faction.id, "the_public", "success", delta=float(delta), dramatic=True,
+        narrative=f"{faction.name} rally the people behind the Mayor (+{delta} support).",
+    )
+
+
+def resolve_agitate(faction: Faction, mayor, balance=_BAL) -> ActionResult:
+    """Rally's twin: the faction turns the people against the Mayor (actions_spec):
+    mayor.reputation["the_public"] -= a rank-scaled amount. Pure opportunity cost."""
+    delta = _influence_delta(faction, balance)
+    mayor.adjust_reputation("the_public", -delta)
+    return ActionResult(
+        "Agitate", faction.id, "the_public", "success", delta=float(-delta), dramatic=True,
+        narrative=f"{faction.name} turn the people against the Mayor (-{delta} support).",
     )
 
 

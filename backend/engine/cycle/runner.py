@@ -129,7 +129,7 @@ def run_cycle(
     # ── Steps 1–2: Sequential initiative action loop ─────────────────────────
     resolution_results = run_sequential_actions(
         world, factions, domains, projects, cycle_num, logger, base_stacks=base_stacks,
-        public=public, chain_roles=chain_roles, mayor=mayor,
+        public=public, chain_roles=chain_roles, mayor=mayor, balance=balance,
     )
     all_results.extend(resolution_results)
 
