@@ -98,6 +98,13 @@ class BalanceProfile:
     # ── Mayor removal spiral / terminal fail state (special/removal.py) ─────────
     removal_rep_threshold: int = -30   # Public reputation at/below this starts the countdown
 
+    # ── Population collapse + latched warning (special/removal.py) ──────────────
+    pop_collapse: int = 1000           # population at/below this ends the run (if death enabled)
+    pop_floor_is_death: bool = True    # True: hitting the floor is terminal; False (easy): just a floor
+    pop_warn_on: int = 1500            # warning latches ON at/below this population
+    pop_warn_off: int = 1750           # warning clears once population recovers above this (hysteresis)
+    pop_warn_support_drain: int = -1   # support lost per cycle while the warning is active
+
 
 # ── Profiles ────────────────────────────────────────────────────────────────────
 
@@ -111,9 +118,10 @@ EASY = replace(
     name="easy",
     base_income=30,
     pop_growth=0.03,
-    unrest_ease=6,          # calms faster
-    removal_threshold=1200, # more debt tolerance
+    unrest_ease=6,            # calms faster
+    removal_threshold=1200,   # more debt tolerance
     removal_grace_cycles=8,
+    pop_floor_is_death=False,  # the city bottoms out at the floor but never dies
 )
 
 #: Harsher mode with real stakes. Provisional, untuned values.

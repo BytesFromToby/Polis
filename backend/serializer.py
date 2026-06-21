@@ -213,6 +213,7 @@ def serialize_the_public(p: ThePublic) -> dict:
         "unrest": p.unrest,
         "consumption": p.consumption,
         "drunk": p.drunk,
+        "pop_warning": p.pop_warning,
         # Derived display keys (band tables in public-needs_spec) — ignored on deserialize
         "fed_band": fed_band(p.fed),
         "happy_band": happy_band(p.happy),
@@ -237,6 +238,7 @@ def deserialize_the_public(d: dict) -> ThePublic:
         unrest=d.get("unrest", 10),
         consumption=d.get("consumption", 45),
         drunk=d.get("drunk", False),
+        pop_warning=d.get("pop_warning", False),
     )
 
 

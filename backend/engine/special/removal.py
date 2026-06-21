@@ -1,20 +1,21 @@
 """
-engine/special/removal.py — the terminal Mayor-removal resolution (fail-states_spec).
+engine/special/removal.py — terminal fail-state resolutions (fail-states_spec).
 
-One place that decides whether the Mayor loses office and the run ends. Multiple triggers feed
-a single countdown on the Mayor; when it elapses the run is over (world.game_over latches with a
-recorded cause). Implements mayor_spec "Mayor Removal" as an actual end state rather than the
-narrative-only warnings that preceded it.
+The "one end-state, many triggers" spine: each resolution can latch world.game_over with a
+recorded cause when the run is lost. Implements mayor_spec "Mayor Removal" as an actual end state
+rather than the narrative-only warnings that preceded it.
 
-Slice 1 triggers:
-  - Public reputation ≤ balance.removal_rep_threshold  → cause "public_revolt"
-  - Treasury debt > balance.removal_threshold (the moneylender coalition) → cause "removal_coalition"
-
-The countdown starts at balance.removal_grace_cycles when a trigger first holds, decrements each
-cycle it persists, and clears the moment every trigger lifts (the player stabilised in time).
+Triggers:
+  - Mayor removal spiral (process_mayor_removal): Public reputation ≤ removal_rep_threshold
+    → "public_revolt"; debt > removal_threshold (moneylender coalition) → "removal_coalition".
+    A countdown starts at removal_grace_cycles when a trigger holds, decrements while it persists,
+    and clears the moment every trigger lifts (the player stabilised in time).
+  - Population collapse (process_population): a latched low-population warning with hysteresis
+    (on ≤ pop_warn_on, off > pop_warn_off) that drains support while active; population reaching
+    pop_collapse ends the run ("population_collapse") on profiles where pop_floor_is_death.
 
 Deferred (noted in the spec): the 3+-hostile-factions coalition pressure and bankruptcy's distinct
-grace; population collapse and the election verdict are separate triggers in later slices.
+grace; the election verdict and assassination are separate triggers in later slices.
 """
 from __future__ import annotations
 from typing import Dict, List, Optional, TYPE_CHECKING
@@ -23,7 +24,7 @@ from engine.models import ActionResult
 from engine.balance import NORMAL as _BAL
 
 if TYPE_CHECKING:
-    from engine.models import WorldState, Mayor, Treasury, Faction
+    from engine.models import WorldState, Mayor, Treasury, Faction, ThePublic
 
 
 def _active_trigger(mayor: "Mayor", treasury: Optional["Treasury"], balance) -> Optional[str]:
@@ -92,4 +93,60 @@ def process_mayor_removal(
         narrative=("The Mayor is removed from office. The reign ends "
                    f"({cause.replace('_', ' ')})."),
     ))
+    return results
+
+
+def _drain_support(public: "ThePublic", mayor: Optional["Mayor"], delta: int) -> None:
+    """Route a support delta through mayor reputation (source of truth) or public.support."""
+    if mayor is not None:
+        mayor.adjust_reputation("the_public", delta)
+    else:
+        public.support = max(-50, min(50, public.support + delta))
+
+
+def process_population(
+    world: "WorldState",
+    public: "ThePublic",
+    mayor: Optional["Mayor"] = None,
+    balance=_BAL,
+) -> List[ActionResult]:
+    """Population collapse (terminal) + the latched low-population warning (fail-states_spec)."""
+    results: List[ActionResult] = []
+    if world.game_over:
+        return results
+
+    pop = public.population
+
+    # Collapse → terminal, on profiles where the floor is lethal (normal/hard, not easy).
+    if balance.pop_floor_is_death and pop <= balance.pop_collapse:
+        world.game_over = True
+        world.end_cause = "population_collapse"
+        public.pop_warning = False
+        results.append(ActionResult(
+            action="PopulationCollapse", actor_id="the_public", target_id="mayor",
+            outcome="decisive", dramatic=True,
+            narrative=f"The city empties — only {pop:,} souls remain. The reign ends.",
+        ))
+        return results
+
+    # Latched warning with hysteresis: on at/below pop_warn_on, off only once above pop_warn_off.
+    if not public.pop_warning and pop <= balance.pop_warn_on:
+        public.pop_warning = True
+        results.append(ActionResult(
+            action="PopulationWarning", actor_id="the_public", target_id="mayor",
+            outcome="no_op", dramatic=True,
+            narrative=f"The city is emptying ({pop:,}) — confidence bleeds away each cycle.",
+        ))
+    elif public.pop_warning and pop > balance.pop_warn_off:
+        public.pop_warning = False
+        results.append(ActionResult(
+            action="PopulationRecovered", actor_id="the_public", target_id="mayor",
+            outcome="no_op", dramatic=True,
+            narrative=f"The city refills ({pop:,}) — the exodus has eased.",
+        ))
+
+    # Drain support each cycle the warning holds (feeds the removal spiral).
+    if public.pop_warning and balance.pop_warn_support_drain:
+        _drain_support(public, mayor, balance.pop_warn_support_drain)
+
     return results

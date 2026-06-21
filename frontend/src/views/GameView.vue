@@ -331,7 +331,8 @@ export default {
     },
     endCauseLabel() {
       return { public_revolt: 'the people rose against you',
-               removal_coalition: 'the creditors forced you out' }[this.endCause]
+               removal_coalition: 'the creditors forced you out',
+               population_collapse: 'the city emptied beneath you' }[this.endCause]
              || 'you were removed from office'
     },
     factionList() {

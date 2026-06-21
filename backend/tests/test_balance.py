@@ -50,6 +50,10 @@ def test_normal_values_match_historical_constants():
     assert NORMAL.removal_threshold == 800
     assert NORMAL.removal_grace_cycles == 5
     assert NORMAL.removal_rep_threshold == -30
+    assert NORMAL.pop_collapse == 1000
+    assert NORMAL.pop_floor_is_death is True
+    assert (NORMAL.pop_warn_on, NORMAL.pop_warn_off) == (1500, 1750)
+    assert NORMAL.pop_warn_support_drain == -1
 
 
 # ── The engine modules re-export NORMAL — they must not drift from it ─────────────

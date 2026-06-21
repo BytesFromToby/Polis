@@ -69,7 +69,8 @@ def run_cycle(
     """
     from ..mayor import process_treasury_step0, apply_tax_effects, execute_mayor_actions, apply_reputation_decay
     from ..projects import tick_projects, apply_project_effects
-    from ..special import process_the_public, process_moneylender, process_external_threats, process_mayor_removal
+    from ..special import (process_the_public, process_moneylender, process_external_threats,
+                           process_mayor_removal, process_population)
     from ..needs import compute_chain, apply_needs, chain_role_faction_ids
 
     chains = chains or []
@@ -202,8 +203,10 @@ def run_cycle(
         pub_results = process_the_public(public, mayor, factions, all_results)
         all_results.extend(pub_results)
 
-    # Mayor removal spiral — the terminal fail-state check, after reputation has settled
-    # (fail-states_spec). Latches world.game_over when the countdown elapses.
+    # Terminal fail-state checks, after reputation/population have settled (fail-states_spec).
+    # Population collapse first (it can latch game_over, which removal then sees as a no-op).
+    if public is not None:
+        all_results.extend(process_population(world, public, mayor, balance=balance))
     if mayor is not None:
         all_results.extend(process_mayor_removal(world, mayor, treasury, factions, balance=balance))
 

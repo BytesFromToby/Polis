@@ -368,6 +368,7 @@ class ThePublic:
     unrest: int = 10           # 0-100; aggregate civic pressure, low is good (public-needs_spec)
     consumption: int = 45      # 0-100; alcohol, mid is good — both ends bite (public-needs_spec)
     drunk: bool = False        # derived from the consumption band (Tipsy/Sodden) each needs step
+    pop_warning: bool = False  # latched low-population warning (fail-states_spec): on ≤ pop_warn_on, off > pop_warn_off
 
     def derive_disposition(self) -> str:
         if self.support >= 20:   return "content"
