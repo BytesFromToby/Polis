@@ -134,6 +134,9 @@ Every threshold here is a **balance dial** and several differ by difficulty — 
 
 ## Build sequence (within this proposal)
 
+> **Status:** Slice 1 **shipped 2026-06-21** as [fail-states_spec](../specs/fail-states_spec.md)
+> (terminal `game_over` + the removal spiral via Public reputation / debt). Slices 2–4 below remain.
+
 1. Terminal end-state + route existing removal triggers into it (the spine).
 2. Population fail + latched warning event + population gates (smallest slice; builds reusable infra).
 3. Elections (the big trigger) — see elections-and-titles.md; needs the approval readout.

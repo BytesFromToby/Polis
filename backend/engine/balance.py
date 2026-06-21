@@ -95,6 +95,9 @@ class BalanceProfile:
     removal_threshold: int = 800
     removal_grace_cycles: int = 5
 
+    # ── Mayor removal spiral / terminal fail state (special/removal.py) ─────────
+    removal_rep_threshold: int = -30   # Public reputation at/below this starts the countdown
+
 
 # ── Profiles ────────────────────────────────────────────────────────────────────
 

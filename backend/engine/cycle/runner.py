@@ -69,7 +69,7 @@ def run_cycle(
     """
     from ..mayor import process_treasury_step0, apply_tax_effects, execute_mayor_actions, apply_reputation_decay
     from ..projects import tick_projects, apply_project_effects
-    from ..special import process_the_public, process_moneylender, process_external_threats
+    from ..special import process_the_public, process_moneylender, process_external_threats, process_mayor_removal
     from ..needs import compute_chain, apply_needs, chain_role_faction_ids
 
     chains = chains or []
@@ -201,6 +201,11 @@ def run_cycle(
     if public is not None and mayor is not None:
         pub_results = process_the_public(public, mayor, factions, all_results)
         all_results.extend(pub_results)
+
+    # Mayor removal spiral — the terminal fail-state check, after reputation has settled
+    # (fail-states_spec). Latches world.game_over when the countdown elapses.
+    if mayor is not None:
+        all_results.extend(process_mayor_removal(world, mayor, treasury, factions, balance=balance))
 
     # Reset cycle-only Toil/Withhold flags after the needs step consumed them
     # (cycle-runner_spec — Cycle-Only State). An active withhold event re-asserts next cycle.

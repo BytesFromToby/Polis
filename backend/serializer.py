@@ -157,6 +157,8 @@ def serialize_world_state(world: WorldState) -> dict:
     return {
         "cycle": world.cycle,
         "chaos": dict(world.chaos),
+        "game_over": world.game_over,
+        "end_cause": world.end_cause,
         # initiative_order is cycle-only; not persisted
     }
 
@@ -165,6 +167,8 @@ def deserialize_world_state(d: dict) -> WorldState:
     return WorldState(
         cycle=d.get("cycle", 0),
         chaos=d.get("chaos", {}),
+        game_over=d.get("game_over", False),
+        end_cause=d.get("end_cause", ""),
     )
 
 
@@ -394,6 +398,7 @@ def serialize_mayor(m: Mayor) -> dict:
         "cooldowns": dict(m.cooldowns),
         "exemptions": dict(m.exemptions),
         "deals": {did: serialize_deal(d) for did, d in m.deals.items()},
+        "removal_countdown": m.removal_countdown,
     }
 
 
@@ -406,6 +411,7 @@ def deserialize_mayor(d: dict) -> Mayor:
         cooldowns=d.get("cooldowns", {}),
         exemptions=d.get("exemptions", {}),
         deals={did: deserialize_deal(v) for did, v in d.get("deals", {}).items()},
+        removal_countdown=d.get("removal_countdown"),
     )
 
 

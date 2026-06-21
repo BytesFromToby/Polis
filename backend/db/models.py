@@ -98,6 +98,9 @@ class SimRun(Base):
     # Balance profile selected at run creation — see engine/balance.py (default "normal")
     difficulty: Mapped[str] = mapped_column(String, default="normal")
 
+    # Why a finished run ended (fail-states_spec); "" while running. status="complete" + this.
+    end_cause: Mapped[str] = mapped_column(String, default="")
+
     user: Mapped[User]            = relationship("User", back_populates="sim_runs")
     city: Mapped[City]            = relationship("City", back_populates="sim_runs")
     llm_profile: Mapped["LLMProfile | None"] = relationship("LLMProfile")

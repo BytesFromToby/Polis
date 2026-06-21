@@ -52,6 +52,7 @@ def _migrate() -> None:
     _add_column_if_missing("sim_runs",  "player_name",      "TEXT DEFAULT 'Kallisto'")
     _add_column_if_missing("sim_runs",  "player_title",     "TEXT DEFAULT 'Prytanis'")
     _add_column_if_missing("sim_runs",  "difficulty",       "TEXT DEFAULT 'normal'")
+    _add_column_if_missing("sim_runs",  "end_cause",        "TEXT DEFAULT ''")
 
 
 def _add_column_if_missing(table: str, column: str, col_type: str) -> None:

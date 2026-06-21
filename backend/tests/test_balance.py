@@ -49,6 +49,7 @@ def test_normal_values_match_historical_constants():
     assert NORMAL.leverage_threshold == 500
     assert NORMAL.removal_threshold == 800
     assert NORMAL.removal_grace_cycles == 5
+    assert NORMAL.removal_rep_threshold == -30
 
 
 # ── The engine modules re-export NORMAL — they must not drift from it ─────────────

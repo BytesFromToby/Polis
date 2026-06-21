@@ -68,6 +68,7 @@ class SimStatusResponse(BaseModel):
     description: str = ""
     llm_profile_id: Optional[str] = None
     difficulty: str = "normal"
+    end_cause: str = ""           # why a finished run ended (fail-states_spec); "" while running
 
 
 class SimStartRequest(BaseModel):
@@ -95,6 +96,8 @@ class SimStepResponse(BaseModel):
     cycle: int
     events_count: int
     dramatic_count: int
+    game_over: bool = False       # the run ended this step (fail-states_spec)
+    end_cause: str = ""
 
 
 class SimRunResponse(BaseModel):

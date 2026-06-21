@@ -10,8 +10,8 @@
       <button class="theme-toggle btn-sm" @click="toggleTheme">
         {{ theme === 'light' ? 'black-figure' : 'red-figure' }}
       </button>
-      <button class="btn-primary" @click="runCycle" :disabled="busy">
-        {{ busy ? 'Running…' : 'Run Cycle' }}
+      <button class="btn-primary" @click="runCycle" :disabled="busy || gameOver">
+        {{ gameOver ? 'Reign ended' : (busy ? 'Running…' : 'Run Cycle') }}
       </button>
       <div class="menu-wrap">
         <button class="btn-subtle btn-sm menu-btn" @click="showMenu = !showMenu" aria-label="Menu">☰</button>
@@ -25,6 +25,9 @@
 
     <LLMSettings v-if="showSettings" @close="showSettings = false" />
 
+    <p v-if="gameOver" class="error-bar" style="background:var(--danger); color:var(--on-danger)">
+      The reign has ended — {{ endCauseLabel }}. Start a new game from Home to play again.
+    </p>
     <p v-if="error" class="error-bar">{{ error }}</p>
 
     <!-- Quadrant: left rail (Factions / Projects) + main (Mayor / Events) -->
@@ -299,6 +302,8 @@ export default {
     return {
       busy: false,
       error: '',
+      gameOver: false,
+      endCause: '',
       cycle: 0,
       cityName: '',
       snapshot: null,
@@ -323,6 +328,11 @@ export default {
     aiSet() {
       // An audience requires a valid active AI on the run (audience_spec v5).
       return !!this.llmProfileId
+    },
+    endCauseLabel() {
+      return { public_revolt: 'the people rose against you',
+               removal_coalition: 'the creditors forced you out' }[this.endCause]
+             || 'you were removed from office'
     },
     factionList() {
       if (!this.snapshot?.factions) return []
@@ -416,6 +426,10 @@ export default {
         this.cycle = status.current_cycle
         this.cityName = status.city_name || 'Polis'
         this.llmProfileId = status.llm_profile_id || null
+        if (status.end_cause || status.status === 'complete') {
+          this.gameOver = true
+          this.endCause = status.end_cause || ''
+        }
         this.logs = rawLogs
         // Mayor/treasury/projects — don't block if missing
         await Promise.allSettled([
@@ -463,7 +477,11 @@ export default {
       this.error = ''
       this.busy = true
       try {
-        await sim.step(store.userId)
+        const res = await sim.step(store.userId)
+        if (res && res.game_over) {
+          this.gameOver = true
+          this.endCause = res.end_cause || ''
+        }
         await this.refresh()
       } catch (e) {
         this.error = e.message

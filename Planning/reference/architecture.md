@@ -89,7 +89,7 @@ polis/
 | `engine/mayor/{actions,treasury}.py` | Mayor actions + treasury (mayor_spec, treasury_spec) |
 | `engine/llm/` | LLM audiences, prompt building, response parsing, memory (llm-system_spec) |
 | `engine/projects/processing.py` | Project construction, ticks, effects (projects_spec) |
-| `engine/special/` | The Public, moneylender, external threats (special-factions_spec) |
+| `engine/special/` | The Public, moneylender, external threats, Mayor removal/terminal fail state (special-factions_spec, fail-states_spec) |
 | `engine/logger.py` | SimLogger: narrative + system logs |
 | `api/server.py` | FastAPI app entry; serves the built frontend |
 | `api/deps.py` | JWT auth, session management |

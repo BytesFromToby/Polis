@@ -305,6 +305,9 @@ def step_sim(
                        balance=get_profile(session.difficulty))
 
     run.current_cycle = session.world.cycle
+    if session.world.game_over and run.status != "complete":
+        run.status = "complete"
+        run.end_cause = session.world.end_cause
 
     _save_cycle(db, run.run_id, session.world, session.factions, session.domains,
                 result.events, mayor=session.mayor, treasury=session.treasury,
@@ -315,6 +318,8 @@ def step_sim(
         cycle=result.cycle,
         events_count=len(result.events),
         dramatic_count=sum(1 for e in result.events if e.dramatic > 0),
+        game_over=session.world.game_over,
+        end_cause=session.world.end_cause,
     )
 
 
@@ -367,10 +372,19 @@ def run_n(
             cycles_run += 1
 
             run.current_cycle = session.world.cycle
+            # Terminal fail state — set status before saving so the commit persists it.
+            game_over = session.world.game_over
+            if game_over:
+                run.status = "complete"
+                run.end_cause = session.world.end_cause
             _save_cycle(db, run.run_id, session.world, session.factions, session.domains,
                         result.events, mayor=session.mayor, treasury=session.treasury,
                         projects=session.projects, base_stacks=session.base_stacks,
                         public=session.public)
+            if game_over:
+                stopped_early = True
+                stop_reason = "game_over"
+                break
 
     finally:
         session.is_running = False
@@ -484,6 +498,7 @@ def _build_status(run: SimRun, db: Session, user_id: str) -> SimStatusResponse:
         description=run.description or "",
         llm_profile_id=run.llm_profile_id,
         difficulty=run.difficulty or "normal",
+        end_cause=run.end_cause or "",
     )
 
 

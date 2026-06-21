@@ -136,6 +136,10 @@ class WorldState:
     cycle: int = 0
     chaos: Dict[str, float] = field(default_factory=dict)          # domain_id -> 0.0-10.0
     initiative_order: List[str] = field(default_factory=list)       # cycle-only; faction ids in turn order
+    # Terminal run state (fail-states_spec). game_over latches once a removal trigger resolves;
+    # end_cause records why ("public_revolt" | "removal_coalition").
+    game_over: bool = False
+    end_cause: str = ""
 
 
 # ── CycleEvent — Formal Output ────────────────────────────────────────────────
@@ -476,6 +480,9 @@ class Mayor:
     exemptions: Dict[str, int] = field(default_factory=dict)
     # deals: deal_id -> Deal (all statuses retained for history within a run)
     deals: Dict[str, "Deal"] = field(default_factory=dict)
+    # Removal spiral countdown (fail-states_spec): cycles left before the Mayor is removed while
+    # a removal condition holds; None = not in jeopardy. Cleared if the condition lifts in time.
+    removal_countdown: Optional[int] = None
 
     def get_reputation(self, faction_id: str) -> int:
         return self.reputation.get(faction_id, 0)
