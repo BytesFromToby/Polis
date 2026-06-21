@@ -76,6 +76,7 @@ polis/
 |--------|------|
 | `engine/models.py` | Dataclasses: Faction (embedded Leader), Domain, WorldState, plans, results |
 | `engine/balance.py` | Single source of truth for tunable dials; `BalanceProfile` + easy/normal/hard (balance_spec) |
+| `engine/titles.py` | The Mayor's title ladder (Prytanis→Basileus); `Mayor.title_rank` indexes it (elections_spec) |
 | `engine/formulas.py` | Faction-contest math: rating ceiling, grow increment, rolls, contest, faction weight, domain cap resistance |
 | `engine/actions/faction.py` | Faction action resolvers (grow, protect, aid, harm, steal, build/sabotage project) |
 | `engine/cycle/runner.py` | `run_cycle()` orchestrator — full cycle order (see cycle-runner_spec) |

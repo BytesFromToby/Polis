@@ -7,6 +7,9 @@
       <span class="city-name">{{ cityName }}</span>
       <span class="spacer"></span>
       <span class="cycle-badge">Cycle {{ cycle }}</span>
+      <span v-if="election" class="cycle-badge" title="The Mayor's standing on the title ladder">
+        {{ election.title }}
+      </span>
       <span v-if="election" class="cycle-badge" :title="`Re-election approval (need ≥ ${election.pass_score})`">
         {{ election.next_in === 0 ? 'Election now' : `Election in ${election.next_in}` }} ·
         approval {{ election.approval > 0 ? '+' : '' }}{{ election.approval }}
@@ -29,7 +32,10 @@
 
     <LLMSettings v-if="showSettings" @close="showSettings = false" />
 
-    <p v-if="gameOver" class="error-bar" style="background:var(--danger); color:var(--on-danger)">
+    <p v-if="gameOver && won" class="error-bar" style="background:var(--accent); color:var(--on-accent)">
+      Victory — you ascended to Basileus and your reign passes into legend. Start a new game from Home to play again.
+    </p>
+    <p v-else-if="gameOver" class="error-bar" style="background:var(--danger); color:var(--on-danger)">
       The reign has ended — {{ endCauseLabel }}. Start a new game from Home to play again.
     </p>
     <p v-if="error" class="error-bar">{{ error }}</p>
@@ -350,6 +356,9 @@ export default {
     },
     election() {
       return this.snapshot?.election || null
+    },
+    won() {
+      return this.endCause === 'victory'
     },
     factionsByDomain() {
       const factions = this.snapshot?.factions

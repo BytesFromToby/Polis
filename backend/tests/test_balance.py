@@ -58,6 +58,7 @@ def test_normal_values_match_historical_constants():
     assert NORMAL.election_warn_window == 4
     assert NORMAL.election_pass_score == 0.0
     assert NORMAL.election_public_weight == 0.5
+    assert NORMAL.election_loss_is_terminal is False
 
 
 # ── The engine modules re-export NORMAL — they must not drift from it ─────────────

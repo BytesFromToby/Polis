@@ -136,9 +136,10 @@ Every threshold here is a **balance dial** and several differ by difficulty — 
 
 > **Status:** Slices 1–3 **shipped 2026-06-21**. Slices 1–2 → [fail-states_spec](../specs/fail-states_spec.md)
 > (terminal `game_over`; removal spiral via Public reputation / debt; population collapse + latched
-> warning). Slice 3 → [elections_spec](../specs/elections_spec.md) (the recurring verdict; loss =
-> game over for now — title ladder/demotion + deal-as-vote deferred). Slice 4 (assassination/coup)
-> remains, plus the deferred election follow-ups.
+> warning). Slice 3 → [elections_spec](../specs/elections_spec.md) (the recurring verdict + the
+> title ladder: win climbs, top rung = victory, lose demotes-with-floor or is terminal on hard).
+> Slice 4 (assassination/coup) remains, plus deferred election follow-ups (titles in the audience
+> prompt, deal-as-vote, forecast panel).
 
 1. Terminal end-state + route existing removal triggers into it (the spine).
 2. Population fail + latched warning event + population gates (smallest slice; builds reusable infra).

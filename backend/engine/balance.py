@@ -110,6 +110,7 @@ class BalanceProfile:
     election_warn_window: int = 4      # campaign warning starts this many cycles before the vote
     election_pass_score: float = 0.0   # approval (−50..+50) must reach this to be re-elected
     election_public_weight: float = 0.5  # popular vote share; faction vote share = 1 − this
+    election_loss_is_terminal: bool = False  # True (hard): any loss ends the run; False: demote, floor at the bottom rung
 
 
 # ── Profiles ────────────────────────────────────────────────────────────────────
@@ -139,6 +140,7 @@ HARD = replace(
     unrest_ease=2,          # grudges linger
     removal_threshold=500,
     removal_grace_cycles=3,
+    election_loss_is_terminal=True,  # roguelike: a lost election ends the run outright
 )
 
 #: Registry, keyed by the value stored on `SimRun.difficulty`.

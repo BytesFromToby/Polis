@@ -109,6 +109,53 @@ def test_summary_reports_next_and_approval():
 
 # ── run_cycle integration ────────────────────────────────────────────────────────
 
+# ── Title ladder ─────────────────────────────────────────────────────────────────
+
+def _election_now(support, rank, balance):
+    world = WorldState(cycle=balance.election_interval)
+    mayor = Mayor(); mayor.title_rank = rank
+    results = process_election(world, ThePublic(support=support), {}, mayor, balance)
+    return world, mayor, results
+
+
+def test_win_climbs_the_ladder():
+    world, mayor, results = _election_now(40, 0, NORMAL)
+    assert mayor.title_rank == 1
+    assert not world.game_over and _has(results, "ElectionWon")
+
+
+def test_reaching_top_rung_is_victory():
+    from engine.titles import TOP_RANK
+    world, mayor, results = _election_now(40, TOP_RANK - 1, NORMAL)
+    assert mayor.title_rank == TOP_RANK
+    assert world.game_over is True and world.end_cause == "victory"
+
+
+def test_loss_demotes_on_forgiving_profile():
+    world, mayor, results = _election_now(-40, 2, NORMAL)   # NORMAL is non-terminal
+    assert mayor.title_rank == 1
+    assert not world.game_over and _has(results, "ElectionDemoted")
+
+
+def test_loss_at_bottom_rung_is_game_over():
+    world, mayor, results = _election_now(-40, 0, NORMAL)   # demoting below the floor
+    assert world.game_over is True and world.end_cause == "voted_out"
+
+
+def test_hard_loss_is_terminal_at_any_rank():
+    from dataclasses import replace
+    hard = replace(NORMAL, election_loss_is_terminal=True)
+    world, mayor, results = _election_now(-40, 3, hard)
+    assert world.game_over is True and world.end_cause == "voted_out"
+    assert _has(results, "ElectionLost")
+
+
+def test_title_rank_survives_serialization():
+    from serializer import serialize_mayor, deserialize_mayor
+    mayor = Mayor(); mayor.title_rank = 3
+    assert deserialize_mayor(serialize_mayor(mayor)).title_rank == 3
+
+
 def test_run_cycle_holds_election_and_can_end_run():
     from engine.cycle.runner import run_cycle
     world = WorldState(cycle=NORMAL.election_interval - 1, chaos={})

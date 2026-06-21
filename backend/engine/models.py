@@ -484,6 +484,9 @@ class Mayor:
     # Removal spiral countdown (fail-states_spec): cycles left before the Mayor is removed while
     # a removal condition holds; None = not in jeopardy. Cleared if the condition lifts in time.
     removal_countdown: Optional[int] = None
+    # Title-ladder standing (elections_spec): index into engine.titles.TITLE_LADDER. Election wins
+    # climb it; losses demote (on forgiving profiles); the top rung is victory.
+    title_rank: int = 0
 
     def get_reputation(self, faction_id: str) -> int:
         return self.reputation.get(faction_id, 0)

@@ -1,11 +1,12 @@
 # Proposal: Elections & the Title Ladder (endgame)
 
 **Date:** 2026-06-10
-**Status:** PARTIALLY BUILT. The **election verdict** shipped 2026-06-21 as
-[elections_spec](../specs/elections_spec.md) (slice 3a: rank-weighted approval, cadence, campaign
-warning, approval readout; loss = game over). **Still unbuilt from this proposal:** the title
-ladder + demotion-with-floor + victory at the top rung, and "support me in the election" as a deal
-term. The sections below remain the design reference for those.
+**Status:** PARTIALLY BUILT. The **election verdict + title ladder** shipped 2026-06-21 as
+[elections_spec](../specs/elections_spec.md) (rank-weighted approval, cadence, campaign warning,
+approval readout; the ladder Prytanis→Basileus with win-climbs / top-rung-victory /
+demotion-with-floor / hard-terminal). **Still unbuilt from this proposal:** threading the current
+title into the **audience prompt** (so leaders address rank), and "support me in the election" as a
+**deal term**. The sections below remain the design reference for those.
 
 ## Problem
 

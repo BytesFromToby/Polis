@@ -401,6 +401,7 @@ def serialize_mayor(m: Mayor) -> dict:
         "exemptions": dict(m.exemptions),
         "deals": {did: serialize_deal(d) for did, d in m.deals.items()},
         "removal_countdown": m.removal_countdown,
+        "title_rank": m.title_rank,
     }
 
 
@@ -414,6 +415,7 @@ def deserialize_mayor(d: dict) -> Mayor:
         exemptions=d.get("exemptions", {}),
         deals={did: deserialize_deal(v) for did, v in d.get("deals", {}).items()},
         removal_countdown=d.get("removal_countdown"),
+        title_rank=d.get("title_rank", 0),
     )
 
 
