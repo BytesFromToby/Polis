@@ -74,6 +74,7 @@ def _restore_session(user_id: str, db: Session, run_id: str | None = None) -> Si
         run_id=run.run_id, world=world, factions=factions, domains=domains,
         mayor=mayor, treasury=treasury, projects=projects, base_stacks=base_stacks,
         public=public, llm_profile_id=run.llm_profile_id,
+        difficulty=run.difficulty or "normal",
     )
     set_session(user_id, session)
     return session
@@ -218,6 +219,10 @@ def start_sim(
     else:
         setup_run.llm_profile_id = None
 
+    # Difficulty (balance profile) — unknown/None falls back to "normal" (see engine/balance.py)
+    from engine.balance import get_profile
+    setup_run.difficulty = get_profile(req.difficulty if req else None).name
+
     db.commit()
 
     session = SimSession(
@@ -231,6 +236,7 @@ def start_sim(
         base_stacks=base_stacks,
         public=public,
         llm_profile_id=setup_run.llm_profile_id,
+        difficulty=setup_run.difficulty,
     )
     set_session(user_id, session)
 
@@ -474,6 +480,7 @@ def _build_status(run: SimRun, db: Session, user_id: str) -> SimStatusResponse:
         city_name=city.city_name if city else "",
         description=run.description or "",
         llm_profile_id=run.llm_profile_id,
+        difficulty=run.difficulty or "normal",
     )
 
 

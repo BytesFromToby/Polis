@@ -67,12 +67,14 @@ class SimStatusResponse(BaseModel):
     city_name: str = ""
     description: str = ""
     llm_profile_id: Optional[str] = None
+    difficulty: str = "normal"
 
 
 class SimStartRequest(BaseModel):
     llm_profile_id: Optional[str] = None   # None = stub mode
     player_name: Optional[str] = None      # None/blank → "Kallisto"
     player_title: Optional[str] = None     # None/blank → "Prytanis"
+    difficulty: Optional[str] = None       # None/unknown → "normal" (see engine/balance.py)
 
 
 class SimPatchRequest(BaseModel):

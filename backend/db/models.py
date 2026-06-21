@@ -95,6 +95,9 @@ class SimRun(Base):
         String, ForeignKey("llm_profiles.profile_id"), nullable=True, default=None,
     )
 
+    # Balance profile selected at run creation — see engine/balance.py (default "normal")
+    difficulty: Mapped[str] = mapped_column(String, default="normal")
+
     user: Mapped[User]            = relationship("User", back_populates="sim_runs")
     city: Mapped[City]            = relationship("City", back_populates="sim_runs")
     llm_profile: Mapped["LLMProfile | None"] = relationship("LLMProfile")

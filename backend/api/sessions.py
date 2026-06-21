@@ -30,6 +30,7 @@ class SimSession:
     active_events: list = None                                # live GameEvents (events_spec; not persisted — v1 gap)
     is_running: bool = False   # True while sim/run/{n} is executing
     llm_profile_id: Optional[str] = None
+    difficulty: str = "normal"             # balance profile for this run (see engine/balance.py)
     audience_state: Optional[dict] = None  # in-progress audience negotiation
 
     def __post_init__(self):

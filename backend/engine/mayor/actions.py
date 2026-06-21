@@ -5,6 +5,7 @@ Callers (cycle runner) are responsible for spending action points before calling
 """
 from typing import Dict, List
 from engine.models import Mayor, Treasury, Faction, Domain, MayorAction, ActionResult
+from engine.balance import NORMAL as _BAL
 
 
 # ── Dispatcher ───────────────────────────────────────────────────────────────
@@ -19,8 +20,8 @@ ACTION_COSTS = {
     "PublicWorksAllocation": 0,
 }
 
-MEET_COOLDOWN = 10  # cycles
-SABOTAGE_GOLD = 50  # gold cost of a Sabotage
+MEET_COOLDOWN = _BAL.meet_cooldown  # cycles (tunable in engine/balance.py)
+SABOTAGE_GOLD = _BAL.sabotage_gold  # gold cost of a Sabotage (tunable in engine/balance.py)
 
 
 def execute_mayor_actions(

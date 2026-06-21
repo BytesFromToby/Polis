@@ -11,6 +11,8 @@ from __future__ import annotations
 import random
 from typing import TYPE_CHECKING
 
+from engine.balance import NORMAL as _BAL
+
 if TYPE_CHECKING:
     from .models import Faction, Domain
 
@@ -20,15 +22,15 @@ if TYPE_CHECKING:
 RATING_MAX: float = 10.0    # faction rank ceiling (1.0–10.0); level = int(rating)
 
 
-# ── Treasury income (treasury_spec v3) ─────────────────────────────────────────
+# ── Treasury income (treasury_spec v3) — tunables in engine/balance.py ──────────
 
-BASE_INCOME: int = 20         # flat gold/cycle before any Tax Offices
-TAX_OFFICE_INCOME: int = 20   # gold/cycle per completed civic Tax Office
+BASE_INCOME: int = _BAL.base_income         # flat gold/cycle before any Tax Offices
+TAX_OFFICE_INCOME: int = _BAL.tax_office_income   # gold/cycle per completed civic Tax Office
 
 
-# ── Domain cap (projects rework) ───────────────────────────────────────────────
+# ── Domain cap (projects rework) — tunable in engine/balance.py ────────────────
 
-CAP_HEADROOM_MULT: float = 1.20   # starting cap = round(initial Σ level × this)
+CAP_HEADROOM_MULT: float = _BAL.cap_headroom_mult   # starting cap = round(initial Σ level × this)
 
 
 def base_cap_from_fill(fill: float) -> int:

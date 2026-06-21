@@ -17,16 +17,17 @@ from .scales import (
     consumption_target, is_drunk, CONSUMPTION_DRY_HEALTH,
 )
 from .bands import consumption_band
+from engine.balance import NORMAL as _BAL
 
 if TYPE_CHECKING:
     from engine.models import ThePublic, Mayor, Faction
 
-DRIFT_STEP = 10                  # max trait movement toward target per cycle
-HEALTH_DELTAS = {"Starving": -4, "Hungry": -2, "Well fed": +2}
-SUPPORT_DELTAS = {"Starving": -5, "Hungry": -2, "Well fed": +2,
-                  "Miserable": -2, "Festive": +2}
-POP_GROWTH = 0.02                # ±2%/cycle
-POP_MIN = 1000
+# Tunables live in engine/balance.py; names preserved here for the modules/tests that import them.
+DRIFT_STEP = _BAL.drift_step     # max trait movement toward target per cycle
+HEALTH_DELTAS = _BAL.health_deltas
+SUPPORT_DELTAS = _BAL.support_deltas
+POP_GROWTH = _BAL.pop_growth     # ±fraction/cycle
+POP_MIN = _BAL.pop_min
 
 
 def _drift_toward(value: int, target: float) -> int:

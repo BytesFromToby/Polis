@@ -40,6 +40,7 @@ polis/
 ├── backend/                    ← Python backend (engine, api, db, tests)
 │   ├── engine/                 ← Pure simulation logic
 │   │   ├── models.py           ← dataclasses (see Planning/reference/data-models.md)
+│   │   ├── balance.py          ← tunable dials + difficulty profiles (balance_spec)
 │   │   ├── formulas.py         ← pure calculations (see Planning/reference/formulas.md)
 │   │   ├── logger.py
 │   │   ├── actions/            ← faction.py, _helpers.py
@@ -74,6 +75,7 @@ polis/
 | Module | Owns |
 |--------|------|
 | `engine/models.py` | Dataclasses: Faction (embedded Leader), Domain, WorldState, plans, results |
+| `engine/balance.py` | Single source of truth for tunable dials; `BalanceProfile` + easy/normal/hard (balance_spec) |
 | `engine/formulas.py` | Faction-contest math: rating ceiling, grow increment, rolls, contest, faction weight, domain cap resistance |
 | `engine/actions/faction.py` | Faction action resolvers (grow, protect, aid, harm, steal, build/sabotage project) |
 | `engine/cycle/runner.py` | `run_cycle()` orchestrator — full cycle order (see cycle-runner_spec) |

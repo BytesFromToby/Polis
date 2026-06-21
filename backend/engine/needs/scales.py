@@ -10,18 +10,18 @@ from typing import Dict, TYPE_CHECKING
 
 from .chain import TOIL_MULT
 from .bands import piety_band, fed_band, consumption_band, health_band
+from engine.balance import NORMAL as _BAL
 
 if TYPE_CHECKING:
     from engine.models import Faction, ThePublic
 
+# Tunables live in engine/balance.py; names preserved here for the modules/tests that import them.
 # ── Piety ──────────────────────────────────────────────────────────────────────
-PIETY_PER_LEVEL = 4          # piety supply per temple-faction level
-PIETY_PARITY = 1.0           # supply meeting parity-demand sits at the top of Observant
+PIETY_PER_LEVEL = _BAL.piety_per_level   # piety supply per temple-faction level
+PIETY_PARITY = _BAL.piety_parity         # supply meeting parity-demand sits at the top of Observant
 # Crisis-blame: piety scales the needs step's NEGATIVE support penalties.
-PIETY_BLAME = {
-    "Godless": 1.5, "Lax": 1.25, "Observant": 1.0, "Devout": 0.75, "Zealous": 0.75,
-}
-ZEALOT_SUPPORT_TAX = -1      # support/cycle while piety is Zealous (temples defy the Mayor)
+PIETY_BLAME = _BAL.piety_blame
+ZEALOT_SUPPORT_TAX = _BAL.zealot_support_tax   # support/cycle while piety is Zealous
 
 
 def piety_supply(factions: Dict[str, "Faction"]) -> float:
@@ -52,14 +52,14 @@ def blame_factor(piety: int) -> float:
 
 
 # ── Unrest ─────────────────────────────────────────────────────────────────────
-UNREST_HUNGER = 30       # pressure when Starving (half when Hungry)
-UNREST_IMPIETY = 20      # pressure when Godless (half when Lax)
-UNREST_CONFIDENCE = 20   # max pressure from negative support, scaled by -support/50
-UNREST_DRUNK = 10        # pressure when the city is drunk
-UNREST_EASE = 4          # unrest eases toward a lower target this slowly (memory); rises at DRIFT_STEP
-GUARD_SUPPRESS = 3       # unrest removed per City Guard level (paid), after drift — symptom only
-GUARD_HEAVY_THRESHOLD = 15   # suppression removing ≥ this is "heavy-handed"
-GUARD_HEAVY_SUPPORT = -2     # support cost of heavy-handed guarding
+UNREST_HUNGER = _BAL.unrest_hunger       # pressure when Starving (half when Hungry)
+UNREST_IMPIETY = _BAL.unrest_impiety     # pressure when Godless (half when Lax)
+UNREST_CONFIDENCE = _BAL.unrest_confidence   # max pressure from negative support, scaled by -support/50
+UNREST_DRUNK = _BAL.unrest_drunk         # pressure when the city is drunk
+UNREST_EASE = _BAL.unrest_ease           # unrest eases toward a lower target this slowly; rises at DRIFT_STEP
+GUARD_SUPPRESS = _BAL.guard_suppress     # unrest removed per City Guard level (paid), after drift — symptom only
+GUARD_HEAVY_THRESHOLD = _BAL.guard_heavy_threshold   # suppression removing ≥ this is "heavy-handed"
+GUARD_HEAVY_SUPPORT = _BAL.guard_heavy_support     # support cost of heavy-handed guarding
 
 
 def unrest_target(public: "ThePublic") -> float:
@@ -91,8 +91,8 @@ def unrest_target(public: "ThePublic") -> float:
 # wine_happy/demand at CONSUMPTION_PARITY maps to the Tempered midpoint (50). Tuned so the
 # FRESH standard city sits Tempered: its wine_happy/demand == 0.27 (Winepressers level 2), so
 # PARITY == 0.27 → target 50. (An earlier 0.097 was mis-measured from an evolved roster.)
-CONSUMPTION_PARITY = 0.27
-CONSUMPTION_DRY_HEALTH = -2   # health/cycle while Dry (too little wine → raw water → illness)
+CONSUMPTION_PARITY = _BAL.consumption_parity
+CONSUMPTION_DRY_HEALTH = _BAL.consumption_dry_health   # health/cycle while Dry (raw water → illness)
 
 
 def consumption_target(wine_happy: float, population: int) -> float:
@@ -111,9 +111,9 @@ def is_drunk(consumption: int) -> bool:
 # ── The Public→production wire ───────────────────────────────────────────────────
 # One global efficiency multiplier on food output, read from the Public's current bands.
 # Deliberately small: a nudge, not a regime change (the shipped redundancy/dynamics still hold).
-HEALTH_OUTPUT = 0.05       # Robust +1×, Thriving +2× — a hale workforce produces more
-CONSUMPTION_OUTPUT = 0.10  # Tipsy −1×, Sodden −2× — a drunk city does less work
-EFF_MIN, EFF_MAX = 0.5, 1.25
+HEALTH_OUTPUT = _BAL.health_output       # Robust +1×, Thriving +2× — a hale workforce produces more
+CONSUMPTION_OUTPUT = _BAL.consumption_output  # Tipsy −1×, Sodden −2× — a drunk city does less work
+EFF_MIN, EFF_MAX = _BAL.eff_min, _BAL.eff_max
 
 _HEALTH_BONUS = {"Robust": 1, "Thriving": 2}
 _CONSUMPTION_PENALTY = {"Tipsy": 1, "Sodden": 2}

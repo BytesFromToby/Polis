@@ -5,11 +5,13 @@ Called each cycle after treasury processing.
 from typing import Dict, List
 from engine.models import Treasury, Mayor, Faction, FactionTrait, ActionResult
 from engine.npc.behavior import INTENSITY_ORDER, MAX_TRAITS
+from engine.balance import NORMAL as _BAL
 
 
-LEVERAGE_THRESHOLD = 500
-REMOVAL_THRESHOLD = 800
-REMOVAL_GRACE_CYCLES = 5
+# Tunables live in engine/balance.py; names preserved here for the modules/tests that import them.
+LEVERAGE_THRESHOLD = _BAL.leverage_threshold
+REMOVAL_THRESHOLD = _BAL.removal_threshold
+REMOVAL_GRACE_CYCLES = _BAL.removal_grace_cycles
 
 
 def process_moneylender(
