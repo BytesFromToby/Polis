@@ -6,6 +6,7 @@
 **Updated:** 2026-06-16 — **Withhold weights added** (resource-chains); base 0, anger-driven (low Mayor standing) per `actions_spec.md`.
 **Updated:** 2026-06-16 — **Unrest→crime**: Restless+ public unrest lifts faction `Steal` (public-needs_spec).
 **Updated:** 2026-06-17 — **Confidence posture**: low confidence emboldens Harm/Steal, high damps them (public-needs_spec).
+**Updated:** 2026-06-21 — **Rally / Agitate weights added**: factions sway the Public's opinion of the Mayor, gated by the faction's standing with the Mayor (see `actions_spec.md`, `../proposals/faction-influence.md`).
 **Supersedes:** v3 (2026-05-19)
 
 Demo redesign: **Block removed, Aid added**; entrench-based modifiers gone; aggression targeting now excludes level-1 factions; near-cap logic uses `utilization = Σ level`. Rank is a float 1–10 (`level = int(rank)`). Faction is the sole autonomous agent; behavior driven by personality traits; sequential per-turn with live state.
@@ -43,6 +44,8 @@ BASE_WEIGHTS = {
     "Withhold":        0,
     "BuildProject":    15,
     "SabotageProject": 10,
+    "Rally":           0,
+    "Agitate":         0,
 }
 ```
 
@@ -50,6 +53,11 @@ BASE_WEIGHTS = {
 all others their weight is 0 (see `actions_spec.md`). `Withhold` further starts at base weight 0
 even *for* chain-role factions — nothing reaches for it by default; it earns weight only from
 anger (Step 3). This keeps a strike structurally rare and always legible as a consequence.
+
+`Rally` and `Agitate` (any faction) likewise start at base weight 0 and lift only from the
+faction's **standing with the Mayor** (Step 3): a faction the Mayor stands well with reaches for
+Rally, a hostile one for Agitate, and the indifferent middle for neither — so swaying public
+opinion is always a legible expression of the Mayor↔faction relationship, never default noise.
 
 ### Step 2 — Apply Personality Modifiers
 
@@ -97,6 +105,8 @@ Relational traits (targeted at a specific faction) apply only when that faction 
 | Public `unrest` band ≥ Restless | Steal += `UNREST_CRIME_WEIGHT` (default 15), scaled up one step at Agitated and again at Boiling — civic disorder is cover for theft (public-needs_spec Unrest). `public` absent → no effect |
 | Public `confidence` band (off `support`, public-needs_spec) | **Hostile/Suspicious** → Harm += `CONFIDENCE_EMBOLDEN_WEIGHT` (default 10), Steal += same (a distrusted Mayor can't shield rivals); **Favorable/Beloved** → Harm −= `CONFIDENCE_COOP_WEIGHT` (default 10), Steal −= same (public backing raises the cost of open aggression); Neutral → no change. `public` absent → no effect |
 | Faction has a chain role AND the Mayor's standing with it is low (`mayor.get_reputation(faction.id) <= WITHHOLD_ANGER_THRESHOLD`, default −20) | Withhold += `WITHHOLD_ANGER_WEIGHT` (default 40) — a strike is a deliberate, anger-driven act; the angrier signal is the only thing that lifts Withhold off its base of 0. The strength of the anger scales with how far below threshold (one step per −10 below it, so a deeply hostile faction reaches for it harder). `mayor` absent (headless without a player) → no Withhold weight, Withhold stays at 0 |
+| Mayor's standing with the faction is high (`mayor.get_reputation(faction.id) >= RALLY_THRESHOLD`, default +20) | Rally += `RALLY_WEIGHT` (default 30), scaled up one step per +10 above threshold (a devoted faction rallies harder). `mayor` absent → no Rally weight (stays 0) |
+| Mayor's standing with the faction is low (`mayor.get_reputation(faction.id) <= AGITATE_THRESHOLD`, default −20) | Agitate += `AGITATE_WEIGHT` (default 30), scaled up one step per −10 below threshold — mirrors the Withhold anger gate. `mayor` absent → no Agitate weight (stays 0). A faction in the indifferent middle band (between the two thresholds) reaches for neither |
 | `domain.utilization >= domain.cap * 0.9` (utilization = Σ level) | Grow −20, Steal +15 |
 | An allied faction is at `health < 50` (Friend / `allied with`) | Aid +25 |
 | Project under construction in faction's domain | BuildProject +20 |
@@ -125,7 +135,8 @@ If no eligible target exists (e.g. every domain rival is level 1), the aggressio
 
 If the faction has no ally, Aid is not selected.
 
-Protect and Grow require no target.
+Protect and Grow require no target. **Rally and Agitate** likewise require no target — they act on
+the Mayor's public standing directly (`mayor.reputation["the_public"]`); see `actions_spec.md`.
 
 **BuildProject target selection:**
 1. Prefer projects under construction in faction's domain (highest build progress — closest to completion)

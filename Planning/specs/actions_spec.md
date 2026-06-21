@@ -4,6 +4,7 @@
 **Date:** 2026-06-03
 **Updated:** 2026-06-12 — **Toil added** (public-needs / barley-run); see `public-needs_spec.md`.
 **Updated:** 2026-06-16 — **Withhold added** (resource-chains: the supply-interruption primitive); Toil's evil twin at ×0. See `public-needs_spec.md` and `events_spec.md`.
+**Updated:** 2026-06-21 — **Rally / Agitate added** (factions sway the Public's opinion of the Mayor); see `../proposals/faction-influence.md` and `faction-behavior_spec.md`.
 **Supersedes:** v4 (2026-05-19)
 
 Demo redesign. Rank is now a float **1.0–10.0** (`level = int(rank)`); `entrench` removed. Health is a **breaking-point buffer**, not a death meter — factions are permanent. **Block removed. Aid added** (cooperation). Harm damages health; Protect is an immediate heal. See `../proposals/demo-redesign.md` and `../reference/formulas.md`.
@@ -39,7 +40,7 @@ Leaderless faction penalty: −2 to all rolls. (Open "roll dial": whether to fee
 
 ## Action Set
 
-Seven faction actions: **Grow · Protect · Aid · Harm · Steal · Toil · Withhold**. Project actions (BuildProject / SabotageProject) are retained pending the projects rework — see the bottom of this spec.
+Nine faction actions: **Grow · Protect · Aid · Harm · Steal · Toil · Withhold · Rally · Agitate**. Project actions (BuildProject / SabotageProject) are retained pending the projects rework — see the bottom of this spec.
 
 ### Grow
 
@@ -166,6 +167,56 @@ or a disaster — one mechanism for all three causes.
 - `committed_action == "Withhold"` forces Withhold selection for the committed cycles, same as
   the existing committed-action machinery  `[automated]`
 - Withhold's base weight is 0 — absent any anger signal a chain-role faction never selects it  `[automated]`
+
+### Rally
+
+**Who:** Any faction · **Target:** none (the Mayor / the Public) · **Contested:** No
+
+The faction spends its turn championing the Mayor before the people — public endorsements,
+favourable rumour, lending its name. Moves the Public's opinion of the Mayor **up**:
+`mayor.reputation["the_public"] += influence`, where `influence = max(1, round(INFLUENCE_PER_LEVEL
+× faction.level))` (`INFLUENCE_PER_LEVEL` is a **balance dial**, `engine/balance.py`, default 0.5 →
+≈ +1 for a minor faction, up to +5 for a dominant one; difficulty-tunable). Clamped −50..+50 like
+all support. (The selection weights/thresholds — `RALLY_WEIGHT`/`RALLY_THRESHOLD` etc. — live with
+the other NPC behavior constants in `faction-behavior_spec.md`, as Withhold's do.) No rank, health, or project effect — pure
+opportunity cost, like Toil/Withhold: the faction stands still politically to spend its standing on
+the Mayor's behalf.
+
+This is the mirror of Withhold's "hold the Mayor's standing hostage": where Withhold hurts the Mayor
+*downstream* (shortage → Hungry → support drains), Rally/Agitate move public support **directly**.
+The Public-support source of truth is `mayor.reputation["the_public"]` (synced to `public.support`
+in `process_the_public`), so it feeds the election verdict and the removal spiral with no new
+machinery.
+
+**Rare structurally, not by tuning** — base weight **0** (see `faction-behavior_spec.md`); weight
+comes only from the faction standing *well* with the Mayor (high `mayor.get_reputation`).
+
+**Done when:**
+- A resolved Rally raises `mayor.reputation["the_public"]` by `influence` (rank-scaled) and produces
+  no rank/health/project change  `[automated]`
+- With no Mayor present (headless), Rally is never selected or resolved  `[automated]`
+
+### Agitate
+
+**Who:** Any faction · **Target:** none (the Mayor / the Public) · **Contested:** No
+
+Rally's twin: the faction turns the people against the Mayor — denunciations in the agora, stoked
+grievance. Moves the Public's opinion **down**: `mayor.reputation["the_public"] -= influence` (same
+rank-scaled magnitude and clamp). Pure opportunity cost; no rank/health/project effect.
+
+**Rare structurally** — base weight **0**; weight comes only from the faction standing *badly* with
+the Mayor (low `mayor.get_reputation`, mirroring Withhold's anger gate). Every Agitate is legible as
+a consequence of a soured relationship.
+
+**Deal hook (planned fast-follow, not this slice):** "endorse me publicly" / "cease agitating"
+become deal terms via the existing `committed_action` / `committed_abstain` machinery
+(`audience_spec.md`) — a faction can be bound to Rally, or to abstain from Agitate. Tracked by the
+existing deal-fidelity/memory. Specced when that slice is scheduled.
+
+**Done when:**
+- A resolved Agitate lowers `mayor.reputation["the_public"]` by `influence` (rank-scaled) and
+  produces no rank/health/project change  `[automated]`
+- With no Mayor present (headless), Agitate is never selected or resolved  `[automated]`
 
 ---
 
