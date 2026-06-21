@@ -16,7 +16,7 @@ dials. From `proposals/roadmap.md` (item 0) — the prerequisite for [endgame](.
 engine/balance.py
   ├─ BalanceProfile        one complete set of dials (a frozen dataclass)
   ├─ NORMAL                base profile = the pre-extraction constants, exactly
-  ├─ EASY / HARD           NORMAL + overrides (defined; not yet consumed — see Slice 2)
+  ├─ EASY / HARD           NORMAL + overrides (consumed on the per-cycle path — see Slice 2)
   ├─ PROFILES              {"easy", "normal", "hard"}
   └─ get_profile(name)     name → profile; unknown/None → NORMAL
 
