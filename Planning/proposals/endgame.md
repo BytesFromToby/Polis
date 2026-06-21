@@ -134,9 +134,11 @@ Every threshold here is a **balance dial** and several differ by difficulty — 
 
 ## Build sequence (within this proposal)
 
-> **Status:** Slices 1–2 **shipped 2026-06-21** as [fail-states_spec](../specs/fail-states_spec.md)
-> — terminal `game_over` + the removal spiral (Public reputation / debt), and population collapse +
-> the latched low-population warning (hysteresis 1500/1750, support drain). Slices 3–4 remain.
+> **Status:** Slices 1–3 **shipped 2026-06-21**. Slices 1–2 → [fail-states_spec](../specs/fail-states_spec.md)
+> (terminal `game_over`; removal spiral via Public reputation / debt; population collapse + latched
+> warning). Slice 3 → [elections_spec](../specs/elections_spec.md) (the recurring verdict; loss =
+> game over for now — title ladder/demotion + deal-as-vote deferred). Slice 4 (assassination/coup)
+> remains, plus the deferred election follow-ups.
 
 1. Terminal end-state + route existing removal triggers into it (the spine).
 2. Population fail + latched warning event + population gates (smallest slice; builds reusable infra).

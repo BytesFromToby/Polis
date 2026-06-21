@@ -54,6 +54,10 @@ def test_normal_values_match_historical_constants():
     assert NORMAL.pop_floor_is_death is True
     assert (NORMAL.pop_warn_on, NORMAL.pop_warn_off) == (1500, 1750)
     assert NORMAL.pop_warn_support_drain == -1
+    assert NORMAL.election_interval == 12
+    assert NORMAL.election_warn_window == 4
+    assert NORMAL.election_pass_score == 0.0
+    assert NORMAL.election_public_weight == 0.5
 
 
 # ── The engine modules re-export NORMAL — they must not drift from it ─────────────

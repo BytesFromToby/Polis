@@ -482,6 +482,7 @@ def serialize_state(
     base_stacks: Optional[dict] = None,
     public: Optional[ThePublic] = None,
     active_events: Optional[list] = None,
+    balance=None,
 ) -> dict:
     data = {
         "world": serialize_world_state(world),
@@ -492,6 +493,12 @@ def serialize_state(
         data["the_public"] = serialize_the_public(public)
     if mayor is not None:
         data["mayor"] = serialize_mayor(mayor)
+        # Election readout (display-only; ignored on deserialize) — needs a Mayor to judge.
+        from engine.special.election import election_summary
+        from engine.balance import NORMAL as _BAL
+        summary = election_summary(world, public, factions, mayor, balance or _BAL)
+        if summary is not None:
+            data["election"] = summary
     if treasury is not None:
         data["treasury"] = serialize_treasury(treasury)
     if projects is not None:

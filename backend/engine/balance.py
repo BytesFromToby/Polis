@@ -105,6 +105,12 @@ class BalanceProfile:
     pop_warn_off: int = 1750           # warning clears once population recovers above this (hysteresis)
     pop_warn_support_drain: int = -1   # support lost per cycle while the warning is active
 
+    # ── Elections (special/election.py) ────────────────────────────────────────
+    election_interval: int = 12        # an election is held every N cycles
+    election_warn_window: int = 4      # campaign warning starts this many cycles before the vote
+    election_pass_score: float = 0.0   # approval (−50..+50) must reach this to be re-elected
+    election_public_weight: float = 0.5  # popular vote share; faction vote share = 1 − this
+
 
 # ── Profiles ────────────────────────────────────────────────────────────────────
 

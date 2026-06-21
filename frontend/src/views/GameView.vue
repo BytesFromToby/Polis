@@ -7,6 +7,10 @@
       <span class="city-name">{{ cityName }}</span>
       <span class="spacer"></span>
       <span class="cycle-badge">Cycle {{ cycle }}</span>
+      <span v-if="election" class="cycle-badge" :title="`Re-election approval (need ≥ ${election.pass_score})`">
+        {{ election.next_in === 0 ? 'Election now' : `Election in ${election.next_in}` }} ·
+        approval {{ election.approval > 0 ? '+' : '' }}{{ election.approval }}
+      </span>
       <button class="theme-toggle btn-sm" @click="toggleTheme">
         {{ theme === 'light' ? 'black-figure' : 'red-figure' }}
       </button>
@@ -332,7 +336,8 @@ export default {
     endCauseLabel() {
       return { public_revolt: 'the people rose against you',
                removal_coalition: 'the creditors forced you out',
-               population_collapse: 'the city emptied beneath you' }[this.endCause]
+               population_collapse: 'the city emptied beneath you',
+               voted_out: 'the Assembly voted you out' }[this.endCause]
              || 'you were removed from office'
     },
     factionList() {
@@ -342,6 +347,9 @@ export default {
     },
     pub() {
       return this.snapshot?.the_public || null
+    },
+    election() {
+      return this.snapshot?.election || null
     },
     factionsByDomain() {
       const factions = this.snapshot?.factions

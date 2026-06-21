@@ -82,8 +82,11 @@ def get_state(
     if user_id != current_user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     session = _get_or_restore_session(user_id, db)
+    from engine.balance import get_profile
     return serialize_state(session.world, session.factions, session.domains,
-                           public=session.public, active_events=session.active_events)
+                           mayor=session.mayor, public=session.public,
+                           active_events=session.active_events,
+                           balance=get_profile(session.difficulty))
 
 
 @router.get("/factions")

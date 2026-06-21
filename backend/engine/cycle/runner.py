@@ -70,7 +70,7 @@ def run_cycle(
     from ..mayor import process_treasury_step0, apply_tax_effects, execute_mayor_actions, apply_reputation_decay
     from ..projects import tick_projects, apply_project_effects
     from ..special import (process_the_public, process_moneylender, process_external_threats,
-                           process_mayor_removal, process_population)
+                           process_mayor_removal, process_population, process_election)
     from ..needs import compute_chain, apply_needs, chain_role_faction_ids
 
     chains = chains or []
@@ -209,6 +209,8 @@ def run_cycle(
         all_results.extend(process_population(world, public, mayor, balance=balance))
     if mayor is not None:
         all_results.extend(process_mayor_removal(world, mayor, treasury, factions, balance=balance))
+        # The election verdict — a scheduled judgment alongside the removal spiral.
+        all_results.extend(process_election(world, public, factions, mayor, balance=balance))
 
     # Reset cycle-only Toil/Withhold flags after the needs step consumed them
     # (cycle-runner_spec — Cycle-Only State). An active withhold event re-asserts next cycle.
