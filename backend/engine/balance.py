@@ -112,6 +112,12 @@ class BalanceProfile:
     election_public_weight: float = 0.5  # popular vote share; faction vote share = 1 − this
     election_loss_is_terminal: bool = False  # True (hard): any loss ends the run; False: demote, floor at the bottom rung
 
+    # ── Assassination / coup (special/removal.py) ──────────────────────────────
+    coup_enabled: bool = True          # easy turns the conspiracy off entirely
+    coup_rep_threshold: int = -60      # a plot forms when Σ per-faction Mayor reputation falls below this
+    coup_base_chance: float = 0.15     # per-cycle assassination chance while a plot is active
+    coup_guard_protection: float = 0.05  # chance reduction per City-Guard level (the guard defends)
+
 
 # ── Profiles ────────────────────────────────────────────────────────────────────
 
@@ -129,6 +135,7 @@ EASY = replace(
     removal_threshold=1200,   # more debt tolerance
     removal_grace_cycles=8,
     pop_floor_is_death=False,  # the city bottoms out at the floor but never dies
+    coup_enabled=False,        # no assassination plots on easy
 )
 
 #: Harsher mode with real stakes. Provisional, untuned values.
@@ -141,6 +148,8 @@ HARD = replace(
     removal_threshold=500,
     removal_grace_cycles=3,
     election_loss_is_terminal=True,  # roguelike: a lost election ends the run outright
+    coup_rep_threshold=-50,          # plots form sooner
+    coup_base_chance=0.25,           # and strike harder
 )
 
 #: Registry, keyed by the value stored on `SimRun.difficulty`.

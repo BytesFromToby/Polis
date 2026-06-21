@@ -343,7 +343,8 @@ export default {
       return { public_revolt: 'the people rose against you',
                removal_coalition: 'the creditors forced you out',
                population_collapse: 'the city emptied beneath you',
-               voted_out: 'the Assembly voted you out' }[this.endCause]
+               voted_out: 'the Assembly voted you out',
+               assassinated: 'the great houses had you killed' }[this.endCause]
              || 'you were removed from office'
     },
     factionList() {

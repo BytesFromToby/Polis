@@ -18,6 +18,7 @@ Deferred (noted in the spec): the 3+-hostile-factions coalition pressure and ban
 grace; the election verdict and assassination are separate triggers in later slices.
 """
 from __future__ import annotations
+import random
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 from engine.models import ActionResult
@@ -149,4 +150,51 @@ def process_population(
     if public.pop_warning and balance.pop_warn_support_drain:
         _drain_support(public, mayor, balance.pop_warn_support_drain)
 
+    return results
+
+
+def faction_reputation_sum(mayor: "Mayor", factions: Dict[str, "Faction"]) -> int:
+    """Σ per-faction Mayor reputation — the collective standing of the great houses."""
+    return sum(mayor.get_reputation(f.id) for f in factions.values())
+
+
+def process_coup(
+    world: "WorldState",
+    mayor: "Mayor",
+    factions: Optional[Dict[str, "Faction"]] = None,
+    balance=_BAL,
+    rng: Optional[random.Random] = None,
+) -> List[ActionResult]:
+    """The conspiracy of the great houses (fail-states_spec). When their collective standing falls
+    below `coup_rep_threshold` a plot forms; each cycle it rolls for an assassination the player can
+    fight off — by recovering faction reputation, or with a strong City Guard that defends the Mayor.
+    A *risk*, not a countdown — non-deterministic but not arbitrary."""
+    results: List[ActionResult] = []
+    if world.game_over or not balance.coup_enabled or not factions:
+        return results
+
+    rep_sum = faction_reputation_sum(mayor, factions)
+    if rep_sum >= balance.coup_rep_threshold:
+        return results  # the houses are not collectively hostile enough to plot
+
+    guard = factions.get("city-guard")
+    guard_level = guard.level if guard is not None else 0
+    chance = max(0.0, balance.coup_base_chance - guard_level * balance.coup_guard_protection)
+
+    r = rng or random
+    if r.random() < chance:
+        world.game_over = True
+        world.end_cause = "assassinated"
+        results.append(ActionResult(
+            action="MayorAssassinated", actor_id="factions", target_id="mayor",
+            outcome="decisive", dramatic=True,
+            narrative="A conspiracy of the great houses strikes the Mayor down. The reign ends in blood.",
+        ))
+    else:
+        results.append(ActionResult(
+            action="CoupPlot", actor_id="factions", target_id="mayor",
+            outcome="no_op", dramatic=True,
+            narrative=(f"The great houses conspire against the Mayor (standing {rep_sum:+d}) — "
+                       f"a knife waits in the dark."),
+        ))
     return results

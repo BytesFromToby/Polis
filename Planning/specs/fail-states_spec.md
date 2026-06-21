@@ -1,6 +1,6 @@
 # Fail-States Specification
 
-**Version:** v2 (slices 1–2)
+**Version:** v3 (slices 1–2, 4)
 **Date:** 2026-06-21
 
 The terminal "the Mayor loses office, the run ends" resolution and the triggers that feed it.
@@ -21,6 +21,8 @@ TRIGGERS                                    COUNTDOWN (Mayor)          TERMINAL 
                                                  (grace → 0)            end_cause = "<reason>"
 - Population ≤ pop_collapse (if lethal) ────────────────────────────► game_over = True (immediate)
                                                                        end_cause="population_collapse"
+- Σ faction reputation < coup_rep_threshold ──► per-cycle risk roll ─► game_over = True (on a hit)
+  (guard defends; off on easy)                                         end_cause="assassinated"
 ```
 
 - Triggers evaluated each cycle by `engine/special/removal.py::process_mayor_removal`, called late
@@ -41,11 +43,17 @@ TRIGGERS                                    COUNTDOWN (Mayor)          TERMINAL 
   never dies). Plus a **latched low-population warning** with hysteresis (on ≤ `pop_warn_on` 1500,
   off only once population recovers above `pop_warn_off` 1750) that drains support each active
   cycle — which feeds the removal spiral, so a hollowing city compounds toward removal.
+- **Slice 4 (shipped 2026-06-21):** **assassination / coup** — when Σ per-faction Mayor reputation
+  falls below `coup_rep_threshold`, the great houses plot; each cycle `process_coup` rolls for an
+  assassination (`end_cause="assassinated"`). It is a *risk, not a countdown* — the player fights it
+  by recovering faction standing or with a strong **City Guard** (each guard level cuts the chance
+  by `coup_guard_protection`). Off on easy; sooner + harder on hard. Stateless (no persisted plot
+  state — the plot reforms each cycle from current standing).
 - **Deferred:** the 3+-hostile-factions coalition pressure (−2/cycle accelerant) and bankruptcy's
   distinct 3-cycle grace from mayor_spec; a **data-driven latched-event subtype in the event deck**
   (the hysteresis *pattern* is built in `process_population`; generalising it into `event_system`
-  for the Active-Events UI band waits for a second consumer — Weather/crises); the **election
-  verdict** (slice 3); **assassination/coup** (slice 4).
+  for the Active-Events UI band waits for a second consumer — Weather/crises). The **election
+  verdict** (slice 3) lives in its own [elections_spec](elections_spec.md).
 - **Superseded:** the unwired `removal_countdown` inside `special/moneylender.py` (never passed in
   `run_cycle`) — the new resolution is the live mechanism. The moneylender's "coalition possible"
   narrative remains as a warning.
@@ -71,7 +79,11 @@ TRIGGERS                                    COUNTDOWN (Mayor)          TERMINAL 
   (the floor protects, the city can't die).
 - `pop_warn_on: int = 1500` / `pop_warn_off: int = 1750` — hysteresis bounds for the warning latch.
 - `pop_warn_support_drain: int = -1` — support lost per cycle while the warning is active.
-  Dials vary by difficulty via the profiles (e.g. easy gives a longer grace and a non-lethal floor).
+- `coup_enabled: bool = True` (**easy: False**) — whether the conspiracy can form.
+- `coup_rep_threshold: int = -60` (**hard: -50**) — Σ faction reputation below which a plot forms.
+- `coup_base_chance: float = 0.15` (**hard: 0.25**) — per-cycle assassination chance while plotting.
+- `coup_guard_protection: float = 0.05` — chance reduction per City-Guard level.
+  Dials vary by difficulty via the profiles (e.g. easy gives a longer grace, a non-lethal floor, no coup).
 
 ## API
 
@@ -110,8 +122,11 @@ TRIGGERS                                    COUNTDOWN (Mayor)          TERMINAL 
   clears only above `pop_warn_off`, and drains support each active cycle —
   `tests/test_population_fail.py`  `[automated]`
 - `ThePublic.pop_warning` survives serialization round-trip — `tests/test_population_fail.py`  `[automated]`
-- In the UI, a run that ends shows the reign-ended banner (incl. population collapse) and the Run
-  Cycle button is disabled — `[human-required]`
+- A coup plot forms only when Σ faction reputation < `coup_rep_threshold`; while active it can strike
+  (`end_cause="assassinated"`) or miss; City-Guard level lowers the chance; off on easy, sooner on
+  hard — `tests/test_coup.py`  `[automated]`
+- In the UI, a run that ends shows the reign-ended banner (incl. population collapse and
+  assassination) and the Run Cycle button is disabled — `[human-required]`
 
 ---
 
@@ -119,10 +134,10 @@ TRIGGERS                                    COUNTDOWN (Mayor)          TERMINAL 
 
 ```
 engine/
-    special/removal.py     ← process_mayor_removal + process_population (the resolutions)
-    cycle/runner.py        ← calls them late in the cycle (population first, then removal)
+    special/removal.py     ← process_mayor_removal + process_population + process_coup (the resolutions)
+    cycle/runner.py        ← calls them late in the cycle (population → removal → coup → election)
     models.py              ← WorldState.game_over/end_cause, Mayor.removal_countdown, ThePublic.pop_warning
-    balance.py             ← removal + population dials
+    balance.py             ← removal + population + coup dials
 serializer.py              ← persists the new fields
 db/models.py, db/session.py ← SimRun.end_cause + migration
 api/schemas.py, api/routes/sim.py ← end_cause / game_over surfacing
@@ -135,3 +150,5 @@ frontend/src/views/GameView.vue   ← reign-ended banner + disabled control
   latch, `run_cycle` integration, serialization round-trip.
 - `tests/test_population_fail.py` — collapse (lethal vs easy floor), hysteresis warning latch,
   support drain, `run_cycle` integration, serialization round-trip.
+- `tests/test_coup.py` — plot trigger, risk roll (hit/miss), City-Guard protection, difficulty
+  gating (easy off / hard sooner), `run_cycle` integration.

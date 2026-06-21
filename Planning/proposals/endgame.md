@@ -138,8 +138,10 @@ Every threshold here is a **balance dial** and several differ by difficulty — 
 > (terminal `game_over`; removal spiral via Public reputation / debt; population collapse + latched
 > warning). Slice 3 → [elections_spec](../specs/elections_spec.md) (the recurring verdict + the
 > title ladder: win climbs, top rung = victory, lose demotes-with-floor or is terminal on hard).
-> Slice 4 (assassination/coup) remains, plus deferred election follow-ups (titles in the audience
-> prompt, deal-as-vote, forecast panel).
+> Slice 4 → assassination/coup (fail-states_spec): plot when Σ faction reputation is low, a
+> per-cycle risk roll the City Guard defends; off on easy. **All four endgame slices are now built.**
+> Remaining follow-ups: titles in the audience prompt, deal-as-vote, forecast panel, per-difficulty
+> election tuning.
 
 1. Terminal end-state + route existing removal triggers into it (the spine).
 2. Population fail + latched warning event + population gates (smallest slice; builds reusable infra).
