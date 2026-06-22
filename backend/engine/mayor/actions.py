@@ -55,13 +55,16 @@ def execute_mayor_actions(
     return results
 
 
-def apply_reputation_decay(mayor: Mayor) -> None:
-    """Decay reputation toward 0 each cycle for inactive relationships."""
+def apply_reputation_decay(mayor: Mayor, balance=_BAL) -> None:
+    """Pull any reputation past ±`reputation_decay_band` one step back toward the band each cycle.
+    Inside the band nothing decays — so the band is the ceiling on the support/approval range
+    (balance_spec / engine/balance.py)."""
+    band = balance.reputation_decay_band
     for fid in list(mayor.reputation):
         score = mayor.reputation[fid]
-        if score > 10:
+        if score > band:
             mayor.reputation[fid] = score - 1
-        elif score < -10:
+        elif score < -band:
             mayor.reputation[fid] = score + 1
 
 

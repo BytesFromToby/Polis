@@ -64,6 +64,7 @@ def test_normal_values_match_historical_constants():
     assert NORMAL.coup_base_chance == 0.15
     assert NORMAL.coup_guard_protection == 0.05
     assert NORMAL.influence_per_level == 0.5
+    assert NORMAL.reputation_decay_band == 10
 
 
 # ── The engine modules re-export NORMAL — they must not drift from it ─────────────

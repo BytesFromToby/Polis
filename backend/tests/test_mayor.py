@@ -175,12 +175,14 @@ class TestMayorReputation:
         mayor.set_reputation("f1", -35)
         assert mayor.reputation_label("f1") == "hostile"
 
-    def test_decay_moves_toward_zero(self):
-        mayor = make_mayor(reputation={"f1": 20, "f2": -20, "f3": 5})
+    def test_decay_moves_toward_band(self):
+        from engine.balance import NORMAL
+        b = NORMAL.reputation_decay_band
+        mayor = make_mayor(reputation={"f1": b + 5, "f2": -(b + 5), "f3": 5})
         apply_reputation_decay(mayor)
-        assert mayor.get_reputation("f1") == 19
-        assert mayor.get_reputation("f2") == -19
-        assert mayor.get_reputation("f3") == 5  # no decay in -10..+10
+        assert mayor.get_reputation("f1") == b + 4   # pulled one step toward the band
+        assert mayor.get_reputation("f2") == -(b + 4)
+        assert mayor.get_reputation("f3") == 5        # no decay inside the band
 
     def test_refill_caps_at_max(self):
         mayor = make_mayor(action_points=5, action_cap=6)

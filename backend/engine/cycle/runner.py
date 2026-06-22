@@ -191,7 +191,7 @@ def run_cycle(
         mayor.tick_cooldowns()
         mayor.tick_exemptions()
         mayor.tick_commitments()
-        apply_reputation_decay(mayor)
+        apply_reputation_decay(mayor, balance=balance)
 
     # Moneylender processing
     if treasury is not None and mayor is not None:

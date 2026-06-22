@@ -121,6 +121,15 @@ class BalanceProfile:
     # ── Faction public influence — Rally / Agitate (actions/faction.py) ─────────
     influence_per_level: float = 0.5   # public-support moved per faction level by a Rally/Agitate
 
+    # ── Reputation decay (mayor/actions.py) ─────────────────────────────────────
+    # Each cycle, any reputation past ±this is pulled 1 step back toward the band; inside the band
+    # nothing decays — so the band doubles as the regression floor. Tuning note (2026-06-21): this
+    # is a *coupled* lever — widening it past ~10 removes the regression that makes a neglectful
+    # Mayor lose (a passive well-fed honeymoon then sticks and rides to victory). Decisive mandates
+    # need a different lever (active-play drivers / a positive election pass score), not this band.
+    # Left at the playtested value; see decisions/2026-06-21-reputation-decay-band.md.
+    reputation_decay_band: int = 10
+
 
 # ── Profiles ────────────────────────────────────────────────────────────────────
 
