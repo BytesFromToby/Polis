@@ -113,3 +113,35 @@ def test_rally_run_beats_agitate_run(monkeypatch):
     rally = _final_public_rep("Rally", monkeypatch)
     agitate = _final_public_rep("Agitate", monkeypatch)
     assert rally > agitate
+
+
+# ── Deal-term hook: "publicly endorse me" (committed_action = Rally) ───────────────
+
+class TestRallyDealTerm:
+    def test_parser_accepts_rally_commitment(self):
+        from engine.llm.response_parser import ResponseParser, VALID_FACTION_ACTIONS
+        assert "Rally" in VALID_FACTION_ACTIONS
+        f = mk_faction("a")
+        text = ('<deal>{"accepted": true, "mayor_terms": [{"type": "endorsement"}], '
+                '"faction_terms": [{"type": "committed_action", "action": "Rally", "duration": 3}], '
+                '"rep_cost_if_broken_by_mayor": 10, "memory_note": "backing", "reasoning": "ok"}</deal>')
+        parsed = ResponseParser().parse(text, f, Mayor())
+        assert parsed.parse_error == "" and parsed.accepted is True
+        assert any(t.type == "committed_action" and t.action == "Rally"
+                   for t in parsed.faction_terms)
+
+    def test_committed_rally_forces_plan(self):
+        f = mk_faction("a", rating=6.0)
+        f.committed_action = "Rally"
+        plan = behavior.select_faction_action(f, {"a": f}, {}, WorldState())
+        assert plan.action == "Rally" and plan.target_id is None
+
+    def test_committed_rally_lifts_support_in_cycle(self):
+        # A faction bound by a deal to Rally pumps public support even at neutral standing.
+        f = mk_faction("a", rating=6.0)
+        f.committed_action = "Rally"
+        factions = {"a": f}
+        mayor = Mayor(); mayor.set_reputation("the_public", 0)
+        run_cycle(WorldState(chaos={}), factions, {}, mayor=mayor, public=ThePublic(support=0),
+                  balance=NORMAL)
+        assert mayor.get_reputation("the_public") > 0

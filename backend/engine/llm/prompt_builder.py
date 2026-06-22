@@ -79,6 +79,7 @@ VALID_MAYOR_TERMS_TEMPLATE = """What the {title} can offer you:
 VALID_FACTION_TERMS_TEMPLATE = """What you can commit to (one commitment, every turn for 1–10 cycles):
 - Grow — invest in your own strength; no target
 - Protect — raise your defenses; you take less Harm from ALL rivals; no target
+- Rally — have your faction publicly champion the {title} before the people, raising their support; no target
 - BuildProject — work to build {project_name} ({project_desc}); target it by your domain id below{toil_term}
 - Refrain from Harm or Steal against one named faction"""
 
@@ -130,6 +131,7 @@ Each entry in "mayor_terms" and "faction_terms" MUST be a JSON object — never 
 - Your terms ("faction_terms") — commit to exactly ONE:
   - {{"type": "committed_action", "action": "Grow", "duration": <1-10>}}
   - {{"type": "committed_action", "action": "Protect", "duration": <1-10>}}
+  - {{"type": "committed_action", "action": "Rally", "duration": <1-10>}}
   - {{"type": "committed_action", "action": "BuildProject", "target_id": "{domain}", "duration": <1-10>}}{toil_schema_line}
   - {{"type": "committed_abstain", "action": "Harm" | "Steal", "target_id": "<a faction id>", "duration": <1-10>}}
 
@@ -280,8 +282,9 @@ class PromptBuilder:
             if chains:
                 has_chain_role = faction.id in chain_role_faction_ids(chains, factions)
 
-        valid_actions = "BuildProject, Protect, Grow" + (", Toil" if has_chain_role else "")
+        valid_actions = "BuildProject, Protect, Grow, Rally" + (", Toil" if has_chain_role else "")
         valid_faction = VALID_FACTION_TERMS_TEMPLATE.format(
+            title=player_title,
             project_name=base_project_name(faction.domain_primary),
             project_desc=base_project_description(faction.domain_primary),
             toil_term=TOIL_TERM_LINE if has_chain_role else "",

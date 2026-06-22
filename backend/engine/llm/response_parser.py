@@ -19,7 +19,7 @@ VALID_TERM_TYPES = {
     "committed_action", "committed_abstain",
 }
 
-VALID_FACTION_ACTIONS = {"BuildProject", "Protect", "Grow", "Toil"}
+VALID_FACTION_ACTIONS = {"BuildProject", "Protect", "Grow", "Toil", "Rally"}
 
 _DEAL_RE = re.compile(r"<deal>\s*(.*?)\s*</deal>", re.DOTALL)
 _DEAL_OPEN_RE = re.compile(r"<deal>\s*(.*?)$", re.DOTALL)  # truncated fallback
