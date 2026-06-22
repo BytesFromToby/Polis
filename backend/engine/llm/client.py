@@ -33,13 +33,16 @@ class LLMTimeoutError(LLMError):
 
 @dataclass
 class LLMConfig:
-    provider: str = "stub"       # "anthropic" | "openai_compat" | "stub"
+    provider: str = "stub"       # "anthropic" | "openai_compat" | "stub" | "override"
     model: str = ""
     api_key: str = ""
     base_url: str = ""           # required for openai_compat; ignored for anthropic
     temperature: float = 0.7
     max_tokens: int = 500
     timeout: int = 30            # seconds
+    # Transient operator-supplied audience outcome for provider "override" (override-llm_spec).
+    # Not serialized (to_json/from_env omit it) — set programmatically per audience/test.
+    override: Any = None
 
     @classmethod
     def from_env(cls) -> "LLMConfig":
@@ -120,6 +123,9 @@ class LLMClient:
         self._client = None
         if config.provider == "stub":
             return
+        if config.provider == "override":
+            self._client = OverrideLLMClient(config.override)
+            return
         if config.provider == "anthropic":
             try:
                 import anthropic as _anthropic
@@ -152,6 +158,8 @@ class LLMClient:
         """
         if self.config.provider == "stub":
             return StubLLMClient().complete(system, messages)
+        if self.config.provider == "override":
+            return self._client.complete(system, messages)
 
         try:
             if self.config.provider == "anthropic":
@@ -236,3 +244,48 @@ class StubLLMClient:
             "}\n"
             "</deal>"
         )
+
+
+# ── Override ────────────────────────────────────────────────────────────────────
+
+class OverrideLLMClient:
+    """
+    Deterministic "choose the outcome" provider (override-llm_spec). Never calls a model or the
+    network — it synthesises the audience output an operator supplies, so the audience flow and
+    ResponseParser are unchanged. The conclude turn emits narrative + a well-formed <deal> built
+    from the supplied outcome.
+
+    outcome (all optional):
+        accepted: bool                       — deal verdict (default False)
+        faction_terms / mayor_terms: list[dict]  — deal-term objects (audience_spec schema)
+        rep_cost_if_broken_by_mayor: int     — default 20
+        memory_note / reasoning: str
+        narratives: {"open", "counter", "conclude"}  — per-step text (placeholders if omitted)
+    On a reject, both term arrays are emitted empty (the convention the prompt asks the model for).
+    """
+
+    def __init__(self, outcome: Any = None):
+        self.outcome = dict(outcome) if outcome else {}
+
+    def complete(self, system: str, messages: list[dict]) -> str:
+        turn = len([m for m in messages if m.get("role") == "assistant"])
+        nar = self.outcome.get("narratives", {}) or {}
+
+        if turn == 0:
+            return nar.get("open", "The leader hears the Mayor out, giving nothing away.")
+        if turn == 1:
+            return nar.get("counter", "The leader weighs the offer in silence, then waits for more.")
+
+        accepted = bool(self.outcome.get("accepted", False))
+        deal = {
+            "accepted": accepted,
+            "mayor_terms": self.outcome.get("mayor_terms", []) if accepted else [],
+            "faction_terms": self.outcome.get("faction_terms", []) if accepted else [],
+            "rep_cost_if_broken_by_mayor": int(self.outcome.get("rep_cost_if_broken_by_mayor", 20)),
+            "memory_note": self.outcome.get("memory_note", "operator-set audience outcome"),
+            "reasoning": self.outcome.get("reasoning", "override: operator-supplied outcome"),
+        }
+        narrative = nar.get("conclude",
+                            "The leader gives their answer." if accepted
+                            else "The leader declines, for now.")
+        return f"{narrative}\n<deal>\n{json.dumps(deal, indent=2)}\n</deal>"

@@ -72,11 +72,14 @@ output. Steps 1 and 3 return supplied or placeholder narrative.
 
 ### Slices
 
-- **Slice 1 — provider + programmatic supply.** The `override` provider/client and a way to set the
-  scripted outcome. Delivers deterministic automated tests and agent-driven audience testing over
-  the API. (Engine/test layer; no normal-player surface.)
+- **Slice 1 — provider + programmatic supply. SHIPPED 2026-06-22.** The `override` provider/client
+  (`OverrideLLMClient`) and the transient `LLMConfig.override` carrier. Deterministic, no network;
+  synthesises the conclude `<deal>` from the supplied outcome. (Engine/test layer; no normal-player
+  surface.) An **accepted** outcome must supply **both** `mayor_terms` and `faction_terms` — the
+  parser's fair-exchange rule rejects a one-sided deal, same as for a real model.
 - **Slice 2 — dev-mode UI control.** An audience-modal "choose outcome" panel for a human GM,
-  behind the dev/test gate.
+  behind the dev/test gate. Includes wiring the override outcome through the live audience API + the
+  active-AI gate (`_get_llm_config`), so a dev session can hold an override audience end-to-end.
 
 ---
 
