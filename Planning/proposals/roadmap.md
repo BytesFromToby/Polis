@@ -89,6 +89,15 @@ difficulty, achievements, and progression all being meaningful.
   (Llama 3.1 8B), embed later. Nothing is wasted — the embedded runtime is a swap-in under the
   existing `LLMConfig` abstraction. *Decision recorded 2026-06-21: skip the preset build for now;
   current BYO-LLM path works.*
+- **Local-LLM keep-alive option (settings, QoL).** Let the player keep the Ollama model resident
+  to avoid the multi-second cold reload on intermittent audience calls (see memory: `keep_alive`).
+  Constraints (per request 2026-06-22): a **settings option, off by default**, settable **5–60
+  minutes** only — **never `-1`/indefinite** (the worry is the model lingering in VRAM/RAM after the
+  game is quit; a bounded TTL auto-frees). Implementation note: Polis calls Ollama via the
+  OpenAI-compat `/v1` endpoint, which doesn't take `keep_alive` per request — so this likely needs
+  Polis to send `keep_alive` on Ollama's native `/api/chat`, or pass it as an extra body param, not
+  just the env var (the env var is global + persists beyond the app, which is exactly what we're
+  avoiding). Don't implement yet.
 
 ---
 
