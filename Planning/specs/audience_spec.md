@@ -111,14 +111,13 @@ Exactly one of the following, repeated every turn for N cycles (N = 1–10):
 | `committed_action` · `BuildProject` | The faction works to build **its own domain's** base project (named in the prompt) | its domain id |
 | `committed_action` · `Toil` | The faction works its trade, boosting its supply-chain output each committed cycle (offered **only** to factions with a chain role — see `actions_spec.md`) | none |
 | `committed_action` · `Rally` | The faction publicly champions the Mayor each committed cycle, raising the Public's support (the Rally action — see `actions_spec.md`); any faction may be asked for this | none |
-| `committed_abstain` | The faction refrains from Harm or Steal against one named faction | a faction |
+| `committed_abstain` · Harm/Steal | The faction refrains from Harm or Steal against one named faction | a faction |
+| `committed_abstain` · `Agitate` | The faction stops turning the people against the Mayor (won't take the Agitate action — see `actions_spec.md`) | none |
 
-**Targeting is per-action.** Only `BuildProject` (target = the faction's own domain id) and `committed_abstain`
-(target = a faction) take a target. `Grow`, `Protect`, `Toil`, and `Rally` are untargeted; any `target_id`
-supplied for them is dropped by the parser.
-
-*Not yet a term:* `committed_abstain` · `Agitate` ("cease turning the people against me") — a planned
-follow-up; needs targetless-abstain handling in the behavior engine (see `proposals/faction-influence.md`).
+**Targeting is per-action.** `BuildProject` (target = the faction's own domain id) and a Harm/Steal
+`committed_abstain` (target = a faction) take a target. `Grow`, `Protect`, `Toil`, `Rally`, and an
+`Agitate` abstain are untargeted. A **targetless** `committed_abstain` zeroes that action's weight
+outright; a **targeted** one excludes only the named faction from that action.
 
 **The Public needs line (public-needs, 2026-06-12).** The audience system prompt's city-state
 section includes one line built from the Public's band words and flags

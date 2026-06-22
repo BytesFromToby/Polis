@@ -81,7 +81,8 @@ VALID_FACTION_TERMS_TEMPLATE = """What you can commit to (one commitment, every 
 - Protect — raise your defenses; you take less Harm from ALL rivals; no target
 - Rally — have your faction publicly champion the {title} before the people, raising their support; no target
 - BuildProject — work to build {project_name} ({project_desc}); target it by your domain id below{toil_term}
-- Refrain from Harm or Steal against one named faction"""
+- Refrain from Harm or Steal against one named faction
+- Cease agitating — stop turning the people against the {title}; no target"""
 
 # Offered only to factions with a supply-chain role (public-needs_spec / audience_spec v5.1).
 TOIL_TERM_LINE = ("\n- Toil — work your trade; the city's supply from your hands rises this "
@@ -134,6 +135,7 @@ Each entry in "mayor_terms" and "faction_terms" MUST be a JSON object — never 
   - {{"type": "committed_action", "action": "Rally", "duration": <1-10>}}
   - {{"type": "committed_action", "action": "BuildProject", "target_id": "{domain}", "duration": <1-10>}}{toil_schema_line}
   - {{"type": "committed_abstain", "action": "Harm" | "Steal", "target_id": "<a faction id>", "duration": <1-10>}}
+  - {{"type": "committed_abstain", "action": "Agitate", "duration": <1-10>}}
 
 If you accept, "faction_terms" must contain at least one object stating what you commit to in return — an accepted deal where you give nothing will be rejected.
 If no deal is reached set "accepted": false and leave term arrays empty.

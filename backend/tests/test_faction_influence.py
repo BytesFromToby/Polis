@@ -145,3 +145,32 @@ class TestRallyDealTerm:
         run_cycle(WorldState(chaos={}), factions, {}, mayor=mayor, public=ThePublic(support=0),
                   balance=NORMAL)
         assert mayor.get_reputation("the_public") > 0
+
+
+class TestAgitateAbstainDealTerm:
+    def test_abstain_zeros_agitate_weight(self, monkeypatch):
+        # A hostile faction would normally reach for Agitate; a targetless abstain zeroes it.
+        f = mk_faction("a")
+        f.committed_abstain_action = "Agitate"   # no target → whole-action abstain
+        mayor = Mayor(); mayor.set_reputation("a", behavior.AGITATE_THRESHOLD - 20)  # very hostile
+        w = captured_weights(f, {"a": f}, mayor=mayor, monkeypatch=monkeypatch)
+        assert w["Agitate"] == 0.0
+
+    def test_targeted_abstain_leaves_other_weights_alone(self, monkeypatch):
+        # A *targeted* abstain (Harm vs a faction) must NOT zero the whole action.
+        f = mk_faction("a")
+        f.committed_abstain_action = "Harm"
+        f.committed_abstain_target = "b"
+        mayor = Mayor(); mayor.set_reputation("a", behavior.AGITATE_THRESHOLD - 20)
+        w = captured_weights(f, {"a": f}, mayor=mayor, monkeypatch=monkeypatch)
+        assert w.get("Harm", 0.0) > 0.0   # whole-action Harm untouched (target handled in selection)
+
+    def test_parser_accepts_agitate_abstain(self):
+        from engine.llm.response_parser import ResponseParser
+        text = ('<deal>{"accepted": true, "mayor_terms": [{"type": "endorsement"}], '
+                '"faction_terms": [{"type": "committed_abstain", "action": "Agitate", "duration": 3}], '
+                '"rep_cost_if_broken_by_mayor": 10, "memory_note": "truce", "reasoning": "ok"}</deal>')
+        parsed = ResponseParser().parse(text, mk_faction("a"), Mayor())
+        assert parsed.parse_error == ""
+        assert any(t.type == "committed_abstain" and t.action == "Agitate"
+                   for t in parsed.faction_terms)

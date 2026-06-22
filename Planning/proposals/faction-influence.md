@@ -80,6 +80,11 @@ currency.
 - **Deal term in the same slice or a follow-up?** The hook is high value and cheap given
   committed_action/abstain exist, but it can ship a slice later if the core action is wanted first.
 
+> **Status (2026-06-21):** SHIPPED. Core Rally/Agitate actions, plus both deal terms —
+> `committed_action: "Rally"` ("publicly endorse me") and `committed_abstain: "Agitate"` ("cease
+> agitating"). See `decisions/2026-06-21-faction-influence.md`, `-rally-deal-term.md`,
+> `-agitate-abstain-term.md`.
+
 ## Spec Impact *(rough — finalize when scheduled)*
 
 - **Changed:** `faction-behavior_spec.md` (the new action + its weight logic and stance threshold);

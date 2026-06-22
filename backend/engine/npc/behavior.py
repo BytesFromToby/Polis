@@ -246,6 +246,11 @@ def select_faction_action(
     else:
         weights.pop("SabotageProject", None)
 
+    # Targetless committed_abstain (e.g. "cease agitating") — zero that action's weight outright.
+    # A *targeted* abstain (Harm/Steal vs a named faction) is handled in target selection below.
+    if faction.committed_abstain_action and not faction.committed_abstain_target:
+        weights[faction.committed_abstain_action] = 0.0
+
     # ── Step 4: Select action ─────────────────────────────────────────────────
     if random.random() < SKIP_CHANCE:
         return FactionPlan(faction.id, "Skip", domain=faction.domain_primary)
