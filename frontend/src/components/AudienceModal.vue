@@ -194,6 +194,25 @@
       </div>
 
       <div v-if="phase === 'await-closing'" class="input-area">
+        <!-- Dev override: choose the outcome instead of letting the model decide -->
+        <div v-if="overrideEnabled" class="override-panel">
+          <div class="confirm-label">Dev override — choose the outcome</div>
+          <div class="override-row">
+            <label><input type="radio" :value="true" v-model="ovAccept" /> Accept</label>
+            <label><input type="radio" :value="false" v-model="ovAccept" /> Reject</label>
+          </div>
+          <div v-if="ovAccept" class="override-row">
+            <select v-model="ovTerm">
+              <option value="Rally">Rally — publicly back you</option>
+              <option value="Grow">Grow</option>
+              <option value="Protect">Protect</option>
+              <option value="Toil">Toil</option>
+              <option value="Agitate">Cease agitating (abstain)</option>
+            </select>
+            <label>for <input type="number" v-model.number="ovDuration" min="1" max="10" style="width:3.2rem" /> cy</label>
+            <label><input type="checkbox" v-model="ovEndorse" /> Mayor: endorsement</label>
+          </div>
+        </div>
         <textarea v-model="inputText" rows="3"
                   placeholder="Your closing position — final offer or last words before they decide…"
                   @keydown.enter.ctrl="submitClosing" />
@@ -203,7 +222,10 @@
         </div>
       </div>
 
-      <div v-if="phase === 'idle'" style="display:flex; justify-content:flex-end; margin-top:0.75rem">
+      <div v-if="phase === 'idle'" class="idle-actions">
+        <label v-if="devMode" class="override-toggle">
+          <input type="checkbox" v-model="overrideEnabled" /> Override outcome (dev)
+        </label>
         <button class="btn-primary" @click="begin">Begin Audience →</button>
       </div>
 
@@ -260,9 +282,18 @@ export default {
       finalState: '',          // '' | 'faction_declined' | 'mayor_declined' | 'sealed'
       finalizeBusy: false,
       debugLog: [],            // [{ label, system, messages, raw_response }]
+      // Dev-only OverrideLLM audience (override-llm_spec)
+      overrideEnabled: false,
+      ovAccept: true,
+      ovTerm: 'Rally',
+      ovDuration: 3,
+      ovEndorse: true,
     }
   },
   computed: {
+    devMode() {
+      return !!store.devMode
+    },
     factionName() {
       return this.faction?.name || this.faction?.id || 'Faction'
     },
@@ -332,6 +363,22 @@ export default {
     requestJson(d) {
       return JSON.stringify({ system: d.system, messages: d.messages }, null, 2)
     },
+    buildOverrideOutcome() {
+      // null unless this is a dev override audience — then synthesise the chosen deal.
+      if (!this.overrideEnabled) return null
+      const faction_terms = []
+      if (this.ovAccept) {
+        faction_terms.push(this.ovTerm === 'Agitate'
+          ? { type: 'committed_abstain', action: 'Agitate', duration: this.ovDuration }
+          : { type: 'committed_action', action: this.ovTerm, duration: this.ovDuration })
+      }
+      return {
+        accepted: this.ovAccept,
+        mayor_terms: this.ovAccept && this.ovEndorse ? [{ type: 'endorsement' }] : [],
+        faction_terms,
+        memory_note: 'dev override outcome',
+      }
+    },
     termLabel(t) {
       let s = t.type
       if (t.action) s += ` ${t.action}`
@@ -343,7 +390,7 @@ export default {
       this.fatalError = ''
       this.phase = 'loading-step1'
       try {
-        const res = await mayorApi.audienceBegin(store.userId, this.faction.id)
+        const res = await mayorApi.audienceBegin(store.userId, this.faction.id, this.overrideEnabled)
         this.pushDebug('Step 1 — faction opens', res.debug)
         this.step1 = res.step1_narrative
         this.step = 1
@@ -382,7 +429,7 @@ export default {
       this.phase = 'loading-step5'
       this.$nextTick(() => this.scrollDown())
       try {
-        const res = await mayorApi.audienceConclude(store.userId, this.mayorClosing)
+        const res = await mayorApi.audienceConclude(store.userId, this.mayorClosing, this.buildOverrideOutcome())
         this.pushDebug('Step 5 — faction concludes', res.debug)
         this.step5 = res.step5_narrative
         this.result = res
@@ -585,6 +632,19 @@ export default {
   margin-top: 0.35rem;
 }
 .hint { font-size: 0.72rem; }
+
+/* Dev override controls */
+.idle-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; }
+.override-toggle { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 0.3rem; cursor: pointer; }
+.override-panel {
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius, 6px);
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 0.5rem;
+  background: rgba(116, 182, 164, 0.05);
+}
+.override-row { display: flex; gap: 0.85rem; align-items: center; flex-wrap: wrap; font-size: 0.8rem; margin-top: 0.35rem; }
+.override-row select { padding: 0.2rem 0.3rem; font-size: 0.8rem; background: var(--surface); border: 1px solid var(--border); color: var(--text); }
 
 /* Debug controls */
 .debug-controls {

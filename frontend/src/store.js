@@ -15,6 +15,7 @@ export const store = reactive({
   simStatus: null,   // { run_id, current_cycle, status }
   snapshot: null,    // { world, factions, units, domains }
   logs: [],
+  devMode: false,    // server POLIS_DEV_MODE — enables dev tools (e.g. override audiences)
 
   setUser(userId, username) {
     this.userId = userId

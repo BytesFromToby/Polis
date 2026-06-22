@@ -395,10 +395,20 @@ def audience_begin(
     mayor = session.mayor
     factions = session.factions or {}
 
+    # Dev-only OverrideLLM audience (override-llm_spec): hold the audience with the deterministic
+    # override provider, bypassing the profile gate. Only when POLIS_DEV_MODE is on.
+    from api.sessions import dev_mode
+    use_override = bool(req.override) and dev_mode()
+    if use_override:
+        from engine.llm.client import LLMConfig
+        cfg = LLMConfig(provider="override")
+    else:
+        cfg = _get_llm_config(session, db)
+
     # Active-AI requirement (audience_spec v5): an audience needs a valid active AI.
     # _get_llm_config returns None when llm_profile_id is unset or does not resolve to
-    # an existing profile. Reject before any AP is spent.
-    if _get_llm_config(session, db) is None:
+    # an existing profile. Reject before any AP is spent. (Override supplies its own config.)
+    if cfg is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No active AI is set for this game. Set an AI to hold audiences.",
@@ -426,7 +436,7 @@ def audience_begin(
             db=db, factions=factions, domains=session.domains or {},
             city_description=_get_city_description(session, db),
             city_name=city_name, player_name=player_name, player_title=player_title,
-            llm_config=_get_llm_config(session, db),
+            llm_config=cfg,
             public=session.public, chains=_CHAINS,
         )
     except AudienceError as exc:
@@ -487,6 +497,14 @@ def audience_conclude(
     faction = (session.factions or {}).get(faction_id)
     if faction is None:
         raise HTTPException(status_code=404, detail=f"Faction {faction_id} not found")
+
+    # Dev-only: inject the operator's chosen outcome into the override config so the conclusion
+    # synthesises that exact <deal> (override-llm_spec).
+    from api.sessions import dev_mode
+    cfg = state.get("llm_config")
+    if (req.override_outcome is not None and dev_mode()
+            and cfg is not None and getattr(cfg, "provider", "") == "override"):
+        cfg.override = req.override_outcome
 
     from engine.llm.audiences import conclude_audience_step, AudienceError, _term_to_dict
     try:

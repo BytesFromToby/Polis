@@ -8,10 +8,17 @@ On server restart, an active run is restored from its latest cycle snapshot
 when the user next hits a sim or state endpoint.
 """
 from __future__ import annotations
+import os
 from dataclasses import dataclass
 from typing import Dict, Optional
 
 from fastapi import HTTPException, status
+
+
+def dev_mode() -> bool:
+    """True when developer/test features (e.g. the OverrideLLM audience) are enabled.
+    Gated by the POLIS_DEV_MODE env var so it is never on for normal players."""
+    return bool(os.environ.get("POLIS_DEV_MODE"))
 
 from engine.models import WorldState, Faction, Domain, Mayor, Treasury, Project, BaseProjectStack, ThePublic
 

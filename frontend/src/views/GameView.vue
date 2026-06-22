@@ -339,6 +339,9 @@ export default {
       // An audience requires a valid active AI on the run (audience_spec v5).
       return !!this.llmProfileId
     },
+    devMode() {
+      return !!store.devMode
+    },
     endCauseLabel() {
       return { public_revolt: 'the people rose against you',
                removal_coalition: 'the creditors forced you out',
@@ -449,6 +452,7 @@ export default {
           this.gameOver = true
           this.endCause = status.end_cause || ''
         }
+        store.devMode = !!status.dev_mode
         this.logs = rawLogs
         // Mayor/treasury/projects — don't block if missing
         await Promise.allSettled([
@@ -541,12 +545,13 @@ export default {
       return null
     },
     openAudience(factionId) {
-      // Opens the audience pre-targeted to this faction. Requires an active AI.
-      if (!this.aiSet) { this.showAiWarning = true; return }
+      // Opens the audience pre-targeted to this faction. Requires an active AI —
+      // or dev mode, which can hold a deterministic override audience (override-llm_spec).
+      if (!this.aiSet && !this.devMode) { this.showAiWarning = true; return }
       this.audienceFactionId = factionId
     },
     openStandaloneAudience() {
-      if (!this.aiSet) { this.showAiWarning = true; return }
+      if (!this.aiSet && !this.devMode) { this.showAiWarning = true; return }
       this.showAudiencePicker = true
     },
     pickAudience(factionId) {

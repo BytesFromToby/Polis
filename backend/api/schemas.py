@@ -69,6 +69,7 @@ class SimStatusResponse(BaseModel):
     llm_profile_id: Optional[str] = None
     difficulty: str = "normal"
     end_cause: str = ""           # why a finished run ended (fail-states_spec); "" while running
+    dev_mode: bool = False        # developer features enabled (POLIS_DEV_MODE) — e.g. override audiences
 
 
 class SimStartRequest(BaseModel):
@@ -269,6 +270,7 @@ class AudienceDebug(BaseModel):
 
 class AudienceBeginRequest(BaseModel):
     faction_id: str
+    override: bool = False   # dev-only: hold this audience with the OverrideLLM (override-llm_spec)
 
 
 class AudienceBeginResponse(BaseModel):
@@ -289,6 +291,9 @@ class AudienceReplyResponse(BaseModel):
 
 class AudienceConcludeRequest(BaseModel):
     mayor_closing: str
+    # dev-only: operator-chosen outcome for an override audience (override-llm_spec).
+    # {accepted, mayor_terms, faction_terms, ...} — synthesised into the faction's <deal>.
+    override_outcome: Optional[dict] = None
 
 
 class AudienceConcludeResponse(BaseModel):

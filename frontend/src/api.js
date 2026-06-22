@@ -147,9 +147,9 @@ export const mayor = {
       target_id_2: targetId2,
       cycles,
     }),
-  audienceBegin:    (userId, faction_id)   => post(`/users/${userId}/mayor/audience/begin`,    { faction_id }),
+  audienceBegin:    (userId, faction_id, override = false) => post(`/users/${userId}/mayor/audience/begin`, { faction_id, override }),
   audienceReply:    (userId, mayor_opening) => post(`/users/${userId}/mayor/audience/reply`,    { mayor_opening }),
-  audienceConclude: (userId, mayor_closing) => post(`/users/${userId}/mayor/audience/conclude`, { mayor_closing }),
+  audienceConclude: (userId, mayor_closing, override_outcome = null) => post(`/users/${userId}/mayor/audience/conclude`, { mayor_closing, override_outcome }),
   audienceFinalize: (userId, mayor_accepts) => post(`/users/${userId}/mayor/audience/finalize`, { mayor_accepts }),
 }
 

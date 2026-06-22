@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 
 from api.deps import get_current_user
 from api.schemas import SimStatusResponse, SimStepResponse, SimRunResponse, SimRunDetail, SimPatchRequest, SimStartRequest, SimSetProfileRequest
-from api.sessions import SimSession, get_session, set_session, clear_session, require_session
+from api.sessions import SimSession, get_session, set_session, clear_session, require_session, dev_mode
 from db.models import City, SimRun, CycleSnapshot, NarrativeLog, User
 from db.session import get_db
 from engine.cycle.runner import run_cycle
@@ -499,6 +499,7 @@ def _build_status(run: SimRun, db: Session, user_id: str) -> SimStatusResponse:
         llm_profile_id=run.llm_profile_id,
         difficulty=run.difficulty or "normal",
         end_cause=run.end_cause or "",
+        dev_mode=dev_mode(),
     )
 
 

@@ -77,9 +77,14 @@ output. Steps 1 and 3 return supplied or placeholder narrative.
   synthesises the conclude `<deal>` from the supplied outcome. (Engine/test layer; no normal-player
   surface.) An **accepted** outcome must supply **both** `mayor_terms` and `faction_terms` — the
   parser's fair-exchange rule rejects a one-sided deal, same as for a real model.
-- **Slice 2 — dev-mode UI control.** An audience-modal "choose outcome" panel for a human GM,
-  behind the dev/test gate. Includes wiring the override outcome through the live audience API + the
-  active-AI gate (`_get_llm_config`), so a dev session can hold an override audience end-to-end.
+- **Slice 2 — dev-mode UI control + live API. SHIPPED 2026-06-22.** Gated by the `POLIS_DEV_MODE`
+  env var (surfaced as `SimStatusResponse.dev_mode`). `/audience/begin` takes `override: bool` —
+  when dev mode is on it holds the audience with an override `LLMConfig`, bypassing the profile
+  active-AI gate; `/audience/conclude` takes `override_outcome: dict`, injected into the override
+  config so the conclusion synthesises that exact `<deal>`. `AudienceModal` shows an "Override
+  outcome (dev)" toggle and an accept/reject + term/duration/endorsement chooser; GameView lets the
+  audience open in dev mode even on a stub run. Verified end-to-end in the browser (Deal Sealed with
+  the chosen Rally↔endorsement terms).
 
 ---
 
@@ -106,14 +111,19 @@ output. Steps 1 and 3 return supplied or placeholder narrative.
   `Rally` commitment sets `faction.committed_action == "Rally"` — `tests/test_override_llm.py`  `[automated]`
 
 **Slice 2**
-- In dev/test mode the audience modal exposes an outcome chooser; picking *accept* + a term and
-  concluding produces that exact deal in-game  `[human-required]`
-- The chooser is absent in normal (non-dev) mode  `[human-required]`
+- With `POLIS_DEV_MODE` set, `/audience/begin` with `override=True` holds the audience using an
+  override config even with no profile (1 AP spent, step-1 returned); without dev mode it is
+  rejected by the normal active-AI gate — `tests/test_override_audience.py`  `[automated]`
+- `/audience/conclude` with `override_outcome` produces exactly that deal (accept → proposed terms;
+  reject → terminal no-deal) — `tests/test_override_audience.py`  `[automated]`
+- In dev mode the audience modal exposes the outcome chooser and the audience opens on a stub run;
+  the chooser is absent in normal mode  `[human-required]` (verified live 2026-06-22)
 
 ## Tests
 
 - `tests/test_override_llm.py` — provider routing + no-network, outcome → parseable deal, reject
   path, active-AI gate, effect application (incl. a Rally/Agitate term).
+- `tests/test_override_audience.py` — dev-mode gating + the live begin/conclude/finalize route path.
 
 ## File Structure
 
