@@ -42,10 +42,13 @@ def election_approval(
 
 
 def cycles_until_election(cycle: int, balance=_BAL) -> int:
-    """Cycles remaining until the next election; 0 means an election is held this cycle."""
+    """Cycles remaining until the next election; 0 means an election is held this cycle.
+    At cycle 0 (a fresh run) no election is held — the first is a full interval away."""
     interval = balance.election_interval
     if interval <= 0:
         return 0
+    if cycle <= 0:
+        return interval
     return (interval - cycle % interval) % interval
 
 

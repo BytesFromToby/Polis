@@ -48,6 +48,7 @@ def test_approval_rank_weighting():
 # ── Cadence ──────────────────────────────────────────────────────────────────────
 
 def test_cadence_modular():
+    assert cycles_until_election(0, NORMAL) == NORMAL.election_interval  # fresh run — none at c0
     assert cycles_until_election(12, NORMAL) == 0     # election cycle
     assert cycles_until_election(10, NORMAL) == 2
     assert cycles_until_election(8, NORMAL) == 4
