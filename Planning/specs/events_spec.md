@@ -85,12 +85,43 @@ Random events are drawn from the city's event deck — a curated list of events 
 
 Scripted events are pre-written sequences loaded from city data. They fire at defined conditions or cycle counts. They create a narrative arc — the city has a history that plays out regardless of what the Mayor does (but the Mayor's actions can mitigate or accelerate outcomes).
 
-Scripted events are defined in `data/events.json` per city.
+Scripted events are defined in `data/events.json` (a `type: "scripted"` entry in the same deck)
+and are checked each cycle by `check_scripted_events`, **wired into the cycle runner alongside the
+random roll** (2026-07-09). A scripted event whose `id` is already in the active list is skipped,
+so a multi-cycle or level-triggered event never stacks duplicate copies of itself.
 
-Example conditions for scripted events:
-- `cycle >= 10` and `any faction.rating >= 4.0` → power struggle event fires
-- `treasury.gold < 100` → financial crisis warning fires
-- `faction X collapsed` → succession crisis fires in that domain
+`trigger_conditions` for scripted events:
+
+| Key | Kind | Meaning |
+|---|---|---|
+| `at_cycle: N` | edge (fires once) | the cycle number equals `N` |
+| `every_n_cycles: N` | edge (fires each time) | a positive multiple of `N` (10, 20, 30 …); never cycle 0 |
+| `min_cycle: N` | level (fires every cycle ≥ N) | `world.cycle >= N` — pair with a duration/dedup so it doesn't re-fire endlessly |
+| `max_gold: G` | level | `treasury.gold < G` |
+| `min_faction_rating: R` | level | any faction at `rating >= R` |
+
+The **`at_cycle` / `every_n_cycles`** triggers are edge-triggered — true on exactly one cycle each
+time — so they fire cleanly without needing dedup. They are the scheduling primitive behind the
+**placeholder events** (below) and any future timed narrative beat.
+
+### Placeholder events (UI-testing, 2026-07-09)
+
+The shipped deck is otherwise all `random` + condition-gated, so a calm city can go many cycles
+with no event — which makes the event UI hard to build against. A small set of **placeholder
+scripted events** (`placeholder_*` ids in `data/events.json`) fire on a fixed schedule
+(`at_cycle` / `every_n_cycles`) with **no effects by design** — their only job is to guarantee the
+UI (the Living Pottery procession band) always has visible beats to render. They carry a
+`_comment` marking them for replacement when events-as-crisis is built with real effects.
+
+**Done when (scheduled triggers + scripted wiring, 2026-07-09):**
+- `at_cycle: N` makes a scripted template eligible on exactly the cycle `world.cycle == N` and no
+  other cycle  `[automated]`
+- `every_n_cycles: N` makes a template eligible on each positive multiple of `N` and never on
+  cycle 0 or a non-multiple  `[automated]`
+- `check_scripted_events` is called by the cycle runner each cycle, and a scripted event whose
+  `id` is already active is not added again (no duplicate stacking)  `[automated]`
+- The `placeholder_*` events carry no effects: an active placeholder event changes no faction,
+  Public, or world field as it counts down  `[automated]`
 
 ### Mayor-Triggered Events
 

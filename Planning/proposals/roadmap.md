@@ -1,126 +1,152 @@
 # Roadmap — Future Features
 
-**Date:** 2026-06-21
+**Date:** 2026-06-21 · **Updated:** 2026-07-09 — the spine shipped; re-centered on UI.
 **Status:** PLANNING — a map of forward work, not a commitment. Each entry links to its
 detailed proposal (or flags that one is still needed). Re-prioritize freely.
 
 ## How to read this
 
-This is the index of where Polis is going and *why each item earns its place*. The organizing
-idea: most of the backlog is **depth** (more simulation) and **polish** (better feel), but the
-load-bearing gap is **stakes** — a run can't be won, lost, or finished. Depth and polish on a
-sandbox that can't end is decoration. So the spine is: **make it a game → make it deep → make it
-pretty.**
+This is the index of where Polis is going and *why each item earns its place*. The original
+organizing idea was **make it a game → make it deep → make it pretty** — depth and polish on a
+sandbox that can't end is decoration, so stakes came first.
+
+**That spine is now built** (see below). A run can be won, lost, and finished. So the axis has
+turned: the load-bearing gap is no longer stakes, it's **feel** — the engine produces the most
+dramatic content in the game (clashes, strikes, collapses, removals) and renders it as log lines.
+So the near-term order is **make it visible → make it pretty → then make it deeper.**
 
 Detailed designs live in sibling proposals; this doc decides *order and leverage*, not mechanics.
 
 ---
 
-## The spine (do these first — they unlock the rest)
+## ✅ Shipped — the spine (was "do these first")
 
-### 0. Balance extraction (prerequisite, not a feature)
-Pull the difficulty/feel dials into one source of truth (`engine/balance.py`) with named
-**profiles** (easy / normal / hard) layered over a base set — the same pattern as LLM profiles.
-Store the chosen difficulty on `SimRun` (mirrors `llm_profile_id`).
+Everything the 2026-06-21 spine called for is done, each a full Plumbline run with independent
+inspector PASS. Kept here as the record of what the rest now builds on.
 
-- **Why first:** every stakes threshold below (population floor, election cadence, assassination
-  trigger) is a dial. Centralize before they get hardcoded across five modules; the constant set
-  only grows as Events / Weather / Projects land.
-- **Discriminator for what to extract:** "Would I ever change this to retune the game?" Yes →
-  central dial (`DRIFT_STEP`, `POP_GROWTH`, `UNREST_EASE`, `POP_MIN`, support deltas, election N).
-  No → leave it (`RATING_MAX`, the d20, term-type maps).
-- **Do it as a pure refactor first:** `normal` = today's exact numbers, all tests green, behavior
-  unchanged. Prove the plumbing without touching the game, *then* add easy/hard and tune.
-- **"Self-balancing" = super-easy mode** becomes ~one override block, not a second codebase.
-- For-sale upside: clean data profiles make **moddable / custom difficulty** nearly free later.
-- *Spec needed:* `balance_spec.md` (dial inventory, profile structure, `SimRun.difficulty` wiring).
-
-### 1. Endgame / fail states — **the missing major feature**
-A run cannot end. There is already a half-built failure spiral (low Public support →
-`RemovalRisk`; debt > 800 → removal coalition) but **it has no teeth** — it emits narrative and
-the game continues. See [endgame.md](endgame.md) for the full design: one terminal
-"Mayor loses office" resolution fed by multiple triggers (population collapse, election verdict,
-assassination/coup). This is what turns a sandbox into a game and is the precondition for
-difficulty, achievements, and progression all being meaningful.
-- Builds on the unbuilt [elections-and-titles](elections-and-titles.md) (the election trigger in detail).
+- **Balance extraction** — dials + easy/normal/hard profiles in `engine/balance.py`, threaded
+  through the cycle (`balance_spec.md`).
+- **Endgame / fail-states** — terminal Mayor removal, population collapse + latched warning,
+  recurring election verdict, assassination/coup risk (`fail-states_spec.md`, `endgame.md`).
+- **Elections + title ladder** — the recurring verdict and the climb/demote-with-floor score
+  (`elections_spec.md`).
+- **Faction influence** — Rally / Agitate sway Public opinion of the Mayor, both authorable as
+  deal terms in an audience (`faction-influence.md`).
+- **Resource chains — the full food layer** — barley + **fish** + **flocks**, three sources with
+  redundancy (one out → Hungry, all out → Starving); 6 of 7 Public scales live
+  (`food-supply_spec.md`, `public-needs_spec.md`). *Food is complete — the next resource work is a
+  new chain type (Goods/wool), an optional bet, not a continuation.*
+- **OverrideLLM** — deterministic choose-the-outcome provider for testing/GM.
 
 ---
 
-## Depth (the simulation) — after stakes exist
+## ▶ Now — make it visible, then pretty
+
+### 1. Placeholder scheduled events (small — the UI-testing enabler, do first)
+The event deck is currently **all `random`** and gated on chaos / Public bands, so on a calm test
+city events may never fire — which is why they feel invisible and why the UI can't be built
+against them reliably. This step is *not* the real events-as-crisis work (that's in Next); it just
+gives the UI dependable beats to render.
+
+- **Add a scheduled trigger** to the scripted path in `engine/events/event_system.py`:
+  `at_cycle: N` (fire once) and `every_n_cycles: N` (recurring). Confirm the scripted deck is
+  actually wired into the cycle runner.
+- **Author a tiny scheduled deck** — a few clearly-named placeholder events (e.g. a cycle-4
+  "honeymoon over", an "admirer" every 10 cycles, one scripted disaster) so the procession band
+  always has something to show. *Effects can be no-op for now* — visibility is the whole point;
+  real effects land when events-as-crisis is built.
+
+### 2. UI update — Living Pottery (the big near-term block)
+Render the game's actors and events in the Geometric-pottery style itself — flat two-ink SVG
+figures that scale, move, and wear. Full design in [ui-living-pottery.md](ui-living-pottery.md);
+tokens/grammar already adopted in `reference/ui-art-direction.md`. Follow its build order, each
+step independently shippable:
+
+1. **Token reskin** — pottery palette into `frontend/src/style.css`.
+2. **Part kit + generator playground** — all 28 factions from real JSON on a dev page; the cheap
+   go/no-go gate on silhouette readability *before* any real UI wiring.
+3. **FactionVessel** into the existing faction cards — first payoff, no layout change.
+4. **Structured event emission** (the one backend touchpoint — additive event objects alongside
+   the narrative strings) → **ProcessionBand** (hover-expand, pull-text, click-to-focus). *This is
+   where the placeholder events from step 1 pay off — they're the beats the band renders.*
+5. **Cracks / staples** — deal-break scars as permanent surface wear; ships whenever.
+
+Promote via a Spec Impact pass (architect) when scheduled: `game-ui_spec.md` sections + the
+structured-event contract in `events_spec.md` / `cycle-runner_spec.md`.
+
+---
+
+## ⏭ Next — depth, on a stakes-bearing, pretty base
 
 | Feature | Leverage | Notes |
 |---------|----------|-------|
-| **More dynamic audiences** | **High — this is the USP.** | The emergent LLM negotiation is what no other city-sim has. Highest-value form = **inter-faction politics**: factions react to *each other's* deals, alliances, rivalries. That's where political stories come from. |
-| **Events** | High, half-built | Best framed as **crisis generators** that feed the failure spirals (see [crisis-and-stance](crisis-and-stance.md)), not random flavor. Needs the **latched-event subtype** (see endgame.md) — reusable by Weather too. |
-| **Weather** (cycle = 1 month) | Medium — only if it *drives* | Worth it only as a driver of the resource chains (harvest variance → food crises) and a crisis input. As cosmetic seasons it's a trap. Fold into Events / [resource-chains](resource-chains.md); don't build standalone. |
-| **Projects** (more) | Medium, low-risk | Mechanically understood, lower risk. Good "between big features" work. See [projects-rework](projects-rework.md). |
-| **Resource chains** (full) | In flight | v1 shipped (barley); next slice = fish. Continue per [resource-chains](resource-chains.md). Gives the city a body for crises to wound. |
+| **Inter-faction politics / dynamic audiences** | **High — the USP.** | Factions react to *each other's* deals, alliances, rivalries — where political stories come from. The differentiator worth showing off in the new UI. |
+| **Events as crisis generators** | High | The real version of step 1 above: events that *feed the failure spirals* (see [crisis-and-stance](crisis-and-stance.md)), plus the reputation-touching effect field the placeholders skipped. |
+| **Stance layer** | Medium–High | Bounded post-audience / post-crisis LLM calls writing durable in-character state (`crisis-and-stance.md`); the chosen middle path between scripted and LLM-decides-everything. |
+| **Projects (more)** | Medium, low-risk | Mechanically understood; good "between big features" work ([projects-rework](projects-rework.md)). |
+| **Weather** | Medium — only if it *drives* | Worth it only as a driver of the resource chains (harvest variance → food crises) and a crisis input. Cosmetic seasons are a trap — fold into Events / resource-chains. |
+| **Goods chain (wool)** | Optional | The next resource *type* now that food is complete; a new bet, not a continuation. |
+
+**Progression / difficulty / achievements** ride along here: title-ladder progression is felt in
+the audience prompt (built); difficulty falls out of the shipped balance profiles + fail-states;
+achievements stay **deferred** until there are goals worth achieving against.
 
 ---
 
-## Progression & motivation — depend on stakes
+## 🔭 Later — the stretch (mostly post-UI)
 
-| Feature | Verdict |
-|---------|---------|
-| **Mayor progression** | Needs a span to progress *across* — i.e. the election/term structure. Largely the **title ladder** in [elections-and-titles](elections-and-titles.md): titles thread into the audience prompt so advancement is *felt in conversation*, not cosmetic. Build with elections. |
-| **Difficulty levels** | Falls out of **balance profiles (item 0)** + **fail states (item 1)**. "Harder numbers" on a sandbox that can't be lost is just tedious — difficulty is meaningless until a run can fail. |
-| **Achievements** | **Defer.** Meaningless without goals to achieve against. Revisit after endgame + titles exist. |
+Captured from the Fable brainstorm (`../Ideas From Fable.md`) — deliberately over the horizon,
+not scoped. Highest-leverage bets flagged.
 
----
+- **The deception experiment (Banana × Polis)** — instrument the stance layer's betray-intent;
+  measure whether models defect more when defection pays. Fuses the two flagship projects into one
+  research story; runs on hardware already owned. *(Highest wow-per-effort of the stretch set.)*
+- **Polis as an MCP server** — expose the Mayor's seat over MCP; any agent can try to govern. Thin
+  wrapper over the existing API; maximally 2026-shaped demo.
+- **PolisBench** — a negotiation benchmark off the deterministic economy + parser (deal-close rate,
+  term validity, breach rate over N cycles).
+- **The Oracle** — fork the snapshot, run it forward headless, speak the real trajectory as Delphic
+  verse. Only honest because the engine is deterministic.
+- **The unreliable Chronicle** — end-of-run history written from the winning coalition's view; an
+  inherently shareable artifact.
+- **Alternate skins** — the engine is a politics engine wearing a toga (boardroom, mafia, station,
+  HOA…). Ship one skin and Polis becomes "the engine," not "a game."
+- Plus: soft-promise parsing, rumor graph, ostracism, stasis/civil-war mode, multi-party audience,
+  the Persian envoy, voice audiences, dynasty/deep-time.
 
-## Presentation (the feel) — last, on a stable base
-
-| Feature | Notes |
-|---------|-------|
-| **Approval / forecast readout** | **Not polish — a prerequisite for elections.** Without a visible needle, losing a vote feels random instead of "I saw it coming." Build with elections. |
-| **Animations** | Polish; real payoff for a sellable feel. |
-| **City map** | **Rabbit-hole risk.** Only build if it renders *live state* (factions, projects, crises), not a static backdrop. |
-| **Temp sounds** | Lowest priority; easy to add late. |
-
----
-
-## Deferred (not now)
-
-- **Fully-integrated local LLM (embedded runtime).** The plumbing already supports local models
-  via `openai_compat` (Ollama). A turnkey embedded runtime is a *product-packaging* problem
-  (cross-platform binaries, GPU detection, multi-GB model distribution) that only pays off when
-  packaging **for sale** — and only after the cheaper question is answered: *does an 8B local
-  model produce good-enough audiences?* Validate quality first via a documented Ollama preset
-  (Llama 3.1 8B), embed later. Nothing is wasted — the embedded runtime is a swap-in under the
-  existing `LLMConfig` abstraction. *Decision recorded 2026-06-21: skip the preset build for now;
-  current BYO-LLM path works.*
-- **Local-LLM keep-alive option (settings, QoL).** Let the player keep the Ollama model resident
-  to avoid the multi-second cold reload on intermittent audience calls (see memory: `keep_alive`).
-  Constraints (per request 2026-06-22): a **settings option, off by default**, settable **5–60
-  minutes** only — **never `-1`/indefinite** (the worry is the model lingering in VRAM/RAM after the
-  game is quit; a bounded TTL auto-frees). Implementation note: Polis calls Ollama via the
-  OpenAI-compat `/v1` endpoint, which doesn't take `keep_alive` per request — so this likely needs
-  Polis to send `keep_alive` on Ollama's native `/api/chat`, or pass it as an extra body param, not
-  just the env var (the env var is global + persists beyond the app, which is exactly what we're
-  avoiding). Don't implement yet.
+### Deferred (decided, not now)
+- **Embedded local-LLM runtime** — a product-packaging problem; validate 8B audience quality via a
+  documented Ollama preset first. Swap-in under the existing `LLMConfig`; nothing wasted.
+  *(Decision 2026-06-21.)*
+- **Local-LLM keep-alive option (QoL)** — settings toggle, off by default, 5–60 min only, never
+  `-1`. Needs Ollama's native `/api/chat` keep-alive, not the global env var. *(Constraints
+  2026-06-22.)*
 
 ---
 
 ## Suggested sequence
 
-1. **Balance extraction** (refactor; enables every threshold below)
-2. **Endgame spine** — terminal end-state + make existing removal triggers actually end the run
-3. **Population fail + latched warning event** (smallest stakes slice; builds reusable warning pattern)
-4. **Elections + approval readout + title ladder** (the big endgame; Mayor progression rides along)
-5. **Events as crisis generators**, then **inter-faction politics / dynamic audiences** (deepen the USP)
-6. **Projects**, then **UI polish** (depth and feel on a stakes-bearing base)
-7. *Later:* assassination/coup (extends the removal coalition), weather (as a crisis driver),
-   achievements, embedded LLM
+1. **Placeholder scheduled events** — `at_cycle` / `every_n_cycles` trigger + a small no-op deck,
+   so events are reliably visible.
+2. **UI — Living Pottery**, in its own 5-step order (reskin → playground → vessels → structured
+   emission + procession → cracks). The structured-emission step is where the placeholder events
+   become the procession's content.
+3. **Inter-faction politics / dynamic audiences** — deepen the USP on the new visual base.
+4. **Events as crisis generators** (real effects, reputation field) + **stance layer**.
+5. **Projects**, **weather-as-crisis-driver**, optional **Goods chain**.
+6. *Later:* the stretch set — deception experiment, MCP server, PolisBench, and the rest.
 
 ---
 
 ## Cross-references
 
-- [endgame.md](endgame.md) — fail-state framework (the spine's item 1)
-- [elections-and-titles.md](elections-and-titles.md) — the election trigger + title ladder, in detail
-- [crisis-and-stance.md](crisis-and-stance.md) — disasters as crisis generators + bounded LLM stance
+- [ui-living-pottery.md](ui-living-pottery.md) — the UI build (the Now block's item 2)
+- [../Ideas From Fable.md](../Ideas%20From%20Fable.md) — the full brainstorm the stretch set draws from
+- [endgame.md](endgame.md), [elections-and-titles.md](elections-and-titles.md) — the shipped spine, in detail
+- [crisis-and-stance.md](crisis-and-stance.md) — events-as-crisis + the stance layer (Next block)
 - [public-model.md](public-model.md) — the Public subsystem + extreme-crisis events
-- [resource-chains.md](resource-chains.md) — the full resource map (v1 shipped; fish next)
+- [resource-chains.md](resource-chains.md) — the resource map (food complete; Goods/wool next type)
 - [projects-rework.md](projects-rework.md), [city-generation.md](city-generation.md),
   [faction-resource-map.md](faction-resource-map.md), [civic-public-works.md](civic-public-works.md),
   [demo-redesign.md](demo-redesign.md)
+</content>

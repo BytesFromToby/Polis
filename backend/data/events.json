@@ -153,5 +153,45 @@
         {"field": "support", "target_id": "the_public", "value": 5, "label": "the assembly grants an honor"}
       ]
     }
+  },
+
+  {
+    "_comment": "PLACEHOLDER scripted events — fire on a fixed schedule so the UI always has visible event beats to render during the Living Pottery build. No mechanical effect by design; replace with real effects when events-as-crisis is built (see proposals/roadmap.md).",
+    "id": "placeholder_honeymoon_over",
+    "name": "The Honeymoon Is Over",
+    "type": "scripted",
+    "trigger_conditions": {"at_cycle": 4},
+    "template": {
+      "target_type": "world",
+      "target_id": "world",
+      "duration": 2,
+      "effects": []
+    }
+  },
+  {
+    "_comment": "PLACEHOLDER — recurring, every 10 cycles.",
+    "id": "placeholder_an_admirer",
+    "name": "An Admirer in the Assembly",
+    "type": "scripted",
+    "trigger_conditions": {"every_n_cycles": 10},
+    "template": {
+      "target_type": "world",
+      "target_id": "world",
+      "duration": 2,
+      "effects": []
+    }
+  },
+  {
+    "_comment": "PLACEHOLDER — recurring, every 6 cycles; offset from the admirer so beats don't always coincide.",
+    "id": "placeholder_rumor_in_the_agora",
+    "name": "A Rumor in the Agora",
+    "type": "scripted",
+    "trigger_conditions": {"every_n_cycles": 6},
+    "template": {
+      "target_type": "world",
+      "target_id": "world",
+      "duration": 1,
+      "effects": []
+    }
   }
 ]

@@ -212,6 +212,16 @@ def _scripted_conditions_met(
     domains: Dict[str, Domain],
     treasury,
 ) -> bool:
+    # Scheduled triggers (edge-triggered — true on exactly one cycle, so they fire once):
+    #   at_cycle: N        → the cycle number equals N
+    #   every_n_cycles: N  → a positive multiple of N (10, 20, 30 … — never cycle 0)
+    # Contrast min_cycle below, which is level-triggered (true every cycle ≥ N).
+    if "at_cycle" in conds and world.cycle != conds["at_cycle"]:
+        return False
+    if "every_n_cycles" in conds:
+        n = conds["every_n_cycles"]
+        if n <= 0 or world.cycle <= 0 or world.cycle % n != 0:
+            return False
     if "min_cycle" in conds and world.cycle < conds["min_cycle"]:
         return False
     if "max_gold" in conds and treasury and treasury.gold >= conds["max_gold"]:

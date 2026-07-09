@@ -16,7 +16,10 @@ from ..models import (
 )
 from ..formulas import faction_weight, stack_cap_contribution
 from ..balance import NORMAL as _BAL
-from ..events import process_world_chaos, process_active_events, roll_for_random_events
+from ..events import (
+    process_world_chaos, process_active_events, roll_for_random_events,
+    check_scripted_events,
+)
 from .resolution import run_sequential_actions
 from .end_of_cycle import run_end_of_cycle, run_leadership_events, run_break_sweep, tick_deals
 
@@ -179,10 +182,16 @@ def run_cycle(
         if logger and r.dramatic and r.narrative:
             logger.log_dramatic(cycle_num, r.narrative)
 
-    # Roll for new random events (public enables need-gated templates)
+    # Roll for new random events (public enables need-gated templates) + fire scripted events
+    # whose trigger conditions are met this cycle. Scripted uses the same deck (type "scripted").
+    # Dedup by id against currently-active events so a multi-cycle or level-triggered (min_cycle)
+    # scripted event never stacks duplicate copies of itself.
     if event_deck and active_events is not None:
         new_events = roll_for_random_events(world, factions, domains, event_deck, public=public)
         active_events.extend(new_events)
+        scripted = check_scripted_events(world, factions, domains, treasury, event_deck)
+        active_ids = {e.id for e in active_events}
+        active_events.extend(e for e in scripted if e.id not in active_ids)
 
     # ── Step 9: Increment cycle + Mayor end-of-cycle ─────────────────────────
     world.cycle += 1
